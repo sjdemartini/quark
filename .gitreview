@@ -1,0 +1,4 @@
+[gerrit]
+host=tbp.berkeley.edu
+port=29418
+project=quark
