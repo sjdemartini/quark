@@ -5,7 +5,7 @@ import os
 import socket
 import sys
 
-KEY_PATH = "/home/tbp/private"
+KEY_PATH = "/home/pie/private"
 if KEY_PATH not in sys.path:
     sys.path.append(KEY_PATH)
 import quark_keys
@@ -101,7 +101,7 @@ TEMPLATE_LOADERS = (
     'django.template.loaders.app_directories.Loader',
 )
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE_CLASSES = [
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -109,7 +109,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-)
+]
 
 ROOT_URLCONF = 'quark.urls'
 
@@ -122,10 +122,11 @@ TEMPLATE_DIRS = (
 
 # All projects that we write (and thus, need to be tested) should go here.
 PROJECT_APPS = [
+    'quark.base',
 ]
 
 # Third-party apps belong here, since we won't use them for testing.
-INSTALLED_APPS = [
+THIRD_PARTY_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -135,7 +136,10 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.staticfiles',
     'django_jenkins',
-] + PROJECT_APPS
+]
+
+# This is the actual variable that django looks at.
+INSTALLED_APPS = PROJECT_APPS + THIRD_PARTY_APPS
 
 DEFAULT_FROM_EMAIL = 'webmaster@' + HOSTNAME
 
@@ -189,6 +193,9 @@ JENKINS_TASKS = (
     'django_jenkins.tasks.run_pylint',
     'django_jenkins.tasks.with_coverage',
 )
+
+# Valid types are 'semester' and 'quarter'.
+TERM_TYPE = 'semester'
 
 ###############################################################################
 # Import any local settings to override default settings.

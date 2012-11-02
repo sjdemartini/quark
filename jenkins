@@ -1,0 +1,3 @@
+#!/bin/bash
+
+python manage.py jenkins --settings=quark.settings_test --csslint-with-staticdirs --jslint-with-staticdirs --pep8-max-line-length=80
