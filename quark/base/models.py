@@ -117,7 +117,7 @@ class Term(models.Model):
     def verbose_name(self):
         """Returns the verbose name of this object in this form: Fall 2012."""
         # pylint: disable-msg=E1101
-        return "%s %d" % (self.get_term_display(), self.year)
+        return '%s %d' % (self.get_term_display(), self.year)
 
     def get_url_name(self):
         """Returns the serialized version for use in URL params."""
@@ -129,7 +129,7 @@ class Term(models.Model):
     def __unicode__(self):
         name = self.verbose_name()
         if self.current:
-            name += " (Current)"
+            name += ' (Current)'
         return name
 
     def __term_as_int(self):
