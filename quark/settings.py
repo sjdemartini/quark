@@ -178,6 +178,7 @@ PROJECT_APPS = [
     'quark.base',
     'quark.base_pie',
     'quark.qldap',
+    'quark.events',
     'quark.utils',
 ]
 
