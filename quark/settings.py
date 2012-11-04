@@ -29,7 +29,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         # We need this for per-user development databases.
-        'NAME': 'quark_%s' % getpass.getuser(),
+        'NAME': 'quark_dev_%s' % getpass.getuser(),
         'USER': 'quark_dev',
         'PASSWORD': quark_keys.DEV_DB_PASSWORD,
     }
@@ -44,6 +44,10 @@ TIME_ZONE = 'America/Los_Angeles'
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'en-us'
+
+LANGUAGES = [
+    ('en', 'English'),
+]
 
 SITE_ID = 1
 
@@ -60,8 +64,7 @@ USE_TZ = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
-# TODO(wli): figure out MEDIA_ROOT
-MEDIA_ROOT = ''
+MEDIA_ROOT = os.path.join(WORKSPACE_ROOT, 'media')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
@@ -101,16 +104,36 @@ TEMPLATE_LOADERS = (
     'django.template.loaders.app_directories.Loader',
 )
 
-MIDDLEWARE_CLASSES = [
+# This is for django-cms
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.contrib.auth.context_processors.auth',
+    'django.core.context_processors.request',
+    'django.core.context_processors.media',
+    'django.core.context_processors.static',
+    'cms.context_processors.media',
+    'sekizai.context_processors.sekizai',
+)
+
+# This is for the django filer plugin
+THUMBNAIL_PROCESSORS = (
+    'easy_thumbnails.processors.colorspace',
+    'easy_thumbnails.processors.autocrop',
+    'filer.thumbnail_processors.scale_and_crop_with_subject_location',
+    'easy_thumbnails.processors.filters',
+)
+
+MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.transaction.TransactionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-]
+    'cms.middleware.page.CurrentPageMiddleware',
+    'cms.middleware.user.CurrentUserMiddleware',
+    'cms.middleware.toolbar.ToolbarMiddleware',
+)
 
 ROOT_URLCONF = 'quark.urls'
 
@@ -121,6 +144,10 @@ TEMPLATE_DIRS = (
   os.path.join(WORKSPACE_DJANGO_ROOT, 'templates'),
 )
 
+CMS_TEMPLATES = (
+    ('base.html', 'Base'),
+)
+
 # All projects that we write (and thus, need to be tested) should go here.
 PROJECT_APPS = [
     'quark.base',
@@ -128,15 +155,29 @@ PROJECT_APPS = [
 
 # Third-party apps belong here, since we won't use them for testing.
 THIRD_PARTY_APPS = [
+    'cms',
+    'cms.plugins.link',
+    'cms.plugins.snippet',
+    'cms.plugins.text',
+    'cmsplugin_filer_file',
+    'cmsplugin_filer_folder',
+    'cmsplugin_filer_image',
+    'cmsplugin_filer_video',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
-    'django.contrib.flatpages',
     'django.contrib.messages',
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.staticfiles',
     'django_jenkins',
+    'easy_thumbnails',
+    'filer',
+    'menus',
+    'mptt',
+    'reversion',
+    'sekizai',
+    'south',
 ]
 
 # This is the actual variable that django looks at.
