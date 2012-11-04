@@ -1,7 +1,77 @@
+from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
 
+from quark.base.models import Officer
+from quark.base.models import OfficerPosition
 from quark.base.models import Term
+
+
+# pylint: disable-msg=R0904
+class OfficerPositionTest(TestCase):
+    def test_save(self):
+        tbp_officer = OfficerPosition(
+            position_type=OfficerPosition.TBP_OFFICER,
+            short_name='IT',
+            long_name='Information Technology',
+            rank=2,
+            mailing_list='IT')
+        tbp_officer.save()
+
+        self.assertFalse(
+            OfficerPosition.objects.filter(
+                position_type=OfficerPosition.PIE_COORD).exists())
+        self.assertTrue(
+            OfficerPosition.objects.filter(
+                position_type=OfficerPosition.TBP_OFFICER).exists())
+        pie_coord = OfficerPosition(
+            position_type=OfficerPosition.TBP_OFFICER,
+            short_name='PiE Coord',
+            long_name='PiE Coordinatory',
+            rank=3,
+            mailing_list='PiE')
+        pie_coord.save()
+
+        positions = OfficerPosition.objects.order_by('position_type')
+        self.assertEquals(len(positions), 2)
+        self.assertEquals(positions[0].short_name, 'IT')
+        self.assertEquals(positions[0].rank, 2)
+        self.assertEquals(positions[1].short_name, 'PiE Coord')
+        self.assertEquals(positions[1].rank, 3)
+
+
+# pylint: disable-msg=R0904
+class OfficerTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            'officer', 'it@tbp.berkeley.edu', 'officerpw')
+        self.user.save()
+        self.term = Term(term=Term.SPRING, year=2012, current=True)
+        self.term.save()
+        self.position = OfficerPosition(
+            position_type=OfficerPosition.TBP_OFFICER,
+            short_name='IT',
+            long_name='Information Technology',
+            rank=2,
+            mailing_list='IT')
+        self.position.save()
+
+    def test_save(self):
+        it_chair = Officer(user=self.user, position=self.position,
+                           term=self.term, is_chair=True)
+        it_chair.save()
+
+        self.assertTrue(Officer.objects.filter(is_chair=True).exists())
+
+        new_term = Term(term=Term.FALL, year=2011, current=False)
+        new_term.save()
+        it_officer = Officer(user=self.user, position=self.position,
+                             term=new_term, is_chair=False)
+        it_officer.save()
+        officers = Officer.objects.filter(is_chair=True)
+
+        self.assertEquals(len(officers), 1)
+        self.assertEquals(officers[0].user, self.user)
 
 
 # pylint: disable-msg=R0904
