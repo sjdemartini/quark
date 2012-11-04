@@ -151,6 +151,7 @@ CMS_TEMPLATES = (
 # All projects that we write (and thus, need to be tested) should go here.
 PROJECT_APPS = [
     'quark.base',
+    'quark.utils',
 ]
 
 # Third-party apps belong here, since we won't use them for testing.
