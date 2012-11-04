@@ -178,8 +178,7 @@ THIRD_PARTY_APPS = [
     'mptt',
     'reversion',
     'sekizai',
-#    'south',
-# TODO(christandiono): broken with dateteime/tz errors. Please fix south
+    'south',
 ]
 
 # This is the actual variable that django looks at.
