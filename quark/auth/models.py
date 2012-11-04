@@ -63,9 +63,12 @@ class QuarkUser(AbstractBaseUser, PermissionsMixin):
         help_text='Your official first or given name')
     middle_name = models.CharField(max_length=64, blank=True)
     last_name = models.CharField(max_length=64, db_index=True)
+    # Note that preferred_name is pulled from first_name in the save() method
+    # if preferred_name is left blank
     preferred_name = models.CharField(
         max_length=64,
         db_index=True,
+        blank=True,
         help_text='What would you like us to call you? (Optional)')
 
     created = models.DateTimeField(default=timezone.now)

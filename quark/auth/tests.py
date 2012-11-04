@@ -58,11 +58,39 @@ class CreateQuarkUserTestCase(TestCase):
         self.assertEqual(user.middle_name, '')
         self.assertFalse(user.is_superuser)
         self.assertTrue(user.check_password(self.password))
-        # Name methods
+
+    def test_name_methods(self):
+        user = self.model.objects.create_user(
+            username=self.username,
+            email=self.email,
+            password=self.password,
+            first_name=self.first_name,
+            last_name=self.last_name)
+
+        # Name methods with only first and last name
         full_name = '%s %s' % (self.first_name, self.last_name)
         self.assertEqual(user.get_full_name(), full_name)
         self.assertEqual(user.get_common_name(), full_name)
         self.assertEqual(user.get_short_name(), self.first_name)
+
+        # With middle name
+        middle_name = 'Robert'
+        user.middle_name = middle_name
+        user.save()
+        common_name = full_name
+        full_name = '%s %s %s' % (self.first_name, middle_name, self.last_name)
+        self.assertEqual(user.get_full_name(), full_name)
+        self.assertEqual(user.get_common_name(), common_name)
+        self.assertEqual(user.get_short_name(), self.first_name)
+
+        # Changing preferred name:
+        preferred_name = 'Bob'
+        user.preferred_name = preferred_name
+        user.save()
+        common_name = '%s %s' % (preferred_name, self.last_name)
+        self.assertEqual(user.get_full_name(), full_name)
+        self.assertEqual(user.get_common_name(), common_name)
+        self.assertEqual(user.get_short_name(), preferred_name)
 
 
 @override_settings(AUTH_USER_MODEL='auth.LDAPQuarkUser')

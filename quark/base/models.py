@@ -10,11 +10,11 @@ from quark.auth.models import User
 # Mixins
 class IDCodeMixin(object):
     """
-    This mixin provides a field that is to be used to store an unique identifier
-    for a person. This can be a student id or the RFID code for a campus id
+    This mixin provides a field that is to be used to store a unique identifier
+    for a person. This can be a student ID or the RFID code for a campus ID
     card.
     """
-    id_code = models.CharField(max_length=20, db_index=True, unique=True)
+    id_code = models.CharField(max_length=20, db_index=True, blank=True)
 
 
 # Models
@@ -314,17 +314,3 @@ class Officer(models.Model):
 
     class Meta:
         unique_together = ('user', 'position', 'term')
-
-
-class CollegeStudentInfo(models.Model, IDCodeMixin):
-    user = models.ForeignKey(User)
-    major = models.ForeignKey(Major)
-
-    start_term = models.ForeignKey(Term, related_name='+')
-    grad_term = models.ForeignKey(Term, related_name='+')
-
-    def __unicode__(self):
-        # pylint: disable=E1101
-        return '%s - %s (%s - %s) id: %s' % (
-            self.user.username, self.major, self.start_term, self.grad_term,
-            self.id_code)
