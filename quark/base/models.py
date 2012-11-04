@@ -1,8 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
-
-import datetime
+from django.utils import timezone
 
 
 class TermManager(models.Manager):
@@ -139,7 +138,7 @@ class Term(models.Model):
 
     def __lt__(self, other):
         if not isinstance(other, Term):
-            other = Term(year=datetime.date.today().year,
+            other = Term(year=timezone.now().year,
                          term=Term.UNKNOWN)
         if self.year < other.year:
             return True
@@ -150,31 +149,31 @@ class Term(models.Model):
 
     def __le__(self, other):
         if not isinstance(other, Term):
-            other = Term(year=datetime.date.today().year,
+            other = Term(year=timezone.now().year,
                          term=Term.UNKNOWN)
         return not other.__lt__(self)
 
     def __eq__(self, other):
         if not isinstance(other, Term):
-            other = Term(year=datetime.date.today().year,
+            other = Term(year=timezone.now().year,
                          term=Term.UNKNOWN)
         return self.term == other.term and self.year == other.year
 
     def __ne__(self, other):
         if not isinstance(other, Term):
-            other = Term(year=datetime.date.today().year,
+            other = Term(year=timezone.now().year,
                          term=Term.UNKNOWN)
         return not self.__eq__(other)
 
     def __gt__(self, other):
         if not isinstance(other, Term):
-            other = Term(year=datetime.date.today().year,
+            other = Term(year=timezone.now().year,
                          term=Term.UNKNOWN)
         return other.__lt__(self)
 
     def __ge__(self, other):
         if not isinstance(other, Term):
-            other = Term(year=datetime.date.today().year,
+            other = Term(year=timezone.now().year,
                          term=Term.UNKNOWN)
         return not self.__lt__(other)
 

@@ -1,5 +1,5 @@
 [{
-    "model": "noiro_main.OfficerPosition",
+    "model": "base.OfficerPosition",
     "pk": 1,
     "fields": {
         "short_name": "president",
@@ -10,7 +10,7 @@
     }
 },
 {
-    "model": "noiro_main.OfficerPosition",
+    "model": "base.OfficerPosition",
     "pk": 2,
     "fields": {
         "short_name": "vp",
@@ -21,7 +21,7 @@
     }
 },
 {
-    "model": "noiro_main.OfficerPosition",
+    "model": "base.OfficerPosition",
     "pk": 3,
     "fields": {
         "short_name": "rsec",
@@ -32,7 +32,7 @@
     }
 },
 {
-    "model": "noiro_main.OfficerPosition",
+    "model": "base.OfficerPosition",
     "pk": 4,
     "fields": {
         "short_name": "csec",
@@ -43,7 +43,7 @@
     }
 },
 {
-    "model": "noiro_main.OfficerPosition",
+    "model": "base.OfficerPosition",
     "pk": 5,
     "fields": {
         "short_name": "treasurer",
@@ -54,7 +54,7 @@
     }
 },
 {
-    "model": "noiro_main.OfficerPosition",
+    "model": "base.OfficerPosition",
     "pk": 6,
     "fields": {
         "short_name": "activities",
@@ -65,7 +65,7 @@
     }
 },
 {
-    "model": "noiro_main.OfficerPosition",
+    "model": "base.OfficerPosition",
     "pk": 7,
     "fields": {
         "short_name": "indrel",
@@ -76,7 +76,7 @@
     }
 },
 {
-    "model": "noiro_main.OfficerPosition",
+    "model": "base.OfficerPosition",
     "pk": 8,
     "fields": {
         "short_name": "prodev",
@@ -87,7 +87,7 @@
     }
 },
 {
-    "model": "noiro_main.OfficerPosition",
+    "model": "base.OfficerPosition",
     "pk": 9,
     "fields": {
         "short_name": "publicity",
@@ -98,7 +98,7 @@
     }
 },
 {
-    "model": "noiro_main.OfficerPosition",
+    "model": "base.OfficerPosition",
     "pk": 10,
     "fields": {
         "short_name": "e98",
@@ -109,7 +109,7 @@
     }
 },
 {
-    "model": "noiro_main.OfficerPosition",
+    "model": "base.OfficerPosition",
     "pk": 11,
     "fields": {
         "short_name": "it",
@@ -120,7 +120,7 @@
     }
 },
 {
-    "model": "noiro_main.OfficerPosition",
+    "model": "base.OfficerPosition",
     "pk": 12,
     "fields": {
         "short_name": "historian",
@@ -131,7 +131,7 @@
     }
 },
 {
-    "model": "noiro_main.OfficerPosition",
+    "model": "base.OfficerPosition",
     "pk": 13,
     "fields": {
         "short_name": "stars",
@@ -142,7 +142,7 @@
     }
 },
 {
-    "model": "noiro_main.OfficerPosition",
+    "model": "base.OfficerPosition",
     "pk": 14,
     "fields": {
         "short_name": "service",
@@ -153,7 +153,7 @@
     }
 },
 {
-    "model": "noiro_main.OfficerPosition",
+    "model": "base.OfficerPosition",
     "pk": 15,
     "fields": {
         "short_name": "house-leaders",
@@ -164,7 +164,7 @@
     }
 },
 {
-    "model": "noiro_main.OfficerPosition",
+    "model": "base.OfficerPosition",
     "pk": 16,
     "fields": {
         "short_name": "faculty",
@@ -175,7 +175,7 @@
     }
 },
 {
-    "model": "noiro_main.OfficerPosition",
+    "model": "base.OfficerPosition",
     "pk": 17,
     "fields": {
         "short_name": "advisor",
@@ -186,7 +186,7 @@
     }
 },
 {
-    "model": "noiro_main.OfficerPosition",
+    "model": "base.OfficerPosition",
     "pk": 18,
     "fields": {
         "short_name": "extrel",
@@ -197,7 +197,7 @@
     }
 },
 {
-    "model": "noiro_main.OfficerPosition",
+    "model": "base.OfficerPosition",
     "pk": 19,
     "fields": {
         "short_name": "advising",
@@ -208,7 +208,7 @@
     }
 },
 {
-    "model": "noiro_main.OfficerPosition",
+    "model": "base.OfficerPosition",
     "pk": 20,
     "fields": {
         "short_name": "ejc",
@@ -219,7 +219,7 @@
     }
 },
 {
-    "model": "noiro_main.OfficerPosition",
+    "model": "base.OfficerPosition",
     "pk": 21,
     "fields": {
         "short_name": "np",
@@ -228,16 +228,5 @@
         "mailing_list": "newprojects",
         "position_type": 0
     }
-},
-{
-    "model": "noiro_main.OfficerPosition",
-    "pk": 22,
-    "fields": {
-        "short_name": "yoyo",
-        "long_name": "Papa Rappa PiE Coord",
-        "rank": 14.8,
-        "mailing_list": "yoyo",
-        "position_type": 1
-        }
 }
 ]

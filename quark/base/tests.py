@@ -10,10 +10,11 @@ from quark.base.models import Term
 # pylint: disable-msg=R0904
 class OfficerPositionTest(TestCase):
     def test_save(self):
+        num = OfficerPosition.objects.count()
         tbp_officer = OfficerPosition(
             position_type=OfficerPosition.TBP_OFFICER,
-            short_name='IT',
-            long_name='Information Technology',
+            short_name='IT_test',
+            long_name='Information Technology (test)',
             rank=2,
             mailing_list='IT')
         tbp_officer.save()
@@ -26,18 +27,18 @@ class OfficerPositionTest(TestCase):
                 position_type=OfficerPosition.TBP_OFFICER).exists())
         pie_coord = OfficerPosition(
             position_type=OfficerPosition.TBP_OFFICER,
-            short_name='PiE Coord',
-            long_name='PiE Coordinatory',
+            short_name='PiE Coord test',
+            long_name='PiE Coordinator (test)',
             rank=3,
             mailing_list='PiE')
         pie_coord.save()
 
         positions = OfficerPosition.objects.order_by('position_type')
-        self.assertEquals(len(positions), 2)
-        self.assertEquals(positions[0].short_name, 'IT')
-        self.assertEquals(positions[0].rank, 2)
-        self.assertEquals(positions[1].short_name, 'PiE Coord')
-        self.assertEquals(positions[1].rank, 3)
+        self.assertEquals(len(positions) - num, 2)
+        self.assertEquals(positions[num].short_name, 'IT_test')
+        self.assertEquals(positions[num].rank, 2)
+        self.assertEquals(positions[num + 1].short_name, 'PiE Coord test')
+        self.assertEquals(positions[num + 1].rank, 3)
 
 
 # pylint: disable-msg=R0904
@@ -50,8 +51,8 @@ class OfficerTest(TestCase):
         self.term.save()
         self.position = OfficerPosition(
             position_type=OfficerPosition.TBP_OFFICER,
-            short_name='IT',
-            long_name='Information Technology',
+            short_name='IT_test',
+            long_name='Information Technology (test)',
             rank=2,
             mailing_list='IT')
         self.position.save()
