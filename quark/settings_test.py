@@ -11,7 +11,7 @@ DATABASES = {
 }
 
 # We don't need to test these apps.
-BLACKLISTED_APPS = ['django_evolution', 'django.contrib.flatpages']
+BLACKLISTED_APPS = ['django_evolution', 'django.contrib.flatpages', 'south']
 for app in BLACKLISTED_APPS:
     if app in INSTALLED_APPS:
         INSTALLED_APPS.remove(app)

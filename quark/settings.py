@@ -4,6 +4,7 @@ import getpass
 import os
 import socket
 import sys
+import warnings
 
 KEY_PATH = '/home/pie/private'
 if KEY_PATH not in sys.path:
@@ -67,6 +68,12 @@ USE_L10N = True
 
 # If you set this to False, Django will not use timezone-aware datetimes.
 USE_TZ = True
+
+if USE_TZ:
+    # Raise an error when dealing with timezone-unaware objects.
+    warnings.filterwarnings(
+        'error', r"DateTimeField received a naive datetime",
+        RuntimeWarning, r'django\.db\.models\.fields')
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
