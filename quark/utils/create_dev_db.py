@@ -7,6 +7,7 @@ import sys
 KEY_PATH = '/home/pie/private'
 if KEY_PATH not in sys.path:
     sys.path.append(KEY_PATH)
+# pylint: disable-msg=F0401
 from quark_keys import DEV_DB_PASSWORD as DB_PASSWORD
 
 DB_USER = 'quark_dev'
@@ -62,7 +63,7 @@ def create_dev_db(username, quiet=False):
 def main():
     username = getpass.getuser()
     print 'Creating database for %s' % username
-    result = create_dev_db(username)
+    create_dev_db(username)
 
 
 if __name__ == '__main__':

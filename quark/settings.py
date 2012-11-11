@@ -5,10 +5,16 @@ import os
 import socket
 import sys
 
-KEY_PATH = "/home/pie/private"
+KEY_PATH = '/home/pie/private'
 if KEY_PATH not in sys.path:
     sys.path.append(KEY_PATH)
-import quark_keys
+try:
+    # pylint: disable-msg=F0401
+    import quark_keys
+except ImportError:
+    print('Could not import quark_keys. Please make sure quark_keys exists '
+          'on the path, and that there are no errors in the module.')
+    sys.exit(1)
 
 
 # Determine the path of your local workspace.
@@ -122,7 +128,7 @@ THUMBNAIL_PROCESSORS = (
     'easy_thumbnails.processors.filters',
 )
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE_CLASSES = [
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.transaction.TransactionMiddleware',
@@ -133,7 +139,7 @@ MIDDLEWARE_CLASSES = (
     'cms.middleware.page.CurrentPageMiddleware',
     'cms.middleware.user.CurrentUserMiddleware',
     'cms.middleware.toolbar.ToolbarMiddleware',
-)
+]
 
 ROOT_URLCONF = 'quark.urls'
 
@@ -228,6 +234,7 @@ RECAPTCHA_PUBLIC_KEY = quark_keys.RECAPTCHA_PUBLIC_KEY
 # LDAP password.
 LDAP_BASEDN_PW = quark_keys.LDAP_BASEDN_PW
 
+# Jenkins integration.
 JENKINS_TASKS = (
     'django_jenkins.tasks.django_tests',
     'django_jenkins.tasks.run_csslint',
@@ -236,6 +243,7 @@ JENKINS_TASKS = (
     'django_jenkins.tasks.run_pylint',
     'django_jenkins.tasks.with_coverage',
 )
+PYLINT_RCFILE = os.path.join(WORKSPACE_ROOT, '.pylintrc')
 
 # Valid types are 'semester' and 'quarter'.
 TERM_TYPE = 'semester'
@@ -244,10 +252,11 @@ TERM_TYPE = 'semester'
 # Import any local settings to override default settings.
 ###############################################################################
 try:
+    # pylint: disable-msg=F0401
     from settings_local import *
 except ImportError:
     # If the file doesn't exist, print a warning message but do not fail.
-    print "WARNING: No settings_local file was detected."
+    print('WARNING: No settings_local file was detected.')
 ###############################################################################
 # End local settings section.
 ###############################################################################

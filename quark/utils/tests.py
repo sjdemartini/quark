@@ -4,7 +4,6 @@ from quark.utils.dev import OFFSETS
 from quark.utils.dev import get_port
 
 
-# pylint: disable-msg=R0904
 class DevTest(TestCase):
     def test_offsets_correct_values(self):
         for _, offset in OFFSETS.items():

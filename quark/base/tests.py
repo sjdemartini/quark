@@ -7,7 +7,6 @@ from quark.base.models import OfficerPosition
 from quark.base.models import Term
 
 
-# pylint: disable-msg=R0904
 class OfficerPositionTest(TestCase):
     def test_save(self):
         num = OfficerPosition.objects.count()
@@ -41,7 +40,6 @@ class OfficerPositionTest(TestCase):
         self.assertEquals(positions[num + 1].rank, 3)
 
 
-# pylint: disable-msg=R0904
 class OfficerTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
@@ -75,7 +73,6 @@ class OfficerTest(TestCase):
         self.assertEquals(officers[0].user, self.user)
 
 
-# pylint: disable-msg=R0904
 class TermManagerTest(TestCase):
     def test_get_current_term(self):
         Term(term=Term.SPRING, year=2012, current=False).save()
@@ -237,7 +234,6 @@ class TermManagerTest(TestCase):
         self.assertIsNone(term)
 
 
-# pylint: disable-msg=R0904
 class TermTest(TestCase):
     def test_save(self):
         spring = Term(term=Term.SPRING, year=2012, current=False)
