@@ -1,3 +1,13 @@
 #!/bin/bash
 
-python manage.py jenkins --settings=quark.settings_test --csslint-with-staticdirs --jslint-with-staticdirs --pep8-max-line-length=80
+# The following conditions must be true for jenkins to return true:
+#   1. The tests must pass.
+#   2. pylint must be perfect, as evidenced by a perfect score of "10.00/10".
+#   3. pep8 must be perfect, as evidenced by no lines with "py" in the report.
+# All other lint errors are not taken into consideration for the +/- Verified
+# flag. Jenkins will report the other lint errors in pretty graphs though.
+python manage.py jenkins \
+    --settings=quark.settings_test \
+    --pep8-max-line-length=80 \
+    && grep "Your code has been rated at 10.00/10" reports/pylint.report \
+    && ! grep "py" reports/pep8.report
