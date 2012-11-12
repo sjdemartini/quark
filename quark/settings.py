@@ -248,6 +248,7 @@ JENKINS_TASKS = (
     'django_jenkins.tasks.run_jslint',
     'django_jenkins.tasks.run_pep8',
     'django_jenkins.tasks.run_pylint',
+    'django_jenkins.tasks.run_sloccount',
     'django_jenkins.tasks.with_coverage',
 )
 PYLINT_RCFILE = os.path.join(WORKSPACE_ROOT, '.pylintrc')
