@@ -1,19 +1,20 @@
 # Django settings for quark project - TBP and PiE's merged project.
 
 import getpass
+import ldap
 import os
 import socket
 import sys
 import warnings
 
-KEY_PATH = '/home/pie/private'
+KEY_PATH = '/home/tbp/private'
 if KEY_PATH not in sys.path:
     sys.path.append(KEY_PATH)
 try:
     # pylint: disable-msg=F0401
     import quark_keys
 except ImportError:
-    print('Could not import quark_keys. Please make sure quark_keys exists '
+    print('Could not import quark_keys. Please make sure quark_keys.py exists '
           'on the path, and that there are no errors in the module.')
     sys.exit(1)
 
@@ -41,6 +42,16 @@ DATABASES = {
         'PASSWORD': quark_keys.DEV_DB_PASSWORD,
     }
 }
+
+# Use 'app_label.model_name'
+# Currently use django.contrib.auth.User.
+# After Django 1.5, use custom user: quark.auth.QuarkUser
+AUTH_USER_MODEL = 'auth.User'
+
+AUTHENTICATION_BACKENDS = (
+    'quark.qldap.backends.LDAPBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -163,7 +174,9 @@ CMS_TEMPLATES = (
 
 # All projects that we write (and thus, need to be tested) should go here.
 PROJECT_APPS = [
+    'quark.auth',
     'quark.base',
+    'quark.qldap',
     'quark.utils',
 ]
 
@@ -238,8 +251,31 @@ YT_PASSWORD = quark_keys.YT_PASSWORD
 RECAPTCHA_PRIVATE_KEY = quark_keys.RECAPTCHA_PRIVATE_KEY
 RECAPTCHA_PUBLIC_KEY = quark_keys.RECAPTCHA_PUBLIC_KEY
 
-# LDAP password.
-LDAP_BASEDN_PASSWORD = quark_keys.LDAP_BASEDN_PASSWORD
+# LDAP settings
+LDAP = {
+    'HOST': 'ldap://localhost',
+    'BASE': 'dc=tbp,dc=berkeley,dc=edu',
+    'SCOPE': ldap.SCOPE_SUBTREE,
+}
+LDAP_BASE = {
+    'PEOPLE': 'ou=People,' + LDAP['BASE'],
+    'GROUP': 'ou=Group,' + LDAP['BASE'],
+    'DN': 'uid=ldapwriter,ou=System,' + LDAP['BASE'],
+    'PASSWORD': quark_keys.LDAP_BASEDN_PASSWORD,
+}
+LDAP_GROUPS = {
+    'TBP': ['tbp-officers', 'tbp-members', 'tbp-candidates'],
+    'PIE': ['pie-mentors', 'pie-it', 'pie-staff', 'pie-students',
+            'pie-teachers'],
+}
+LDAP_DEFAULT_USER = 'uid=default,ou=System,' + LDAP['BASE']
+
+# LDAP and CustomUser (QuarkUser) valid username regex
+# Please use raw string notation (i.e. r'text') to keep regex sane.
+# Update quark/qldap/tests.py: test_valid_username_regex() to match
+VALID_USERNAME = r'^[a-z][a-z0-9]{2,29}$'
+USERNAME_HELPTEXT = ('Username must be 3-30 character, start with a letter,'
+                     ' and use only lowercase letters and numbers.')
 
 # Jenkins integration.
 JENKINS_TASKS = (
