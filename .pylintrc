@@ -65,15 +65,15 @@ notes=
 
 [FORMAT]
 max-line-length=80
-max-module-lines=500
+max-module-lines=1500
 indent-string='    '
 
 [DESIGN]
 max-args=10
 max-locals=15
-max-returns=6
+max-returns=10
 max-branchs=12
-max-statements=50
+max-statements=100
 max-parents=7
 max-attributes=7
 min-public-methods=0
