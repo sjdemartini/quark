@@ -43,22 +43,25 @@ def run_command(command):
         print('Process failed.\n'
               'Failed command: ' + command)
         sys.exit(1)
+    return True
 
 
 def get_port(user, server_name):
     if server_name not in SERVER_PORTS:
-        error_out()
+        return None
     offset = OFFSETS.get(user, DEFAULT_OFFSET)
     port = SERVER_PORTS.get(server_name)
     port += offset
     if offset == DEFAULT_OFFSET:
-        print 'WARNING: Using shared port: %d' % port
-    print 'Current IP and Port is: %s and %d' % (IP, port)
+        print('WARNING: Using shared port: %d' % port)
+    print('Current IP and Port is: %s and %d' % (IP, port))
     return port
 
 
 def run_server(server_name):
     port = get_port(getpass.getuser(), server_name)
+    if not port:
+        error_out()
     run_command('python manage.py syncdb')  # pick up changes to models
     run_command('python manage.py migrate')
     run_command('python manage.py collectstatic')

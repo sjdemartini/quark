@@ -35,6 +35,7 @@ def create_dev_db(username, quiet=False):
         return False
 
     result = False
+    db = None
     try:
         db = MySQLdb.connect(user=DB_USER, passwd=DB_PASSWORD)
         cr_cursor = db.cursor()
@@ -49,7 +50,8 @@ def create_dev_db(username, quiet=False):
         result = ex_cursor.fetchone() is not None
         ex_cursor.close()
     finally:
-        db.close()
+        if db:
+            db.close()
 
     if not quiet:
         if result:
