@@ -33,6 +33,7 @@ OFFSETS = {
     'sjdemartini': 144,
     'lauph': 145,
     'orweizman': 146,
+    'tristanj': 147,
     # Please do not use port 999 since it is the shared port
 }
 
