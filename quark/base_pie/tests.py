@@ -15,12 +15,72 @@ class SeasonManagerTest(TestCase):
         self.assertEquals(season.start_date, start)
         self.assertEquals(season.end_date, end)
 
+    def assertSeasonSaved(self, season):
+        # Check if an object matching this Season exists in the database. Django
+        # doesn't have a good way of actually checking this, so the best we can
+        # do is verify that an object with all the same fields set to the same
+        # values exists in the database.
+        self.assertTrue(
+            Season.objects.filter(pk=season.pk,
+                                  year=season.year,
+                                  start_date=season.start_date,
+                                  end_date=season.end_date).exists())
+
+    def assertSeasonNotSaved(self, season):
+        # Reverse of the above.
+        self.assertFalse(
+            Season.objects.filter(pk=season.pk,
+                                  year=season.year,
+                                  start_date=season.start_date,
+                                  end_date=season.end_date).exists())
+
     def setUp(self):
         self.mox = mox.Mox()
         self.timezone = timezone.get_current_timezone()
 
     def tearDown(self):
         self.mox.UnsetStubs()
+
+    def test_create_nonexisting_season(self):
+        # Make sure a valid season is saved properly
+        date = make_aware(datetime.datetime(2012, 02, 01), self.timezone)
+        season = Season.objects.get_current_season(date)
+        self.assertSeasonSaved(season)
+
+        start, end = Season.objects.generate_start_end_dates(2012)
+        season.year = 2012
+        season.start_date = start
+        season.end_date = end
+        season.save()
+        self.assertSeasonSaved(season)
+
+    def test_no_create_bad_season(self):
+        # Make sure a season with a bad date isn't saved
+        date = make_aware(datetime.datetime(2005, 02, 01), self.timezone)
+        with self.assertRaises(ValueError):
+            season = Season.objects.get_current_season(date)
+
+        # No date information at all
+        season = Season()
+        with self.assertRaises(ValueError):
+            season.save()
+
+        # Year too early
+        season.year = 2005
+        with self.assertRaises(ValueError):
+            season.save()
+
+        # Make a valid season object...
+        start, end = Season.objects.generate_start_end_dates(2012)
+        season = Season(year=2012, start_date=start, end_date=end)
+        season.save()
+        self.assertSeasonSaved(season)
+
+        # ...then make sure modifying it to be invalid doesn't work
+        season.year = 2005
+        with self.assertRaises(ValueError):
+            season.save()
+        self.assertSeasonNotSaved(season)
 
     def test_season_does_not_already_exist_yearly_year(self):
         date = make_aware(datetime.datetime(2012, 02, 01), self.timezone)
@@ -67,8 +127,10 @@ class SeasonManagerTest(TestCase):
         self.assertEquals(season.season_number, 17)
 
         start, end = Season.objects.generate_start_end_dates(2005)
-        season = Season(year=2005, start_date=start, end_date=end)
-        self.assertRaises(ValueError, lambda: season.season_number)
+        season = Season(year=2012, start_date=start, end_date=end)
+        season.year = 2005
+        with self.assertRaises(ValueError):
+            _ = season.season_number
 
     def test_get_current(self):
         # Will first test with no arguments to check that it gets the current
@@ -110,12 +172,12 @@ class SeasonManagerTest(TestCase):
         self.assertSeasonEquals(season, 2011, start, end)
         self.mox.VerifyAll()
 
-    def test_get_any_season(self):
+    def test_get_current_season_with_date(self):
         date = make_aware(datetime.datetime(2025, 3, 17), self.timezone)
         season = Season.objects.get_current_season(date)
         self.assertEquals(season.year, date.year)
 
-        date = make_aware(datetime.datetime(2008, 3, 17), self.timezone)
+        date = make_aware(datetime.datetime(2009, 3, 17), self.timezone)
         season = Season.objects.get_current_season(date)
         self.assertEquals(season.year, date.year)
         start, end = Season.objects.generate_start_end_dates(date.year)

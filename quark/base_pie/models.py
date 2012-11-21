@@ -26,6 +26,7 @@ class SeasonManager(models.Manager):
                 year = date.year + 1
             else:
                 year = date.year
+
             start = timezone.make_aware(
                 datetime.datetime(
                     year - 1, Season.START_MONTH, Season.START_DAY),
@@ -34,7 +35,10 @@ class SeasonManager(models.Manager):
                 datetime.datetime(
                     year, Season.END_MONTH, Season.END_DAY),
                 SeasonManager.TIMEZONE)
-            return Season(year=end.year, start_date=start, end_date=end)
+
+            new_season = Season(year=end.year, start_date=start, end_date=end)
+            new_season.save()
+            return new_season
 
     def generate_start_end_dates(self, year):
         """Returns the start and end dates given the end date's year"""
@@ -53,6 +57,7 @@ class Season(models.Model):
     """The Season Model contains information about the given Season."""
     # The first PiE Season was in 2009
     FIRST_YEAR = 2009
+    BAD_YEAR_MESSAGE = 'Season must be %d or greater' % FIRST_YEAR
 
     # The PiE Season starts after the previous one ends,
     # by using the beginning of the month this allows for easier implementation.
@@ -72,6 +77,24 @@ class Season(models.Model):
 
     objects = SeasonManager()
 
+    def __unicode__(self):
+        season = self.verbose_name()
+        if self.is_current():
+            season += ' (Current)'
+        return season
+
+    def save(self, *args, **kwargs):
+        if not Season.is_valid_year(self.year):
+            raise ValueError(Season.BAD_YEAR_MESSAGE)
+        super(Season, self).save(*args, **kwargs)
+
+    @staticmethod
+    def is_valid_year(year):
+        try:
+            return int(year) - Season.FIRST_YEAR >= 0
+        except (TypeError, ValueError):
+            return False
+
     def is_current(self):
         """Returns a boolean of whether the given season is the current one."""
         today = timezone.now().date()
@@ -87,17 +110,11 @@ class Season(models.Model):
                 today.year + 1 == self.year and today.month > Season.END_MONTH))
 
     def verbose_name(self):
-        return "PiE Season %d" % self.year
-
-    def __unicode__(self):
-        season = self.verbose_name()
-        if self.is_current():
-            season += ' (Current)'
-        return season
+        return 'PiE Season %d' % self.year
 
     @property
     def season_number(self):
-        """The Season number, 2009 is Season 1"""
-        if self.year - Season.FIRST_YEAR + 1 < 1:
-            raise ValueError('Season must be %d or greater' % Season.FIRST_YEAR)
+        """The 2009 Season is the first season"""
+        if not Season.is_valid_year(self.year):
+            raise ValueError(Season.BAD_YEAR_MESSAGE)
         return self.year - Season.FIRST_YEAR + 1
