@@ -176,6 +176,7 @@ CMS_TEMPLATES = (
 PROJECT_APPS = [
     'quark.auth',
     'quark.base',
+    'quark.base_pie',
     'quark.qldap',
     'quark.utils',
 ]
