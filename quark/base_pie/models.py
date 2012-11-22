@@ -1,5 +1,6 @@
 import datetime
 
+from django.contrib.localflavor.us.models import USStateField
 from django.db import models
 from django.utils import timezone
 from quark.auth.models import User
@@ -141,3 +142,49 @@ class Mentor(models.Model):
 
     def __unicode(self):
         return "Mentor %s for %s" % (self.user, self.season)
+
+
+class School(models.Model):
+    # School name
+    name = models.CharField(max_length=200, unique=True)
+
+    # The address of the school
+    street_number = models.IntegerField()
+    street = models.CharField(max_length=100)
+    city = models.CharField(max_length=100)
+    state = USStateField()
+    zipcode = models.IntegerField()
+
+    def __unicode__(self):
+        return self.name
+
+    class Meta:
+        ordering = ('name',)
+
+
+class Student(models.Model):
+    FRESHMAN = 9
+    SOPHOMORE = 10
+    JUNIOR = 11
+    SENIOR = 12
+    SCHOOL_LEVELS = (
+        (FRESHMAN, 'Freshman'),
+        (SOPHOMORE, 'Sophomore'),
+        (JUNIOR, 'Junior'),
+        (SENIOR, 'Senior'),
+    )
+
+    user = models.ForeignKey(User)
+    season = models.ForeignKey(Season)
+
+    # Leaders are allowed to edit the roster and assign editing power
+    # to other members of a team.
+    leader = models.BooleanField(default=False)
+
+    year_in_school = models.PositiveSmallIntegerField(choices=SCHOOL_LEVELS)
+
+    created = models.DateField(auto_now_add=True)
+    updated = models.DateField(auto_now=True)
+
+    def __unicode__(self):
+        return '%s for %s' % (self.user, self.season)
