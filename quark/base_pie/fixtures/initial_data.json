@@ -1,0 +1,123 @@
+[
+{
+    "model": "base.OfficerPosition",
+    "pk": 100,
+    "fields": {
+        "short_name": "pie_director",
+        "long_name": "PiE Director",
+        "rank": 100,
+        "mailing_list": "pie-coords",
+        "position_type": 1
+    }
+},
+{
+    "model": "base.OfficerPosition",
+    "pk": 101,
+    "fields": {
+        "short_name": "pie_deputy_director",
+        "long_name": "PiE Deputy Director",
+        "rank": 101,
+        "mailing_list": "pie-coords",
+        "position_type": 1
+    }
+},
+{
+    "model": "base.OfficerPosition",
+    "pk": 102,
+    "fields": {
+        "short_name": "pie_external_coord",
+        "long_name": "PiE External Coordinator",
+        "rank": 102,
+        "mailing_list": "pie-external",
+        "position_type": 1
+    }
+},
+{
+    "model": "base.OfficerPosition",
+    "pk": 103,
+    "fields": {
+        "short_name": "pie_mentorship_coord",
+        "long_name": "PiE Mentorship Coordinator",
+        "rank": 103,
+        "mailing_list": "pie-mentorship",
+        "position_type": 1
+    }
+},
+{
+    "model": "base.OfficerPosition",
+    "pk": 104,
+    "fields": {
+        "short_name": "pie_kitdev_coord",
+        "long_name": "PiE Kit Development Coordinator",
+        "rank": 104,
+        "mailing_list": "pie-kitdev",
+        "position_type": 1
+    }
+},
+{
+    "model": "base.OfficerPosition",
+    "pk": 105,
+    "fields": {
+        "short_name": "pie_external",
+        "long_name": "PiE External",
+        "rank": 105,
+        "mailing_list": "pie-external",
+        "position_type": 2
+    }
+},
+{
+    "model": "base.OfficerPosition",
+    "pk": 106,
+    "fields": {
+        "short_name": "pie_mentorship",
+        "long_name": "PiE Mentorship",
+        "rank": 106,
+        "mailing_list": "pie-mentorship",
+        "position_type": 2
+    }
+},
+{
+    "model": "base.OfficerPosition",
+    "pk": 107,
+    "fields": {
+        "short_name": "pie_kitdev_electrical",
+        "long_name": "PiE Kit Development - Electrical",
+        "rank": 107,
+        "mailing_list": "pie-kitdev",
+        "position_type": 2
+    }
+},
+{
+    "model": "base.OfficerPosition",
+    "pk": 108,
+    "fields": {
+        "short_name": "pie_kitdev_mechanical",
+        "long_name": "PiE Kit Development - Mechanical",
+        "rank": 108,
+        "mailing_list": "pie-kitdev",
+        "position_type": 2
+    }
+},
+{
+    "model": "base.OfficerPosition",
+    "pk": 109,
+    "fields": {
+        "short_name": "pie_kitdev_software",
+        "long_name": "PiE Kit Development - Software",
+        "rank": 109,
+        "mailing_list": "pie-kitdev",
+        "position_type": 2
+    }
+},
+{
+    "model": "base.OfficerPosition",
+    "pk": 110,
+    "fields": {
+        "short_name": "pie_it",
+        "long_name": "PiE Information Technology",
+        "rank": 110,
+        "mailing_list": "pie-it",
+        "position_type": 2
+    }
+}
+]

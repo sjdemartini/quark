@@ -18,9 +18,6 @@ class OfficerPositionTest(TestCase):
             mailing_list='IT')
         tbp_officer.save()
 
-        self.assertFalse(
-            OfficerPosition.objects.filter(
-                position_type=OfficerPosition.PIE_COORD).exists())
         self.assertTrue(
             OfficerPosition.objects.filter(
                 position_type=OfficerPosition.TBP_OFFICER).exists())
@@ -32,12 +29,22 @@ class OfficerPositionTest(TestCase):
             mailing_list='PiE')
         pie_coord.save()
 
-        positions = OfficerPosition.objects.order_by('position_type')
+        positions = OfficerPosition.objects.order_by('pk')
         self.assertEquals(len(positions) - num, 2)
         self.assertEquals(positions[num].short_name, 'IT_test')
         self.assertEquals(positions[num].rank, 2)
         self.assertEquals(positions[num + 1].short_name, 'PiE Coord test')
         self.assertEquals(positions[num + 1].rank, 3)
+
+    def test_base_initial_data(self):
+        """
+        Basic test to verify that the initial data put in the
+        initial_data.json file are correctly formatted and
+        the number that appear in the database is as expected.
+        """
+        num = len(OfficerPosition.objects.filter(
+            position_type=OfficerPosition.TBP_OFFICER))
+        self.assertEquals(num, 21)
 
 
 class OfficerTest(TestCase):

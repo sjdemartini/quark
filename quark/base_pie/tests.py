@@ -6,6 +6,7 @@ from django.test import TestCase
 from django.utils import timezone
 from django.utils.timezone import make_aware
 
+from quark.base.models import OfficerPosition
 from quark.base_pie.models import School
 from quark.base_pie.models import Season
 from quark.base_pie.models import Team
@@ -209,3 +210,19 @@ class TeamTest(TestCase):
         season = Season.objects.get_current_season()
         team = Team(number=1, name='Pink Team', school=school, season=season)
         self.assertEqual(team.friendly_name(), 'Team 1: Testing High School')
+
+
+class PiEOfficerPositionTest(TestCase):
+    """
+    Test for initial data placed in the fixture folder of this
+    directory. It verifies that we aren't having collisions between
+    the primary keys of the different positions in TBP and PiE.
+    """
+    def test_initial_data(self):
+        num = len(OfficerPosition.objects.filter(
+            position_type__gt=OfficerPosition.TBP_OFFICER))
+        self.assertEquals(num, 11)
+
+    def test_total_init_data(self):
+        num = OfficerPosition.objects.count()
+        self.assertEquals(num, 32)
