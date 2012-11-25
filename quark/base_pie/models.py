@@ -2,6 +2,7 @@ import datetime
 
 from django.db import models
 from django.utils import timezone
+from quark.auth.models import User
 
 
 class SeasonManager(models.Manager):
@@ -118,3 +119,25 @@ class Season(models.Model):
         if not Season.is_valid_year(self.year):
             raise ValueError(Season.BAD_YEAR_MESSAGE)
         return self.year - Season.FIRST_YEAR + 1
+
+
+class Teacher(models.Model):
+    user = models.ForeignKey(User)
+    season = models.ForeignKey(Season)
+
+    created = models.DateField(auto_now_add=True)
+    updated = models.DateField(auto_now=True)
+
+    def __unicode__(self):
+        return "Teacher %s for %s" % (self.user, self.season)
+
+
+class Mentor(models.Model):
+    user = models.ForeignKey(User)
+    season = models.ForeignKey(Season)
+
+    created = models.DateField(auto_now_add=True)
+    updated = models.DateField(auto_now=True)
+
+    def __unicode(self):
+        return "Mentor %s for %s" % (self.user, self.season)
