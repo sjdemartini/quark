@@ -7,9 +7,10 @@ import socket
 import sys
 import warnings
 
-KEY_PATH = '/home/tbp/private'
-if KEY_PATH not in sys.path:
-    sys.path.append(KEY_PATH)
+KEY_PATHS = ['/home/tbp/private', '/home/pie/private']
+for key_path in KEY_PATHS:
+    if key_path not in sys.path:
+        sys.path.append(key_path)
 try:
     # pylint: disable-msg=F0401
     import quark_keys
