@@ -122,28 +122,6 @@ class Season(models.Model):
         return self.year - Season.FIRST_YEAR + 1
 
 
-class Teacher(models.Model):
-    user = models.ForeignKey(User)
-    season = models.ForeignKey(Season)
-
-    created = models.DateField(auto_now_add=True)
-    updated = models.DateField(auto_now=True)
-
-    def __unicode__(self):
-        return "Teacher %s for %s" % (self.user, self.season)
-
-
-class Mentor(models.Model):
-    user = models.ForeignKey(User)
-    season = models.ForeignKey(Season)
-
-    created = models.DateField(auto_now_add=True)
-    updated = models.DateField(auto_now=True)
-
-    def __unicode(self):
-        return "Mentor %s for %s" % (self.user, self.season)
-
-
 class School(models.Model):
     # School name
     name = models.CharField(max_length=200, unique=True)
@@ -162,6 +140,58 @@ class School(models.Model):
         ordering = ('name',)
 
 
+class Team(models.Model):
+    number = models.PositiveIntegerField(primary_key=True)
+    name = models.CharField(max_length=100)
+
+    school = models.ForeignKey(School)
+    season = models.ForeignKey(Season)
+
+    active = models.BooleanField(default=True)
+    car_required = models.BooleanField(default=False)
+    extra_attention = models.BooleanField(default=False)
+
+    created = models.DateField(auto_now_add=True)
+    updated = models.DateField(auto_now=True)
+
+    def __unicode__(self):
+        if self.name:
+            return '%s, Team %d (%s, %d Season)' % (
+                self.name, self.number, self.school.name, self.season)
+        else:
+            return '%s Team %d (%d Season)' % (
+                self.school.name, self.number, self.season)
+
+    def friendly_name(self):
+        return 'Team %d: %s' % (self.number, self.school)
+
+    class Meta:
+        unique_together = ('number', 'season')
+        ordering = ('number',)
+
+
+class Teacher(models.Model):
+    user = models.ForeignKey(User)
+    team = models.ForeignKey(Team)
+
+    created = models.DateField(auto_now_add=True)
+    updated = models.DateField(auto_now=True)
+
+    def __unicode__(self):
+        return 'Teacher %s for %s' % (self.user, self.team)
+
+
+class Mentor(models.Model):
+    user = models.ForeignKey(User)
+    team = models.ForeignKey(Team)
+
+    created = models.DateField(auto_now_add=True)
+    updated = models.DateField(auto_now=True)
+
+    def __unicode__(self):
+        return 'Mentor %s for %s' % (self.user, self.team)
+
+
 class Student(models.Model):
     FRESHMAN = 9
     SOPHOMORE = 10
@@ -175,7 +205,7 @@ class Student(models.Model):
     )
 
     user = models.ForeignKey(User)
-    season = models.ForeignKey(Season)
+    team = models.ForeignKey(Team)
 
     # Leaders are allowed to edit the roster and assign editing power
     # to other members of a team.
@@ -187,4 +217,4 @@ class Student(models.Model):
     updated = models.DateField(auto_now=True)
 
     def __unicode__(self):
-        return '%s for %s' % (self.user, self.season)
+        return 'Student %s for %s' % (self.user, self.team)
