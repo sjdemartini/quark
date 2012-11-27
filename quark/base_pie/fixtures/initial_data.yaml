@@ -1,0 +1,89 @@
+- fields:
+    long_name: PiE Director
+    mailing_list: pie-coords
+    position_type: 1
+    rank: 100
+    short_name: pie_director
+  model: base.OfficerPosition
+  pk: 100
+- fields:
+    long_name: PiE Deputy Director
+    mailing_list: pie-coords
+    position_type: 1
+    rank: 101
+    short_name: pie_deputy_director
+  model: base.OfficerPosition
+  pk: 101
+- fields:
+    long_name: PiE External Coordinator
+    mailing_list: pie-external
+    position_type: 1
+    rank: 102
+    short_name: pie_external_coord
+  model: base.OfficerPosition
+  pk: 102
+- fields:
+    long_name: PiE Mentorship Coordinator
+    mailing_list: pie-mentorship
+    position_type: 1
+    rank: 103
+    short_name: pie_mentorship_coord
+  model: base.OfficerPosition
+  pk: 103
+- fields:
+    long_name: PiE Kit Development Coordinator
+    mailing_list: pie-kitdev
+    position_type: 1
+    rank: 104
+    short_name: pie_kitdev_coord
+  model: base.OfficerPosition
+  pk: 104
+- fields:
+    long_name: PiE External
+    mailing_list: pie-external
+    position_type: 2
+    rank: 105
+    short_name: pie_external
+  model: base.OfficerPosition
+  pk: 105
+- fields:
+    long_name: PiE Mentorship
+    mailing_list: pie-mentorship
+    position_type: 2
+    rank: 106
+    short_name: pie_mentorship
+  model: base.OfficerPosition
+  pk: 106
+- fields:
+    long_name: PiE Kit Development - Electrical
+    mailing_list: pie-kitdev
+    position_type: 2
+    rank: 107
+    short_name: pie_kitdev_electrical
+  model: base.OfficerPosition
+  pk: 107
+- fields:
+    long_name: PiE Kit Development - Mechanical
+    mailing_list: pie-kitdev
+    position_type: 2
+    rank: 108
+    short_name: pie_kitdev_mechanical
+  model: base.OfficerPosition
+  pk: 108
+- fields:
+    long_name: PiE Kit Development - Software
+    mailing_list: pie-kitdev
+    position_type: 2
+    rank: 109
+    short_name: pie_kitdev_software
+  model: base.OfficerPosition
+  pk: 109
+- fields:
+    long_name: PiE Information Technology
+    mailing_list: pie-it
+    position_type: 2
+    rank: 110
+    short_name: pie_it
+  model: base.OfficerPosition
+  pk: 110
+
