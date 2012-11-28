@@ -1,7 +1,36 @@
+import uuid
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
+
+
+class RandomTokenManager(models.Manager):
+    def generate(self, **kwargs):
+        kwargs['token'] = kwargs.get('token', uuid.uuid4())
+        return self.create(**kwargs)
+
+
+class RandomToken(models.Model):
+    email = models.EmailField(unique=True)
+    expiration_date = models.DateTimeField()
+    token = models.CharField(unique=True, max_length=64)
+    used = models.BooleanField(default=False)
+
+    user = models.ForeignKey(User, blank=True, null=True)
+
+    objects = RandomTokenManager()
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def __unicode__(self):
+        return "%s for %s, %s, %s" % (
+            self.token,
+            self.email,
+            self.expiration_date,
+            self.used)
 
 
 class University(models.Model):

@@ -1,13 +1,39 @@
+import datetime
+import mox
+import uuid
+
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.utils import timezone
+from django.utils.timezone import make_aware
 
+from quark.base.models import RandomToken
 from quark.base.models import Major
 from quark.base.models import Officer
 from quark.base.models import OfficerPosition
 from quark.base.models import Term
 from quark.base.models import University
+
+
+class RandomTokenManagerTest(TestCase):
+    def setUp(self):
+        self.mox = mox.Mox()
+        self.tz = timezone.get_current_timezone()
+
+    def tearDown(self):
+        self.mox.UnsetStubs()
+
+    def test_random_token_generate(self):
+        # pylint: disable=E1101
+        date = make_aware(datetime.datetime(2012, 01, 01), self.tz)
+        self.mox.StubOutWithMock(uuid, 'uuid4')
+        uuid.uuid4().AndReturn('abcdefghijklmnopqrstuvwxyz')
+        self.mox.ReplayAll()
+        token = RandomToken.objects.generate(expiration_date=date)
+        self.assertEqual(token.token, 'abcdefghijklmnopqrstuvwxyz')
+        self.mox.VerifyAll()
 
 
 class MajorTest(TestCase):

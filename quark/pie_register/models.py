@@ -1,7 +1,7 @@
-from django.contrib.auth.models import User
 from django.contrib.localflavor.us.models import PhoneNumberField
 from django.db import models
 
+from quark.auth.models import User
 from quark.base_pie.models import Season
 
 
