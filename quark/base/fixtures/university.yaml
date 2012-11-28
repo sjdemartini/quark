@@ -1,0 +1,6 @@
+- fields:
+    short_name: UCB
+    long_name: University of Califonia, Berkeley
+    website: http://berkeley.edu
+  model: base.University
+  pk: 1

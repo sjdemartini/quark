@@ -1,13 +1,43 @@
 from django.contrib.auth.models import User
+from django.db import IntegrityError
 from django.test import TestCase
 from django.test.utils import override_settings
 
+from quark.base.models import Major
 from quark.base.models import Officer
 from quark.base.models import OfficerPosition
 from quark.base.models import Term
+from quark.base.models import University
+
+
+class MajorTest(TestCase):
+    fixtures = ['major.yaml', 'university.yaml']
+
+    def test_initial_number(self):
+        num = Major.objects.count()
+        self.assertEqual(num, 14)
+
+    def test_uniqueness(self):
+        ucb = University.objects.get(short_name='UCB')
+        duplicate = Major(
+            short_name='math',
+            long_name='Math',
+            university=ucb,
+            website='http://math.berkeley.edu')
+        with self.assertRaises(IntegrityError):
+            duplicate.save()
+        self.assertEqual(
+            1,
+            len(Major.objects.filter(
+                short_name='math',
+                long_name='Math',
+                university=ucb,
+                website='http://math.berkeley.edu')))
 
 
 class OfficerPositionTest(TestCase):
+    fixtures = ['officer_position.yaml']
+
     def test_save(self):
         num = OfficerPosition.objects.count()
         tbp_officer = OfficerPosition(
@@ -48,6 +78,8 @@ class OfficerPositionTest(TestCase):
 
 
 class OfficerTest(TestCase):
+    fixtures = ['officer_position.yaml']
+
     def setUp(self):
         self.user = User.objects.create_user(
             'officer', 'it@tbp.berkeley.edu', 'officerpw')
@@ -356,3 +388,11 @@ class TermTest(TestCase):
     def test_natural_key(self):
         term = Term(term=Term.SPRING, year=2012)
         self.assertEqual(term.natural_key(), (Term.SPRING, 2012))
+
+
+class UniversityTest(TestCase):
+    fixtures = ['university.yaml']
+
+    def test_initial_number(self):
+        num = University.objects.count()
+        self.assertEquals(num, 1)

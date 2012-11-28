@@ -1,4 +1,5 @@
 import mox
+import os
 
 from django.test import TestCase
 
@@ -35,6 +36,29 @@ class DevTest(TestCase):
     def test_error_out(self):
         self.assertRaises(SystemExit, dev.error_out)
 
+    def test_load_initial_data(self):
+        # Get current working directory
+        project_path = os.getcwd()
+        self.mox.StubOutWithMock(dev, 'run_command')
+
+        # Over-ride the PROJECT_APPS list
+        self.mox.StubOutWithMock(dev, 'settings')
+        dev.settings.PROJECT_APPS = [
+            'quark.foo',
+            'thirdparty.bar']
+        dev.run_command(
+            'python manage.py loaddata '
+            '%s/quark/foo/fixtures/*.{yaml,json,xml}' %
+            (project_path))
+        dev.run_command(
+            'python manage.py loaddata '
+            '%s/thirdparty/bar/fixtures/*.{yaml,json,xml}' %
+            (project_path))
+
+        self.mox.ReplayAll()
+        dev.load_initial_data()
+        self.mox.VerifyAll()
+
     def test_run_server(self):
         # We don't want to run the resulting run_command calls, so we stub it
         # out. We just want to know that it doesn't raise an exception.
@@ -45,6 +69,7 @@ class DevTest(TestCase):
         dev.getpass.getuser().AndReturn('foo')
 
         dev.run_command('python manage.py syncdb')
+        dev.load_initial_data()
         dev.run_command('python manage.py migrate')
         dev.run_command('python manage.py collectstatic')
         dev.run_command('python manage.py runserver 0.0.0.0:8999')

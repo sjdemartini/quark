@@ -4,6 +4,32 @@ from django.db import models
 from django.utils import timezone
 
 
+class University(models.Model):
+    short_name = models.CharField(max_length=8, unique=True)
+    long_name = models.CharField(max_length=64)
+    website = models.URLField()
+
+    def __unicode__(self):
+        return self.long_name
+
+    class Meta:
+        ordering = ('long_name',)
+
+
+class Major(models.Model):
+    short_name = models.CharField(max_length=8)
+    long_name = models.CharField(max_length=64)
+    university = models.ForeignKey(University)
+    website = models.URLField()
+
+    def __unicode__(self):
+        return self.long_name
+
+    class Meta:
+        ordering = ('long_name',)
+        unique_together = ('university', 'short_name')
+
+
 class TermManager(models.Manager):
     def get_current_term(self):
         try:

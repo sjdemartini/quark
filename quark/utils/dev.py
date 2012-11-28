@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 import getpass
+import os
 import subprocess
 import sys
+
+from django.conf import settings
 
 
 IP = '0.0.0.0'
@@ -59,11 +62,23 @@ def get_port(user, server_name):
     return port
 
 
+def load_initial_data():
+    # Grab the path to the root of the project
+    project_root = os.getcwd()
+
+    for project in settings.PROJECT_APPS:
+        imports = '/'.join(
+            [project_root] + project.split('.') +
+            ['fixtures', '*.{yaml,json,xml}'])
+        run_command('python manage.py loaddata %s' % imports)
+
+
 def run_server(server_name):
     port = get_port(getpass.getuser(), server_name)
     if not port:
         error_out()
     run_command('python manage.py syncdb')  # pick up changes to models
+    load_initial_data()
     run_command('python manage.py migrate')
     run_command('python manage.py collectstatic')
     run_command('python manage.py runserver %s:%d' % (IP, port))

@@ -218,6 +218,9 @@ class PiEOfficerPositionTest(TestCase):
     directory. It verifies that we aren't having collisions between
     the primary keys of the different positions in TBP and PiE.
     """
+    fixtures = ['../../base/fixtures/officer_position.yaml',
+                'officer_position.yaml']
+
     def test_initial_data(self):
         num = len(OfficerPosition.objects.filter(
             position_type__gt=OfficerPosition.TBP_OFFICER))
