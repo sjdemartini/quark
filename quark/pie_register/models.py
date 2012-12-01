@@ -38,6 +38,7 @@ class TeamRegistration(models.Model):
         verbose_name='How did you hear about PIE?')
     heard_other = models.CharField(
         max_length=100,
+        null=True,
         verbose_name='If other, then where did you hear about PiE?')
     parents_drive = models.BooleanField(
         verbose_name=(
