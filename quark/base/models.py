@@ -25,6 +25,10 @@ class RandomToken(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
+    def is_expired(self):
+        current_date = timezone.now()
+        return self.expiration_date < current_date
+
     def __unicode__(self):
         return "%s for %s, %s, %s" % (
             self.token,

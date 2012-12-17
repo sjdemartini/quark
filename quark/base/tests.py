@@ -36,6 +36,37 @@ class RandomTokenManagerTest(TestCase):
         self.mox.VerifyAll()
 
 
+class RandomTokenTest(TestCase):
+    def setUp(self):
+        self.mox = mox.Mox()
+        self.tz = timezone.get_current_timezone()
+
+    def tearDown(self):
+        self.mox.UnsetStubs()
+
+    def test_is_expired_false(self):
+        # pylint: disable=E1101
+        date = make_aware(datetime.datetime(2012, 01, 01), self.tz)
+        self.mox.StubOutWithMock(timezone, 'now')
+        timezone.now().MultipleTimes().AndReturn(
+            make_aware(datetime.datetime(2011, 01, 01), self.tz))
+        self.mox.ReplayAll()
+        token = RandomToken.objects.generate(expiration_date=date)
+        self.assertFalse(token.is_expired())
+        self.mox.VerifyAll()
+
+    def test_is_expired(self):
+        # pylint: disable=E1101
+        date = make_aware(datetime.datetime(2012, 01, 01), self.tz)
+        self.mox.StubOutWithMock(timezone, 'now')
+        timezone.now().MultipleTimes().AndReturn(
+            make_aware(datetime.datetime(2013, 01, 01), self.tz))
+        self.mox.ReplayAll()
+        token = RandomToken.objects.generate(expiration_date=date)
+        self.assertTrue(token.is_expired())
+        self.mox.VerifyAll()
+
+
 class MajorTest(TestCase):
     fixtures = ['major.yaml', 'university.yaml']
 
