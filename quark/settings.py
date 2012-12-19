@@ -177,6 +177,7 @@ PROJECT_APPS = [
     'quark.auth',
     'quark.base',
     'quark.base_pie',
+    'quark.candidates',
     'quark.events',
     'quark.pie_register',
     'quark.qldap',
