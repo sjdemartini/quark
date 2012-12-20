@@ -16,13 +16,21 @@ class CandidateRequirement(models.Model):
         (CHALLENGE, 'Challenge'),
         (EXAM_FILE, 'Exam File'))
 
-    name = models.CharField(max_length=60, unique=True)
-    requirement_type = models.IntegerField(choices=TYPES)
+    name = models.CharField(max_length=60, db_index=True)
+    requirement_type = models.PositiveSmallIntegerField(choices=TYPES,
+                                                        db_index=True)
     credits_needed = models.IntegerField()
     term = models.ForeignKey(Term)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
+    def __unicode__(self):
+        return self.name
+
+    class Meta:
+        ordering = ('-term', 'requirement_type', 'name')
+        unique_together = ('name', 'term')
 
 
 class EventCandidateRequirement(CandidateRequirement):
@@ -37,3 +45,9 @@ class CandidateProgress(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
+    def __unicode__(self):
+        return u'%s: %s' % (self.user, self.requirement)
+
+    class Meta:
+        ordering = ('user', 'requirement')
