@@ -181,6 +181,7 @@ PROJECT_APPS = [
     'quark.events',
     'quark.pie_inventory',
     'quark.pie_register',
+    'quark.pie_tool_checkout',
     'quark.qldap',
     'quark.utils',
 ]
