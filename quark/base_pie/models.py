@@ -1,6 +1,6 @@
 import datetime
 
-from django.contrib.localflavor.us.models import USStateField
+from django_localflavor_us.models import USStateField
 from django.db import models
 from django.utils import timezone
 from quark.auth.models import User

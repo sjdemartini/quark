@@ -1,4 +1,4 @@
-from django.contrib.localflavor.us.models import PhoneNumberField
+from django_localflavor_us.models import PhoneNumberField
 from django.db import models
 
 from quark.auth.models import User
