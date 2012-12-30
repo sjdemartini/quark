@@ -48,11 +48,11 @@ class DevTest(TestCase):
             'thirdparty.bar']
         dev.run_command(
             'python manage.py loaddata '
-            '%s/quark/foo/fixtures/*.{yaml,json,xml}' %
+            '%s/quark/foo/fixtures/*.yaml' %
             (project_path))
         dev.run_command(
             'python manage.py loaddata '
-            '%s/thirdparty/bar/fixtures/*.{yaml,json,xml}' %
+            '%s/thirdparty/bar/fixtures/*.yaml' %
             (project_path))
 
         self.mox.ReplayAll()

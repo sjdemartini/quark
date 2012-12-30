@@ -40,6 +40,12 @@ OFFSETS = {
     # Please do not use port 999 since it is the shared port
 }
 
+# Get absolute directory path containing manage.py.
+# It should be two directories above quark/utils/dev.py
+PROJECT_ROOT = os.path.abspath(
+    os.path.dirname(os.path.dirname(os.path.dirname(
+        os.path.realpath(globals()['__file__'])))))
+
 
 def run_command(command):
     return_code = subprocess.call(command, shell=True)
@@ -63,13 +69,11 @@ def get_port(user, server_name):
 
 
 def load_initial_data():
-    # Grab the path to the root of the project
-    project_root = os.getcwd()
-
+    # We only load yaml fixtures. Python can't handle {} in globs
     for project in settings.PROJECT_APPS:
         imports = '/'.join(
-            [project_root] + project.split('.') +
-            ['fixtures', '*.{yaml,json,xml}'])
+            [PROJECT_ROOT] + project.split('.') +
+            ['fixtures', '*.yaml'])
         run_command('python manage.py loaddata %s' % imports)
 
 
@@ -81,7 +85,11 @@ def run_server(server_name):
     load_initial_data()
     run_command('python manage.py migrate')
     run_command('python manage.py collectstatic')
-    run_command('python manage.py runserver %s:%d' % (IP, port))
+    try:
+        run_command('python manage.py runserver %s:%d' % (IP, port))
+    except KeyboardInterrupt:
+        # Catch Ctrl-C and exit cleanly without a stacktrace
+        print('KeyboardInterrupt: Exiting')
 
 
 def error_out():
@@ -98,4 +106,7 @@ def main():
 
 
 if __name__ == '__main__':
+    # Need to add project directory to sys.path, and set env variables.
+    sys.path.append(PROJECT_ROOT)
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'quark.settings')
     main()
