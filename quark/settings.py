@@ -289,7 +289,8 @@ USERNAME_HELPTEXT = ('Username must be 3-30 character, start with a letter,'
 JENKINS_TASKS = (
     'django_jenkins.tasks.django_tests',
     'django_jenkins.tasks.run_csslint',
-    'django_jenkins.tasks.run_jshint',
+    # TODO(wli): re-enable jshint when it stops crashing.
+    # 'django_jenkins.tasks.run_jshint',
     'django_jenkins.tasks.run_pep8',
     'django_jenkins.tasks.run_pylint',
     'django_jenkins.tasks.run_sloccount',

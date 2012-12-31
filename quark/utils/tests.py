@@ -1,15 +1,17 @@
 import mox
-import os
 
+from django.core.management.base import CommandError
 from django.test import TestCase
+from django.test.utils import override_settings
 
 from quark.utils import create_dev_db
-from quark.utils import dev
+from quark.utils.management.commands import dev
 
 
 class DevTest(TestCase):
     def setUp(self):
         self.mox = mox.Mox()
+        self.command = dev.Command()
 
     def tearDown(self):
         self.mox.UnsetStubs()
@@ -21,99 +23,76 @@ class DevTest(TestCase):
             self.assertNotEqual(offset, 999)
 
     def test_port(self):
-        self.assertEqual(dev.get_port('wli', 'tbp'), 8080)
-        self.assertEqual(dev.get_port('wli', 'pie'), 9080)
-        self.assertEqual(dev.get_port('flieee', 'tbp'), 8085)
-        self.assertEqual(dev.get_port('flieee', 'pie'), 9085)
+        self.assertEqual(self.command.get_port('wli', 'tbp'), 8080)
+        self.assertEqual(self.command.get_port('wli', 'pie'), 9080)
+        self.assertEqual(self.command.get_port('flieee', 'tbp'), 8085)
+        self.assertEqual(self.command.get_port('flieee', 'pie'), 9085)
 
     def test_default_ports(self):
-        self.assertEqual(dev.get_port('', 'tbp'), 8999)
-        self.assertEqual(dev.get_port('', 'pie'), 9999)
+        self.assertEqual(self.command.get_port('', 'tbp'), 8999)
+        self.assertEqual(self.command.get_port('', 'pie'), 9999)
 
     def test_no_port(self):
-        self.assertIsNone(dev.get_port('', 'asdf'))
+        self.assertRaises(
+            CommandError, self.command.get_port, '', 'asdf')
 
-    def test_error_out(self):
-        self.assertRaises(SystemExit, dev.error_out)
-
+    @override_settings(PROJECT_APPS=['quark.foo', 'thirdparty.bar'],
+                       WORKSPACE_ROOT='root')
     def test_load_initial_data(self):
-        # Get current working directory
-        project_path = os.getcwd()
-        self.mox.StubOutWithMock(dev, 'run_command')
+        self.mox.StubOutWithMock(dev, 'execute_from_command_line')
+        self.mox.StubOutWithMock(dev, 'glob')
 
-        # Over-ride the PROJECT_APPS list
-        self.mox.StubOutWithMock(dev, 'settings')
-        dev.settings.PROJECT_APPS = [
-            'quark.foo',
-            'thirdparty.bar']
-        dev.run_command(
-            'python manage.py loaddata '
-            '%s/quark/foo/fixtures/*.yaml' %
-            (project_path))
-        dev.run_command(
-            'python manage.py loaddata '
-            '%s/thirdparty/bar/fixtures/*.yaml' %
-            (project_path))
+        # Disable for the AndReturn calls.
+        # pylint: disable=E1101
+        dev.glob.glob(
+            'root/quark/foo/fixtures/*.yaml').AndReturn(['file1'])
+        dev.glob.glob(
+            'root/thirdparty/bar/fixtures/*.yaml').AndReturn(
+                ['file2', 'file3'])
+        # pylint: enable=E1101
+
+        dev.execute_from_command_line(
+            ['manage.py', 'loaddata', 'file1', 'file2', 'file3'])
 
         self.mox.ReplayAll()
-        dev.load_initial_data()
+        self.command.load_initial_data()
         self.mox.VerifyAll()
 
-    def test_run_server(self):
+    @override_settings(PROJECT_APPS=[], WORKSPACE_ROOT='root')
+    def test_no_initial_data(self):
+        self.mox.ReplayAll()
+        self.command.load_initial_data()
+        self.mox.VerifyAll()
+
+    @override_settings(PROJECT_APPS=[])
+    def test_handle(self):
         # We don't want to run the resulting run_command calls, so we stub it
         # out. We just want to know that it doesn't raise an exception.
-        self.mox.StubOutWithMock(dev, 'run_command')
+        self.mox.StubOutWithMock(dev, 'execute_from_command_line')
         self.mox.StubOutWithMock(dev.getpass, 'getuser')
 
         # Force shared port.
         dev.getpass.getuser().AndReturn('foo')
 
-        dev.run_command('python manage.py syncdb')
-        dev.load_initial_data()
-        dev.run_command('python manage.py migrate')
-        dev.run_command('python manage.py collectstatic')
-        dev.run_command('python manage.py runserver 0.0.0.0:8999')
+        dev.execute_from_command_line(['manage.py', 'syncdb'])
+        dev.execute_from_command_line(['manage.py', 'migrate'])
+        dev.execute_from_command_line(
+            ['manage.py', 'collectstatic', '--noinput'])
+        dev.execute_from_command_line(
+            ['manage.py', 'runserver', '0.0.0.0:8999'])
         self.mox.ReplayAll()
-        dev.run_server('tbp')
+        self.command.handle('tbp')
         self.mox.VerifyAll()
 
-    def test_run_server_fail(self):
-        # In case this test doesn't do as we expect, we don't want to run the
-        # resulting run_command calls, so we stub it out.
-        self.mox.StubOutWithMock(dev, 'run_command')
-        self.assertRaises(SystemExit, dev.run_server, 'asdf')
+    def test_handle_fail_few_arguments(self):
+        self.mox.StubOutWithMock(dev, 'execute_from_command_line')
+        self.assertRaises(
+            CommandError, self.command.handle)
 
-    def test_run_command(self):
-        self.mox.StubOutWithMock(dev.subprocess, 'call')
-        dev.subprocess.call('foo', shell=True).AndReturn(0)
-        self.mox.ReplayAll()
-        self.assertTrue(dev.run_command('foo'))
-        self.mox.VerifyAll()
-
-    def test_run_command_fail(self):
-        self.mox.StubOutWithMock(dev.subprocess, 'call')
-        dev.subprocess.call('foo', shell=True).AndReturn(1)
-        self.mox.ReplayAll()
-        self.assertRaises(SystemExit, dev.run_command, 'foo')
-        self.mox.VerifyAll()
-
-    def test_main(self):
-        self.mox.StubOutWithMock(dev, 'run_server')
-        dev.sys.argv = ['dev', 'tbp']
-        dev.run_server('tbp')
-        self.mox.ReplayAll()
-        dev.main()
-        self.mox.VerifyAll()
-
-    def test_main_fail_few_arguments(self):
-        self.mox.StubOutWithMock(dev, 'run_server')
-        dev.sys.argv = ['foo']
-        self.assertRaises(SystemExit, dev.main)
-
-    def test_main_fail_too_many_args(self):
-        self.mox.StubOutWithMock(dev, 'run_server')
-        dev.sys.argv = ['foo', 'bar', 'baz']
-        self.assertRaises(SystemExit, dev.main)
+    def test_handle_fail_too_many_args(self):
+        self.mox.StubOutWithMock(dev, 'execute_from_command_line')
+        self.assertRaises(
+            CommandError, self.command.handle, 'foo', 'bar')
 
 
 class CreateDevDbTest(TestCase):
