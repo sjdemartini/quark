@@ -1,9 +1,9 @@
 import datetime
 
-from django.contrib.auth.models import User
 from django.test import TestCase
 from django.utils import timezone
 
+from quark.auth.models import User
 from quark.base.models import OfficerPosition
 from quark.base.models import Term
 from quark.events.models import Event
@@ -13,8 +13,11 @@ from quark.events.models import EventType
 class EventsTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
-            'officer', 'it@tbp.berkeley.edu', 'officerpw')
-        self.user.save()
+            username='officer',
+            email='it@tbp.berkeley.edu',
+            password='testofficerpw',
+            first_name='Off',
+            last_name='Icer')
 
         self.committee = OfficerPosition(
             position_type=OfficerPosition.TBP_OFFICER,

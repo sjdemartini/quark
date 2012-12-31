@@ -1,9 +1,10 @@
 import uuid
 
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
+
+from quark.auth.models import User
 
 
 class RandomTokenManager(models.Manager):
@@ -145,7 +146,6 @@ class Term(models.Model):
 
     objects = TermManager()
 
-    # pylint: disable-msg=E1002
     def save(self, *args, **kwargs):
         """
         We need to only have one current term. We'll do this by setting all

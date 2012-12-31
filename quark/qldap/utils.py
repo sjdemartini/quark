@@ -7,31 +7,26 @@ import ldap
 import os
 import re
 
+from django.conf import settings
 from django.core.mail import mail_admins
 from django.utils.encoding import smart_bytes
 
-from quark.auth.models import User
-from quark.settings import LDAP
-from quark.settings import LDAP_BASE
-from quark.settings import LDAP_DEFAULT_USER
-from quark.settings import VALID_USERNAME
-from quark.settings import USERNAME_HELPTEXT
-
 
 # Compile username validator, or match all if not set.
-USERNAME_REGEX = re.compile(VALID_USERNAME or '')
+USERNAME_REGEX = re.compile(settings.VALID_USERNAME or '')
 
 
 # smart_bytes is used to convert unicode to byte strings for python-ldap.
 # In the future, when python-ldap supports python3/unicode,
 # this will no longer be necessary.
-def initialize(base_dn=LDAP_BASE['DN'], base_pw=LDAP_BASE['PASSWORD']):
+def initialize(base_dn=settings.LDAP_BASE['DN'],
+               base_pw=settings.LDAP_BASE['PASSWORD']):
     """
     Connects to LDAP and returns a handle for the connection
     If it failed to connect, returns None
     """
     try:
-        ldap_handle = ldap.initialize(LDAP['HOST'])
+        ldap_handle = ldap.initialize(settings.LDAP['HOST'])
         ldap_handle.protocol_version = ldap.VERSION3
         ldap_handle.simple_bind_s(base_dn, base_pw)
         return ldap_handle
@@ -54,20 +49,21 @@ def username_exists(username):
 
     searchstr = '(uid=%s)' % smart_bytes(username)
     try:
-        entry = ldap_handle.search_s(LDAP_BASE['PEOPLE'], LDAP['SCOPE'],
+        entry = ldap_handle.search_s(settings.LDAP_BASE['PEOPLE'],
+                                     settings.LDAP['SCOPE'],
                                      searchstr)
         return bool(entry)
     except ldap.LDAPError:
         return None
 
 
-def create_user(username, password, first_name, last_name):
+def create_user(username, password, email, first_name, last_name):
     """
     Creates a new user in the People LDAP tree.
     Returns True on success, False otherwise (including errors)
     """
     # All fields are required. Fails if any are empty
-    if not (username and password and first_name and last_name):
+    if not (username and password and email and first_name and last_name):
         return False
 
     # Username must pass regex
@@ -81,15 +77,17 @@ def create_user(username, password, first_name, last_name):
     user_uid = smart_bytes(username)
     user_gn = smart_bytes(first_name)
     user_sn = smart_bytes(last_name)
+    mail = smart_bytes(email)
 
-    user_dn = 'uid=%s,%s' % (user_uid, LDAP_BASE['PEOPLE'])
+    user_dn = 'uid=%s,%s' % (user_uid, settings.LDAP_BASE['PEOPLE'])
     attr = [
         ('objectClass', ['top', 'inetOrgPerson']),
         ('uid', user_uid),
         ('userPassword', obfuscate(password)),
         ('givenName', user_gn),
         ('sn', user_sn),
-        ('cn', '%s %s' % (user_gn, user_sn))
+        ('cn', '%s %s' % (user_gn, user_sn)),
+        ('mail', mail)
     ]
 
     try:
@@ -114,7 +112,7 @@ def delete_user(username):
         return False
 
     user_uid = smart_bytes(username)
-    user_dn = 'uid=%s,%s' % (user_uid, LDAP_BASE['PEOPLE'])
+    user_dn = 'uid=%s,%s' % (user_uid, settings.LDAP_BASE['PEOPLE'])
 
     try:
         ldap_handle.delete_s(user_dn)
@@ -127,7 +125,8 @@ def delete_user(username):
 
 def rename_user(username, new_username):
     """
-    Renames a user. Both arguments are mandatory.
+    Renames a user. Only updates LDAP. Does not save model.
+    Both arguments are mandatory.
     Returns a (bool, string) tuple for success and reason.
     """
     if not (username and new_username):
@@ -142,20 +141,13 @@ def rename_user(username, new_username):
 
     # Validate new username
     if USERNAME_REGEX.match(new_username) is None:
-        return (False, 'Invalid username. ' + USERNAME_HELPTEXT)
-
-    # Make sure user exists in database
-    try:
-        user = User.objects.get(username=username)
-    except:
-        return (False, 'User does not exist in database')
+        return (False, 'Invalid username. ' + settings.USERNAME_HELPTEXT)
 
     # Make sure new username not yet taken
-    if (User.objects.filter(username=new_username).exists() or
-            username_exists(new_username)):
+    if username_exists(new_username):
         return (False, 'Requested username is already taken')
 
-    old_dn = 'uid=%s,%s' % (username, LDAP_BASE['PEOPLE'])
+    old_dn = 'uid=%s,%s' % (username, settings.LDAP_BASE['PEOPLE'])
     new_rdn = 'uid=%s' % (new_username)
 
     try:
@@ -166,7 +158,8 @@ def rename_user(username, new_username):
     # Search in posixGroups (i.e. cn=web) for old username and replace
     # with new username. groupOfNames are automatically changed by rename_s
     search_str = '(memberUid=%s)' % (username)
-    group_results = ldap_handle.search_s(LDAP_BASE['GROUP'], LDAP['SCOPE'],
+    group_results = ldap_handle.search_s(settings.LDAP_BASE['GROUP'],
+                                         settings.LDAP['SCOPE'],
                                          search_str)
     for (gdn, gattr) in group_results:
         new_g = copy.copy(gattr)
@@ -177,9 +170,6 @@ def rename_user(username, new_username):
             ldap_handle.modify_s(gdn, mod_g)
         except ldap.LDAPError:
             return (False, 'LDAP error while migrating groups')
-
-    user.username = new_username
-    user.save()
 
     return (True, 'User %s renamed to %s' % (username, new_username))
 
@@ -192,10 +182,6 @@ def mod_user_group(username, group, action=ldap.MOD_ADD):
     if action not in [ldap.MOD_ADD, ldap.MOD_DELETE]:
         return False
 
-    # check for valid username/group
-    if not User.objects.filter(username=username).exists():
-        return False
-
     ldap_handle = initialize()
     if ldap_handle is None:
         return False
@@ -203,11 +189,11 @@ def mod_user_group(username, group, action=ldap.MOD_ADD):
     username = smart_bytes(username)
     group = smart_bytes(group)
 
-    gdn = 'cn=%s,%s' % (group, LDAP_BASE['GROUP'])
+    gdn = 'cn=%s,%s' % (group, settings.LDAP_BASE['GROUP'])
     if get_group_member_attr(group) == 'memberUid':
         attr = [(action, 'memberUid', username)]
     else:
-        udn = 'uid=%s,%s' % (username, LDAP_BASE['PEOPLE'])
+        udn = 'uid=%s,%s' % (username, settings.LDAP_BASE['PEOPLE'])
         attr = [(action, 'member', udn)]
 
     try:
@@ -227,7 +213,7 @@ def set_password(username, password):
         return False
 
     username = smart_bytes(username)
-    udn = 'uid=%s,%s' % (username, LDAP_BASE['PEOPLE'])
+    udn = 'uid=%s,%s' % (username, settings.LDAP_BASE['PEOPLE'])
     attr = [(ldap.MOD_REPLACE, 'userPassword', obfuscate(password))]
 
     try:
@@ -249,9 +235,10 @@ def set_email(username, email):
     username = smart_bytes(username)
     email = smart_bytes(email)
 
-    udn = 'uid=%s,%s' % (username, LDAP_BASE['PEOPLE'])
+    udn = 'uid=%s,%s' % (username, settings.LDAP_BASE['PEOPLE'])
     try:
-        email_results = ldap_handle.search_s(udn, LDAP['SCOPE'], '(mail=*)')
+        email_results = ldap_handle.search_s(
+            udn, settings.LDAP['SCOPE'], '(mail=*)')
     except ldap.LDAPError:
         return False
 
@@ -277,9 +264,10 @@ def get_email(username):
         return False
 
     username = smart_bytes(username)
-    udn = 'uid=%s,%s' % (username, LDAP_BASE['PEOPLE'])
+    udn = 'uid=%s,%s' % (username, settings.LDAP_BASE['PEOPLE'])
     try:
-        entry = ldap_handle.search_s(udn, LDAP['SCOPE'], '(mail=*)', ['mail'])
+        entry = ldap_handle.search_s(
+            udn, settings.LDAP['SCOPE'], '(mail=*)', ['mail'])
     except ldap.LDAPError:
         return False
     entry_len = len(entry)
@@ -317,14 +305,16 @@ def check_password(username, password):
 
         # attempt to bind as user
         try:
-            user_dn = 'uid=%s,%s' % (username, LDAP_BASE['PEOPLE'])
+            user_dn = 'uid=%s,%s' % (username, settings.LDAP_BASE['PEOPLE'])
             out = initialize(user_dn, password)
             if out is not None:
                 # Authentication successful; attempt to migrate password
                 searchstr = '(&(objectClass=inetOrgPerson)(uid=%s))' % username
-                pw_result = ldap_handle.search_s(LDAP_BASE['PEOPLE'],
-                                                 LDAP['SCOPE'], searchstr,
-                                                 ['userPassword'])
+                pw_result = ldap_handle.search_s(
+                    settings.LDAP_BASE['PEOPLE'],
+                    settings.LDAP['SCOPE'],
+                    searchstr,
+                    ['userPassword'])
                 # pw_result must be of the form:
                 # [(DN, {'userPassword': ['password',],}),]
                 if len(pw_result) != 1 or len(pw_result[0]) != 2:
@@ -387,10 +377,11 @@ def is_group_member(username, group):
     group = smart_bytes(group)
 
     filter_pattern = '(&(cn=%s)(|(memberUid=%s)(member=uid=%s,%s)))' % (
-        group, username, username, LDAP_BASE['PEOPLE'])
+        group, username, username, settings.LDAP_BASE['PEOPLE'])
 
     try:
-        result = ldap_handle.search_s(LDAP_BASE['GROUP'], LDAP['SCOPE'],
+        result = ldap_handle.search_s(settings.LDAP_BASE['GROUP'],
+                                      settings.LDAP['SCOPE'],
                                       filter_pattern)
     except ldap.LDAPError:
         return False
@@ -443,7 +434,7 @@ def create_group(group, object_class='groupOfNames'):
     if ldap_handle is None:
         return False
 
-    group_dn = 'cn=%s,%s' % (group, LDAP_BASE['GROUP'])
+    group_dn = 'cn=%s,%s' % (group, settings.LDAP_BASE['GROUP'])
     attr = [
         ('objectClass', ['top', object_class]),
         ('cn', group),
@@ -454,7 +445,7 @@ def create_group(group, object_class='groupOfNames'):
         # at all times, so add the default user to this new groupOfNames group
         # initially. (Note that the default user can later be removed after
         # other members have been added, if desired.):
-        attr.append(('member', LDAP_DEFAULT_USER))
+        attr.append(('member', settings.LDAP_DEFAULT_USER))
     else:
         attr.append(('gidNumber', str(generate_new_gidnumber())))
 
@@ -480,7 +471,8 @@ def generate_new_gidnumber():
     # Search for any group:
     searchstr = '(cn=*)'
     try:
-        entries = ldap_handle.search_s(LDAP_BASE['GROUP'], LDAP['SCOPE'],
+        entries = ldap_handle.search_s(settings.LDAP_BASE['GROUP'],
+                                       settings.LDAP['SCOPE'],
                                        searchstr)
     except ldap.LDAPError:
         return False
@@ -527,7 +519,7 @@ def delete_group(group):
         return False
 
     group = smart_bytes(group)
-    group_dn = 'cn=%s,%s' % (group, LDAP_BASE['GROUP'])
+    group_dn = 'cn=%s,%s' % (group, settings.LDAP_BASE['GROUP'])
 
     try:
         ldap_handle.delete_s(group_dn)
@@ -550,7 +542,8 @@ def group_exists(group):
     group = smart_bytes(group)
     searchstr = '(cn=%s)' % group
     try:
-        entry = ldap_handle.search_s(LDAP_BASE['GROUP'], LDAP['SCOPE'],
+        entry = ldap_handle.search_s(settings.LDAP_BASE['GROUP'],
+                                     settings.LDAP['SCOPE'],
                                      searchstr)
         return bool(entry)
     except ldap.LDAPError:
@@ -570,7 +563,8 @@ def get_group_member_attr(group):
     group = smart_bytes(group)
     searchstr = '(cn=%s)' % group
     try:
-        entry = ldap_handle.search_s(LDAP_BASE['GROUP'], LDAP['SCOPE'],
+        entry = ldap_handle.search_s(settings.LDAP_BASE['GROUP'],
+                                     settings.LDAP['SCOPE'],
                                      searchstr)
     except ldap.LDAPError:
         return False
@@ -602,7 +596,8 @@ def get_group_members(group):
     group = smart_bytes(group)
     searchstr = '(cn=%s)' % group
     try:
-        entry = ldap_handle.search_s(LDAP_BASE['GROUP'], LDAP['SCOPE'],
+        entry = ldap_handle.search_s(settings.LDAP_BASE['GROUP'],
+                                     settings.LDAP['SCOPE'],
                                      searchstr)
     except ldap.LDAPError:
         return False
@@ -636,7 +631,8 @@ def clear_group_members(group):
     group = smart_bytes(group)
     searchstr = '(cn=%s)' % group
     try:
-        entry = ldap_handle.search_s(LDAP_BASE['GROUP'], LDAP['SCOPE'],
+        entry = ldap_handle.search_s(settings.LDAP_BASE['GROUP'],
+                                     settings.LDAP['SCOPE'],
                                      searchstr)
     except ldap.LDAPError:
         return False
@@ -652,17 +648,17 @@ def clear_group_members(group):
     members = get_group_members(group)
     member_attribute = get_group_member_attr(group)
 
-    if LDAP_DEFAULT_USER in members:
+    if settings.LDAP_DEFAULT_USER in members:
         # Do not wish to remove the default user from the ldap group, so remove
         # it from the members list
-        members.remove(LDAP_DEFAULT_USER)
+        members.remove(settings.LDAP_DEFAULT_USER)
     elif 'groupOfNames' in group_classes:
         # If the default user is not in the list of members and the group is in
         # the groupOfNames class (implying that the group requires at least 1
         # member in the group), then add the default user to the ldap group,
         # but not to the list "members" (to prevent the default user from being
         # subsequently removed)
-        modlist = [(ldap.MOD_ADD, member_attribute, LDAP_DEFAULT_USER)]
+        modlist = [(ldap.MOD_ADD, member_attribute, settings.LDAP_DEFAULT_USER)]
         ldap_handle.modify_s(group_dn, modlist)
 
     modlist = [(ldap.MOD_DELETE, member_attribute, member)

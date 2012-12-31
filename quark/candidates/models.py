@@ -1,6 +1,6 @@
-from django.contrib.auth.models import User
 from django.db import models
 
+from quark.auth.models import User
 from quark.base.models import Term
 from quark.events.models import EventType
 

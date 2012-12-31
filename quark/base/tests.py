@@ -2,7 +2,7 @@ import datetime
 import mox
 import uuid
 
-from django.contrib.auth.models import User
+from quark.auth.models import User
 from django.db import IntegrityError
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -139,8 +139,11 @@ class OfficerTest(TestCase):
 
     def setUp(self):
         self.user = User.objects.create_user(
-            'officer', 'it@tbp.berkeley.edu', 'officerpw')
-        self.user.save()
+            username='officer',
+            email='it@tbp.berkeley.edu',
+            password='officerpw',
+            first_name='Off',
+            last_name='Icer')
         self.term = Term(term=Term.SPRING, year=2012, current=True)
         self.term.save()
         self.position = OfficerPosition(
