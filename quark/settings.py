@@ -182,6 +182,7 @@ PROJECT_APPS = [
     'quark.pie_inventory',
     'quark.pie_register',
     'quark.pie_tool_checkout',
+    'quark.project_reports',
     'quark.qldap',
     'quark.utils',
 ]
