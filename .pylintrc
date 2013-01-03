@@ -16,7 +16,8 @@ cache-size=500
 # W0613 Unused argument %r Used when a function or method argument is not used.
 # W0702 No exception's type specified Used when an except clause doesn't specify exceptions type to catch.
 # R0201 Method could be a function
-disable=C0111,E1002,I0011,I0012,W0704,W0142,W0212,W0232,W0613,W0702,R0201
+# R0924 Badly implemented Container (or other protocol), implements some but not all of those methods
+disable=C0111,E1002,I0011,I0012,W0704,W0142,W0212,W0232,W0613,W0702,R0201,R0924
 
 [REPORTS]
 output-format=parseable
@@ -46,7 +47,7 @@ zope=no
 
 # List of members which are set dynamically and missed by pylint inference
 # system, and so shouldn't trigger E0201 when accessed.
-generated-members=objects,DoesNotExist,id,pk,_meta,base_fields,context,is_valid,cleaned_data
+generated-members=objects,DoesNotExist,id,pk,_meta,base_fields,context,is_valid,cleaned_data,errors
 
 # List of method names used to declare (i.e. assign) instance attributes
 defining-attr-methods=__init__,__new__,setUp

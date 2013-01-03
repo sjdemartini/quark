@@ -177,7 +177,9 @@ PROJECT_APPS = [
     'quark.base',
     'quark.base_pie',
     'quark.candidates',
+    'quark.emailer',
     'quark.events',
+    'quark.helpdesk',
     'quark.pie_inventory',
     'quark.pie_register',
     'quark.pie_staff_purchase',
@@ -264,6 +266,31 @@ CMS_MEDIA_ROOT = '/cms/'
 CMS_TEMPLATES = (
     ('base.html', 'Base'),
 )
+
+# TODO(nitishp) Add actual emails (noiro was missing them too...)
+# Emailer stuff
+ENABLE_HELPDESKQ = False
+
+RESUMEQ_CC_ADDRESS = 'test@tbp.berkeley.edu'
+
+# Email addresses
+HELPDESK_ADDRESS = 'test@tbp.berkeley.edu'
+INDREL_ADDRESS = 'test@tbp.berkeley.edu'
+IT_ADDRESS = 'test@tbp.berkeley.edu'
+STARS_ADDRESS = 'test@tbp.berkeley.edu'
+
+# Should we cc people who ask us questions?
+HELPDESK_CC_ASKER = False
+
+# Do we send spam notices?
+HELPDESK_SEND_SPAM_NOTICE = True
+# where?
+HELPDESK_NOTICE_TO = 'test@tbp.berkeley.edu'
+
+# Do we send messages known to be spam?
+HELPDESK_SEND_SPAM = False
+# where?
+HELPDESK_SPAM_TO = 'test@tbp.berkeley.edu'
 
 # YouTube Secret Stuff
 YT_USERNAME = 'BerkeleyTBP'
