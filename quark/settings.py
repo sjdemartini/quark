@@ -177,6 +177,7 @@ PROJECT_APPS = [
     'quark.base',
     'quark.base_pie',
     'quark.candidates',
+    'quark.courses',
     'quark.emailer',
     'quark.events',
     'quark.helpdesk',
