@@ -96,6 +96,9 @@ class Course(models.Model):
     def abbreviation(self):
         return '%s %s' % (self.department.short_name, self.number)
 
+    def get_url_name(self):
+        return '%s%s' % (self.department.slug, self.number)
+
     def save(self, *args, **kwargs):
         self.number = self.number.upper().strip()
         super(Course, self).save(*args, **kwargs)
