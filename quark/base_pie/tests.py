@@ -193,12 +193,11 @@ class SchoolTest(TestCase):
     def test_uniqueness(self):
         school = School(name='Testing High School',
                         street_number=1234, street='Test St.', city='Berkeley',
-                        state='California', zipcode=94704)
+                        state='CA', zipcode=94704)
         school.save()
         duplicate_school = School(name='Testing High School',
                                   street_number=1234, street='Test St.',
-                                  city='Berkeley', state='California',
-                                  zipcode=94704)
+                                  city='Berkeley', state='CA', zipcode=94704)
         self.assertRaises(IntegrityError, duplicate_school.save)
 
 
@@ -206,7 +205,7 @@ class TeamTest(TestCase):
     def test_friendly_name(self):
         school = School(name='Testing High School',
                         street_number=1234, street='Test St.', city='Berkeley',
-                        state='California', zipcode=94704)
+                        state='CA', zipcode=94704)
         season = Season.objects.get_current_season()
         team = Team(number=1, name='Pink Team', school=school, season=season)
         self.assertEqual(team.friendly_name(), 'Team 1: Testing High School')
