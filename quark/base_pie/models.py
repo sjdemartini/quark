@@ -85,6 +85,7 @@ class Season(models.Model):
             season += ' (Current)'
         return season
 
+    # pylint: disable-msg=E1002
     def save(self, *args, **kwargs):
         if not Season.is_valid_year(self.year):
             raise ValueError(Season.BAD_YEAR_MESSAGE)

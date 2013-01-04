@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Use virtualenv with Django-1.5 installed.
+source /home/tbp/virtualenv/django15/bin/activate
+
 # The following conditions must be true for jenkins to return true:
 #   1. The tests must pass.
 #   2. pylint must be perfect, as evidenced by a perfect score of "10.00/10".
