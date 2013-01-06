@@ -1,6 +1,7 @@
 import re
 
 from django.db import models
+from django.utils import timezone
 
 from quark.auth.models import User
 from quark.base.models import OfficerPosition
@@ -47,16 +48,25 @@ class ProjectReport(models.Model):
                                             blank=True)
     non_tbp = models.PositiveSmallIntegerField(default=0)
     complete = models.BooleanField(default=False)
+    first_completed_at = models.DateTimeField(null=True, blank=True)
     attachment = models.FileField(upload_to='pr', blank=True)
+
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
         return '%s (%s)' % (self.title, self.date)
 
-    def wordcount(self):
-        text = ([self.description, self.purpose, self.organization, self.cost,
-                self.problems, self.results])
-        return len([x for x in re.split(r'\W+', text) if len(x) > 0])
+    def save(self, *args, **kwargs):
+        if self.first_completed_at is None and self.complete:
+            self.first_completed_at = timezone.now()
+        elif not self.complete:
+            self.first_completed_at = None
+        super(ProjectReport, self).save(*args, **kwargs)
+
+    def word_count(self):
+        text = [self.description, self.purpose, self.organization, self.cost,
+                self.problems, self.results]
+        return len([x for x in re.split(r'\W+', ' '.join(text)) if len(x) > 0])
 
     # TODO(giovanni): Implement user_notification when UserNotification is up
