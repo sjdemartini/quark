@@ -16,8 +16,8 @@ class EventsTest(TestCase):
             username='officer',
             email='it@tbp.berkeley.edu',
             password='testofficerpw',
-            first_name='Off',
-            last_name='Icer')
+            first_name='Bentley',
+            last_name='Bent')
 
         self.committee = OfficerPosition(
             position_type=OfficerPosition.TBP_OFFICER,
@@ -32,6 +32,15 @@ class EventsTest(TestCase):
 
         self.event_type, _ = EventType.objects.get_or_create(
             name='Test Event Type')
+
+    def create_tbp_event(self, start_time, end_time, name='My Test Event'):
+        return Event(name=name,
+                     event_type=self.event_type,
+                     start_datetime=start_time,
+                     end_datetime=end_time,
+                     term=self.term,
+                     location='A test location',
+                     contact=self.user)
 
     def test_eventtype_get_by_natural_key(self):
         event_type_name = 'New Test Event Type'
@@ -48,13 +57,7 @@ class EventsTest(TestCase):
         # Create an event that hasn't started yet:
         start_time = timezone.now() + datetime.timedelta(hours=2)
         end_time = start_time + datetime.timedelta(hours=3)
-        event = Event(name='My Test Event',
-                      event_type=self.event_type,
-                      term=self.term,
-                      start_datetime=start_time,
-                      end_datetime=end_time,
-                      location='A test location',
-                      contact=self.user)
+        event = self.create_tbp_event(start_time, end_time)
         event.save()
         self.assertTrue(event.is_upcoming())
         event.cancelled = True
@@ -64,13 +67,8 @@ class EventsTest(TestCase):
         # Create an event that has already started but hasn't ended yet:
         start_time = timezone.now() - datetime.timedelta(hours=2)
         end_time = timezone.now() + datetime.timedelta(hours=3)
-        event = Event(name='My Ongoing Event',
-                      event_type=self.event_type,
-                      term=self.term,
-                      start_datetime=start_time,
-                      end_datetime=end_time,
-                      location='Another test location',
-                      contact=self.user)
+        event = self.create_tbp_event(start_time, end_time,
+                                      name='My Ongoing Event')
         event.save()
         self.assertTrue(event.is_upcoming())
         event.cancelled = True
@@ -80,13 +78,8 @@ class EventsTest(TestCase):
         # Create an event that has already ended:
         start_time = timezone.now() - datetime.timedelta(days=2)
         end_time = start_time + datetime.timedelta(hours=3)
-        event = Event(name='My Old Event',
-                      event_type=self.event_type,
-                      term=self.term,
-                      start_datetime=start_time,
-                      end_datetime=end_time,
-                      location='Yet another test location',
-                      contact=self.user)
+        event = self.create_tbp_event(start_time, end_time,
+                                      name='My Old Event')
         event.save()
         self.assertFalse(event.is_upcoming())
         event.cancelled = True
@@ -96,24 +89,14 @@ class EventsTest(TestCase):
     def test_is_multiday(self):
         start_time = timezone.now()
         end_time = start_time + datetime.timedelta(days=1)
-        event = Event(name='My Multiday Event',
-                      event_type=self.event_type,
-                      term=self.term,
-                      start_datetime=start_time,
-                      end_datetime=end_time,
-                      location='A test location',
-                      contact=self.user)
+        event = self.create_tbp_event(start_time, end_time,
+                                      name='My Multiday Event')
         event.save()
         self.assertTrue(event.is_multiday())
 
         end_time = start_time + datetime.timedelta(weeks=1)
-        event = Event(name='My Weeklong Event',
-                      event_type=self.event_type,
-                      term=self.term,
-                      start_datetime=start_time,
-                      end_datetime=end_time,
-                      location='A test location',
-                      contact=self.user)
+        event = self.create_tbp_event(start_time, end_time,
+                                      name='My Weeklong Event')
         event.save()
         self.assertTrue(event.is_multiday())
 
@@ -121,13 +104,8 @@ class EventsTest(TestCase):
         # time goes into the following day:
         start_time = start_time.replace(hour=3, minute=14)
         end_time = start_time + datetime.timedelta(hours=15)
-        event = Event(name='My Non-multiday Event',
-                      event_type=self.event_type,
-                      term=self.term,
-                      start_datetime=start_time,
-                      end_datetime=end_time,
-                      location='A test location',
-                      contact=self.user)
+        event = self.create_tbp_event(start_time, end_time,
+                                      name='My Non-multiday Event')
         event.save()
         self.assertFalse(event.is_multiday())
 
@@ -136,13 +114,8 @@ class EventsTest(TestCase):
         start_time = start_time.replace(month=3, day=14, year=2015, hour=9,
                                         minute=26)
         end_time = start_time + datetime.timedelta(hours=2)
-        event = Event(name='My Pi Day Event',
-                      event_type=self.event_type,
-                      term=self.term,
-                      start_datetime=start_time,
-                      end_datetime=end_time,
-                      location='A test location',
-                      contact=self.user)
+        event = self.create_tbp_event(start_time, end_time,
+                                      name='My Pi Day Event')
         event.save()
         self.assertEqual(event.list_date(), 'Sat, Mar 14')
 
@@ -161,13 +134,8 @@ class EventsTest(TestCase):
         start_time = start_time.replace(month=3, day=14, year=2015, hour=9,
                                         minute=26)
         end_time = start_time + datetime.timedelta(hours=2, minutes=6)
-        event = Event(name='My Pi Day Event',
-                      event_type=self.event_type,
-                      term=self.term,
-                      start_datetime=start_time,
-                      end_datetime=end_time,
-                      location='A test location',
-                      contact=self.user)
+        event = self.create_tbp_event(start_time, end_time,
+                                      name='My Pi Day Event')
         event.save()
         self.assertEqual(event.list_time(), '9:26 AM - 11:32 AM')
 
@@ -197,13 +165,8 @@ class EventsTest(TestCase):
         start_time = start_time.replace(month=3, day=14, year=2015, hour=9,
                                         minute=26)
         end_time = start_time + datetime.timedelta(hours=2, minutes=4)
-        event = Event(name='My Pi Day Event',
-                      event_type=self.event_type,
-                      term=self.term,
-                      start_datetime=start_time,
-                      end_datetime=end_time,
-                      location='A test location',
-                      contact=self.user)
+        event = self.create_tbp_event(start_time, end_time,
+                                      name='My Pi Day Event')
         event.save()
         self.assertEqual(event.view_datetime(),
                          'Sat, Mar 14 9:26 AM to 11:30 AM')
@@ -235,13 +198,8 @@ class EventsTest(TestCase):
     def test_get_committee(self):
         start_time = timezone.now() + datetime.timedelta(hours=2)
         end_time = start_time + datetime.timedelta(hours=3)
-        event = Event(name='My Test Event',
-                      event_type=self.event_type,
-                      term=self.term,
-                      start_datetime=start_time,
-                      end_datetime=end_time,
-                      location='A test location',
-                      contact=self.user)
+        event = self.create_tbp_event(start_time, end_time,
+                                      name='My Test Event')
         event.save()
         self.assertEqual(event.get_committee(), None)
 
