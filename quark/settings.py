@@ -174,6 +174,7 @@ CMS_TEMPLATES = (
 
 # All projects that we write (and thus, need to be tested) should go here.
 PROJECT_APPS = [
+    'quark.achievements',
     'quark.auth',
     'quark.base',
     'quark.base_pie',
