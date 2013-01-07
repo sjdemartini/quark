@@ -15,7 +15,7 @@ class Vendor(models.Model):
     url = models.URLField()
 
     created = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField(auto_now=True)
+    updated = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
         return 'Vendor %s' % self.name
@@ -36,6 +36,7 @@ class PartsReceipt(models.Model):
         (SHIPPING, 'Shipped'))
 
     confirmation_number = models.CharField(max_length=20)
+    # TODO(mattchang): validator for file types, restrict to txt, pdf
     receipt = models.FileField(upload_to='pie/receipts')
     status = models.CharField(
         max_length=3,
@@ -47,12 +48,21 @@ class PartsReceipt(models.Model):
     purchaser = models.ForeignKey(User)
 
     created = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField(auto_now=True)
+    updated = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
         # pylint: disable=E1101
         return 'Parts Receipt for %s at %s' % (
             self.purchaser.get_full_name(), str(self.vendor))
+
+
+class PartOrderManager(models.Manager):
+    def approved(self):
+        purchased = self.filter(
+            partorderstatus__status=PartOrderStatus.PURCHASED).values('id')
+        return self.filter(
+            partorderstatus__status=PartOrderStatus.APPROVED).exclude(
+                id__in=purchased)
 
 
 class PartOrder(models.Model):
@@ -98,8 +108,10 @@ class PartOrder(models.Model):
         choices=CATEGORIES)
     submitted_by = models.ForeignKey(User)
 
+    objects = PartOrderManager()
+
     created = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField(auto_now=True)
+    updated = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
         # pylint: disable=E1101
@@ -115,7 +127,7 @@ class PartOrderStatus(models.Model):
     APPROVED = 'apv'
     ARRIVED = 'arv'
     DENIED = 'dnd'
-    PENDING = 'pnd'
+    PENDING = 'pnd'  # Coord has been notified, but not yet approved
     PURCHASED = 'prd'
     REQUIRE_INFO = 'rmi'
     STATUS_OPTIONS = (
