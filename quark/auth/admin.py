@@ -14,9 +14,26 @@ class QuarkUserAdmin(UserAdmin):
     form = UserAdminChangeForm
     add_form = UserCreationForm
 
-    list_display = ('username', 'preferred_name', 'last_name', 'is_admin',)
-    list_filter = ('is_admin',)
-    search_fields = ('username', 'first_name', 'last_name', 'preferred_name',)
+    list_display = ('username', 'preferred_name', 'last_name', 'is_superuser',)
+    list_display_links = ('username', 'preferred_name', 'last_name',)
+    list_filter = ('is_superuser', 'groups')
+    fieldsets = (
+        (None, {'fields': ('username', 'password',)}),
+        ('Personal info', {'fields': ('first_name', 'middle_name', 'last_name',
+                                      'preferred_name', 'email',)}),
+        ('Permissions', {'fields': ('is_superuser',
+                                    'groups', 'user_permissions',)}),
+        ('Timestamps', {'classes': ('collapse',),
+                        'fields': ('created',)}),
+    )
+    add_fieldsets = (
+        (None, {'classes': ('wide',),
+                'fields': ('username', 'password1', 'password2',
+                           'email', 'first_name', 'middle_name', 'last_name',
+                           'preferred_name',)}),
+    )
+    search_fields = ('username', 'email',
+                     'first_name', 'last_name', 'preferred_name',)
     filter_horizontal = ()
 
 

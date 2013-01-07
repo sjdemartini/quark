@@ -10,8 +10,11 @@ from quark.pie_staff_purchase.models import Vendor
 class PartOrderStatusTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
-            'test_user', 'pit@pioneers.berkeley.edu', 'testpw')
-        self.user.save()
+            username='testuser',
+            email='pit@pioneers.berkeley.edu',
+            password='testpw',
+            first_name='Testy',
+            last_name='User')
 
         self.vendor = Vendor(
             name='McMaster',

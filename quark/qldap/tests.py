@@ -3,7 +3,9 @@ from ldap import MOD_ADD
 from django.conf import settings
 from django.test import TestCase
 from django.test.client import Client
+from django.test.utils import override_settings
 
+from quark.auth.models import User
 from quark.qldap import utils
 
 
@@ -18,10 +20,12 @@ class LDAPTestCase(TestCase):
         self.email = 'test@tbp.berkeley.edu'
         self.group_of_names = 'test_group_of_names'
         self.posix_group = 'test_posix_group'
+        self.super_group = 'test-it'
         utils.create_user(self.user, self.password, self.email,
                           self.first_name, self.last_name)
         utils.create_group(self.group_of_names, object_class='groupOfNames')
         utils.create_group(self.posix_group, object_class='posixGroup')
+        utils.create_group(self.super_group, object_class='posixGroup')
 
     def tearDown(self):
         if utils.username_exists(self.user):
@@ -32,9 +36,10 @@ class LDAPTestCase(TestCase):
         # Remove groups:
         utils.delete_group(self.group_of_names)
         self.assertFalse(utils.group_exists(self.group_of_names))
-
         utils.delete_group(self.posix_group)
         self.assertFalse(utils.group_exists(self.posix_group))
+        utils.delete_group(self.super_group)
+        self.assertFalse(utils.group_exists(self.super_group))
 
     def test_can_connect(self):
         bad_dn = 'cn=fakeldap,dc=tbp,dc=berkeley,dc=edu'
@@ -140,9 +145,14 @@ class LDAPTestCase(TestCase):
         # Number for first char
         self.assertIsNone(utils.USERNAME_REGEX.match('123'))
 
+    @override_settings(DEBUG=True)
     def test_backend_auth(self):
+        self.assertTrue(utils.mod_user_group(
+            self.user, self.super_group, action=MOD_ADD))
         client = Client()
         self.assertTrue(client.login(username=self.user,
                                      password=self.password))
+        new_user = User.objects.get(username=self.user)
+        self.assertTrue(new_user.is_superuser)
         self.assertFalse(client.login(username=self.user, password=''))
         self.assertFalse(client.login(username='superfakeuser', password=''))

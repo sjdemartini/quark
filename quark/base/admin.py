@@ -4,8 +4,8 @@ from quark.base.models import RandomToken
 
 
 class RandomTokenAdmin(admin.ModelAdmin):
-    list_display = ('email', 'season', 'user', 'used', 'created')
-    list_filter = ('used', 'created')
+    list_display = ('email', 'user', 'used', 'created', 'expiration_date',)
+    list_filter = ('used', 'created', 'expiration_date',)
     search_fields = ('email',)
 
 

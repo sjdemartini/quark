@@ -44,11 +44,9 @@ class QuarkUserManager(BaseUserManager):
 
     def create_superuser(self, username, email, password,
                          first_name, last_name, **extra_fields):
-        user = self.create_user(username, email, password,
-                                first_name, last_name, **extra_fields)
-        user.is_admin = True
-        user.save()
-        return user
+        return self.create_user(username, email, password,
+                                first_name, last_name,
+                                is_superuser=True, **extra_fields)
 
 
 class QuarkUser(AbstractBaseUser, PermissionsMixin):
@@ -70,7 +68,7 @@ class QuarkUser(AbstractBaseUser, PermissionsMixin):
         db_index=True,
         help_text='What would you like us to call you? (Optional)')
 
-    date_joined = models.DateTimeField(default=timezone.now)
+    created = models.DateTimeField(default=timezone.now)
 
     objects = QuarkUserManager()
 

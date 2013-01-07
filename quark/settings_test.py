@@ -6,9 +6,12 @@ DEBUG = False
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'noiro_test.db',
+        'NAME': 'quark_test.db',
     },
 }
+
+# Use nonLDAP model
+AUTH_USER_MODEL = 'auth.QuarkUser'
 
 # We don't need to test these apps.
 BLACKLISTED_APPS = ['django_evolution', 'django.contrib.flatpages', 'south']

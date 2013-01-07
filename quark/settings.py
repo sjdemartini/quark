@@ -46,7 +46,7 @@ DATABASES = {
 # Use 'app_label.model_name'
 # Currently use django.contrib.auth.User.
 # After Django 1.5, use custom user: quark.auth.QuarkUser
-AUTH_USER_MODEL = 'auth.User'
+AUTH_USER_MODEL = 'auth.LDAPQuarkUser'
 
 AUTHENTICATION_BACKENDS = (
     'quark.qldap.backends.LDAPBackend',
@@ -134,7 +134,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.request',
     'django.core.context_processors.media',
     'django.core.context_processors.static',
-    'cms.context_processors.media',
+    # TODO(mattchang): get django-cms working with django-1.5
+    #'cms.context_processors.media',
     'sekizai.context_processors.sekizai',
 )
 
@@ -154,9 +155,10 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'cms.middleware.page.CurrentPageMiddleware',
-    'cms.middleware.user.CurrentUserMiddleware',
-    'cms.middleware.toolbar.ToolbarMiddleware',
+    # TODO(mattchang): get django-cms working with django-1.5
+    #'cms.middleware.page.CurrentPageMiddleware',
+    #'cms.middleware.user.CurrentUserMiddleware',
+    #'cms.middleware.toolbar.ToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'quark.urls'
@@ -166,10 +168,6 @@ WSGI_APPLICATION = 'quark.wsgi.application'
 
 TEMPLATE_DIRS = (
   os.path.join(WORKSPACE_DJANGO_ROOT, 'templates'),
-)
-
-CMS_TEMPLATES = (
-    ('base.html', 'Base'),
 )
 
 # All projects that we write (and thus, need to be tested) should go here.
@@ -191,6 +189,7 @@ PROJECT_APPS = [
 
 # Third-party apps belong here, since we won't use them for testing.
 THIRD_PARTY_APPS = [
+    # TODO(mattchang): get django-cms working with django-1.5
     #'cms',
     #'cms.plugins.link',
     #'cms.plugins.snippet',
@@ -208,10 +207,12 @@ THIRD_PARTY_APPS = [
     'django.contrib.staticfiles',
     'django_jenkins',
     'easy_thumbnails',
+    # TODO(mattchang): get django-filer working with django-1.5
     #'filer',
     'menus',
     'mptt',
-    'reversion',
+    # TODO(mattchang): get django-reversion(cms?) working with django-1.5
+    #'reversion',
     'sekizai',
     'south',
 ]
@@ -249,6 +250,20 @@ LOGGING = {
         },
     }
 }
+
+# django-cms settings
+# TODO(mattchang): Some comments on these settings
+CMS_SHOW_START_DATE = True
+CMS_SHOW_END_DATE = True
+
+CMS_PERMISSION = False
+
+CMS_MEDIA_URL = '/cms/'
+CMS_MEDIA_ROOT = '/cms/'
+
+CMS_TEMPLATES = (
+    ('base.html', 'Base'),
+)
 
 # YouTube Secret Stuff
 YT_USERNAME = 'BerkeleyTBP'
