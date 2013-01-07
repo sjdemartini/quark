@@ -6,6 +6,7 @@ from django.utils import timezone
 
 from quark.auth.models import User
 from quark.base.models import IDCodeMixin
+from quark.base.models import Term
 
 
 class SeasonManager(models.Manager):
@@ -31,30 +32,10 @@ class SeasonManager(models.Manager):
             else:
                 year = date.year
 
-            start = timezone.make_aware(
-                datetime.datetime(
-                    year - 1, Season.START_MONTH, Season.START_DAY),
-                SeasonManager.TIMEZONE)
-            end = timezone.make_aware(
-                datetime.datetime(
-                    year, Season.END_MONTH, Season.END_DAY),
-                SeasonManager.TIMEZONE)
-
+            start, end = Season.generate_start_end_dates(year)
             new_season = Season(year=end.year, start_date=start, end_date=end)
             new_season.save()
             return new_season
-
-    def generate_start_end_dates(self, year):
-        """Returns the start and end dates given the end date's year"""
-        start = timezone.make_aware(
-            datetime.datetime(
-                year - 1, Season.START_MONTH, Season.START_DAY),
-            SeasonManager.TIMEZONE)
-        end = timezone.make_aware(
-            datetime.datetime(
-                year, Season.END_MONTH, Season.END_DAY),
-            SeasonManager.TIMEZONE)
-        return start, end
 
 
 class Season(models.Model):
@@ -122,6 +103,66 @@ class Season(models.Model):
         if not Season.is_valid_year(self.year):
             raise ValueError(Season.BAD_YEAR_MESSAGE)
         return self.year - Season.FIRST_YEAR + 1
+
+    def get_corresponding_term(self):
+        """Returns the term corresponding to this PiE Season if one exists, or
+        None otherwise.
+
+        First, this method checks whether the current term maps to this PiE
+        season and returns it if so. Otherwise, because a year 2013 Season
+        encompasses Summer 2012 through Spring 2013, Season x will be set to
+        Spring x. If Spring x does not exist, then the following terms will be
+        examined to test if they exist instead, before returning None: Winter
+        x, Fall (x-1), Summer (x-1).
+        """
+
+        # Check current term:
+        current_term = Term.objects.get_current_term()
+        if self == Season.get_pie_season_from_term(current_term):
+            return current_term
+
+        # Otherwise find term nearest to Spring that exists for this Season:
+        terms = [Term.SPRING, Term.WINTER, Term.FALL, Term.SUMMER]
+        year_offset_map = {
+            Term.SPRING: 0,
+            Term.WINTER: 0,
+            Term.FALL: -1,
+            Term.SUMMER: -1
+        }
+        # TODO(sjdemartini): Optimize finding the correct Term, rather than
+        # cycling through try-except in a for-loop
+        for term in terms:
+            try:
+                return Term.objects.get(year=self.year + year_offset_map[term],
+                                        term=term)
+            except Term.DoesNotExist:
+                pass
+        return None
+
+    @staticmethod
+    def get_pie_season_from_term(term):
+        """Returns the PiE season corresponding to this term if one exists, or
+        None otherwise."""
+        if term.term in [Term.SUMMER, Term.FALL]:
+            month = Season.START_MONTH
+        else:
+            month = Season.END_MONTH
+        return Season.objects.get_current_season(
+            datetime.date(year=term.year, month=month, day=1))
+
+    @staticmethod
+    def generate_start_end_dates(year):
+        """Returns the start and end dates as timezone aware datetime objects
+        given the end date's year."""
+        start = timezone.make_aware(
+            datetime.datetime(
+                year - 1, Season.START_MONTH, Season.START_DAY),
+            SeasonManager.TIMEZONE)
+        end = timezone.make_aware(
+            datetime.datetime(
+                year, Season.END_MONTH, Season.END_DAY),
+            SeasonManager.TIMEZONE)
+        return start, end
 
 
 class School(models.Model):

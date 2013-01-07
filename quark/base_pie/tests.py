@@ -7,6 +7,7 @@ from django.utils import timezone
 from django.utils.timezone import make_aware
 
 from quark.base.models import OfficerPosition
+from quark.base.models import Term
 from quark.base_pie.models import School
 from quark.base_pie.models import Season
 from quark.base_pie.models import Team
@@ -50,7 +51,7 @@ class SeasonManagerTest(TestCase):
         season = Season.objects.get_current_season(date)
         self.assertSeasonSaved(season)
 
-        start, end = Season.objects.generate_start_end_dates(2012)
+        start, end = Season.generate_start_end_dates(2012)
         season.year = 2012
         season.start_date = start
         season.end_date = end
@@ -74,7 +75,7 @@ class SeasonManagerTest(TestCase):
             season.save()
 
         # Make a valid season object...
-        start, end = Season.objects.generate_start_end_dates(2012)
+        start, end = Season.generate_start_end_dates(2012)
         season = Season(year=2012, start_date=start, end_date=end)
         season.save()
         self.assertSeasonSaved(season)
@@ -88,25 +89,25 @@ class SeasonManagerTest(TestCase):
     def test_season_does_not_already_exist_yearly_year(self):
         date = make_aware(datetime.datetime(2012, 02, 01), self.tz)
         season = Season.objects.get_current_season(date)
-        start, end = Season.objects.generate_start_end_dates(date.year)
+        start, end = Season.generate_start_end_dates(date.year)
         self.assertSeasonEquals(season, 2012, start, end)
 
     def test_season_does_not_already_exist_mid_year(self):
         date = make_aware(datetime.datetime(2011, 06, 01), self.tz)
         season = Season.objects.get_current_season(date)
-        start, end = Season.objects.generate_start_end_dates(date.year + 1)
+        start, end = Season.generate_start_end_dates(date.year + 1)
         self.assertSeasonEquals(season, 2012, start, end)
 
     def test_season_does_not_already_exist_late_year(self):
         date = make_aware(datetime.datetime(2011, 11, 01), self.tz)
         season = Season.objects.get_current_season(date)
-        start, end = Season.objects.generate_start_end_dates(date.year + 1)
+        start, end = Season.generate_start_end_dates(date.year + 1)
         self.assertSeasonEquals(season, 2012, start, end)
 
     def test_get_current_existing_season(self):
         date = make_aware(datetime.datetime(2011, 11, 11), self.tz)
         season = Season.objects.get_current_season(date)
-        start, end = Season.objects.generate_start_end_dates(date.year + 1)
+        start, end = Season.generate_start_end_dates(date.year + 1)
         Season(year=date.year, start_date=start, end_date=end).save()
         self.assertSeasonEquals(season, 2012, start, end)
         self.assertFalse(season.is_current())
@@ -121,15 +122,15 @@ class SeasonManagerTest(TestCase):
         self.assertEquals(season.verbose_name(), 'PiE Season 2012')
 
     def test_season_number(self):
-        start, end = Season.objects.generate_start_end_dates(2012)
+        start, end = Season.generate_start_end_dates(2012)
         season = Season(year=2012, start_date=start, end_date=end)
         self.assertEquals(season.season_number, 4)
 
-        start, end = Season.objects.generate_start_end_dates(2025)
+        start, end = Season.generate_start_end_dates(2025)
         season = Season(year=2025, start_date=start, end_date=end)
         self.assertEquals(season.season_number, 17)
 
-        start, end = Season.objects.generate_start_end_dates(2005)
+        start, end = Season.generate_start_end_dates(2005)
         season = Season(year=2012, start_date=start, end_date=end)
         season.year = 2005
         with self.assertRaises(ValueError):
@@ -164,13 +165,13 @@ class SeasonManagerTest(TestCase):
         self.mox.ReplayAll()
         date = make_aware(datetime.datetime(2012, 01, 01), self.tz)
         season = Season.objects.get_current_season(date)
-        start, end = Season.objects.generate_start_end_dates(2012)
+        start, end = Season.generate_start_end_dates(2012)
         self.assertTrue(season.is_current())
         self.assertSeasonEquals(season, 2012, start, end)
 
         date = make_aware(datetime.datetime(2010, 9, 17), self.tz)
         season = Season.objects.get_current_season(date)
-        start, end = Season.objects.generate_start_end_dates(2011)
+        start, end = Season.generate_start_end_dates(2011)
         self.assertFalse(season.is_current())
         self.assertSeasonEquals(season, 2011, start, end)
         self.mox.VerifyAll()
@@ -183,10 +184,126 @@ class SeasonManagerTest(TestCase):
         date = make_aware(datetime.datetime(2009, 3, 17), self.tz)
         season = Season.objects.get_current_season(date)
         self.assertEquals(season.year, date.year)
-        start, end = Season.objects.generate_start_end_dates(date.year)
+        start, end = Season.generate_start_end_dates(date.year)
         Season(year=date.year, start_date=start, end_date=end).save()
         season = Season.objects.get_current_season(date)
         self.assertEquals(season.year, date.year)
+
+
+class SeasonTest(TestCase):
+    def setUp(self):
+        self.term_sp12 = Term(term=Term.SPRING, year=2012)
+        self.term_sp12.save()
+
+        self.term_su12 = Term(term=Term.SUMMER, year=2012)
+        self.term_su12.save()
+
+        self.term_fa12 = Term(term=Term.FALL, year=2012)
+        self.term_fa12.save()
+
+        self.term_sp13 = Term(term=Term.SPRING, year=2013)
+        self.term_sp13.save()
+
+        self.term_su13 = Term(term=Term.SUMMER, year=2013)
+        self.term_su13.save()
+
+        self.tz = timezone.get_current_timezone()
+        date = make_aware(datetime.datetime(2012, 02, 01), self.tz)
+        self.season_12 = Season.objects.get_current_season(date)
+
+        date = make_aware(datetime.datetime(2013, 02, 01), self.tz)
+        self.season_13 = Season.objects.get_current_season(date)
+
+    def test_get_corresponding_term(self):
+        # Note that this method first checks the current Term, and returns it
+        # if the current Term is during this PiE Season. Otherwise the method
+        # finds the term nearest to Spring that exists for this Season
+
+        self.term_fa12.current = True
+        self.term_fa12.save()
+
+        # 2012 Season:
+        # Maps to Spring 2012 Term (since sp12 exists, and the current term is
+        # part of a different Season)
+        self.assertEqual(self.season_12.get_corresponding_term(),
+                         self.term_sp12)
+
+        # 2013 Season:
+        # When Fall 2012 is current:
+        self.assertEqual(self.season_13.get_corresponding_term(),
+                         self.term_fa12)
+        # When Summer 2012 is current:
+        self.term_fa12.current = False
+        self.term_fa12.save()
+        self.term_su12.current = True
+        self.term_su12.save()
+        self.assertEqual(self.season_13.get_corresponding_term(),
+                         self.term_su12)
+        # When a term not in the 2013 Season is current:
+        self.term_su12.current = False
+        self.term_su12.save()
+        self.term_su13.current = True
+        self.term_su13.save()
+        self.assertEqual(self.season_13.get_corresponding_term(),
+                         self.term_sp13)
+
+        # 2015 Season:
+        date = make_aware(datetime.datetime(2015, 02, 01), self.tz)
+        season = Season.objects.get_current_season(date)
+        # When no Term exists that is in the current season:
+        self.assertEqual(season.get_corresponding_term(), None)
+
+        # Add terms that are during the 2015 Season, and ensure that term
+        # nearest to Spring is selected when the current term is not in this
+        # season:
+        term_su14 = Term(term=Term.SUMMER, year=2014)
+        term_su14.save()
+        self.assertEqual(season.get_corresponding_term(), term_su14)
+
+        term_fa14 = Term(term=Term.FALL, year=2014)
+        term_fa14.save()
+        self.assertEqual(season.get_corresponding_term(), term_fa14)
+
+        term_sp15 = Term(term=Term.SPRING, year=2015)
+        term_sp15.save()
+        self.assertEqual(season.get_corresponding_term(), term_sp15)
+
+    def test_get_pie_season_from_term(self):
+        # Check that all created terms map to the correct seasons:
+
+        # Spring 2012 --> 2012 Season
+        self.assertEqual(Season.get_pie_season_from_term(self.term_sp12),
+                         self.season_12)
+        self.assertNotEqual(Season.get_pie_season_from_term(self.term_sp12),
+                            self.season_13)
+
+        # Summer 2012 --> 2013 Season
+        self.assertEqual(Season.get_pie_season_from_term(self.term_su12),
+                         self.season_13)
+        self.assertNotEqual(Season.get_pie_season_from_term(self.term_su12),
+                            self.season_12)
+
+        # Fall 2012 --> 2013 Season
+        self.assertEqual(Season.get_pie_season_from_term(self.term_fa12),
+                         self.season_13)
+        self.assertNotEqual(Season.get_pie_season_from_term(self.term_su12),
+                            self.season_12)
+
+        # Spring 2013 --> 2013 Season
+        self.assertEqual(Season.get_pie_season_from_term(self.term_sp13),
+                         self.season_13)
+        self.assertNotEqual(Season.get_pie_season_from_term(self.term_sp13),
+                            self.season_12)
+
+        # Summer 2013 --> 2014 Season
+        # Season for 2014 does not yet exist, so it is created upon calling the
+        # method:
+        season = Season.get_pie_season_from_term(self.term_su13)
+        self.assertEqual(season.year, 2014)
+        self.assertNotEqual(Season.get_pie_season_from_term(self.term_su13),
+                            self.season_12)
+        self.assertNotEqual(Season.get_pie_season_from_term(self.term_su13),
+                            self.season_13)
 
 
 class SchoolTest(TestCase):
