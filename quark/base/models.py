@@ -146,7 +146,7 @@ class Term(models.Model):
         FALL: 4
     }
 
-    # pylint: disable-msg=C0103
+    # pylint: disable=C0103
     id = models.IntegerField(primary_key=True)
     term = models.CharField(max_length=2, choices=TERM_CHOICES)
     year = models.PositiveSmallIntegerField()
@@ -173,8 +173,8 @@ class Term(models.Model):
                              'also updating the primary key value.')
 
         # Set the ID for a new object.
-        # pylint: disable-msg=C0103
-        # pylint: disable-msg=W0201
+        # pylint: disable=C0103
+        # pylint: disable=W0201
         self.id = self.year * 10 + self.__term_as_int()
 
         if self.current:
@@ -184,7 +184,7 @@ class Term(models.Model):
 
     def verbose_name(self):
         """Returns the verbose name of this object in this form: Fall 2012."""
-        # pylint: disable-msg=E1101
+        # pylint: disable=E1101
         return '%s %d' % (self.get_term_display(), self.year)
 
     def get_url_name(self):
@@ -288,13 +288,13 @@ class Officer(models.Model):
     is_chair = models.BooleanField(default=False)
 
     def __unicode__(self):
-        # pylint: disable-msg=E1101
+        # pylint: disable=E1101
         return '%s - %s (%s %d)' % (
             self.user.username, self.position.short_name,
             self.term.get_display_term(), self.term.year)
 
     def position_name(self):
-        # pylint: disable-msg=E1101
+        # pylint: disable=E1101
         name = self.position.long_name
         if self.is_chair:
             name += ' Chair'

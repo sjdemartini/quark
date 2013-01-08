@@ -163,5 +163,5 @@ class LDAPQuarkUser(QuarkUser):
         ldap_utils.set_password(self.username, raw_password)
 
 
-# pylint: disable-msg=C0103
+# pylint: disable=C0103
 User = get_user_model()

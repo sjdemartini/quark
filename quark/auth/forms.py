@@ -46,7 +46,7 @@ class UserAdminChangeForm(forms.ModelForm):
         # Regardless of what the user provides, return the initial value.
         # This is done here, rather than on the field, because the
         # field does not have access to the initial value
-        # pylint: disable-msg=E1101
+        # pylint: disable=E1101
         return self.initial['password']
 
 

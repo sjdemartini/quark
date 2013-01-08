@@ -11,7 +11,7 @@ KEY_PATH = '/home/tbp/private'
 if KEY_PATH not in sys.path:
     sys.path.append(KEY_PATH)
 try:
-    # pylint: disable-msg=F0401
+    # pylint: disable=F0401
     import quark_keys
 except ImportError:
     print('Could not import quark_keys. Please make sure quark_keys.py exists '
@@ -321,7 +321,7 @@ TERM_TYPE = 'semester'
 # Import any local settings to override default settings.
 ###############################################################################
 try:
-    # pylint: disable-msg=F0401
+    # pylint: disable=F0401
     from settings_local import *
 except ImportError:
     # If the file doesn't exist, print a warning message but do not fail.

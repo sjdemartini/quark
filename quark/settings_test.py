@@ -1,4 +1,4 @@
-# pylint: disable-msg=W0401,W0614
+# pylint: disable=W0401,W0614
 from quark.settings import *
 
 DEBUG = False
