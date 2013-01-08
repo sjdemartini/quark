@@ -1,3 +1,5 @@
+import os
+
 from django.contrib.auth.models import User as DefaultUser
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -68,6 +70,10 @@ class CreateLDAPQuarkUserTestCase(CreateQuarkUserTestCase):
     def setUp(self):
         super(CreateLDAPQuarkUserTestCase, self).setUp()
         self.model = LDAPQuarkUser
+        # Use unique name for LDAP
+        rnd = os.getpid()
+        self.username = 'testuser%d' % rnd
+        self.email = 'test%d@tbp.berkeley.edu' % rnd
 
     def tearDown(self):
         if username_exists(self.username):

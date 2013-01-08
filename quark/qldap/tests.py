@@ -1,9 +1,10 @@
-from ldap import MOD_ADD
+import os
 
 from django.conf import settings
 from django.test import TestCase
 from django.test.client import Client
 from django.test.utils import override_settings
+from ldap import MOD_ADD
 
 from quark.auth.models import User
 from quark.qldap import utils
@@ -12,15 +13,16 @@ from quark.qldap import utils
 # TODO(flieee): Move tests over to test-only LDAP tree
 class LDAPTestCase(TestCase):
     def setUp(self):
-        self.user = 'test'
-        self.new_user = 'testrename'
+        rnd = os.getpid()
+        self.user = 'test%d' % rnd
+        self.new_user = 'test%drename' % rnd
         self.password = 'stupidpassword'
         self.first_name = 'Silly'
         self.last_name = 'Test'
-        self.email = 'test@tbp.berkeley.edu'
-        self.group_of_names = 'test_group_of_names'
-        self.posix_group = 'test_posix_group'
-        self.super_group = 'test-it'
+        self.email = 'test%d@tbp.berkeley.edu' % rnd
+        self.group_of_names = 'test%d_group_of_names' % rnd
+        self.posix_group = 'test%d_posix_group' % rnd
+        self.super_group = 'test%d-it' % rnd
         utils.create_user(self.user, self.password, self.email,
                           self.first_name, self.last_name)
         utils.create_group(self.group_of_names, object_class='groupOfNames')
@@ -81,6 +83,7 @@ class LDAPTestCase(TestCase):
         correct = (True, 'User %s renamed to %s' % (self.user, self.new_user))
         self.assertTrue(utils.username_exists(self.user))
 
+        # This is a bad username because underscores are not allowed
         self.assertEqual(utils.rename_user(self.user, 'bad_username'),
                          invalid_name)
         # Nothing is changed
