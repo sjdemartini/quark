@@ -20,7 +20,7 @@ class LDAPBackend(ModelBackend):
         try:
             return User.objects.get(username=username)
         except User.DoesNotExist:
-            return self._create_user(username)
+            return self.__create_user(username)
 
     def get_user(self, user_id):
         try:
@@ -28,7 +28,7 @@ class LDAPBackend(ModelBackend):
         except User.DoesNotExist:
             return None
 
-    def _create_user(self, username):
+    def __create_user(self, username):
         """
         Helper function for creating Django users out of existing LDAP users
         Migrates username, first and last name, and email

@@ -75,6 +75,9 @@ class QuarkUser(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email', 'first_name', 'last_name']
 
+    class Meta:
+        verbose_name = 'Quark User'
+
     def save(self, *args, **kwargs):
         if not self.preferred_name:
             self.preferred_name = self.first_name
@@ -140,6 +143,7 @@ class LDAPQuarkUser(QuarkUser):
 
     class Meta:
         proxy = True
+        verbose_name = 'LDAP Quark User'
 
     def save(self, *args, **kwargs):
         """Only save the instance if user exists in LDAP"""

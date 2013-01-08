@@ -14,6 +14,10 @@ class RandomTokenManager(models.Manager):
 
 
 class RandomToken(models.Model):
+    """
+    Generates a random string linked to an email or user. It can be used for
+    account registration
+    """
     email = models.EmailField(unique=True)
     expiration_date = models.DateTimeField()
     token = models.CharField(unique=True, max_length=64)
@@ -115,6 +119,10 @@ class TermManager(models.Manager):
 
 
 class Term(models.Model):
+    """
+    Refers to a school's quarter or semester system.
+    Almost all models refer to this for the current term in the school year.
+    """
     # Constants
     UNKNOWN = 'un'
     WINTER = 'wi'
@@ -243,6 +251,11 @@ class Term(models.Model):
 
 
 class OfficerPosition(models.Model):
+    """
+    Available officer position in any of the quark-supported organizations.
+    An Officer object would reference an instance of OfficerPosition to link a
+    user to an officer position.
+    """
     # constants
     TBP_OFFICER = 0
     PIE_COORD = 1
