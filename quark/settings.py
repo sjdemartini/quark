@@ -210,12 +210,11 @@ THIRD_PARTY_APPS = [
     'django.contrib.staticfiles',
     'django_jenkins',
     'easy_thumbnails',
-    # TODO(mattchang): get django-filer working with django-1.5
-    #'filer',
+    # TODO(mattchang): verify django-filer works with django-1.5
+    'filer',
     'menus',
     'mptt',
-    # TODO(mattchang): get django-reversion(cms?) working with django-1.5
-    #'reversion',
+    'reversion',
     'sekizai',
     'south',
 ]
