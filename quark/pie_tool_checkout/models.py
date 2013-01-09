@@ -29,11 +29,18 @@ class ToolStatus(models.Model):
                               default=CABINET)
     created = models.DateTimeField(auto_now_add=True)
 
+    def __unicode__(self):
+        # pylint: disable=E1101
+        return '(%s) %s' % (self.get_status_display(), str(self.instance))
+
 
 class ToolInstance(models.Model):
     id_code = models.CharField(max_length=40,
                                db_index=True,
                                unique=True)
-    type = models.ForeignKey(Item)
+    tool_type = models.ForeignKey(Item)
     cost = models.IntegerField(default=0)
     purchase_date = models.DateTimeField(auto_now_add=True)
+
+    def __unicode__(self):
+        return 'Tool %s (%s)' % (str(self.tool_type), self.id_code)

@@ -75,6 +75,12 @@ class Event(models.Model):
         verbose_name = 'event'
         verbose_name_plural = 'events'
 
+    def __unicode__(self):
+        # pylint: disable=E1101
+        return u'%s - %s' % (self.name, self.term.verbose_name())
+
+    # TODO(sjdemartini): implement get_absolute_url(self)
+
     def is_upcoming(self):
         return (not self.cancelled) and (
             self.end_datetime > timezone.now())
@@ -141,9 +147,6 @@ class Event(models.Model):
         # None, and if so, it returns the OfficerPosition of the user who
         # created the event (self.user) and returns that committee
         return self.committee
-
-    def __unicode__(self):
-        return u'%s - %s' % (self.name, unicode(self.term))
 
     # TODO(sjdemartini): re-implement sending email to VPs when event saved
 

@@ -85,6 +85,9 @@ class Achievement(models.Model):
     class Meta:
         ordering = ('rank',)
 
+    def __unicode__(self):
+        return self.name
+
 
 class UserAchievement(models.Model):
     """UserAchievement instances contain data about an acquired achievement.
@@ -135,3 +138,7 @@ class UserAchievement(models.Model):
             ('add_user_achievement', 'Can add user achievements'),
             ('delete_user_achievement', 'Can delete user achievements '),
         )
+
+    def __unicode__(self):
+        # pylint: disable=E1101
+        return '%s - %s' % (self.user.get_common_name(), self.achievement.name)

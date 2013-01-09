@@ -78,6 +78,9 @@ class QuarkUser(AbstractBaseUser, PermissionsMixin):
     class Meta:
         verbose_name = 'Quark User'
 
+    def __unicode__(self):
+        return '%s (%s)' % (self.username, self.get_full_name())
+
     def save(self, *args, **kwargs):
         if not self.preferred_name:
             self.preferred_name = self.first_name

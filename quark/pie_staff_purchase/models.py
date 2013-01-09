@@ -17,6 +17,9 @@ class Vendor(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
+    def __unicode__(self):
+        return 'Vendor %s' % self.name
+
 
 class PartsReceipt(models.Model):
     """
@@ -45,6 +48,11 @@ class PartsReceipt(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
+
+    def __unicode__(self):
+        # pylint: disable=E1101
+        return 'Parts Receipt for %s at %s' % (
+            self.purchaser.get_full_name(), str(self.vendor))
 
 
 class PartOrder(models.Model):
@@ -93,6 +101,11 @@ class PartOrder(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
+    def __unicode__(self):
+        # pylint: disable=E1101
+        return 'Part Order for %s, requested by %s' % (
+            self.item.name, self.submitted_by.get_full_name())
+
 
 class PartOrderStatus(models.Model):
     """
@@ -121,6 +134,11 @@ class PartOrderStatus(models.Model):
     user = models.ForeignKey(User)
 
     created = models.DateTimeField(auto_now_add=True)
+
+    def __unicode__(self):
+        # pylint: disable=E1101
+        return '(%s) %s' % (
+            self.get_status_display(), str(self.part))
 
     def save(self, *args, **kwargs):
         # Unless explicitly told not to force an insert, always create
