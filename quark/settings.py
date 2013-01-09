@@ -255,15 +255,18 @@ LOGGING = {
 }
 
 # django-cms settings
-# TODO(mattchang): Some comments on these settings
+# Adds 2 new date-time fields in the advanced-settings tab of the page.
+# Allows for limiting the time a page is published.
 CMS_SHOW_START_DATE = True
 CMS_SHOW_END_DATE = True
 
+# Disables CMS permissions to be given on a per page basis
 CMS_PERMISSION = False
 
+# URL base for CMS's media files
 CMS_MEDIA_URL = '/cms/'
-CMS_MEDIA_ROOT = '/cms/'
 
+# List of templates you can select for a page
 CMS_TEMPLATES = (
     ('base.html', 'Base'),
 )
