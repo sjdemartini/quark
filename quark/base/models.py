@@ -302,3 +302,21 @@ class Officer(models.Model):
 
     class Meta:
         unique_together = ('user', 'position', 'term')
+
+
+class CollegeStudentInfo(models.Model):
+    user = models.ForeignKey(User)
+    major = models.ForeignKey(Major)
+
+    id_code = models.CharField(max_length=20,
+                               db_index=True,
+                               unique=True)
+
+    start_term = models.ForeignKey(Term, related_name='+')
+    grad_term = models.ForeignKey(Term, related_name='+')
+
+    def __unicode__(self):
+        # pylint: disable=E1101
+        return '%s - %s (%s - %s) id: %s' % (
+            self.user.username, self.major, self.start_term, self.grad_term,
+            self.id_code)
