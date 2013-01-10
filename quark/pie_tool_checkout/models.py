@@ -1,6 +1,7 @@
 from django.db import models
 
 from quark.auth.models import User
+from quark.base.models import IDCodeMixin
 from quark.pie_inventory.models import Item
 
 
@@ -34,10 +35,7 @@ class ToolStatus(models.Model):
         return '(%s) %s' % (self.get_status_display(), str(self.instance))
 
 
-class ToolInstance(models.Model):
-    id_code = models.CharField(max_length=40,
-                               db_index=True,
-                               unique=True)
+class ToolInstance(models.Model, IDCodeMixin):
     tool_type = models.ForeignKey(Item)
     cost = models.IntegerField(default=0)
     purchase_date = models.DateTimeField(auto_now_add=True)

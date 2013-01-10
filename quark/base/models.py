@@ -7,6 +7,12 @@ from django.utils import timezone
 from quark.auth.models import User
 
 
+# Mixins
+class IDCodeMixin(object):
+    id_code = models.CharField(max_length=20, db_index=True, unique=True)
+
+
+# Models
 class RandomTokenManager(models.Manager):
     def generate(self, **kwargs):
         kwargs['token'] = kwargs.get('token', uuid.uuid4())
@@ -285,6 +291,7 @@ class Officer(models.Model):
     user = models.ForeignKey(User)
     position = models.ForeignKey(OfficerPosition)
     term = models.ForeignKey(Term)
+
     is_chair = models.BooleanField(default=False)
 
     def __unicode__(self):
@@ -304,13 +311,9 @@ class Officer(models.Model):
         unique_together = ('user', 'position', 'term')
 
 
-class CollegeStudentInfo(models.Model):
+class CollegeStudentInfo(models.Model, IDCodeMixin):
     user = models.ForeignKey(User)
     major = models.ForeignKey(Major)
-
-    id_code = models.CharField(max_length=20,
-                               db_index=True,
-                               unique=True)
 
     start_term = models.ForeignKey(Term, related_name='+')
     grad_term = models.ForeignKey(Term, related_name='+')

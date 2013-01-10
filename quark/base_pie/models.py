@@ -3,7 +3,9 @@ import datetime
 from django_localflavor_us.models import USStateField
 from django.db import models
 from django.utils import timezone
+
 from quark.auth.models import User
+from quark.base.models import IDCodeMixin
 
 
 class SeasonManager(models.Manager):
@@ -170,7 +172,7 @@ class Team(models.Model):
         ordering = ('number',)
 
 
-class Teacher(models.Model):
+class Teacher(models.Model, IDCodeMixin):
     user = models.ForeignKey(User)
     team = models.ForeignKey(Team)
 
@@ -181,7 +183,7 @@ class Teacher(models.Model):
         return 'Teacher %s for %s' % (self.user, self.team)
 
 
-class Mentor(models.Model):
+class Mentor(models.Model, IDCodeMixin):
     user = models.ForeignKey(User)
     team = models.ForeignKey(Team)
 
@@ -192,7 +194,7 @@ class Mentor(models.Model):
         return 'Mentor %s for %s' % (self.user, self.team)
 
 
-class Student(models.Model):
+class Student(models.Model, IDCodeMixin):
     FRESHMAN = 9
     SOPHOMORE = 10
     JUNIOR = 11
