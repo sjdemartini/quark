@@ -8,6 +8,7 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^email/', include('quark.emailer.urls')),
     # TODO(mattchang): Get django-cms working for django-1.5
     #url(r'^', include('cms.urls')),
 )

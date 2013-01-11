@@ -1,4 +1,6 @@
 from django import forms
+from django.core.mail import BadHeaderError
+from django.core.mail import EmailMessage
 
 from quark.emailer.fields import ReCaptchaField
 
@@ -22,13 +24,43 @@ class ContactForm(forms.Form):
     author = forms.CharField(widget=forms.HiddenInput, required=False)
 
     def clean_message(self):
-        message = self.cleaned_data.get("message", '')
+        message = self.cleaned_data.get('message', '')
 
         if len(message) <= 30:
             raise forms.ValidationError('Please enter a longer message.')
 
         # Always return the cleaned data.
         return message
+
+    def send_email(self, to_email=None, cc_list=None, bcc_list=None,
+                   headers=None, name='', email='', from_email='',
+                   subject='', message=''):
+        # returns a status True for success and False for failure
+        if not (to_email or cc_list or bcc_list):
+            raise BadHeaderError('No recipients found.')
+
+        name = name or self.cleaned_data['name']
+        email = email or self.cleaned_data['email']
+        from_email = from_email or '{} <{}>'.format(name, email)
+        subject = subject or self.cleaned_data['subject']
+        body = message or self.cleaned_data['message']
+        to_email = to_email or []
+        cc_list = cc_list or []
+        bcc_list = bcc_list or []
+        headers = headers or {}
+
+        sent_message = EmailMessage(to=to_email,
+                                    cc=cc_list,
+                                    bcc=bcc_list,
+                                    headers=headers,
+                                    subject=subject,
+                                    body=body,
+                                    from_email=from_email)
+        try:
+            sent_message.send()
+            return True
+        except:
+            return False
 
 
 class ContactCaptcha(ContactForm):

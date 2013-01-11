@@ -180,7 +180,6 @@ PROJECT_APPS = [
     'quark.courses',
     'quark.emailer',
     'quark.events',
-    'quark.helpdesk',
     'quark.pie_inventory',
     'quark.pie_register',
     'quark.pie_staff_purchase',
