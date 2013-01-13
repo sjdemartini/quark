@@ -1,3 +1,5 @@
+import re
+
 from django import forms
 from django.core.mail import BadHeaderError
 from django.core.mail import EmailMessage
@@ -10,6 +12,7 @@ class ContactForm(forms.Form):
     A generic form that allows users to contact other people. It's used for
     both Helpdesk and the Events emailer.
     """
+    MIN_MESSAGE_LENGTH = 30
     name = forms.CharField(
         error_messages={'required': 'Please provide your name.'})
     email = forms.EmailField(
@@ -26,11 +29,21 @@ class ContactForm(forms.Form):
     def clean_message(self):
         message = self.cleaned_data.get('message', '')
 
-        if len(message) <= 30:
+        if len(message) <= ContactForm.MIN_MESSAGE_LENGTH:
             raise forms.ValidationError('Please enter a longer message.')
 
         # Always return the cleaned data.
         return message
+
+    def clean_name(self):
+        name = self.cleaned_data.get('name', '')
+
+        # check for invalid characters; 201C, 201D are open/close double quotes
+        if re.search(ur'["<>@,.\u201C\u201D]', name):
+            raise forms.ValidationError('Your name can\'t contain the '
+                                        'characters <, >, @, comma, ., or ".')
+
+        return name
 
     def send_email(self, to_email=None, cc_list=None, bcc_list=None,
                    headers=None, name='', email='', from_email='',
@@ -41,7 +54,7 @@ class ContactForm(forms.Form):
 
         name = name or self.cleaned_data['name']
         email = email or self.cleaned_data['email']
-        from_email = from_email or '{} <{}>'.format(name, email)
+        from_email = from_email or '"{}" <{}>'.format(name, email)
         subject = subject or self.cleaned_data['subject']
         body = message or self.cleaned_data['message']
         to_email = to_email or []

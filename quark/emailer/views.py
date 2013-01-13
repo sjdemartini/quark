@@ -47,11 +47,17 @@ class EmailerView(FormView):
 
     get_context_data should be overridden to add any custom context variables.
     EmailerView already adds result_message and success
+
+    The form_id instance variable is used for header information in sending the
+    email.
     """
     form_class = ContactForm
-    result_messages = {True: 'Successfully sent!', False: 'Failure'}
-    result_message = False
+    result_messages = {True: 'Successfully sent!',
+                       False: 'Your message could not be sent for an unknown '
+                              'reason. Please try again later.'}
+    result_message = ''
     success = False
+    form_id = ''
 
     def form_valid(self, form, **kwargs):
         # called when valid data is posted, should return HttpResponse kwargs
@@ -59,11 +65,25 @@ class EmailerView(FormView):
         # field data (see ContactForm). At least one of to, cc, or bcc must
         # be given or a BadHeaderError will be raised
 
+        ip_addr = unicode(
+            self.request.META.get('HTTP_X_FORWARDED_FOR',
+                                  self.request.META.get('REMOTE_ADDR',
+                                                        'None provided')))
+        useragent = unicode(self.request.META.get('HTTP_USER_AGENT',
+                                                  'None provided'))
+
+        form_id = ('-' + self.form_id) if self.form_id else self.form_id
+        headers = kwargs.get('headers', {})
+        headers['X{}-IP-Address'.format(form_id)] = ip_addr
+        headers['X{}-UserAgent'.format(form_id)] = useragent
+        kwargs['headers'] = headers
+
         self.success = form.send_email(**kwargs)
         self.result_message = self.result_messages[self.success]
         # return empty form if success = False
         # pylint: disable=E1102
         new_form = self.form_class() if self.success else form
+
         # override default behavior of redirecting to success url in order to
         # pass context variables for successful submission
         return render_to_response(
@@ -72,7 +92,7 @@ class EmailerView(FormView):
             context_instance=RequestContext(self.request))
 
     def form_invalid(self, form):
-        self.result_message = False
+        self.result_message = ''
         self.success = False
         return super(EmailerView, self).form_invalid(form)
 
@@ -82,9 +102,51 @@ class EmailerView(FormView):
         context['success'] = self.success
         return context
 
+    def handle_spam(self, form, to_email, from_email, send_spam_notice,
+                    send_spam, headers):
+        form_id = ('-' + self.form_id) if self.form_id else self.form_id
+        headers['X{}-WasSpam'.format(form_id)] = 'Yes'
+        headers['X{}-Author'.format(form_id)] = form.cleaned_data['author']
+        ip_addr = headers.get('X{}-IP-Address'.format(form_id), False)
+        if not ip_addr:
+            ip_addr = unicode(
+                self.request.META.get('HTTP_X_FORWARDED_FOR',
+                                      self.request.META.get('REMOTE_ADDR',
+                                                            'None provided')))
+
+        if send_spam_notice:
+            spamnotice = EmailMessage(
+                subject='[{source} spam] {subject}'.format(
+                    source=self.form_id,
+                    subject=form.cleaned_data['subject']),
+                body=('Help! We have been spammed by \"{email}\" from '
+                      '{ip_addr}!\n\n------------\n\n{message}'.format(
+                          email=from_email,
+                          ip_addr=ip_addr,
+                          message=form.cleaned_data['message'])),
+                from_email='root@tbp.berkeley.edu',
+                to=to_email,
+                headers=headers)
+            # server will return 500 error if spamnotice cannot be sent.
+            spamnotice.send()
+
+        if send_spam:
+            return self.form_valid(form,
+                                   from_email=from_email,
+                                   to_email=to_email,
+                                   headers=headers)
+        else:
+            self.success = True
+            self.result_message = self.result_messages[True]
+            return render_to_response(
+                self.template_name,
+                self.get_context_data(form=self.form_class()),
+                context_instance=RequestContext(self.request))
+
 
 class EventEmailerView(EmailerView):
     template_name = 'events/contact.html'
+    form_id = 'EventContact'
 
     # to be set by dispatch using request variables
     event = None
@@ -99,8 +161,7 @@ class EventEmailerView(EmailerView):
             'name': request.user.get_full_name(),
             'email': request.user.email,
             'subject': u'[TBP] {}: Important announcement'.format(
-                self.event.name),
-            'message': ''}
+                self.event.name)}
 
         event_id = kwargs['event_id']
         # TODO(nitishp) restore when views are added for events
@@ -122,26 +183,19 @@ class EventEmailerView(EmailerView):
 
         if len(bcc_list) == 0:
             # empty recipients list, most likely due to no participants
+            self.result_message = ('Your email was not sent because the '
+                                   'recipient list for this email was empty.')
+            self.success = False
+
             return render_to_response(
                 self.template_name,
-                {'form': form,
-                 'success': False,
-                 'result_message': 'Nobody hears you.'},
+                self.get_context_data(form=form),
                 context_instance=RequestContext(self.request))
-
-        ip_addr = unicode(
-            self.request.META.get('HTTP_X_FORWARDED_FOR',
-                                  self.request.META.get('REMOTE_ADDR',
-                                                        'None provided')))
-        useragent = unicode(self.request.META.get('HTTP_USER_AGENT',
-                                                  'None provided'))
-        headers = {'X-EC-IP-Address': ip_addr, 'X-EC-UserAgent': useragent}
 
         return super(EventEmailerView, self).form_valid(
             form,
             cc_list=self.cc_email,
             bcc_list=bcc_list,
-            headers=headers,
             **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -155,28 +209,18 @@ class EventEmailerView(EmailerView):
 class HelpdeskEmailerView(EmailerView):
     template_name = 'helpdesk/base.html'
     form_class = ContactCaptcha
-    result_messages = {True: 'Successfully sent!',
-                       False: 'Your message could not be sent for an unknown '
-                              'reason. Please try again later.'}
+    form_id = 'Helpdesk'
 
     def form_valid(self, form, **kwargs):
         email = form.cleaned_data['email']
         name = form.cleaned_data['name']
 
-        from_email = '{} <{}>'.format(name, email)
+        from_email = '"{}" <{}>'.format(name, email)
         reply_to = from_email
         to_email = [settings.HELPDESK_ADDRESS]
 
-        ip_addr = unicode(
-            self.request.META.get('HTTP_X_FORWARDED_FOR',
-                                  self.request.META.get('REMOTE_ADDR',
-                                                        'None provided')))
-        useragent = unicode(self.request.META.get('HTTP_USER_AGENT',
-                                                  'None provided'))
         headers = {'Reply-To': reply_to,
-                   'Message-Id': make_msgid(),
-                   'X-Helpdesk-IP-Address': ip_addr,
-                   'X-Helpdesk-UserAgent': useragent}
+                   'Message-Id': make_msgid()}
 
         # do spam checks, assignment email, cc_asker
         if form.cleaned_data['author']:
@@ -195,43 +239,24 @@ class HelpdeskEmailerView(EmailerView):
             headers=headers,
             **kwargs)
 
-    def handle_spam(self, form, from_email, headers):
-        to_email = [settings.HELPDESK_SPAM_TO]
-        headers['X-Helpdesk-WasSpam'] = 'Yes'
-        headers['X-Helpdesk-Author'] = form.cleaned_data['author']
+    def handle_spam(self, form, from_email, headers, **kwargs):
+        to_email = kwargs.get('to_email', [settings.HELPDESK_SPAM_TO])
+        send_spam_notice = kwargs.get('send_spam_notice',
+                                      settings.HELPDESK_SEND_SPAM_NOTICE)
+        send_spam = kwargs.get('send_spam', settings.HELPDESK_SEND_SPAM)
 
-        if settings.HELPDESK_SEND_SPAM_NOTICE:
-            spamnotice = EmailMessage(
-                subject='[Helpdesk spam] ' + form.cleaned_data['subject'],
-                body=('Help! We have been spammed by \"{email}\" from '
-                      '{ip_addr}!\n\n------------\n\n{message}'.format(
-                          email=from_email,
-                          ip_addr=headers['X-Helpdesk-IP-Address'],
-                          message=form.cleaned_data['message'])),
-                from_email='root@tbp.berkeley.edu',
-                to=[settings.HELPDESK_NOTICE_TO],
-                headers=headers)
-            # server will return 500 error if spamnotice cannot be sent.
-            spamnotice.send()
+        if send_spam and settings.ENABLE_HELPDESKQ:
+            self.handle_assignment(form,
+                                   headers=headers,
+                                   message_id=headers.get('Message-Id', None))
 
-        if settings.HELPDESK_SEND_SPAM:
-            if settings.ENABLE_HELPDESKQ:
-                self.handle_assignment(
-                    form,
-                    headers=headers,
-                    message_id=headers.get('Message-Id', None))
-            return super(HelpdeskEmailerView, self).form_valid(
-                form,
-                from_email=from_email,
-                to_email=to_email,
-                headers=headers)
-        else:
-            return render_to_response(
-                self.template_name,
-                {'result_message': self.result_messages[True],  # feign success
-                 'form': self.form_class(),
-                 'success': True},
-                context_instance=RequestContext(self.request))
+        return super(HelpdeskEmailerView, self).handle_spam(
+            form,
+            to_email=to_email,
+            from_email=from_email,
+            send_spam_notice=send_spam_notice,
+            send_spam=send_spam,
+            headers=headers)
 
     def handle_assignment(self, form, headers, message_id):
         headers['References'] = message_id
@@ -289,7 +314,61 @@ class HelpdeskEmailerView(EmailerView):
                   '\n\n------------\n\n{question}'.format(
                       name=form.cleaned_data['name'],
                       question=form.cleaned_data['message'])),
-            from_email='TBP Helpdesk <{}>'.format(settings.HELPDESK_ADDRESS),
+            from_email='"TBP Helpdesk" <{}>'.format(settings.HELPDESK_ADDRESS),
             to=[from_email],)
         # sending is nonessential due to confirmation page
         ccmessage.send(fail_silently=True)
+
+
+class CompanyEmailerView(EmailerView):
+    template_name = 'indrel/contact.html'
+    form_id = 'CompanyContact'
+    check_spam = False
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated():
+            name = request.user.get_full_name()
+            email = request.user.email
+        else:
+            name = ''
+            email = ''
+            self.form_class = ContactCaptcha
+            self.check_spam = True
+        self.initial = {
+            'name': name,
+            'email': email}
+
+        return super(CompanyEmailerView, self).dispatch(request, *args,
+                                                        **kwargs)
+
+    def form_valid(self, form, **kwargs):
+        email = form.cleaned_data['email']
+        name = form.cleaned_data['name']
+
+        from_email = '"{}" <{}>'.format(name, email)
+        reply_to = from_email
+
+        headers = {'Reply-To': reply_to,
+                   'Message-Id': make_msgid()}
+
+        if self.check_spam and form.cleaned_data['author']:
+            return self.handle_spam(form, from_email, headers)
+
+        return super(CompanyEmailerView, self).form_valid(
+            form,
+            to_email=[settings.INDREL_ADDRESS],
+            **kwargs)
+
+    def handle_spam(self, form, from_email, headers, **kwargs):
+        to_email = kwargs.get('to_email', [settings.INDREL_SPAM_TO])
+        send_spam_notice = kwargs.get('send_spam_notice',
+                                      settings.INDREL_SEND_SPAM_NOTICE)
+        send_spam = kwargs.get('send_spam', settings.INDREL_SEND_SPAM)
+
+        return super(CompanyEmailerView, self).handle_spam(
+            form,
+            to_email=to_email,
+            from_email=from_email,
+            send_spam_notice=send_spam_notice,
+            send_spam=send_spam,
+            headers=headers)

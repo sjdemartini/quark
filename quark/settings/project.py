@@ -27,13 +27,17 @@ HELPDESK_CC_ASKER = False
 
 # Do we send spam notices?
 HELPDESK_SEND_SPAM_NOTICE = True
+INDREL_SEND_SPAM_NOTICE = True
 # where?
 HELPDESK_NOTICE_TO = 'test@tbp.berkeley.edu'
+INDREL_NOTICE_TO = 'test@tbp.berkeley.edu'
 
 # Do we send messages known to be spam?
 HELPDESK_SEND_SPAM = False
+INDREL_SEND_SPAM = False
 # where?
 HELPDESK_SPAM_TO = 'test@tbp.berkeley.edu'
+INDREL_SPAM_TO = 'test@tbp.berkeley.edu'
 
 # YouTube Secret Stuff
 YT_USERNAME = 'BerkeleyTBP'
