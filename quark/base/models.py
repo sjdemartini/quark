@@ -9,6 +9,11 @@ from quark.auth.models import User
 
 # Mixins
 class IDCodeMixin(object):
+    """
+    This mixin provides a field that is to be used to store an unique identifier
+    for a person. This can be a student id or the RFID code for a campus id
+    card.
+    """
     id_code = models.CharField(max_length=20, db_index=True, unique=True)
 
 
