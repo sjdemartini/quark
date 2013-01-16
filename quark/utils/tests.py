@@ -1,101 +1,117 @@
-import mox
-
 from django.core.management.base import CommandError
 from django.test import TestCase
 from django.test.utils import override_settings
+from mock import patch
+import mox
 
 from quark.utils import create_dev_db
-from quark.utils.management.commands import dev
+from quark.utils.dev import DevServer
+from quark.utils.management.commands import dev as dev_cmd
+import quark.utils as dev_utils
 
 
-class DevTest(TestCase):
+class DevServerTest(TestCase):
     def setUp(self):
-        self.mox = mox.Mox()
-        self.command = dev.Command()
-
-    def tearDown(self):
-        self.mox.UnsetStubs()
+        self.server = DevServer()
 
     def test_offsets_correct_values(self):
-        for _, offset in dev.OFFSETS.items():
+        for _, offset in self.server.OFFSETS.items():
             self.assertLessEqual(offset, 998)
             self.assertGreaterEqual(offset, 80)
             self.assertNotEqual(offset, 999)
 
     def test_port(self):
-        self.assertEqual(self.command.get_port('wli', 'tbp'), 8080)
-        self.assertEqual(self.command.get_port('wli', 'pie'), 9080)
-        self.assertEqual(self.command.get_port('flieee', 'tbp'), 8085)
-        self.assertEqual(self.command.get_port('flieee', 'pie'), 9085)
+        self.assertEqual(self.server.get_port('wli', 'tbp'), 8080)
+        self.assertEqual(self.server.get_port('wli', 'pie'), 9080)
+        self.assertEqual(self.server.get_port('flieee', 'tbp'), 8085)
+        self.assertEqual(self.server.get_port('flieee', 'pie'), 9085)
 
     def test_default_ports(self):
-        self.assertEqual(self.command.get_port('', 'tbp'), 8999)
-        self.assertEqual(self.command.get_port('', 'pie'), 9999)
+        self.assertEqual(self.server.get_port('', 'tbp'), 8999)
+        self.assertEqual(self.server.get_port('', 'pie'), 9999)
 
     def test_no_port(self):
-        self.assertRaises(
-            CommandError, self.command.get_port, '', 'asdf')
+        self.assertRaises(KeyError, self.server.get_port, '', 'asdf')
+
+    def test_ip_all(self):
+        self.assertEqual(self.server.ip, '0.0.0.0')
+
+    def test_ip_localhost(self):
+        local_server = DevServer(username='foo', server='tbp', localhost=True)
+        self.assertEqual(local_server.ip, 'localhost')
+
+    @patch('django.core.management.ManagementUtility')
+    def test_run_exit(self, mock_mgmt):
+        """Test that runner exits on KeyboardInterrupt"""
+        mock_mgmt.execute(side_effect=KeyboardInterrupt)
+        self.server.run_server()
+        self.assertTrue(mock_mgmt.execute.called)
+
+
+class DevUtilsTest(TestCase):
+    @override_settings(PROJECT_APPS=[], WORKSPACE_ROOT='root')
+    @patch('django.core.management.ManagementUtility')
+    def test_no_initial_data(self, mock_mgmt):
+        """Don't run loaddata with no available fixtures"""
+        dev_utils.load_initial_data()
+        self.assertFalse(mock_mgmt.called)
 
     @override_settings(PROJECT_APPS=['quark.foo', 'thirdparty.bar'],
                        WORKSPACE_ROOT='root')
-    def test_load_initial_data(self):
-        self.mox.StubOutWithMock(dev, 'execute_from_command_line')
-        self.mox.StubOutWithMock(dev, 'glob')
-
-        # Disable for the AndReturn calls.
-        # pylint: disable=E1101
-        dev.glob.glob(
-            'root/quark/foo/fixtures/*.yaml').AndReturn(['file1'])
-        dev.glob.glob(
-            'root/thirdparty/bar/fixtures/*.yaml').AndReturn(
-                ['file2', 'file3'])
-        # pylint: enable=E1101
-
-        dev.execute_from_command_line(
-            ['manage.py', 'loaddata', 'file1', 'file2', 'file3'])
-
-        self.mox.ReplayAll()
-        self.command.load_initial_data()
-        self.mox.VerifyAll()
+    @patch('django.core.management.ManagementUtility')
+    @patch('glob.glob')
+    def test_load_initial_data(self, mock_glob, mock_mgmt):
+        fake_glob = {
+            'root/quark/foo/fixtures/*.yaml': ['file1'],
+            'root/thirdparty/bar/fixtures/*.yaml': ['file2', 'file3'],
+        }
+        mock_glob.side_effect = lambda x: fake_glob[x]
+        mock_mgmt.execute.side_effect = lambda arg: self.assertEqual(
+            arg, ['manage.py', 'loaddata', 'file1', 'file2', 'file3'])
+        dev_utils.load_initial_data()
+        self.assertEqual(mock_glob.call_count, 2)
 
     @override_settings(PROJECT_APPS=[], WORKSPACE_ROOT='root')
-    def test_no_initial_data(self):
-        self.mox.ReplayAll()
-        self.command.load_initial_data()
-        self.mox.VerifyAll()
+    @patch('django.core.management.ManagementUtility')
+    @patch('quark.utils.load_initial_data')
+    def test_update_db(self, mock_data, mock_mgmt):
+        """
+        Ensure update_db goes through the 3 management steps, which assumes
+        there are no PROJECT_APPS, or load_initial_data is stubbed out.
+        """
+        dev_utils.update_db()
+        self.assertEqual(mock_mgmt.call_count, 3)
+        self.assertEqual(mock_data.call_count, 1)
+
+
+class DevCommandTest(TestCase):
+    def setUp(self):
+        self.command = dev_cmd.Command()
 
     @override_settings(PROJECT_APPS=[])
-    def test_handle(self):
-        # We don't want to run the resulting run_command calls, so we stub it
-        # out. We just want to know that it doesn't raise an exception.
-        self.mox.StubOutWithMock(dev, 'execute_from_command_line')
-        self.mox.StubOutWithMock(dev.getpass, 'getuser')
-
-        # Force shared port.
-        dev.getpass.getuser().AndReturn('foo')
-
-        dev.execute_from_command_line(['manage.py', 'syncdb'])
-        dev.execute_from_command_line(['manage.py', 'migrate'])
-        dev.execute_from_command_line(
-            ['manage.py', 'collectstatic', '--noinput'])
-        dev.execute_from_command_line(
-            ['manage.py', 'runserver', '0.0.0.0:8999'])
-        self.mox.ReplayAll()
+    @patch('getpass.getuser')
+    @patch('quark.utils.update_db')
+    @patch.object(dev_cmd.DevServer, 'run_server')
+    def test_handle(self, mock_server, mock_update, mock_user):
+        """A valid server name does not raise a KeyError or CommandError"""
+        mock_user.return_value = 'foo'
         self.command.handle('tbp')
-        self.mox.VerifyAll()
+        self.assertTrue(mock_update.called)
+        self.assertTrue(mock_server.called)
 
     def test_handle_fail_few_arguments(self):
-        self.mox.StubOutWithMock(dev, 'execute_from_command_line')
-        self.assertRaises(
-            CommandError, self.command.handle)
+        self.assertRaises(CommandError, self.command.handle)
 
     def test_handle_fail_too_many_args(self):
-        self.mox.StubOutWithMock(dev, 'execute_from_command_line')
-        self.assertRaises(
-            CommandError, self.command.handle, 'foo', 'bar')
+        self.assertRaises(CommandError, self.command.handle, 'foo', 'bar')
+
+    @override_settings(PROJECT_APPS=[])
+    def test_run_bad_server(self):
+        """A bad server name raises a CommandError before a KeyError"""
+        self.assertRaises(CommandError, self.command.handle, 'bad')
 
 
-class CreateDevDbTest(TestCase):
+class CreateDevDBTest(TestCase):
     def setUp(self):
         self.mox = mox.Mox()
 
