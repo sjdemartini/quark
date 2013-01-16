@@ -31,6 +31,7 @@ class DepartmentTest(TestCase):
         test_department.full_clean()
 
 
+# pylint: disable=R0902
 class CourseTest(TestCase):
     def setUp(self):
         self.test_department = make_test_department()
