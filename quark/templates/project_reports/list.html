@@ -1,0 +1,56 @@
+{% extends "projects/base.html" %}
+
+{% block title %}{{ display_term.verbose_name }} | {{ block.super }}{% endblock title %}
+
+{% block head %}
+<script type="text/javascript">
+  $(function(){
+    $("#terms").change(function(){
+      window.location.href = "?term=" + $(this)[0].value;
+    })
+  });
+</script>
+{% endblock %}
+
+{# TODO(giovanni): write tests to check projects are actually being tested #}
+{% block content %}
+<h2>Project Reports</h2>
+{% with display_term_url_name=display_term.get_url_name %}
+{% if terms  %}
+<select id="terms">
+  {% for term in terms %}
+  {% with term_url_name=term.get_url_name %}
+  <option value="{{ term_url_name }}"{% ifequal term_url_name display_term_url_name  %} selected="selected"{% endifequal %}>{{ term.verbose_name}}</option>
+  {% endwith term_url_name %}
+  {% endfor %}
+</select>
+{% endif %}
+{% endwith display_term_url_name %}
+<a href="{% url project-reports:list-all %}">List All</a>
+{% if request.user.is_authenticated %}
+| <a href="{% url  project-reports:add %}">Add New</a>
+{% endif %}
+{% if project_reports %}
+    <ul>
+    {% for p in project_reports %}
+        <li>
+        {# TODO(giovanni): add a href url links #}
+        {# TODO(giovanni): ensure these CSS tags are implemented #}
+        <a href="{% url project-reports:detail p.pk %}">{{ p.title }}</a>
+            {% if not p.complete %}
+            <span class="warning">(Incomplete)</span>
+            {% endif %}
+            <div class="subtext">
+              {{ p.date|date:"M d, Y" }}
+              {# TODO(giovanni): have permissions checks here #}
+              | <a href="{% url project-reports:edit p.pk %}">Edit</a>
+              | <a href="{% url projects-reports:delete p.pk %}">Delete</a>
+              | {{ p.word_count }} Words
+            </div>
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No project reports are available.</p>
+{% endif %}
+{% endblock %}

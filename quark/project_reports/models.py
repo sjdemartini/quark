@@ -76,4 +76,7 @@ class ProjectReport(models.Model):
                 self.problems, self.results]
         return len([x for x in re.split(r'\W+', ' '.join(text)) if len(x) > 0])
 
+    class Meta:
+        ordering = ('-date',)
+
     # TODO(giovanni): Implement user_notification when UserNotification is up
