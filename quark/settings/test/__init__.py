@@ -1,3 +1,7 @@
+"""
+Default settings for running jenkins
+"""
+
 # pylint: disable=W0401,W0614
 from quark.settings import *
 

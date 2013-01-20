@@ -1,3 +1,4 @@
+from django.core.exceptions import ImproperlyConfigured
 from django.core.management.base import CommandError
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -95,20 +96,19 @@ class DevCommandTest(TestCase):
     def test_handle(self, mock_server, mock_update, mock_user):
         """A valid server name does not raise a KeyError or CommandError"""
         mock_user.return_value = 'foo'
-        self.command.handle('tbp')
+        self.command.handle()
         self.assertTrue(mock_update.called)
         self.assertTrue(mock_server.called)
 
-    def test_handle_fail_few_arguments(self):
-        self.assertRaises(CommandError, self.command.handle)
-
     def test_handle_fail_too_many_args(self):
-        self.assertRaises(CommandError, self.command.handle, 'foo', 'bar')
+        self.assertRaises(CommandError, self.command.handle, 'foo')
 
-    @override_settings(PROJECT_APPS=[])
+    @override_settings(SITE_NAME='bad')
     def test_run_bad_server(self):
-        """A bad server name raises a CommandError before a KeyError"""
-        self.assertRaises(CommandError, self.command.handle, 'bad')
+        """A bad server name (set by SITE_NAME) raises an ImproperlyConfigured
+        error before a KeyError
+        """
+        self.assertRaises(ImproperlyConfigured, self.command.handle)
 
 
 class CreateDevDBTest(TestCase):

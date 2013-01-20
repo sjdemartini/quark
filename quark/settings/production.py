@@ -4,7 +4,9 @@ import quark_keys
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
-ADMINS = (('it-notice', 'it-notice@tbp.berkeley.edu'),)
+ADMINS = (
+    ('TBP IT', 'it-notice@tbp.berkeley.edu'),
+    ('PiE IT', 'it-notice@pioneers.berkeley.edu'))
 MANAGERS = ADMINS
 
 # Only use LDAP user in production

@@ -1,0 +1,20 @@
+- fields:
+    name: TBP Development
+    domain: http://tbp.berkeley.edu:8999
+  model: sites.Site
+  pk: 1
+- fields:
+    name: TBP
+    domain: https://tbp.berkeley.edu
+  model: sites.Site
+  pk: 2
+- fields:
+    name: PiE Development
+    domain: http://pioneers.berkeley.edu:9999
+  model: sites.Site
+  pk: 3
+- fields:
+    name: PiE
+    domain: https://pioneers.berkeley.edu
+  model: sites.Site
+  pk: 4

@@ -1,5 +1,6 @@
+from test.test_support import EnvironmentVarGuard
+from test.test_support import import_fresh_module
 import datetime
-import mox
 import uuid
 
 from quark.auth.models import User
@@ -8,6 +9,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils import timezone
 from django.utils.timezone import make_aware
+import mox
 
 from quark.base.models import RandomToken
 from quark.base.models import Major
@@ -15,6 +17,9 @@ from quark.base.models import Officer
 from quark.base.models import OfficerPosition
 from quark.base.models import Term
 from quark.base.models import University
+from quark.settings.dev import DATABASES as DEV_DB
+from quark.settings.production import DATABASES as PROD_DB
+from quark.settings.staging import DATABASES as STAGING_DB
 
 
 class RandomTokenManagerTest(TestCase):
@@ -456,3 +461,32 @@ class UniversityTest(TestCase):
     def test_initial_number(self):
         num = University.objects.count()
         self.assertEquals(num, 1)
+
+
+class SettingsTest(TestCase):
+    def setUp(self):
+        self.env = EnvironmentVarGuard()
+
+    def test_unset(self):
+        with self.env:
+            self.env.set('QUARK_ENV', 'dev')
+            settings = import_fresh_module('quark.settings')
+
+            self.assertTrue(settings.DEBUG)
+            self.assertEqual(settings.DATABASES, DEV_DB)
+
+    def test_production(self):
+        with self.env:
+            self.env.set('QUARK_ENV', 'production')
+            settings = import_fresh_module('quark.settings')
+
+            self.assertFalse(settings.DEBUG)
+            self.assertEqual(settings.DATABASES, PROD_DB)
+
+    def test_staging(self):
+        with self.env:
+            self.env.set('QUARK_ENV', 'staging')
+            settings = import_fresh_module('quark.settings')
+
+            self.assertFalse(settings.DEBUG)
+            self.assertEqual(settings.DATABASES, STAGING_DB)

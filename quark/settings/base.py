@@ -1,9 +1,12 @@
-# Django settings for quark project - TBP and PiE's merged project.
+"""
+Django settings for quark project - TBP and PiE's merged website project.
 
-import getpass
-import ldap
+This file lists Django settings constant for both TBP and PiE, in development
+and production environments. Never import this directly unless you are sure you
+do not need the settings in the site- or env-specific settings files.
+"""
+
 import os
-import socket
 import sys
 import warnings
 
@@ -21,12 +24,10 @@ except ImportError:
 
 # Determine the path of your local workspace.
 WORKSPACE_DJANGO_ROOT = os.path.abspath(
-    os.path.dirname(globals()['__file__']))
+    os.path.dirname(os.path.dirname(globals()['__file__'])))
 WORKSPACE_ROOT = os.path.dirname(WORKSPACE_DJANGO_ROOT)
 
-HOSTNAME = 'tbp.berkeley.edu'
-
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = ()
@@ -35,11 +36,9 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        # We need this for per-user development databases.
-        'NAME': 'quark_dev_%s' % getpass.getuser(),
-        'USER': 'quark_dev',
-        'PASSWORD': quark_keys.DEV_DB_PASSWORD,
+        'ENGINE': 'django.db.backends.sqlite3',
+        # You shouldn't be using this database
+        'NAME': 'improper_quark.db',
     }
 }
 
@@ -67,6 +66,8 @@ LANGUAGES = [
     ('en', 'English'),
 ]
 
+# ODD for dev (n), EVEN for production (n+1)
+# Make sure your dev/production site uses the correct SITE_ID
 SITE_ID = 1
 
 # If you set this to False, Django will make some optimizations so as not
@@ -83,7 +84,7 @@ USE_TZ = True
 if USE_TZ:
     # Raise an error when dealing with timezone-unaware objects.
     warnings.filterwarnings(
-        'error', r"DateTimeField received a naive datetime",
+        'error', r'DateTimeField received a naive datetime',
         RuntimeWarning, r'django\.db\.models\.fields')
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
@@ -223,8 +224,6 @@ THIRD_PARTY_APPS = [
 # This is the actual variable that django looks at.
 INSTALLED_APPS = PROJECT_APPS + THIRD_PARTY_APPS
 
-DEFAULT_FROM_EMAIL = 'webmaster@' + HOSTNAME
-
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
 # the site admins on every HTTP 500 error when DEBUG=False.
@@ -254,114 +253,30 @@ LOGGING = {
     }
 }
 
-# django-cms settings
-# Adds 2 new date-time fields in the advanced-settings tab of the page.
-# Allows for limiting the time a page is published.
-CMS_SHOW_START_DATE = True
-CMS_SHOW_END_DATE = True
-
-# Disables CMS permissions to be given on a per page basis
-CMS_PERMISSION = False
-
-# URL base for CMS's media files
-CMS_MEDIA_URL = '/cms/'
-
-# List of templates you can select for a page
-CMS_TEMPLATES = (
-    ('base.html', 'Base'),
-)
-
-# TODO(nitishp) Add actual emails (noiro was missing them too...)
-# Emailer stuff
-ENABLE_HELPDESKQ = False
-
-RESUMEQ_CC_ADDRESS = 'test@tbp.berkeley.edu'
-
-# Email addresses
-HELPDESK_ADDRESS = 'test@tbp.berkeley.edu'
-INDREL_ADDRESS = 'test@tbp.berkeley.edu'
-IT_ADDRESS = 'test@tbp.berkeley.edu'
-STARS_ADDRESS = 'test@tbp.berkeley.edu'
-
-# Should we cc people who ask us questions?
-HELPDESK_CC_ASKER = False
-
-# Do we send spam notices?
-HELPDESK_SEND_SPAM_NOTICE = True
-# where?
-HELPDESK_NOTICE_TO = 'test@tbp.berkeley.edu'
-
-# Do we send messages known to be spam?
-HELPDESK_SEND_SPAM = False
-# where?
-HELPDESK_SPAM_TO = 'test@tbp.berkeley.edu'
-
-# YouTube Secret Stuff
-YT_USERNAME = 'BerkeleyTBP'
-YT_PRODUCT = 'noiro'
-YT_DEVELOPER_KEY = quark_keys.YT_DEVELOPER_KEY
-YT_PASSWORD = quark_keys.YT_PASSWORD
-
-# http://www.djangosnippets.org/snippets/1653/
-RECAPTCHA_PRIVATE_KEY = quark_keys.RECAPTCHA_PRIVATE_KEY
-RECAPTCHA_PUBLIC_KEY = quark_keys.RECAPTCHA_PUBLIC_KEY
-
-# LDAP settings
-LDAP = {
-    'HOST': 'ldap://localhost',
-    'BASE': 'dc=tbp,dc=berkeley,dc=edu',
-    'SCOPE': ldap.SCOPE_SUBTREE,
-}
-LDAP_BASE = {
-    'PEOPLE': 'ou=People,' + LDAP['BASE'],
-    'GROUP': 'ou=Group,' + LDAP['BASE'],
-    'DN': 'uid=ldapwriter,ou=System,' + LDAP['BASE'],
-    'PASSWORD': quark_keys.LDAP_BASEDN_PASSWORD,
-}
-LDAP_GROUPS = {
-    'TBP': ['tbp-officers', 'tbp-members', 'tbp-candidates'],
-    'PIE': ['pie-mentors', 'pie-it', 'pie-staff', 'pie-students',
-            'pie-teachers'],
-}
-LDAP_DEFAULT_USER = 'uid=default,ou=System,' + LDAP['BASE']
-
-# LDAP and CustomUser (QuarkUser) valid username regex
-# Please use raw string notation (i.e. r'text') to keep regex sane.
-# Update quark/qldap/tests.py: test_valid_username_regex() to match
-VALID_USERNAME = r'^[a-z][a-z0-9]{2,29}$'
-USERNAME_HELPTEXT = ('Username must be 3-30 character, start with a letter,'
-                     ' and use only lowercase letters and numbers.')
-
-# Jenkins integration.
-JENKINS_TASKS = (
-    'django_jenkins.tasks.django_tests',
-    'django_jenkins.tasks.run_csslint',
-    # TODO(wli): re-enable jshint when it stops crashing.
-    # 'django_jenkins.tasks.run_jshint',
-    'django_jenkins.tasks.run_pep8',
-    'django_jenkins.tasks.run_pylint',
-    'django_jenkins.tasks.run_sloccount',
-    'django_jenkins.tasks.with_coverage',
-)
-PYLINT_RCFILE = os.path.join(WORKSPACE_ROOT, '.pylintrc')
-
-# Valid types are 'semester' and 'quarter'.
-TERM_TYPE = 'semester'
 
 ###############################################################################
-# Import any local settings to override default settings.
+# Import any extra settings to override default settings.
 ###############################################################################
 try:
     # pylint: disable=F0401
-    from settings_local import *
-except ImportError:
+    from quark.settings.project import *
+    # pylint: disable=F0401
+    from quark.settings.third_party import *
+except ImportError as err:
     # If the file doesn't exist, print a warning message but do not fail.
-    print('WARNING: No settings_local file was detected.')
-###############################################################################
-# End local settings section.
-###############################################################################
+    print('WARNING: %s' % str(err))
 
-# separate cookies for dev server, dev-tbp, and production
-SESSION_COOKIE_NAME = '%s_sessionid' % socket.gethostname().split('.')[0]
-if DEBUG:
-    SESSION_COOKIE_NAME = 'dbg_' + SESSION_COOKIE_NAME
+
+###############################################################################
+# Import the proper instance environment settings (dev/production/staging)
+# Errors will be raised if the appropriate settings file is not found
+###############################################################################
+__quark_env__ = os.getenv('QUARK_ENV', 'dev')
+if __quark_env__ == 'dev':
+    from quark.settings.dev import *
+elif __quark_env__ == 'staging':
+    from quark.settings.staging import *
+elif __quark_env__ == 'production':
+    from quark.settings.production import *
+else:
+    print('WARNING: Invalid value for QUARK_ENV: %s' % __quark_env__)

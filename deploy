@@ -33,20 +33,24 @@ VENV_PATH="/home/tbp/virtualenv/django15"
 # TODO(flieee): Use Gerrit. Need to set up public key for www-data. ugh.
 GIT_REPO_URL="file:///var/git/quark.git"
 
+UWSGI_PATH="/etc/uwsgi"
+UWSGI_SRC="${UWSGI_PATH}/apps-available"
+UWSGI_DST="${UWSGI_PATH}/apps-enabled"
+
 # Set some variables depending on user invocation
 if [ ${STAGING} -eq 1 ]; then
     DEPLOY_ENV="/var/www/dev"
-    UWSGI_CONF="${PROJ_NAME}_dev.ini"
-    UWSGI_SOCKET="/var/run/uwsgi/${PROJ_NAME}_dev.sock"
+    # Actual config file name is like tbp.quark.ini or tbp.quark_dev.ini
+    UWSGI_CONFS="*.${PROJ_NAME}_dev.ini"
+    UWSGI_SOCKETS="/var/run/uwsgi/*.${PROJ_NAME}_dev.sock"
+    QUARK_ENV="staging"
 else
     DEPLOY_ENV="/var/www"
-    UWSGI_CONF="${PROJ_NAME}.ini"
-    UWSGI_SOCKET="/var/run/uwsgi/${PROJ_NAME}.sock"
+    UWSGI_CONFS="*.${PROJ_NAME}.ini"
+    UWSGI_SOCKETS="/var/run/uwsgi/*.${PROJ_NAME}.sock"
+    QUARK_ENV="production"
 fi
-
-UWSGI_PATH="/etc/uwsgi"
-UWSGI_SRC="${UWSGI_PATH}/apps-available/${UWSGI_CONF}"
-UWSGI_DST="${UWSGI_PATH}/apps-enabled/${UWSGI_CONF}"
+export QUARK_ENV
 
 
 setup() {
@@ -86,15 +90,7 @@ deploy() {
     echo "Deploying Release ${TAG}"
     git checkout ${TAG}
 
-    # TODO(flieee): Set up multi-site settings instead
-    cp -f ${PROJ_NAME}/conf/settings_local.production.py \
-        ${PROJ_NAME}/settings_local.py
-    # Set up local settings
-    if [ ${STAGING} -eq 1 ]; then
-        # Overwrite production settings to use staging DB
-        echo "DATABASES['default']['NAME'] = '${STAGING_DB_NAME}'" >> \
-            ${PROJ_NAME}/settings_local.py
-    fi
+    # TODO(flieee): Set up dynamic multi-site settings instead
 
     # Create media/static directories if they don't exist
     mkdir -p media
@@ -112,16 +108,15 @@ deploy() {
 enable_server() {
     echo -n "Enabling the server... "
     # Placing a copy in apps-enabled will enable the instance in uWSGI
-    if [ ! -e ${UWSGI_DST} ]; then
-        ln -s ${UWSGI_SRC} ${UWSGI_DST}
-    fi
+    rm -f ${UWSGI_DST}/${UWSGI_CONFS}
+    ln -s ${UWSGI_SRC}/${UWSGI_CONFS} ${UWSGI_DST}
     echo "done"
 }
 
 disable_server() {
     echo -n "Disabling server... "
     # Remove the config from apps-enabled and clean up the socket to disable
-    rm -f ${UWSGI_DST} ${UWSGI_SOCKET}
+    rm -f ${UWSGI_DST}/${UWSGI_CONFS} ${UWSGI_SOCKETS}
     echo "done"
 }
 
@@ -171,4 +166,11 @@ setup && \
 disable_server && \
 deploy && \
 enable_server
+
+if [ ${STAGING} -eq 1 ]; then
+    echo "Please stop the staging webserver after you are done testing"
+    echo "It can be stopped by running the following command:"
+    echo -n " sudo -u www-data rm -f ${UWSGI_SOCKETS}"
+    echo " ${UWSGI_DST}/${UWSGI_CONFS}"
+fi
 # Cleanup handled by trap

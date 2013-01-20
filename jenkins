@@ -10,7 +10,7 @@ source /home/tbp/virtualenv/django15/bin/activate
 # All other lint errors are not taken into consideration for the +/- Verified
 # flag. Jenkins will report the other lint errors in pretty graphs though.
 python manage.py jenkins \
-    --settings=quark.settings_test \
+    --settings=quark.settings.test \
     --pep8-max-line-length=80 \
     && grep "Your code has been rated at 10.00/10" reports/pylint.report \
     && ! grep "py" reports/pep8.report
