@@ -7,7 +7,6 @@ from quark.auth.models import User
 from quark.base.models import IDCodeMixin
 from quark.base.models import Major
 from quark.base.models import Officer
-from quark.base.models import OfficerPosition
 from quark.base.models import Term
 from quark.shortcuts import get_object_or_none
 
