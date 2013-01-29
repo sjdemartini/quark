@@ -5,6 +5,6 @@
 *~
 settings_local.py
 docs
-reports/
-media/
-static/
+/reports/
+/media/
+/static/

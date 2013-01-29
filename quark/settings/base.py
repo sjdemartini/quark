@@ -156,6 +156,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
     # TODO(mattchang): get django-cms working with django-1.5
     #'cms.middleware.page.CurrentPageMiddleware',
     #'cms.middleware.user.CurrentUserMiddleware',
@@ -206,6 +207,7 @@ THIRD_PARTY_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'django.contrib.flatpages',
     'django.contrib.messages',
     'django.contrib.sessions',
     'django.contrib.sites',

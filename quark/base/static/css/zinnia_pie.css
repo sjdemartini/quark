@@ -1,0 +1,156 @@
+/* zinnia blog styles */
+#blog_content {
+    float: left;
+    width: 630px;
+    padding-right: 30px;
+}
+#sidebar {
+    float: right;
+    width: 255px;
+    padding-left: 15px;
+    margin-top: 30px;
+}
+#blog_top h1 {
+    font-size: 3em;
+    margin-bottom: 0;
+}
+#blog_top {
+    margin-bottom: 35px;
+}
+ul.breadcrumbs {
+    margin: 0;
+    font-size: 0.9em;
+}
+ul.breadcrumbs li {
+    list-style-type: none;
+    display: inline;
+    padding: 0;
+    color: #c7aa36;
+    font-weight: bold;
+}
+ul.breadcrumbs li a {
+    color: #333;
+    font-weight: normal;
+}
+ul.breadcrumbs li:after {
+    content: " \00BB";
+    font-weight: normal;
+    color: #333;
+}
+ul.breadcrumbs li:last-child:after {
+    content: "";
+}
+h2.entry-title {
+    margin-bottom: 0;
+    font-size: 2.3em;
+    border-bottom: 1px dashed #c7aa36;
+}
+h2.entry-title a {
+    color: #000;
+    margin-bottom: 0;
+}
+.entry-info {
+    margin-top: 0;
+    color: #666;
+    font-size: 0.9em;
+}
+.continue-reading a:after {
+    content: "\21d2";
+}
+.entry-footer {
+    margin: 30px 0 30px 0;
+    font-size: 0.9em;
+    padding: 10px 0;
+    border-top: 1px dashed #ccc;
+    border-bottom: 1px dashed #ccc;
+}
+.entry-footer p {
+    margin: 0;
+}
+
+#sidebar {
+    font-size: 0.9em;
+}
+#sidebar h3 {
+    background-color: #eee;
+    margin: 10px 0;
+    padding: 5px;
+}
+#sidebar aside {
+    margin-bottom: 25px;
+}
+.calendar, ul.tags {
+    margin: 10px 0;
+}
+ul.tags li {
+    display: inline;
+    padding:0;
+}
+ul.tags .tag-1 {font-size:0.8em;}
+ul.tags .tag-2 {font-size:1em;}
+ul.tags .tag-3 {font-size:1.1em;}
+ul.tags .tag-4 {font-size:1.2em;}
+ul.tags .tag-5 {font-size:1.4em;}
+ul.tags .tag-6 {font-size:1.8em;}
+#comment-list li {
+    list-style-type: none;
+    border-bottom: 1px dashed #ccc;
+}
+#comment-list li:first-child {
+    border-top: 1px dashed #ccc;
+}
+#comment-list {
+    margin-bottom: 15px;
+}
+.comment-info {
+    font-weight: 600;
+}
+ul.paginator {
+    float: right;
+    font-size: 0.9em;
+}
+ul.paginator li {
+    list-style-type: none;
+    display: inline;
+    padding: 0;
+}
+ul.paginator li.page.current {
+    font-weight: bold;
+}
+ul.paginator li:after {
+    content: " | ";
+    font-weight: normal;
+    color: #333;
+}
+ul.paginator li.index {
+    padding-right: 20px;
+}
+ul.paginator li.index:after {
+    content: "";
+}
+ul.paginator li:last-child:after {
+    content: "";
+}
+.calendar td {
+    text-align: center;
+}
+.calendar td.entry {
+    background-color: #fff6d0;
+}
+.calendar td.entry a {
+    font-weight: 600;
+    color: #000;
+}
+.calendar td.prev, .calendar td.next {
+    font-size: 0.9em;
+    padding: 5px 0;
+}
+.calendar td.pad {
+    padding: 0;
+}
+.calendar td.prev {
+    text-align: left;
+}
+.calendar td.next {
+    text-align: right;
+}
