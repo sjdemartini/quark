@@ -110,6 +110,7 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
+    os.path.join(WORKSPACE_DJANGO_ROOT, 'static'),
 )
 
 # List of finder classes that know how to find static files in
@@ -169,7 +170,7 @@ ROOT_URLCONF = 'quark.urls'
 WSGI_APPLICATION = 'quark.wsgi.application'
 
 TEMPLATE_DIRS = (
-  os.path.join(WORKSPACE_DJANGO_ROOT, 'templates'),
+    os.path.join(WORKSPACE_DJANGO_ROOT, 'templates'),
 )
 
 # All projects that we write (and thus, need to be tested) should go here.
