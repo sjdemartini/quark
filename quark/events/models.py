@@ -41,7 +41,7 @@ class Event(models.Model):
     description = models.TextField(blank=True)
     location = models.CharField(max_length=80)
     contact = models.ForeignKey(User)
-    committee = models.ForeignKey(OfficerPosition, null=True, blank=True)
+    committee = models.ForeignKey(OfficerPosition)
     signup_limit = models.PositiveSmallIntegerField(default=0)
     needs_drivers = models.BooleanField(default=False)
     cancelled = models.BooleanField(default=False)
@@ -136,13 +136,6 @@ class Event(models.Model):
         elif start_time == end_string:
             return '%s Time TBA' % start_date
         return '%s %s to %s' % (start_date, start_time, end_string)
-
-    def get_committee(self):
-        """Returns the committee in charge of the event."""
-        # TODO(sjdemartini): modify so that it checks if self.committee is
-        # None, and if so, it returns the OfficerPosition of the user who
-        # created the event (self.user) and returns that committee
-        return self.committee
 
     # TODO(sjdemartini): re-implement Google Calendar utilities
 

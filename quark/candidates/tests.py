@@ -93,7 +93,8 @@ class CandidateTest(TestCase):
                                 end_datetime=timezone.now(),
                                 term=self.term,
                                 location='A test location',
-                                contact=officer_user)
+                                contact=officer_user,
+                                committee=committee)
         self.fun_event1.save()
         self.fun_event2 = Event(name='Big Fun Event',
                                 event_type=self.event_type1,
@@ -102,7 +103,8 @@ class CandidateTest(TestCase):
                                 requirements_credit=2,
                                 term=self.term,
                                 location='A test location',
-                                contact=officer_user)
+                                contact=officer_user,
+                                committee=committee)
         self.fun_event2.save()
         self.notfun_event = Event(name='Not Fun Event',
                                   event_type=self.event_type2,
@@ -110,7 +112,8 @@ class CandidateTest(TestCase):
                                   end_datetime=timezone.now(),
                                   term=self.term,
                                   location='A test location',
-                                  contact=officer_user)
+                                  contact=officer_user,
+                                  committee=committee)
         self.notfun_event.save()
         self.event_req = EventCandidateRequirement(
             event_type=self.event_type1,

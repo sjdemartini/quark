@@ -6,11 +6,19 @@ from django.utils import timezone
 from quark.auth.models import User
 from quark.base.models import Term
 from quark.base_tbp.models import OfficerPosition
+from quark.events.forms import EventForm
 from quark.events.models import Event
 from quark.events.models import EventType
+from quark.project_reports.models import ProjectReport
+from quark.shortcuts import get_object_or_none
 
 
-class EventsTest(TestCase):
+class EventTesting(object):
+    """Class used to create common set up and methods for two separate test
+    case classes: one for the events model, and one for event forms.
+    This class itself is not a TestCase class and will not run tests; only its
+    subclasses will, as they extend TestCase."""
+
     def setUp(self):
         self.user = User.objects.create_user(
             username='officer',
@@ -21,8 +29,8 @@ class EventsTest(TestCase):
 
         self.committee = OfficerPosition(
             position_type=OfficerPosition.TBP_OFFICER,
-            short_name='IT_test',
-            long_name='Information Technology (test)',
+            short_name='IT',
+            long_name='Information Technology',
             rank=2,
             mailing_list='IT')
         self.committee.save()
@@ -40,8 +48,11 @@ class EventsTest(TestCase):
                      end_datetime=end_time,
                      term=self.term,
                      location='A test location',
-                     contact=self.user)
+                     contact=self.user,
+                     committee=self.committee)
 
+
+class EventTest(EventTesting, TestCase):
     def test_eventtype_get_by_natural_key(self):
         event_type_name = 'New Test Event Type'
         EventType(name=event_type_name).save()
@@ -195,14 +206,162 @@ class EventsTest(TestCase):
         event.save()
         self.assertEqual(event.view_datetime(), 'Sat, Mar 14 Time TBA')
 
-    def test_get_committee(self):
-        start_time = timezone.now() + datetime.timedelta(hours=2)
-        end_time = start_time + datetime.timedelta(hours=3)
-        event = self.create_tbp_event(start_time, end_time,
-                                      name='My Test Event')
-        event.save()
-        self.assertEqual(event.get_committee(), None)
 
-        event.committee = self.committee
-        event.save()
-        self.assertEqual(event.get_committee(), self.committee)
+class EventFormsTest(EventTesting, TestCase):
+    def setUp(self):
+        # Call superclass setUp first:
+        EventTesting.setUp(self)
+
+        start_datetime = timezone.now()
+        start_datetime = start_datetime.replace(
+            month=3, day=14, year=2015, hour=9, minute=26)
+        end_datetime = start_datetime + datetime.timedelta(hours=2)
+        self.event = self.create_tbp_event(start_datetime, end_datetime)
+        self.event.save()
+
+        # Create string formats for start and end times:
+        # Note that we separate date and time into separate strings to be used
+        # as input to the SplitDateTimeWidget for the DateTimeField, since
+        # the widget splits input into two separate form fields.
+        self.start_date = '{:%Y-%m-%d}'.format(self.event.start_datetime)
+        self.start_time = '{:%I:%M%p}'.format(self.event.start_datetime)
+        self.end_date = '{:%Y-%m-%d}'.format(self.event.end_datetime)
+        self.end_time = '{:%I:%M%p}'.format(self.event.end_datetime)
+
+    def create_basic_event_form(self, extra_fields=None):
+        """Returns an event form with some of the common fields filled out.
+
+        The extra_fields kwarg is used to pass a dictionary of additional
+        fields to include when creating the form.  Note that without specifying
+        some additional fields, the form returned is not a valid form, as event
+        start and end times are required fields.
+        """
+        fields = {'name': self.event.name,
+                  'event_type': self.event.event_type.pk,
+                  'term': self.event.term.pk,
+                  'contact': self.user.pk,
+                  'committee': self.event.committee.pk,
+                  'location': self.event.location,
+                  'requirements_credit': self.event.requirements_credit,
+                  'signup_limit': self.event.signup_limit}
+        if extra_fields:
+            fields.update(extra_fields)
+        return EventForm(fields)
+
+    def test_clean(self):
+        form = EventForm()
+        # Blank form should be invalid:
+        self.assertFalse(form.is_valid())
+
+        # Create a form with all fields logically/properly filled out:
+        form = self.create_basic_event_form(
+            {'start_datetime_0': self.start_date,
+             'start_datetime_1': self.start_time,
+             'end_datetime_0': self.end_date,
+             'end_datetime_1': self.end_time})
+        self.assertTrue(form.is_valid())
+
+        # Create an invalid form with invalid input for start and/or end time:
+        start_error = ['Your start time is not in the proper format.']
+        end_error = ['Your end time is not in the proper format.']
+        end_before_start = ['Your event is scheduled to end before it starts.']
+        # Missing start and end times:
+        form = self.create_basic_event_form()
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.errors.get('start_datetime', None),
+                         start_error)
+        self.assertEqual(form.errors.get('end_datetime', None),
+                         end_error)
+
+        # Missing start time:
+        form = self.create_basic_event_form(
+            {'end_datetime_0': self.end_date,
+             'end_datetime_1': self.end_time})
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.errors.get('start_datetime', None),
+                         start_error)
+        self.assertIsNone(form.errors.get('end_datetime', None))
+
+        # Invalid (non-datetime) end time:
+        # (Note that the same validation error will occur if end_datetime not
+        # specified.)
+        form = self.create_basic_event_form(
+            {'start_datetime_0': self.start_date,
+             'start_datetime_1': self.start_time,
+             'end_datetime_0': 'not a date',
+             'end_datetime_1': 'not a time'})
+        self.assertFalse(form.is_valid())
+        self.assertIsNone(form.errors.get('start_datetime', None))
+        self.assertEqual(form.errors.get('end_datetime', None),
+                         end_error)
+
+        # Create a form with event end time before start time:
+        form = self.create_basic_event_form(
+            {'start_datetime_0': self.end_date,
+             'start_datetime_1': self.end_time,
+             'end_datetime_0': self.start_date,
+             'end_datetime_1': self.start_time})
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.errors.get('start_datetime', None),
+                         end_before_start)
+        self.assertEqual(form.errors.get('end_datetime', None),
+                         end_before_start)
+
+    def test_autocreate_project_report(self):
+        """ Ensures that when an EventForm is saved, a project report
+        corresponding to that event is created, depending on the needs_pr
+        field.
+        """
+        # Create the fields for an Event, based on the event created in setUp,
+        # simply with a different event name
+        event_name_no_pr = 'My Event Without a PR'
+        event_name_pr = 'My Event With a PR'
+        fields = {'name': event_name_no_pr,
+                  'event_type': self.event.event_type.pk,
+                  'term': self.event.term.pk,
+                  'contact': self.user.pk,
+                  'committee': self.event.committee.pk,
+                  'location': self.event.location,
+                  'requirements_credit': self.event.requirements_credit,
+                  'signup_limit': self.event.signup_limit,
+                  'start_datetime_0': self.start_date,
+                  'start_datetime_1': self.start_time,
+                  'end_datetime_0': self.end_date,
+                  'end_datetime_1': self.end_time,
+                  'needs_pr': False}
+
+        # Ensure that saving the EventForm creates the event and that no
+        # project report is created:
+        EventForm(fields).save()
+        event = get_object_or_none(Event, name=event_name_no_pr)
+        self.assertIsNotNone(event)
+        self.assertIsNone(event.project_report)
+        self.assertFalse(ProjectReport.objects.all().exists())
+
+        # Create event with form, requiring project report, and ensure PR
+        # is created:
+        fields.update({'name': event_name_pr,
+                       'needs_pr': True})
+        EventForm(fields).save()
+        event = get_object_or_none(Event, name=event_name_pr)
+        self.assertIsNotNone(event)
+        self.assertTrue(ProjectReport.objects.all().exists())
+        project_report = ProjectReport.objects.all()[0]
+
+        # Check the properties of both the event and project report to ensure
+        # that they were saved and match our form
+        self.assertEqual(event.name, event_name_pr)
+        self.assertEqual(project_report.title, event_name_pr)
+
+        self.assertEqual(event.start_datetime.date(),
+                         self.event.start_datetime.date())
+        self.assertEqual(project_report.date,
+                         self.event.start_datetime.date())
+
+        self.assertEqual(event.contact, self.user)
+        self.assertEqual(project_report.author, self.user)
+
+        self.assertEqual(event.term, self.event.term)
+        self.assertEqual(project_report.term, self.event.term)
+
+        self.assertEqual(project_report, event.project_report)
