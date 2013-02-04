@@ -119,11 +119,9 @@ class TBPProfilesTest(TestCase):
 
         Officer(user=self.user, position=self.advisor_pos,
                 term=self.term_old).save()
-        self.assertEqual(len(self.profile.get_all_officer_positions()), 2)
-        self.assertIn(self.committee,
-                      self.profile.get_all_officer_positions())
-        self.assertIn(self.advisor_pos,
-                      self.profile.get_all_officer_positions())
+        # Order of list returned is based on term, then officer position rank:
+        self.assertEqual(self.profile.get_all_officer_positions(),
+                         [self.advisor_pos, self.committee])
         self.assertEqual(self.profile.get_officer_positions(),
                          [self.committee])
         self.assertEqual(
@@ -132,14 +130,12 @@ class TBPProfilesTest(TestCase):
 
         Officer(user=self.user, position=self.advisor_pos,
                 term=self.term).save()
-        self.assertEqual(len(self.profile.get_all_officer_positions()), 3)
-        self.assertIn(self.committee,
-                      self.profile.get_all_officer_positions())
-        self.assertIn(self.advisor_pos,
-                      self.profile.get_all_officer_positions())
-        self.assertEqual(len(self.profile.get_officer_positions()), 2)
-        self.assertIn(self.committee, self.profile.get_officer_positions())
-        self.assertIn(self.advisor_pos, self.profile.get_officer_positions())
+        # Order of list returned is based on term, then officer position rank:
+        self.assertEqual(self.profile.get_all_officer_positions(),
+                         [self.advisor_pos, self.committee, self.advisor_pos])
+        # Order of list returned is based on officer position rank:
+        self.assertEqual(self.profile.get_officer_positions(),
+                         [self.committee, self.advisor_pos])
         self.assertEqual(
             self.profile.get_officer_positions(term=self.term_old),
             [self.advisor_pos])
