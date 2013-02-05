@@ -104,41 +104,64 @@ class TBPProfilesTest(TestCase):
         self.assertTrue(self.profile.is_current_officer(self.term,
                                                         exclude_aux=True))
 
-    def test_get_all_officer_positions(self):
-        # This testing method also tests get_officer_positions()
-        self.assertEqual(self.profile.get_all_officer_positions(), [])
+    def test_get_officer_positions(self):
+        # Note that when given no 'term' kwarg, the method returns positions
+        # from all terms. The order of the list returned is based on term, then
+        # officer position rank
+        # No officer positions for this user yet:
+        self.assertEqual(self.profile.get_officer_positions(), [])
 
         Officer(user=self.user, position=self.committee, term=self.term,
                 is_chair=True).save()
-        self.assertEqual(self.profile.get_all_officer_positions(),
-                         [self.committee])
-        self.assertEqual(self.profile.get_officer_positions(),
-                         [self.committee])
         self.assertEqual(
-            self.profile.get_officer_positions(term=self.term_old), [])
+            self.profile.get_officer_positions(),
+            [self.committee])
+        self.assertEqual(
+            self.profile.get_officer_positions(term=self.term),
+            [self.committee])
+        self.assertEqual(
+            self.profile.get_officer_positions(term=self.term_old),
+            [])
 
         Officer(user=self.user, position=self.advisor_pos,
                 term=self.term_old).save()
-        # Order of list returned is based on term, then officer position rank:
-        self.assertEqual(self.profile.get_all_officer_positions(),
-                         [self.advisor_pos, self.committee])
-        self.assertEqual(self.profile.get_officer_positions(),
-                         [self.committee])
+        self.assertEqual(
+            self.profile.get_officer_positions(),
+            [self.advisor_pos, self.committee])
+        self.assertEqual(
+            self.profile.get_officer_positions(term=self.term),
+            [self.committee])
         self.assertEqual(
             self.profile.get_officer_positions(term=self.term_old),
             [self.advisor_pos])
 
         Officer(user=self.user, position=self.advisor_pos,
                 term=self.term).save()
-        # Order of list returned is based on term, then officer position rank:
-        self.assertEqual(self.profile.get_all_officer_positions(),
-                         [self.advisor_pos, self.committee, self.advisor_pos])
-        # Order of list returned is based on officer position rank:
-        self.assertEqual(self.profile.get_officer_positions(),
-                         [self.committee, self.advisor_pos])
+        self.assertEqual(
+            self.profile.get_officer_positions(),
+            [self.advisor_pos, self.committee, self.advisor_pos])
+        self.assertEqual(
+            self.profile.get_officer_positions(term=self.term),
+            [self.committee, self.advisor_pos])
         self.assertEqual(
             self.profile.get_officer_positions(term=self.term_old),
             [self.advisor_pos])
+
+        # Ensure ordering is correct:
+        Officer(user=self.user, position=self.house_leader,
+                term=self.term).save()
+        self.assertEqual(
+            self.profile.get_officer_positions(),
+            [self.advisor_pos, self.committee, self.house_leader,
+             self.advisor_pos])
+        older_term = Term(term=Term.SPRING, year=2008)
+        older_term.save()
+        Officer(user=self.user, position=self.house_leader,
+                term=older_term).save()
+        self.assertEqual(
+            self.profile.get_officer_positions(),
+            [self.house_leader, self.advisor_pos, self.committee,
+             self.house_leader, self.advisor_pos])
 
     def test_is_position(self):
         self.assertFalse(self.profile.is_position('it'))

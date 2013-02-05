@@ -285,6 +285,9 @@ class OfficerPosition(models.Model):
     rank = models.DecimalField(max_digits=5, decimal_places=2)
     mailing_list = models.CharField(max_length=16, blank=True)
 
+    class Meta:
+        ordering = ('rank',)
+
     def __unicode__(self):
         return self.long_name
 

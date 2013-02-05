@@ -125,27 +125,20 @@ class TBPProfile(models.Model):
             return True
         return False
 
-    def get_all_officer_positions(self):
-        """Returns a list of all officer positions held, past and present.
+    def get_officer_positions(self, term=None):
+        """Returns a list of all officer positions held by this user in the
+        specified term, or in all terms if no term specified.
 
         The order of the list is from oldest to newest term, and within a term,
-        from highest rank OfficerPosition (lowest number) to lowest rank.
+        from highest rank OfficerPosition (smallest number) to lowest rank.
         """
-        officers = Officer.objects.filter(user=self.user).order_by(
-            'term', 'position__rank')
-        return [officer.position for officer in officers]
-
-    def get_officer_positions(self, term=None):
-        """Returns a list of all officer positions in the specified term, or
-        in the current term if no term specified.
-
-        The positions are returned in order from highest rank (lowest number)
-        to lowest rank.
-        """
-        if not term:
-            term = Term.objects.get_current_term()
-        officers = Officer.objects.filter(user=self.user, term=term).order_by(
-            'position__rank')
+        # Note that QuerySets are lazy, so there is no database activity until
+        # the list comprehension
+        # select_related used for performance boost
+        officers = Officer.objects.filter(user=self.user).select_related(
+            'position').order_by('term', 'position')
+        if term:
+            officers = officers.filter(term=term)
         return [officer.position for officer in officers]
 
     # TODO(sjdemartini): implement is_candidate()
