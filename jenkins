@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Don't run me as root!
+if [[ `id --user` == "0" ]]; then
+    echo "Do not run jenkins as root."
+    exit 1
+fi
+
 # Use virtualenv with Django-1.5 installed.
 source /home/tbp/virtualenv/django15/bin/activate
 
