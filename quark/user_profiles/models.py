@@ -7,6 +7,7 @@ from quark.auth.models import User
 from quark.base.models import IDCodeMixin
 from quark.base.models import Major
 from quark.base.models import Term
+from quark.candidates.models import Candidate
 
 
 class CollegeStudentInfo(IDCodeMixin):
@@ -72,9 +73,9 @@ class UserContactInfo(models.Model):
 class TBPProfile(models.Model):
     user = models.ForeignKey(User, unique=True)
 
-    initiation_term = models.ForeignKey(Term, related_name='+', null=True,
+    initiation_term = models.ForeignKey(Term, related_name='+',
+                                        blank=True, null=True,
                                         verbose_name='Term initiated into TBP')
-    has_initiated = models.BooleanField(default=False)
 
     bio = models.TextField(blank=True,
                            help_text='Bio is optional for candidates')
@@ -89,13 +90,44 @@ class TBPProfile(models.Model):
     def __unicode__(self):
         return self.user.get_common_name()
 
-    # TODO(sjdemartini): implement is_candidate()
-#    def is_candidate(self):
-#        # avoid circular dependency
-#        from candidate_portal.models import CandidateProfile
-#        candidate = CandidateProfile.objects.filter(user=self.user)
-#        return (len(candidate) > 0 and
-#                Term.objects.get_current_term() <= candidate[0].term)
+    def is_candidate(self, current=True):
+        """Returns True if this person is a candidate, False if initiated.
+
+        If the current argument is True, then this method returns True if and
+        only if the user is a candidate in the current term and has not yet
+        initiated.
+
+        Otherwise, the method looks at whether the person has been or is
+        currently a candidate and whether they have initiated this term or in
+        the past. If they they have been a candidate before and they have not
+        initiated, then the method returns True.
+        """
+        current_term = Term.objects.get_current_term()
+        if self.initiation_term and self.initiation_term <= current_term:
+            return False
+
+        # Note that when Candidate objects are marked as initiated, this is
+        # recorded into the TBPProfile with a post_save in the candidates app,
+        # so if they are not recorded as initiated in their profile
+        # (i.e., initiation_term not None) and a Candidate object exists, they
+        # are considered a candidate:
+        if current:
+            return Candidate.objects.filter(
+                user=self.user, term=current_term).exists()
+        return Candidate.objects.filter(user=self.user).exists()
+
+    def get_first_term_as_candidate(self):
+        """Returns the Term this user was first a candidate.
+
+        The method returns None if the user was never recorded as a candidate.
+        """
+        # Reverse reference Candidate class:
+        terms = Term.objects.filter(candidate__user=self.user)
+        if terms.exists():
+            return terms[0]
+        # If not Candidate objects for the user, return their initiation term,
+        # which is None if they did not initiate
+        return self.initiation_term
 
 
 def tbp_profile_post_save(sender, instance, created, **kwargs):

@@ -14,6 +14,8 @@ from quark.candidates.models import EventCandidateRequirement
 from quark.events.models import Event
 from quark.events.models import EventAttendance
 from quark.events.models import EventType
+from quark.shortcuts import get_object_or_none
+from quark.user_profiles.models import TBPProfile
 
 
 class CandidateTest(TestCase):
@@ -106,6 +108,23 @@ class CandidateTest(TestCase):
             credits_needed=4,
             term=self.term)
         self.event_req.save()
+
+    def test_candidate_post_save(self):
+        tbp_profile = get_object_or_none(TBPProfile, user=self.user)
+
+        # Candidate has already been saved for this user created above, so
+        # TBPProfile should exist:
+        self.assertIsNotNone(tbp_profile)
+
+        # Candidate has not been marked as initiated, so initiation_term should
+        # be None in their profile:
+        self.assertIsNone(tbp_profile.initiation_term)
+
+        # Mark candidate as initiated, and profile should update to match:
+        self.candidate.initiated = True
+        self.candidate.save()
+        tbp_profile = get_object_or_none(TBPProfile, user=self.user)
+        self.assertEqual(tbp_profile.initiation_term, self.term)
 
     def test_manual_requirements(self):
         """

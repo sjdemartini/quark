@@ -113,6 +113,17 @@ class QuarkUser(AbstractBaseUser, PermissionsMixin):
         return (self.is_tbp_officer() or
                 ldap_utils.is_in_tbp_group(self.username, 'members'))
 
+    def is_tbp_candidate(self, current=True):
+        """Returns True if this person is a candidate, False if initiated.
+
+        This method simply calls the TBPProfile method is_candidate, or returns
+        False if no TBPProfile exists for this user.
+        """
+        profile = self.tbpprofile_set
+        # TBPProfile is unique to each User, so if it exists, call get()
+        # to access it:
+        return profile.get().is_candidate() if profile.exists() else False
+
     def is_tbp_officer(self, current=False, exclude_aux=False):
         """Returns True if this person is a TBP officer.
 

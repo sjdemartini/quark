@@ -15,7 +15,7 @@ class Candidate(models.Model):
     only for a single term. To account for past progress, one will
     have to query multiple Candidate objects.
     """
-    user = models.ForeignKey(User, unique=True)
+    user = models.ForeignKey(User)
     term = models.ForeignKey(Term)
     initiated = models.BooleanField(default=False)
 
@@ -27,6 +27,7 @@ class Candidate(models.Model):
 
     class Meta:
         ordering = ('-term', 'user')
+        unique_together = ('user', 'term')
 
     def get_progress(self, requirement_type):
         """
@@ -41,6 +42,31 @@ class Candidate(models.Model):
         required = sum([x[1] for x in progress])
 
         return (completed, required)
+
+
+def candidate_post_save(sender, instance, created, **kwargs):
+    """Ensures that a TBPProfile exists for every Candidate, and updates the
+    profile's 'initiation_term' field.
+
+    The field in TBPProfile is updated in two scenarios:
+        - if Candidate marks the user as initiated.
+        - if Candidate marks the user as _not_ initiated and TBPProfile had
+          recorded the user as initiated in the term corresponding to this
+          Candidate object (in which case, TBPProfile should now reflect that
+          the user did not initiate)
+    """
+    # Avoid circular dependency by importing here:
+    from quark.user_profiles.models import TBPProfile
+
+    tbp_profile, _ = TBPProfile.objects.get_or_create(user=instance.user)
+    if instance.initiated:
+        tbp_profile.initiation_term = instance.term
+        tbp_profile.save()
+    elif tbp_profile.initiation_term == instance.term:
+        tbp_profile.initiation_term = None
+        tbp_profile.save()
+
+models.signals.post_save.connect(candidate_post_save, sender=Candidate)
 
 
 class Challenge(models.Model):

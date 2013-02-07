@@ -14,6 +14,7 @@ from quark.auth.fields import UserCommonNameMultipleChoiceField
 from quark.base.models import Officer
 from quark.base.models import OfficerPosition
 from quark.base.models import Term
+from quark.candidates.models import Candidate
 from quark.qldap.utils import username_exists
 from quark.qldap.utils import delete_user
 from quark.user_profiles.models import UserContactInfo
@@ -304,6 +305,20 @@ class UserTypeMethodTesting(TestCase):
         self.term.save()
         self.term_old = Term(term=Term.SPRING, year=2012)
         self.term_old.save()
+
+    def test_is_tbp_candidate(self):
+        """Simple test to ensure calling TBPProfile.is_candidate works.
+
+        See tests for TBPProfile.is_candidate for more extensive testing.
+        """
+        # No Candidate objects created yet:
+        self.assertFalse(self.user.is_tbp_candidate())
+
+        # Create Candidate for user in the current term:
+        Candidate(user=self.user, term=self.term).save()
+
+        # Should now be considered a candidate:
+        self.assertTrue(self.user.is_tbp_candidate())
 
     def test_is_tbp_officer(self):
         # Note that is_tbp_officer also tests the get_tbp_officer_positions()
