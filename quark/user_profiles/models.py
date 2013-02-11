@@ -11,7 +11,7 @@ from quark.base.models import Term
 from quark.shortcuts import get_object_or_none
 
 
-class CollegeStudentInfo(models.Model, IDCodeMixin):
+class CollegeStudentInfo(IDCodeMixin):
     GENDER_CHOICES = (
         ('F', 'Female'),
         ('M', 'Male'),

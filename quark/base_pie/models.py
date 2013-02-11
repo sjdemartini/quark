@@ -213,7 +213,7 @@ class Team(models.Model):
         ordering = ('number',)
 
 
-class Teacher(models.Model, IDCodeMixin):
+class Teacher(IDCodeMixin):
     user = models.ForeignKey(User)
     team = models.ForeignKey(Team)
 
@@ -224,7 +224,7 @@ class Teacher(models.Model, IDCodeMixin):
         return 'Teacher %s for %s' % (self.user, self.team)
 
 
-class Mentor(models.Model, IDCodeMixin):
+class Mentor(IDCodeMixin):
     user = models.ForeignKey(User)
     team = models.ForeignKey(Team)
 
@@ -235,7 +235,7 @@ class Mentor(models.Model, IDCodeMixin):
         return 'Mentor %s for %s' % (self.user, self.team)
 
 
-class Student(models.Model, IDCodeMixin):
+class Student(IDCodeMixin):
     FRESHMAN = 9
     SOPHOMORE = 10
     JUNIOR = 11

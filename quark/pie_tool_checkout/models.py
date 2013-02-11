@@ -35,7 +35,7 @@ class ToolStatus(models.Model):
         return '(%s) %s' % (self.get_status_display(), str(self.instance))
 
 
-class ToolInstance(models.Model, IDCodeMixin):
+class ToolInstance(IDCodeMixin):
     tool_type = models.ForeignKey(Item)
     cost = models.IntegerField(default=0)
     purchase_date = models.DateTimeField(auto_now_add=True)
