@@ -261,9 +261,8 @@ LOGGING = {
 # Import any extra settings to override default settings.
 ###############################################################################
 try:
-    # pylint: disable=F0401
+    # pylint: disable=W0401,W0614
     from quark.settings.project import *
-    # pylint: disable=F0401
     from quark.settings.third_party import *
 except ImportError as err:
     # If the file doesn't exist, print a warning message but do not fail.
@@ -275,6 +274,7 @@ except ImportError as err:
 # Errors will be raised if the appropriate settings file is not found
 ###############################################################################
 __quark_env__ = os.getenv('QUARK_ENV', 'dev')
+# pylint: disable=W0401,W0614
 if __quark_env__ == 'dev':
     from quark.settings.dev import *
 elif __quark_env__ == 'staging':

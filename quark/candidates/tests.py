@@ -16,8 +16,6 @@ from quark.events.models import EventAttendance
 from quark.events.models import EventType
 
 
-# Allow more than the minimum number of instance attributes:
-# pylint: disable=R0902
 class CandidateTest(TestCase):
     def setUp(self):
         # Create candidate

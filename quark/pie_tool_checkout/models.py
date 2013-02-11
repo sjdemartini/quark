@@ -31,7 +31,6 @@ class ToolStatus(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     def __unicode__(self):
-        # pylint: disable=E1101
         return '(%s) %s' % (self.get_status_display(), str(self.instance))
 
 

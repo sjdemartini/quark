@@ -85,7 +85,6 @@ class Event(models.Model):
     def is_multiday(self):
         """Returns True if the event starts on a different date than it ends.
         """
-        # pylint: disable=E1101
         return self.start_datetime.date() != self.end_datetime.date()
 
     def list_date(self):
@@ -108,7 +107,6 @@ class Event(models.Model):
         """
         start_time = Event.__get_time_string(self.start_datetime)
         end_time = Event.__get_time_string(self.end_datetime)
-        # pylint: disable=E1101
         if self.is_multiday():
             start_date = '(%s/%s)' % (
                 self.start_datetime.strftime('%m').lstrip('0'),
@@ -195,7 +193,6 @@ class EventSignUp(models.Model):
 
     def __unicode__(self):
         action = 'unsigned' if self.unsignup else 'signed'
-        # pylint: disable=E1101
         if self.person is None:
             name = self.name
         else:
@@ -212,7 +209,6 @@ class EventAttendance(models.Model):
     # imports, as well as ImportedAttendance objects
 
     def __unicode__(self):
-        # pylint: disable=E1101
         return '%s attended %s' % (self.person.get_common_name(),
                                    self.event.name)
 

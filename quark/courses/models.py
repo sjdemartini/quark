@@ -40,10 +40,8 @@ class Course(models.Model):
 
     def __lt__(self, other):
         # Compare departments of courses
-        # pylint: disable=E1101
         if (self.department.abbreviation < other.department.abbreviation):
             return True
-        # pylint: disable=E1101
         elif (self.department.abbreviation > other.department.abbreviation):
             return False
         else:
@@ -86,7 +84,6 @@ class Course(models.Model):
         return self.abbreviation()
 
     def abbreviation(self):
-        # pylint: disable=E1101
         return '%s %s' % (self.department.short_name, self.number)
 
     def save(self, *args, **kwargs):
@@ -104,7 +101,6 @@ class Instructor(models.Model):
     website = models.URLField(blank=True)
 
     def __unicode__(self):
-        # pylint: disable=E1101
         return '%s (%s)' % (self.full_name(), self.department.short_name)
 
     def full_name(self):

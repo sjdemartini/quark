@@ -1,3 +1,4 @@
+# pylint: disable=F0401
 import quark_keys
 
 

@@ -2,6 +2,7 @@ import getpass
 import subprocess
 
 from quark.settings.base import WORKSPACE_ROOT
+# pylint: disable=F0401
 import quark_keys
 
 

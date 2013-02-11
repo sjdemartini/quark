@@ -30,7 +30,6 @@ class CollegeStudentInfo(IDCodeMixin):
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
 
     def __unicode__(self):
-        # pylint: disable=E1101
         return '%s - %s (%s - %s) id: %s' % (
             self.user.username, self.major, self.start_term, self.grad_term,
             self.id_code)
@@ -69,7 +68,6 @@ class UserContactInfo(models.Model):
     international_address = models.TextField(blank=True)
 
     def __unicode__(self):
-        # pylint: disable=E1101
         return self.user.get_common_name()
 
 
@@ -91,7 +89,6 @@ class TBPProfile(models.Model):
         ordering = ['user']
 
     def __unicode__(self):
-        # pylint: disable=E1101
         return self.user.get_common_name()
 
     def is_officer(self):
@@ -163,11 +160,9 @@ class TBPProfile(models.Model):
         3. UserContactInfo alt email address
         """
         if self.is_officer():
-            # pylint: disable=E1101
             return '%s@tbp.berkeley.edu' % self.user.username
         contact_info = get_object_or_none(UserContactInfo, user=self.user)
         alt_email = contact_info.alt_email if contact_info else None
-        # pylint: disable=E1101
         return self.user.email or alt_email
 
 

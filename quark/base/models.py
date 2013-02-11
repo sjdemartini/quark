@@ -198,7 +198,6 @@ class Term(models.Model):
 
     def verbose_name(self):
         """Returns the verbose name of this object in this form: Fall 2012."""
-        # pylint: disable=E1101
         return '%s %d' % (self.get_term_display(), self.year)
 
     def get_url_name(self):
@@ -306,13 +305,11 @@ class Officer(models.Model):
     is_chair = models.BooleanField(default=False)
 
     def __unicode__(self):
-        # pylint: disable=E1101
         return '%s - %s (%s %d)' % (
             self.user.username, self.position.short_name,
             self.term.get_display_term(), self.term.year)
 
     def position_name(self):
-        # pylint: disable=E1101
         name = self.position.long_name
         if self.is_chair:
             name += ' Chair'

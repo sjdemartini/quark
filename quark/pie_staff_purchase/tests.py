@@ -167,7 +167,6 @@ class PartsReceiptFormTest(TestCase):
         self.assertEquals(len(PartOrder.objects.approved()), 1)
         receipt_form = self.make_parts_receipt()
         self.assertTrue(receipt_form.is_valid())
-        # pylint: disable=E1101
         receipt = receipt_form.save(commit=False, purchaser=self.purchaser)
         receipt.purchaser = self.purchaser
         receipt.save()

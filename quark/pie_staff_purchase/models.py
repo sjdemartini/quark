@@ -51,7 +51,6 @@ class PartsReceipt(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
-        # pylint: disable=E1101
         return 'Parts Receipt for %s at %s' % (
             self.purchaser.get_full_name(), str(self.vendor))
 
@@ -114,7 +113,6 @@ class PartOrder(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
-        # pylint: disable=E1101
         return 'Part Order for %s, requested by %s' % (
             self.item.name, self.submitted_by.get_full_name())
 
@@ -148,7 +146,6 @@ class PartOrderStatus(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     def __unicode__(self):
-        # pylint: disable=E1101
         return '(%s) %s' % (
             self.get_status_display(), str(self.part))
 

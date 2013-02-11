@@ -101,13 +101,11 @@ class CandidateRequirement(models.Model):
         required = self.credits_needed
 
         if (self.requirement_type == CandidateRequirement.EVENT):
-            # pylint: disable=E1101
             completed = self.eventcandidaterequirement.get_completed(candidate)
         elif (self.requirement_type == CandidateRequirement.MANUAL):
             # Actual credits earned is read from CandidateProgress below
             completed = 0
         elif (self.requirement_type == CandidateRequirement.CHALLENGE):
-            # pylint: disable=E1101
             completed = self.challengecandidaterequirement.get_completed(
                 candidate)
         elif (self.requirement_type == CandidateRequirement.EXAM_FILE):

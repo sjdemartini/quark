@@ -31,7 +31,6 @@ class RandomTokenManagerTest(TestCase):
         self.mox.UnsetStubs()
 
     def test_random_token_generate(self):
-        # pylint: disable=E1101
         date = make_aware(datetime.datetime(2012, 01, 01), self.tz)
         self.mox.StubOutWithMock(uuid, 'uuid4')
         uuid.uuid4().AndReturn('abcdefghijklmnopqrstuvwxyz')
@@ -50,7 +49,6 @@ class RandomTokenTest(TestCase):
         self.mox.UnsetStubs()
 
     def test_is_expired_false(self):
-        # pylint: disable=E1101
         date = make_aware(datetime.datetime(2012, 01, 01), self.tz)
         self.mox.StubOutWithMock(timezone, 'now')
         timezone.now().MultipleTimes().AndReturn(
@@ -61,7 +59,6 @@ class RandomTokenTest(TestCase):
         self.mox.VerifyAll()
 
     def test_is_expired(self):
-        # pylint: disable=E1101
         date = make_aware(datetime.datetime(2012, 01, 01), self.tz)
         self.mox.StubOutWithMock(timezone, 'now')
         timezone.now().MultipleTimes().AndReturn(
