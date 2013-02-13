@@ -15,6 +15,8 @@ urlpatterns = patterns('',
         'quark.courses.urls', app_name='courses', namespace='courses')),
     url(r'^email/', include(
         'quark.emailer.urls', app_name='emailer', namespace='emailer')),
+    url(r'^minutes/', include(
+        'quark.minutes.urls', app_name='minutes', namespace='minutes')),
     # TODO(mattchang): Get django-cms working for django-1.5
     #url(r'^', include('cms.urls')),
     url(r'^project-reports/', include('quark.project_reports.urls',
