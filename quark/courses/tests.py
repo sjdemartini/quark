@@ -110,12 +110,14 @@ class CourseTest(TestCase):
         self.assertTrue(self.test_course_7 < self.test_course_8)
         self.assertTrue(self.test_course_7 < self.test_course_9)
         self.assertTrue(self.test_course_8 < self.test_course_9)
+        self.assertFalse(self.test_course_1 < self.test_department)
 
     def test_equals(self):
         self.assertTrue(self.test_course_1 == self.test_course_1)
         self.assertFalse(self.test_course_4 == self.test_course_6)
         self.assertFalse(self.test_course_7 == self.test_course_8)
         self.assertFalse(self.test_course_8 == self.test_course_9)
+        self.assertFalse(self.test_course_1 == self.test_department)
 
     def test_other_comparison_methods(self):
         self.assertTrue(self.test_course_2 <= self.test_course_2)
@@ -124,6 +126,10 @@ class CourseTest(TestCase):
         self.assertTrue(self.test_course_4 > self.test_course_1)
         self.assertTrue(self.test_course_4 >= self.test_course_4)
         self.assertTrue(self.test_course_4 >= self.test_course_3)
+        self.assertFalse(self.test_course_1 <= self.test_department)
+        self.assertFalse(self.test_course_1 > self.test_department)
+        self.assertFalse(self.test_course_1 >= self.test_department)
+        self.assertTrue(self.test_course_1 != self.test_department)
 
     def test_sort(self):
         sorted_list = [self.test_course_1, self.test_course_2,

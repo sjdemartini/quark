@@ -39,6 +39,8 @@ class Course(models.Model):
     description = models.TextField(blank=True)
 
     def __lt__(self, other):
+        if not isinstance(other, Course):
+            return False
         # Compare departments of courses
         if (self.department.abbreviation < other.department.abbreviation):
             return True
@@ -65,9 +67,13 @@ class Course(models.Model):
                     return self.number < other.number
 
     def __le__(self, other):
+        if not isinstance(other, Course):
+            return False
         return not other.__lt__(self)
 
     def __eq__(self, other):
+        if not isinstance(other, Course):
+            return False
         return (self.number == other.number and
                 self.department.id == other.department.id)
 
@@ -75,9 +81,13 @@ class Course(models.Model):
         return not self.__eq__(other)
 
     def __gt__(self, other):
+        if not isinstance(other, Course):
+            return False
         return other.__lt__(self)
 
     def __ge__(self, other):
+        if not isinstance(other, Course):
+            return False
         return not self.__lt__(other)
 
     def __unicode__(self):
