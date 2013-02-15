@@ -17,6 +17,33 @@ source /home/tbp/virtualenv/django15/bin/activate
 # flag. Jenkins will report the other lint errors in pretty graphs though.
 python manage.py jenkins \
     --settings=quark.settings.test \
-    --pep8-max-line-length=80 \
-    && grep "Your code has been rated at 10.00/10" reports/pylint.report \
-    && ! grep "py" reports/pep8.report
+    --pep8-max-line-length=80
+jenkins_status=$?
+grep -q "Your code has been rated at 10.00/10" reports/pylint.report
+pylint_status=$?
+! grep -q "py" reports/pep8.report
+pep8_status=$?
+
+if [[ ($jenkins_status == 0) && ($pylint_status == 0) && ($pep8_status == 0) ]]; then
+    echo -e "\nEverything looks good!"
+    exit 0
+fi
+
+if [[ $pylint_status != 0 ]]; then
+    echo -e "\nPYLINT VIOLATIONS"
+    echo "================================================================"
+    grep "^quark" reports/pylint.report
+else
+    echo -e "\nNo pylint violations."
+fi
+
+if [[ $pep8_status != 0 ]]; then
+    echo -e "\nPEP8 VIOLATIONS"
+    echo "================================================================"
+    cat reports/pep8.report
+else
+    echo -e "\nNo pep8 violations."
+fi
+
+echo -e "\nPlease fix all errors before doing git review!"
+exit 1
