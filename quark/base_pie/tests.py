@@ -340,8 +340,8 @@ class PiEOfficerPositionTest(TestCase):
     def test_initial_data(self):
         num = len(OfficerPosition.objects.filter(
             position_type__gt=OfficerPosition.TBP_OFFICER))
-        self.assertEquals(num, 11)
+        self.assertEquals(num, 26)
 
     def test_total_init_data(self):
         num = OfficerPosition.objects.count()
-        self.assertEquals(num, 32)
+        self.assertEquals(num, 47)

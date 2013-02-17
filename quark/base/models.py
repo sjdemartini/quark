@@ -272,11 +272,13 @@ class OfficerPosition(models.Model):
     # constants
     TBP_OFFICER = 0
     PIE_COORD = 1
-    PIE_STAFF = 2
+    PIE_LEAD = 2
+    PIE_STAFF = 3
 
     OFFICER_TYPE_CHOICES = (
         (TBP_OFFICER, 'TBP Officer'),
         (PIE_COORD, 'PiE Coordinator'),
+        (PIE_LEAD, 'PiE Lead'),
         (PIE_STAFF, 'PiE Staff'),
     )
 
