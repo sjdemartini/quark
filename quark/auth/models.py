@@ -17,7 +17,7 @@ except ImportError:
         user = get_model(*settings.AUTH_USER_MODEL.split('.', 1))
         if user is None:
             raise NameError(
-                'User model not found: %s' % settings.AUTH_USER_MODEL)
+                'User model not found: {}'.format(settings.AUTH_USER_MODEL))
         return user
 
 
@@ -50,10 +50,9 @@ class QuarkUserManager(BaseUserManager):
 
 
 class QuarkUser(AbstractBaseUser, PermissionsMixin):
-    username = models.CharField(max_length=30, unique=True, db_index=True)
+    username = models.CharField(max_length=30, unique=True)
     email = models.EmailField(
-        max_length=255,
-        db_index=True,
+        max_length=254,
         unique=True,
         verbose_name='email address')
     # Names
@@ -82,7 +81,7 @@ class QuarkUser(AbstractBaseUser, PermissionsMixin):
         verbose_name = 'Quark User'
 
     def __unicode__(self):
-        return '%s (%s)' % (self.username, self.get_full_name())
+        return '{} ({})'.format(self.username, self.get_full_name())
 
     def save(self, *args, **kwargs):
         if not self.preferred_name:
@@ -91,13 +90,13 @@ class QuarkUser(AbstractBaseUser, PermissionsMixin):
 
     def get_full_name(self):
         if self.middle_name:
-            return '%s %s %s' % (
+            return '{0} {1} {2}'.format(
                 self.first_name, self.middle_name, self.last_name)
         else:
-            return '%s %s' % (self.first_name, self.last_name)
+            return '{} {}'.format(self.first_name, self.last_name)
 
     def get_common_name(self):
-        return '%s %s' % (self.preferred_name, self.last_name)
+        return '{} {}'.format(self.preferred_name, self.last_name)
 
     def get_short_name(self):
         return self.preferred_name or self.first_name
@@ -167,6 +166,63 @@ class LDAPQuarkUser(QuarkUser):
     def set_password(self, raw_password):
         self.set_unusable_password()
         ldap_utils.set_password(self.username, raw_password)
+
+
+class CompanyUserManager(BaseUserManager):
+    def create_user(self, username, email, password,
+                    company_name, **extra_fields):
+        # Password must not be empty, but can be None for unusuable password
+        if not username or not email or password == '' or not company_name:
+            raise ValueError('Users must have username, email, password, '
+                             'and company name')
+
+        user = self.model(
+            username=username,
+            email=self.normalize_email(email),
+            company_name=company_name,
+            **extra_fields)
+
+        # Providing password=None is equivalent to set_unusable_password
+        user.set_password(password)
+        user.save()
+        return user
+
+
+class CompanyQuarkUser(AbstractBaseUser, PermissionsMixin):
+    """An account for companies and industry contacts to use to log in and
+    access features such as the resume bank, request infosessions, etc."""
+    username = models.CharField(max_length=30, unique=True)
+    email = models.EmailField(
+        max_length=254,
+        unique=True,
+        verbose_name='Contact email address')
+    company_name = models.CharField(
+        max_length=64,
+        db_index=True,
+        help_text='Your company\'s name')
+
+    created = models.DateTimeField(default=timezone.now)
+
+    objects = CompanyUserManager()
+
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['email', 'company_name']
+
+    class Meta:
+        verbose_name = 'Company User'
+
+    def __unicode__(self):
+        return '{} ({})'.format(self.username, self.company_name)
+
+    def get_full_name(self):
+        return self.company_name
+
+    def get_short_name(self):
+        return self.company_name
+
+    @property
+    def is_staff(self):
+        return False
 
 
 # pylint: disable=C0103
