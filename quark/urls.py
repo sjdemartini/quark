@@ -8,6 +8,8 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^courses/', include(
+        'quark.courses.urls', app_name='courses', namespace='courses')),
     url(r'^email/', include(
         'quark.emailer.urls', app_name='emailer', namespace='emailer')),
     # TODO(mattchang): Get django-cms working for django-1.5

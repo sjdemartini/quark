@@ -1,8 +1,13 @@
 from django.test import TestCase
 
+from quark.auth.models import User
+from quark.base.models import Term
 from quark.courses.models import Course
+from quark.courses.models import CourseInstance
 from quark.courses.models import Department
 from quark.courses.models import Instructor
+from quark.course_surveys.models import Survey
+from quark.exam_files.models import Exam
 
 
 def make_test_department():
@@ -12,6 +17,70 @@ def make_test_department():
         abbreviation='TEST DEPT 1')
     test_department.save()
     return test_department
+
+
+def make_test_db(testcase):
+    testcase.dept_cs = Department(
+        long_name='Computer Science',
+        short_name='CS',
+        abbreviation='COMPSCI')
+    testcase.dept_cs.save()
+    testcase.dept_ee = Department(
+        long_name='Electrical Engineering',
+        short_name='EE',
+        abbreviation='EL ENG')
+    testcase.dept_ee.save()
+    testcase.course_cs_1 = Course(department=testcase.dept_cs, number='1')
+    testcase.course_cs_1.save()
+    testcase.course_ee_1 = Course(department=testcase.dept_ee, number='1')
+    testcase.course_ee_1.save()
+    testcase.instructor_cs = Instructor(first_name='Tau', last_name='Bate',
+                                        department=testcase.dept_cs)
+    testcase.instructor_cs.save()
+    testcase.instructor_ee = Instructor(first_name='Pi', last_name='Bent',
+                                        department=testcase.dept_ee)
+    testcase.instructor_ee.save()
+    testcase.term = Term(term='sp', year=2013, current=True)
+    testcase.term.save()
+    testcase.courseInstance_cs_1 = CourseInstance(
+        term=testcase.term,
+        course=testcase.course_cs_1)
+    testcase.courseInstance_cs_1.save()
+    testcase.courseInstance_cs_1.instructors.add(testcase.instructor_cs)
+    testcase.courseInstance_cs_1.save()
+    testcase.courseInstance_ee_1 = CourseInstance(
+        term=testcase.term,
+        course=testcase.course_ee_1)
+    testcase.courseInstance_ee_1.save()
+    testcase.courseInstance_ee_1.instructors.add(testcase.instructor_ee)
+    testcase.courseInstance_ee_1.save()
+    testcase.user = User(
+        username='tbpUser',
+        email='tbp.berkeley.edu',
+        first_name='tbp',
+        last_name='user')
+    testcase.user.save()
+    testcase.survey_cs_1 = Survey(
+        course=testcase.course_cs_1,
+        term=testcase.term,
+        instructor=testcase.instructor_cs,
+        prof_rating=5,
+        course_rating=5,
+        time_commitment=5,
+        comments='Test comments',
+        submitter=testcase.user,
+        published=True)
+    testcase.survey_cs_1.save()
+    testcase.exam_ee_1 = Exam(
+        course_instance=testcase.courseInstance_ee_1,
+        submitter=testcase.user,
+        exam='final',
+        exam_type='exam',
+        unique_id='abcdefg',
+        file_ext='.pdf',
+        approved=True)
+    testcase.exam_ee_1.save()
+    return
 
 
 class DepartmentTest(TestCase):
@@ -164,3 +233,69 @@ class InstructorTest(TestCase):
 
     def test_full_name(self):
         self.assertEquals(self.test_instructor.full_name(), 'Tau Betapi')
+
+
+class DepartmentListViewTest(TestCase):
+    def setUp(self):
+        make_test_db(self)
+
+    def test_response(self):
+        resp = self.client.get('/courses/')
+        # A successful HTTP GET request has status code 200
+        self.assertEqual(resp.status_code, 200)
+
+    def test_dept_filter(self):
+        resp = self.client.get('/courses/')
+        self.assertEqual(resp.context['department_list'].count(), 2)
+        self.exam_ee_1.approved = False
+        self.exam_ee_1.save()
+        self.survey_cs_1.published = False
+        self.survey_cs_1.save()
+        resp = self.client.get('/courses/')
+        # Filters out departments that don't have exams/surveys
+        self.assertEqual(resp.context['department_list'].count(), 0)
+
+
+class CourseListViewTest(TestCase):
+    def setUp(self):
+        make_test_db(self)
+
+    def test_response(self):
+        resp = self.client.get('/courses/cs/')
+        self.assertEqual(resp.status_code, 200)
+        resp = self.client.get('/courses/bad-dept/')
+        self.assertEqual(resp.status_code, 404)
+
+    def test_course_filter(self):
+        resp = self.client.get('/courses/cs/')
+        self.assertEqual(resp.context['course_list'].count(), 1)
+        self.survey_cs_1.published = False
+        self.survey_cs_1.save()
+        # Filters out courses that don't have exams/surveys
+        self.assertEqual(resp.context['course_list'].count(), 0)
+        resp = self.client.get('/courses/ee/')
+        self.assertEqual(resp.context['course_list'].count(), 1)
+        self.exam_ee_1.approved = False
+        self.exam_ee_1.save()
+        self.assertEqual(resp.context['course_list'].count(), 0)
+
+
+class CourseDetailViewTest(TestCase):
+    def setUp(self):
+        make_test_db(self)
+
+    def test_response(self):
+        resp = self.client.get('/courses/cs/1/')
+        self.assertEqual(resp.status_code, 200)
+        resp = self.client.get('/courses/bad-dept/1/')
+        self.assertEqual(resp.status_code, 404)
+        resp = self.client.get('/courses/cs/9999/')
+        self.assertEqual(resp.status_code, 404)
+
+    def test_course_details(self):
+        resp = self.client.get('/courses/cs/1/')
+        self.assertEqual(resp.context['course'].pk,
+                         self.course_cs_1.pk)
+        self.assertEqual(resp.context['course_instances'].count(), 1)
+        self.assertEqual(resp.context['exams'].count(), 0)
+        self.assertEqual(resp.context['surveys'].count(), 1)
