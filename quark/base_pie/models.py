@@ -200,10 +200,12 @@ class Team(models.Model):
     def __unicode__(self):
         if self.name:
             return '%s, Team %d (%s, %d Season)' % (
-                self.name, self.number, self.school.name, self.season)
+                self.name, self.number, self.school.name,
+                self.season.season_number())
         else:
             return '%s Team %d (%d Season)' % (
-                self.school.name, self.number, self.season)
+                self.school.name, self.number,
+                self.season.season_number())
 
     def friendly_name(self):
         return 'Team %d: %s' % (self.number, self.school)
@@ -221,7 +223,7 @@ class Teacher(IDCodeMixin):
     updated = models.DateField(auto_now=True)
 
     def __unicode__(self):
-        return 'Teacher %s for %s' % (self.user, self.team)
+        return 'Teacher %s for %s' % (self.user, self.team.friendly_name())
 
 
 class Mentor(IDCodeMixin):
@@ -232,7 +234,7 @@ class Mentor(IDCodeMixin):
     updated = models.DateField(auto_now=True)
 
     def __unicode__(self):
-        return 'Mentor %s for %s' % (self.user, self.team)
+        return 'Mentor %s for %s' % (self.user, self.team.friendly_name())
 
 
 class Student(IDCodeMixin):
@@ -260,4 +262,4 @@ class Student(IDCodeMixin):
     updated = models.DateField(auto_now=True)
 
     def __unicode__(self):
-        return 'Student %s for %s' % (self.user, self.team)
+        return 'Student %s for %s' % (self.user, self.team.friendly_name())
