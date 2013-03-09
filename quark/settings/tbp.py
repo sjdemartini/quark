@@ -4,6 +4,8 @@ from quark.settings.base import *
 
 HOSTNAME = 'tbp.berkeley.edu'
 
+ALLOWED_HOSTS = [HOSTNAME]
+
 DEFAULT_FROM_EMAIL = 'webmaster@' + HOSTNAME
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
