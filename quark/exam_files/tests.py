@@ -32,19 +32,10 @@ class ExamTest(TestCase):
     def tearDown(self):
         folder = os.path.join(
             settings.MEDIA_ROOT, Exam.EXAM_FILES_LOCATION, self.folder)
-        shutil.rmtree(folder)
+        shutil.rmtree(folder, ignore_errors=True)
         os.remove('test.txt')
 
     def test_properites(self):
-        json = self.test_exam.to_json()
-        self.assertEquals(json['department'], 'Tst Dep 1')
-        self.assertEquals(json['course'], '100')
-        self.assertEquals(json['term'], Term.SPRING)
-        self.assertEquals(json['year'], 2013)
-        # Note that instructor queries are ordered by last_name then first_name
-        self.assertEquals(json['instructors'], 'Beta, Tau')
-        self.assertEquals(json['exam'], Exam.MT1)
-        self.assertEquals(json['type'], Exam.EXAM)
         self.assertEquals(self.test_exam.file_ext, '.txt')
         self.assertNotEqual(self.test_exam.unique_id, '')
         self.assertEquals(self.test_exam.get_term_name(), 'Spring 2013')
@@ -66,7 +57,7 @@ class ExamFlagTest(TestCase):
     def tearDown(self):
         folder = os.path.join(
             settings.MEDIA_ROOT, Exam.EXAM_FILES_LOCATION, self.folder)
-        shutil.rmtree(folder)
+        shutil.rmtree(folder, ignore_errors=True)
         os.remove('test.txt')
 
     def test_properites(self):
@@ -86,7 +77,7 @@ class InstructorPermissionTest(TestCase):
     def tearDown(self):
         folder = os.path.join(
             settings.MEDIA_ROOT, Exam.EXAM_FILES_LOCATION, self.folder)
-        shutil.rmtree(folder)
+        shutil.rmtree(folder, ignore_errors=True)
         os.remove('test.txt')
 
     def test_properites(self):
@@ -104,7 +95,7 @@ class DeleteFileTest(TestCase):
     def tearDown(self):
         folder = os.path.join(
             settings.MEDIA_ROOT, Exam.EXAM_FILES_LOCATION, self.folder)
-        shutil.rmtree(folder)
+        shutil.rmtree(folder, ignore_errors=True)
         os.remove('test.txt')
 
     def test_delete_exam_with_file(self):
@@ -138,9 +129,9 @@ class HideExamTest(TestCase):
             settings.MEDIA_ROOT, Exam.EXAM_FILES_LOCATION, self.folder2)
         folder3 = os.path.join(
             settings.MEDIA_ROOT, Exam.EXAM_FILES_LOCATION, self.folder3)
-        shutil.rmtree(folder1)
-        shutil.rmtree(folder2)
-        shutil.rmtree(folder3)
+        shutil.rmtree(folder1, ignore_errors=True)
+        shutil.rmtree(folder2, ignore_errors=True)
+        shutil.rmtree(folder3, ignore_errors=True)
         os.remove('test.txt')
 
     def test_multiple_blacklists_and_exams(self):

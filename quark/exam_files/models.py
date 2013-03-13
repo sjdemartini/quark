@@ -55,6 +55,7 @@ class Exam(models.Model):
                             instance.unique_id[0:2],
                             instance.unique_id + instance.file_ext)
 
+    # TODO(ericdwang): switch from approved to verified, adjust queries
     course_instance = models.ForeignKey(CourseInstance)
     submitter = models.ForeignKey(User, null=True, blank=True)
     exam = models.CharField(max_length=5, choices=EXAM_CHOICES)
@@ -63,10 +64,11 @@ class Exam(models.Model):
     file_ext = models.CharField(max_length=5)  # includes the period
     approved = models.BooleanField(default=False)
     flags = models.PositiveSmallIntegerField(default=0)
+    blacklisted = models.BooleanField(default=False)
     exam_file = models.FileField(upload_to=rename_file)
 
-    def get_dept_short_name(self):
-        return self.course_instance.course.department.short_name
+    def get_department(self):
+        return self.course_instance.course.department
 
     def get_number(self):
         return self.course_instance.course.number
@@ -103,16 +105,6 @@ class Exam(models.Model):
         return os.path.join(settings.MEDIA_ROOT, Exam.EXAM_FILES_LOCATION,
                             str(self.unique_id)[0:2],
                             self.unique_id + self.file_ext)
-
-    def to_json(self):
-        return {'department': self.get_dept_short_name(),
-                'course': self.get_number(),
-                'term': self.get_term(),
-                'year': self.get_year(),
-                'instructors': ', '.join([
-                    i.last_name for i in self.get_instructors()]),
-                'exam': self.exam,
-                'type': self.exam_type}
 
     def __unicode__(self):
         """Return a human-readable representation of the exam file."""
@@ -177,6 +169,7 @@ def delete_file(sender, instance, **kwargs):
 def hide_exam_limit_exceeded(sender, instance, **kwargs):
     """Hide an exam if it has been flagged more than ExamFlag.LIMIT times.
     Unhide an exam if flag has been resolved and professors aren't blacklisted.
+    Also updates the amount of flags an exam has every time a flag is updated.
     """
     instance.exam.flags = ExamFlag.objects.filter(
         exam=instance.exam, resolved=False).count()
@@ -190,17 +183,20 @@ def hide_exam_limit_exceeded(sender, instance, **kwargs):
 def hide_exam_blacklisted(sender, instance, **kwargs):
     """Hide all exams associated with a blacklisted professor.
     Unhide all unflagged exams if a professor has been unblacklisted.
+    Also updates whether an exam is blacklisted every time an
+    instructor permission is updated.
     """
+    query = Exam.objects.filter(
+        course_instance__instructors=instance.instructor)
     if instance.permission_allowed is False:
-        for exam in Exam.objects.filter(course_instance__instructors=
-                                        instance.instructor):
-            exam.approved = False
-            exam.save()
+        query.exclude(approved=False, blacklisted=True).update(
+            approved=False, blacklisted=True)
     else:
-        for exam in Exam.objects.filter(course_instance__instructors__in=
-                                        [instance.instructor]):
-            if exam.flags <= ExamFlag.LIMIT and exam.has_permission():
+        query = query.filter(flags__lte=ExamFlag.LIMIT)
+        for exam in query:
+            if exam.has_permission():
                 exam.approved = True
+                exam.blacklisted = False
                 exam.save()
 
 

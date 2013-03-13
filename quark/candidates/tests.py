@@ -148,8 +148,8 @@ class CandidateTest(TestCase):
             settings.MEDIA_ROOT, Exam.EXAM_FILES_LOCATION, self.folder1)
         folder2 = os.path.join(
             settings.MEDIA_ROOT, Exam.EXAM_FILES_LOCATION, self.folder2)
-        shutil.rmtree(folder1)
-        shutil.rmtree(folder2)
+        shutil.rmtree(folder1, ignore_errors=True)
+        shutil.rmtree(folder2, ignore_errors=True)
         os.remove('test.txt')
 
     def test_candidate_post_save(self):
