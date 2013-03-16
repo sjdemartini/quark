@@ -8,6 +8,8 @@ from quark.auth.models import get_user_model
 from quark.auth.models import CompanyQuarkUser
 from quark.auth.models import LDAPQuarkUser
 from quark.auth.models import QuarkUser
+from quark.auth.fields import UserCommonNameChoiceField
+from quark.auth.fields import UserCommonNameMultipleChoiceField
 from quark.qldap.utils import username_exists
 from quark.qldap.utils import delete_user
 
@@ -198,3 +200,59 @@ class CreateCompanyQuarkUserTestCase(TestCase):
         self.assertEqual(unicode(user),
                          '{} ({})'.format(self.username, self.company_name))
         self.assertEqual(user.get_short_name(), self.company_name)
+
+
+class FieldsTest(TestCase):
+    def setUp(self):
+        self.model = QuarkUser
+
+        self.user1 = self.model.objects.create_user(
+            username='testuser1',
+            email='test1@tbp.berkeley.edu',
+            password='testpassword',
+            first_name='Bentley',
+            last_name='Bent')
+
+        self.user2 = self.model.objects.create_user(
+            username='testuser2',
+            email='test2@tbp.berkeley.edu',
+            password='testpassword',
+            first_name='Mike',
+            last_name='McTest')
+
+        self.company = CompanyQuarkUser.objects.create_user(
+            username='testcompany',
+            email='test@tbp.berkeley.edu',
+            password='testpassword',
+            company_name='The Company')
+
+    def test_common_name_choice_fields(self):
+        # Form a queryset of all users created above, in order by last name:
+        user_queryset = self.model.objects.all().order_by('last_name')
+
+        name_field = UserCommonNameChoiceField(
+            queryset=user_queryset)
+        name_mult_field = UserCommonNameMultipleChoiceField(
+            queryset=user_queryset)
+
+        # Note that field.choices gives an iterable of choices, where each
+        # element is a tuple for the HTML select field as (id, label).
+        # Thus the second tuple element is the label that the user of the
+        # site will see as his HTML selection option.
+        # Also note that for UserCommonNameChoiceField, the first tuple in the
+        # list is for the Empty label (before the user has selected anything),
+        # so the first user choice is at index 1 instead of 0.
+        name_choices = [name for _, name in list(name_field.choices)]
+        name_mult_choices = [name for _, name in list(name_mult_field.choices)]
+
+        user1_common_name = self.user1.get_common_name()
+        user2_common_name = self.user2.get_common_name()
+        self.assertEqual(name_choices[1], user1_common_name)
+        self.assertEqual(name_mult_choices[0], user1_common_name)
+        self.assertEqual(name_choices[2], user2_common_name)
+        self.assertEqual(name_mult_choices[1], user2_common_name)
+
+        company_field = UserCommonNameChoiceField(
+            queryset=CompanyQuarkUser.objects.all())
+        company_choices = [name for _, name in list(company_field.choices)]
+        self.assertEqual(company_choices[1], self.company.get_full_name())

@@ -5,12 +5,14 @@ import uuid
 
 from quark.auth.models import User
 from django.db import IntegrityError
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils import timezone
 from django.utils.timezone import make_aware
 import mox
 
+from quark.base import fields
 from quark.base.models import RandomToken
 from quark.base.models import Major
 from quark.base.models import Officer
@@ -487,3 +489,36 @@ class SettingsTest(TestCase):
 
             self.assertFalse(settings.DEBUG)
             self.assertEqual(settings.DATABASES, STAGING_DB)
+
+
+class FieldsTest(TestCase):
+    def setUp(self):
+        self.visual_dt_field = fields.VisualSplitDateTimeField()
+
+    def test_visual_split_datetime(self):
+        # Ensure that the proper widget is used:
+        widget = self.visual_dt_field.widget
+        self.assertTrue(isinstance(widget, fields.VisualSplitDateTimeWidget))
+
+        # Test that the appropriate HTML classes are set for the input fields:
+        self.assertEqual(widget.widgets[0].attrs['class'], 'vDateField')
+        self.assertEqual(widget.widgets[1].attrs['class'], 'vTimeField')
+
+        # Get the time field (since SplitDatetimeField has a DateField and a
+        # TimeField):
+        time_field = self.visual_dt_field.fields[1]
+
+        # Check that the proper time formats are allowed by performing
+        # to_python() on inputs, which raises a Violation if an improper format
+        # is used:
+        self.assertIsNotNone(time_field.to_python('03:14am'))
+        self.assertIsNotNone(time_field.to_python('1:11am'))
+        self.assertIsNotNone(time_field.to_python('05:00 pm'))
+        self.assertIsNotNone(time_field.to_python('11:11pm'))
+
+        # 24 hour format not allowed:
+        self.assertRaises(ValidationError, time_field.to_python, '23:11')
+        # Needs am/pm:
+        self.assertRaises(ValidationError, time_field.to_python, '3:14')
+        # Must use colon delimiter:
+        self.assertRaises(ValidationError, time_field.to_python, '5.30')
