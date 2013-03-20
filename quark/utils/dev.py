@@ -21,6 +21,7 @@ class DevServer(object):
         'wangj': 97,
         'amyfu': 98,
         'wesleyahunt': 99,
+        'giovanni': 100,
         'exiao': 134,
         'mattchang': 136,
         'bcortright': 137,
@@ -32,6 +33,9 @@ class DevServer(object):
         'orweizman': 146,
         'tristanj': 147,
         'tywade': 148,
+        'nitishp': 421,
+        'akakitani': 765,
+        'ericdwang': 888,
         # Please do not use port 999 since it is the shared port
     }
 
