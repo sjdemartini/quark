@@ -396,12 +396,12 @@ def is_tbp(username):
     return is_group_member(username, 'tbp-*')
 
 
-def is_tbp_officer(username, group):
+def is_in_tbp_group(username, group):
     """
-    Convenience method for checking if a username is a TBP Officer according
-    to LDAP.
+    Convenience method for checking if a username is part of a specified TBP
+    LDAP group, entered as a string (e.g., 'members' or 'officers').
     """
-    return is_group_member(username, 'tbp-offcers' % group)
+    return is_group_member(username, 'tbp-%s' % group)
 
 
 def is_pie(username):

@@ -6,9 +6,7 @@ from filer.fields.image import FilerImageField
 from quark.auth.models import User
 from quark.base.models import IDCodeMixin
 from quark.base.models import Major
-from quark.base.models import Officer
 from quark.base.models import Term
-from quark.shortcuts import get_object_or_none
 
 
 class CollegeStudentInfo(IDCodeMixin):
@@ -86,57 +84,10 @@ class TBPProfile(models.Model):
                               help_text='Picture is optional for candidates')
 
     class Meta:
-        ordering = ['user']
+        ordering = ('user',)
 
     def __unicode__(self):
         return self.user.get_common_name()
-
-    def is_officer(self):
-        """Returns true if this person has ever been an officer."""
-        return Officer.objects.filter(user=self.user).exists()
-
-    def is_current_officer(self, term=None, exclude_aux=False):
-        """Returns True if this person is a current officer.
-
-        Examines whether the person is an officer in the specified term, or the
-        current term if no term specified. If exclude_aux is True, then
-        auxiliary positions (specified below in this method) are not counted as
-        officer positions.
-        """
-        if term is None:
-            term = Term.objects.get_current_term()
-        officer_positions = self.get_officer_positions(term)
-        if officer_positions:
-            if exclude_aux:
-                excluded_positions = ['advisor', 'faculty']
-                # House leaders considered as officers (not auxiliary) since
-                # Fall 2012
-                if term < Term.objects.get_or_create(term=Term.FALL,
-                                                     year=2012):
-                    excluded_positions.append('house-leader')
-
-                officer_positions = [
-                    position for position in officer_positions
-                    if position.short_name not in excluded_positions]
-                return len(officer_positions) > 0
-            return True
-        return False
-
-    def get_officer_positions(self, term=None):
-        """Returns a list of all officer positions held by this user in the
-        specified term, or in all terms if no term specified.
-
-        The order of the list is from oldest to newest term, and within a term,
-        from highest rank OfficerPosition (smallest number) to lowest rank.
-        """
-        # Note that QuerySets are lazy, so there is no database activity until
-        # the list comprehension
-        # select_related used for performance boost
-        officers = Officer.objects.filter(user=self.user).select_related(
-            'position').order_by('term', 'position')
-        if term:
-            officers = officers.filter(term=term)
-        return [officer.position for officer in officers]
 
     # TODO(sjdemartini): implement is_candidate()
 #    def is_candidate(self):
@@ -145,25 +96,6 @@ class TBPProfile(models.Model):
 #        candidate = CandidateProfile.objects.filter(user=self.user)
 #        return (len(candidate) > 0 and
 #                Term.objects.get_current_term() <= candidate[0].term)
-
-    def is_position(self, position):
-        """Returns true if the person has ever held the input 'position'."""
-        return Officer.objects.filter(
-            user=self.user, position__short_name=position).exists()
-
-    def get_preferred_email(self):
-        """Returns the preferred email of this user.
-
-        The order of preference is as follows:
-        1. Officer @tbp email
-        2. QuarkUser email
-        3. UserContactInfo alt email address
-        """
-        if self.is_officer():
-            return '%s@tbp.berkeley.edu' % self.user.username
-        contact_info = get_object_or_none(UserContactInfo, user=self.user)
-        alt_email = contact_info.alt_email if contact_info else None
-        return self.user.email or alt_email
 
 
 def tbp_profile_post_save(sender, instance, created, **kwargs):

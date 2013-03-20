@@ -309,7 +309,7 @@ class Officer(models.Model):
     def __unicode__(self):
         return '%s - %s (%s %d)' % (
             self.user.username, self.position.short_name,
-            self.term.get_display_term(), self.term.year)
+            self.get_term_display(), self.term.year)
 
     def position_name(self):
         name = self.position.long_name
