@@ -9,8 +9,8 @@ from quark.courses.views import DepartmentListView
 urlpatterns = patterns(
     '',
     url(r'^(?P<dept_slug>[a-z-]+)/$', CourseListView.as_view(),
-        name='view_department_courses'),
+        name='department-courses'),
     url(r'^(?P<dept_slug>[a-z-]+)/(?P<course_num>[A-Z0-9]+)/$',
-        CourseDetailView.as_view(), name='view_course_details'),
-    url(r'^$', DepartmentListView.as_view(), name='view_departments')
+        CourseDetailView.as_view(), name='detail'),
+    url(r'^$', DepartmentListView.as_view(), name='list-departments')
 )
