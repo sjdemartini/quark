@@ -6,6 +6,7 @@ from quark.auth.models import CompanyQuarkUser
 
 
 def user_common_name_label(obj):
+    """Returns common name label for a given object."""
     if isinstance(obj, QuarkUser) or isinstance(obj, LDAPQuarkUser):
         return obj.get_common_name()
     if isinstance(obj, CompanyQuarkUser):
@@ -32,7 +33,7 @@ class UserCommonNameMultipleChoiceField(forms.ChosenModelMultipleChoiceField):
     """A ModelMultipleChoiceField that makes labels use users' common names.
 
     See an explanation of this field's utility in UserCommonNameChoiceField
-    above.
+    above, since the basic structure is the same.
     """
     def label_from_instance(self, obj):
         return user_common_name_label(obj)

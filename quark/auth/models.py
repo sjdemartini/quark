@@ -79,6 +79,7 @@ class QuarkUser(AbstractBaseUser, PermissionsMixin):
 
     class Meta:
         verbose_name = 'Quark User'
+        ordering = ('last_name', 'preferred_name',)
 
     def __unicode__(self):
         return '{} ({})'.format(self.username, self.get_full_name())
@@ -210,6 +211,7 @@ class CompanyQuarkUser(AbstractBaseUser, PermissionsMixin):
 
     class Meta:
         verbose_name = 'Company User'
+        ordering = ('company_name',)
 
     def __unicode__(self):
         return '{} ({})'.format(self.username, self.company_name)

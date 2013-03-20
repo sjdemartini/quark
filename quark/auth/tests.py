@@ -210,8 +210,8 @@ class FieldsTest(TestCase):
             username='testuser1',
             email='test1@tbp.berkeley.edu',
             password='testpassword',
-            first_name='Bentley',
-            last_name='Bent')
+            first_name='Wilford',
+            last_name='Bentley')
 
         self.user2 = self.model.objects.create_user(
             username='testuser2',
@@ -228,7 +228,7 @@ class FieldsTest(TestCase):
 
     def test_common_name_choice_fields(self):
         # Form a queryset of all users created above, in order by last name:
-        user_queryset = self.model.objects.all().order_by('last_name')
+        user_queryset = self.model.objects.all()
 
         name_field = UserCommonNameChoiceField(
             queryset=user_queryset)
@@ -247,11 +247,13 @@ class FieldsTest(TestCase):
 
         user1_common_name = self.user1.get_common_name()
         user2_common_name = self.user2.get_common_name()
+
         self.assertEqual(name_choices[1], user1_common_name)
         self.assertEqual(name_mult_choices[0], user1_common_name)
         self.assertEqual(name_choices[2], user2_common_name)
         self.assertEqual(name_mult_choices[1], user2_common_name)
 
+        # Test company field labels:
         company_field = UserCommonNameChoiceField(
             queryset=CompanyQuarkUser.objects.all())
         company_choices = [name for _, name in list(company_field.choices)]

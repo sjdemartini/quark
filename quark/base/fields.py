@@ -2,10 +2,10 @@ from django import forms
 
 
 class VisualSplitDateTimeWidget(forms.SplitDateTimeWidget):
-    """Extend the SplitDateTimeWidget but tie in the appropriate JavaScript."""
-    def __init__(self, *args, **kwargs):
-        super(VisualSplitDateTimeWidget, self).__init__(*args, **kwargs)
+    """Extend the SplitDateTimeWidget but tie in the appropriate JavaScript.
 
+    To be used by the VisualSplitDateTimeField below.
+    """
     class Media:
         css = {'all': ('css/jquery.timepicker.css',)}
         js = ('js/visual_datetime.js', 'js/jquery.timepicker.min.js',)
