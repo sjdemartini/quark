@@ -28,32 +28,44 @@ class DepartmentListView(ListView):
 class CourseListView(ListView):
     context_object_name = 'course_list'
     template_name = 'courses/course_list.html'
+    dept = None
+
+    def dispatch(self, *args, **kwargs):
+        self.dept = get_object_or_404(Department, slug=self.kwargs['dept_slug'])
+        return super(CourseListView, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
         courses_query = Course.objects.filter(
             Q(survey__published=True) |
             Q(courseinstance__in=CourseInstance.objects.filter(
-                exam__approved=True)),
-            department__slug=self.kwargs['dept_slug'])
+                exam__approved=True)), department=self.dept)
         if not courses_query.exists():
             raise Http404
         return courses_query
+
+    def get_context_data(self, **kwargs):
+        context = super(CourseListView, self).get_context_data(**kwargs)
+        context['department'] = self.dept
+        return context
 
 
 class CourseDetailView(DetailView):
     context_object_name = 'course'
     template_name = 'courses/course_details.html'
+    course = None
 
     def get_object(self, queryset=None):
-        return get_object_or_404(Course,
-                                 department__slug=self.kwargs['dept_slug'],
-                                 number=self.kwargs['course_num'])
+        self.course = get_object_or_404(
+            Course,
+            department__slug=self.kwargs['dept_slug'],
+            number=self.kwargs['course_num'])
+        return self.course
 
     def get_context_data(self, **kwargs):
         context = super(CourseDetailView, self).get_context_data(**kwargs)
         context['course_instances'] = CourseInstance.objects.filter(
-            course=self.get_object())
+            course=self.course)
         context['exams'] = Exam.objects.filter(
-            course_instance__course=self.get_object())
-        context['surveys'] = Survey.objects.filter(course=self.get_object())
+            course_instance__course=self.course)
+        context['surveys'] = Survey.objects.filter(course=self.course)
         return context

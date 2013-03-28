@@ -1,0 +1,60 @@
+{% extends "courses/base.html" %}
+
+{% block title %}{{ course.abbreviation }} | {{ block.super }}{% endblock title %}
+
+{% block intro %}
+{{ block.super }}
+<h2>{{ course.abbreviation }}</h2>
+{% endblock %}
+
+{% block content %}
+<form action method="get">
+    <div>
+        <input type="text" id="search-dept" name="search-dept" value="Department">
+        <input type="text" id="search-course" name="search-course" value="Course">
+    </div>
+</form>
+<h3>Exams</h3>
+{% if exams %}
+    <table id="exam-table">
+        <tr>
+            <th>Professor</th>
+            <th>Exam</th>
+            <th>Type</th>
+            <th>Semester</th>
+            <th>Year</th>
+            <th></th>
+        </tr>
+        {% for exam in exams %}
+            <tr>
+                <td>{% for instructor in exam.course_instance.instructors.all %}
+                    {{ instructor.last_name }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}</td>
+                <td>exam.exam</td>
+                <td>exam.exam_type</td>
+                <td>exam.get_term</td>
+                <td>exam.get_year</td>
+                <td><a href="{{ exam.get_absolute_pathname }}">Download</a></td>
+            </tr>
+        {% endfor %}
+    </table>
+{% else %}
+There are currently no exams for this course.
+{% endif %}
+<h3>Course Surveys</h3>
+{% if surveys %}
+    {% for survey in surveys %}
+        <div class="survey">
+            <h4>{{ survey.term.verbose_name }} {{ survey.instructor }}</h4>
+            <div class="rating-number"><strong>Instructor Rating</strong>{{ survey.prof_rating }}</div>
+            <div class="rating-number"><strong>Course Rating</strong>{{ survey.course_raing }}</div>
+            <div class="rating-number"><strong>Workload</strong>{{ survey.time_commitment }}</div>
+            <div class="rating-number"><strong>Exam Difficulty</strong>{{ survey.exam_difficulty }}</div>
+            <div class="rating-number"><strong>Assignment Difficulty</strong>{{ survey.hw_difficulty }}</div>
+            <p class="rating-comment"><strong>Comments</strong>{{ survey.comments }}</p>
+        </div>
+    {% endfor %}
+{% else %}
+There are currently no surveys for this course.
+{% endif %}
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "courses/base.html" %}
+
+{% block title %}Departments | {{ block.super }}{% endblock title %}
+
+{% block intro %}
+{{ block.super }}
+<h2>Departments</h2>
+{% endblock %}
+
+{% block content %}
+<form action method="get">
+    <div>
+        <input type="text" id="search-dept" name="search-dept" value="Department">
+        <input type="text" id="search-course" name="search-course" value="Course">
+    </div>
+</form>
+<ul>
+    {% for department in department_list %}
+    <li><a href={% url 'courses:department-courses' department.slug %}>{{ department.long_name }}</a></li>
+    {% endfor %}
+</ul>
+{% endblock %}
