@@ -120,6 +120,7 @@ class Instructor(models.Model):
         return '%s %s' % (self.first_name, self.last_name)
 
     class Meta:
+        ordering = ('last_name', 'first_name')
         unique_together = ('first_name', 'last_name', 'department')
 
 

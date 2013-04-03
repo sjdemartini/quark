@@ -41,7 +41,8 @@ class ExamTest(TestCase):
         self.assertEquals(json['course'], '100')
         self.assertEquals(json['term'], Term.SPRING)
         self.assertEquals(json['year'], 2013)
-        self.assertEquals(json['instructors'], 'Tau, Beta')
+        # Note that instructor queries are ordered by last_name then first_name
+        self.assertEquals(json['instructors'], 'Beta, Tau')
         self.assertEquals(json['exam'], Exam.MT1)
         self.assertEquals(json['type'], Exam.EXAM)
         self.assertEquals(self.test_exam.file_ext, '.txt')
@@ -51,7 +52,7 @@ class ExamTest(TestCase):
             unicode(self.test_exam),
             '{course}-{term}-{exam}-{instructors}-{exam_type}{ext}'.format(
                 course='tst-dep-1100', term=Term.SPRING + '2013',
-                exam=Exam.MT1, instructors='Tau_Beta',
+                exam=Exam.MT1, instructors='Beta_Tau',
                 exam_type=Exam.EXAM, ext='.txt'))
 
 
