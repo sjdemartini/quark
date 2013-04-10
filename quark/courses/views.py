@@ -7,6 +7,7 @@ from django.views.generic import ListView
 from quark.courses.models import Course
 from quark.courses.models import CourseInstance
 from quark.courses.models import Department
+from quark.courses.models import Instructor
 from quark.course_surveys.models import Survey
 from quark.exam_files.models import Exam
 
@@ -31,7 +32,8 @@ class CourseListView(ListView):
     dept = None
 
     def dispatch(self, *args, **kwargs):
-        self.dept = get_object_or_404(Department, slug=self.kwargs['dept_slug'])
+        self.dept = get_object_or_404(Department,
+                                      slug=self.kwargs['dept_slug'].lower())
         return super(CourseListView, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
@@ -57,7 +59,7 @@ class CourseDetailView(DetailView):
     def get_object(self, queryset=None):
         self.course = get_object_or_404(
             Course,
-            department__slug=self.kwargs['dept_slug'],
+            department__slug=self.kwargs['dept_slug'].lower(),
             number=self.kwargs['course_num'])
         return self.course
 
@@ -68,4 +70,24 @@ class CourseDetailView(DetailView):
         context['exams'] = Exam.objects.filter(
             course_instance__course=self.course)
         context['surveys'] = Survey.objects.filter(course=self.course)
+        return context
+
+
+class InstructorDetailView(DetailView):
+    context_object_name = 'instructor'
+    template_name = 'courses/instructor_details.html'
+    instructor = None
+
+    def get_object(self, queryset=None):
+        self.instructor = get_object_or_404(Instructor,
+                                            pk=self.kwargs['inst_pk'])
+        return self.instructor
+
+    def get_context_data(self, **kwargs):
+        context = super(InstructorDetailView, self).get_context_data(**kwargs)
+        context['course_instances'] = CourseInstance.objects.filter(
+            instructors=self.instructor)
+        context['exams'] = Exam.objects.filter(
+            course_instance__in=context['course_instances'])
+        context['surveys'] = Survey.objects.filter(instructor=self.instructor)
         return context

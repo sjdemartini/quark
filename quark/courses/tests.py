@@ -261,7 +261,7 @@ class CourseListViewTest(TestCase):
         make_test_db(self)
 
     def test_response(self):
-        resp = self.client.get('/courses/cs/')
+        resp = self.client.get('/courses/Cs/')
         self.assertEqual(resp.status_code, 200)
         resp = self.client.get('/courses/bad-dept/')
         self.assertEqual(resp.status_code, 404)
@@ -296,6 +296,26 @@ class CourseDetailViewTest(TestCase):
         resp = self.client.get('/courses/cs/1/')
         self.assertEqual(resp.context['course'].pk,
                          self.course_cs_1.pk)
+        self.assertEqual(resp.context['course_instances'].count(), 1)
+        self.assertEqual(resp.context['exams'].count(), 0)
+        self.assertEqual(resp.context['surveys'].count(), 1)
+
+
+class InstructorDetailViewTest(TestCase):
+    def setUp(self):
+        make_test_db(self)
+
+    def test_response(self):
+        resp = self.client.get('/courses/instructors/99999999/')
+        self.assertEqual(resp.status_code, 404)
+        resp = self.client.get(
+            '/courses/instructors/%d/' % (self.instructor_cs.pk))
+        self.assertEqual(resp.status_code, 200)
+
+    def test_instructor_details(self):
+        resp = self.client.get(
+            '/courses/instructors/%d/' % (self.instructor_cs.pk))
+        self.assertEqual(resp.context['instructor'].pk, self.instructor_cs.pk)
         self.assertEqual(resp.context['course_instances'].count(), 1)
         self.assertEqual(resp.context['exams'].count(), 0)
         self.assertEqual(resp.context['surveys'].count(), 1)

@@ -1,0 +1,10 @@
+{% extends "courses/base.html" %}
+
+{% block title %}{{ instructor.full_name }} | {{ block.super }}{% endblock title %}
+
+{% block intro %}
+{{ block.super }}
+<h2>{{ instructor.full_name }}</h2>
+{% endblock %}
+
+<!-- TODO: add ratings/surveys/exams/courses taught -->

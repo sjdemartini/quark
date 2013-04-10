@@ -110,6 +110,7 @@ class Course(models.Model):
 class Instructor(models.Model):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
+    middle_initial = models.CharField(max_length=1, blank=True)
     department = models.ForeignKey(Department)
     website = models.URLField(blank=True)
 
@@ -120,8 +121,9 @@ class Instructor(models.Model):
         return '%s %s' % (self.first_name, self.last_name)
 
     class Meta:
-        ordering = ('last_name', 'first_name')
-        unique_together = ('first_name', 'last_name', 'department')
+        ordering = ('last_name', 'first_name', 'middle_initial')
+        unique_together = (
+            'first_name', 'middle_initial', 'last_name', 'department')
 
 
 class CourseInstance(models.Model):
