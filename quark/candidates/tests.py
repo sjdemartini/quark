@@ -1,3 +1,8 @@
+import os
+import shutil
+
+from django.conf import settings
+from django.core.files import File
 from django.test import TestCase
 from django.utils import timezone
 
@@ -11,14 +16,19 @@ from quark.candidates.models import CandidateProgress
 from quark.candidates.models import Challenge
 from quark.candidates.models import ChallengeCandidateRequirement
 from quark.candidates.models import EventCandidateRequirement
+from quark.candidates.models import ExamFileCandidateRequirement
+from quark.courses.models import CourseInstance
 from quark.events.models import Event
 from quark.events.models import EventAttendance
 from quark.events.models import EventType
+from quark.exam_files.models import Exam
 from quark.shortcuts import get_object_or_none
 from quark.user_profiles.models import TBPProfile
 
 
 class CandidateTest(TestCase):
+    fixtures = ['test/course_instance.yaml']
+
     def setUp(self):
         # Create candidate
         self.user = User.objects.create_user(
@@ -108,6 +118,38 @@ class CandidateTest(TestCase):
             credits_needed=4,
             term=self.term)
         self.event_req.save()
+
+        # Create some exam files and exam files requirement
+        test_file = open('test.txt', 'w+')
+        test_file.write('This is a test file.')
+        self.test_exam1 = Exam(
+            course_instance=CourseInstance.objects.get(pk=10000),
+            exam=Exam.MT1,
+            exam_type=Exam.EXAM, approved=True, exam_file=File(test_file))
+        self.test_exam1.save()
+        self.test_exam1.course_instance.course.department.save()
+        self.folder1 = self.test_exam1.unique_id[0:2]
+        self.test_exam2 = Exam(
+            course_instance=CourseInstance.objects.get(pk=20000),
+            exam=Exam.MT1,
+            exam_type=Exam.EXAM, approved=True, exam_file=File(test_file))
+        self.test_exam2.save()
+        self.test_exam2.course_instance.course.department.save()
+        self.folder2 = self.test_exam2.unique_id[0:2]
+        self.exam_req = ExamFileCandidateRequirement(
+            name='Exam files',
+            credits_needed=2,
+            term=self.term)
+        self.exam_req.save()
+
+    def tearDown(self):
+        folder1 = os.path.join(
+            settings.MEDIA_ROOT, Exam.EXAM_FILES_LOCATION, self.folder1)
+        folder2 = os.path.join(
+            settings.MEDIA_ROOT, Exam.EXAM_FILES_LOCATION, self.folder2)
+        shutil.rmtree(folder1)
+        shutil.rmtree(folder2)
+        os.remove('test.txt')
 
     def test_candidate_post_save(self):
         tbp_profile = get_object_or_none(TBPProfile, user=self.user)
@@ -210,3 +252,29 @@ class CandidateTest(TestCase):
                         person=self.user).save()
         complete, _ = self.candidate.get_progress(CandidateRequirement.EVENT)
         self.assertEqual(complete, 3)
+
+    def test_exam_files_requirements(self):
+        """
+        Test that credits for exam files are counted correctly.
+        """
+        # Upload 1 approved exam
+        self.test_exam1.submitter = self.user
+        self.test_exam1.save()
+        complete, _ = self.candidate.get_progress(
+            CandidateRequirement.EXAM_FILE)
+        self.assertEqual(self.user, self.test_exam1.submitter)
+        self.assertEqual(complete, 1)
+
+        # Upload 2 approved exams
+        self.test_exam2.submitter = self.user
+        self.test_exam2.save()
+        complete, _ = self.candidate.get_progress(
+            CandidateRequirement.EXAM_FILE)
+        self.assertEqual(complete, 2)
+
+        # Unapprove an exam (doesn't count anymore)
+        self.test_exam1.approved = False
+        self.test_exam1.save()
+        complete, _ = self.candidate.get_progress(
+            CandidateRequirement.EXAM_FILE)
+        self.assertEqual(complete, 1)

@@ -5,6 +5,7 @@ from quark.base.models import Officer
 from quark.base.models import Term
 from quark.events.models import EventAttendance
 from quark.events.models import EventType
+from quark.exam_files.models import Exam
 
 
 class Candidate(models.Model):
@@ -135,8 +136,8 @@ class CandidateRequirement(models.Model):
             completed = self.challengecandidaterequirement.get_completed(
                 candidate)
         elif (self.requirement_type == CandidateRequirement.EXAM_FILE):
-            # TODO (wangj) requires exam files, this is just a placeholder
-            completed = 0
+            completed = self.examfilecandidaterequirement.get_completed(
+                candidate)
         elif (self.requirement_type == CandidateRequirement.RESUME):
             # TODO (wangj) requires resumes, this is just a placeholder
             completed = 0
@@ -193,6 +194,19 @@ class ChallengeCandidateRequirement(CandidateRequirement):
             candidate=candidate,
             challenge_type=self.challenge_type,
             verified=True).count()
+
+
+class ExamFileCandidateRequirement(CandidateRequirement):
+    def save(self, *args, **kwargs):
+        """Override save handler to ensure that requirement_type is correct"""
+        self.requirement_type = CandidateRequirement.EXAM_FILE
+        super(ExamFileCandidateRequirement, self).save(*args, **kwargs)
+
+    def get_completed(self, candidate):
+        """Returns the number of credits completed by candidate"""
+        return Exam.objects.filter(
+            submitter=candidate.user,
+            approved=True).count()
 
 
 class CandidateProgress(models.Model):

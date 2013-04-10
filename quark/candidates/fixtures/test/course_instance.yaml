@@ -1,0 +1,38 @@
+- fields:
+    long_name: Test Department 1
+    short_name: Tst Dep 1
+    abbreviation: TEST DEPT 1
+  model: courses.Department
+  pk: 1
+- fields:
+    last_name: Tau
+    department: 1
+  model: courses.Instructor
+  pk: 10
+- fields:
+    last_name: Beta
+    department: 1
+  model: courses.Instructor
+  pk: 20
+- fields:
+    term: sp
+    year: 2013
+  model: base.Term
+  pk: 100
+- fields:
+    department: 1
+    number: 100
+  model: courses.Course
+  pk: 1000
+- fields:
+    term: 100
+    course: 1000
+    instructors: [10]
+  model: courses.CourseInstance
+  pk: 10000
+- fields:
+    term: 100
+    course: 1000
+    instructors: [20]
+  model: courses.CourseInstance
+  pk: 20000
