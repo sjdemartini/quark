@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    {% load static %}
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>{% block title %}Tau Beta Pi, California Alpha Chapter{% endblock %}</title>
+    <meta name="description" content="Tau Beta Pi Engineering Honor Society, California Alpha Chapter">
+    <meta name="keywords" content="tau beta pi engineering honor society california alpha chapter ca-a ucb berkeley {% block metakeywords %}{% endblock metakeywords %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% block meta %}{% endblock meta %}
+
+    <link rel="shortcut icon" href="{% static "images/favicon.ico" %}" />
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:400italic,400,600,700" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="{% static "css/normalize.css" %}" />
+    <link rel="stylesheet" href="{% static "css/style.css" %}" />
+    {% block jquery %}
+    {# TODO(sjdemartini): add chosen css and js files #}
+    {# TODO(sjdemartini): {% include "jquery.html" %} #}
+    {# TODO(sjdemartini): add common js file #}
+    {% endblock jquery %}
+    {% block head %}{% endblock head %}
+  </head>
+  <body>
+  {# TODO(sjdemartini): fill in all URLs for links as they are created #}
+    <div id="wrapper" style="{% block wrapper_style %}{% endblock wrapper_style %}">
+      {% block header %}
+      <div id="header">
+        <div id="header-focus">
+          <div id="logo-group">
+            <a href="" id="logo-link"><img src="{% static "images/bent_circle.png" %}" id="logo">
+              <div id="logo-name">Tau Beta Pi</div>
+              <div id="logo-location">UC Berkeley</div></a>
+            <a href="" id="logo-overlay"></a>
+          </div>
+
+          <div id="login">
+            {% block login_dropdown %}
+            {% if request.user.is_authenticated %}
+            {% with is_officer=request.user.is_tbp_officer %}
+            {% with is_member=request.user.is_tbp_member %}
+            {% with is_candidate=request.user.is_tbp_candidate %}
+            <ul>
+              <li id="welcome">Welcome, {{ request.user.preferred_name }}!</li>
+              <li><span class="dropdown-title">Profile</span>
+                <ul class="dropdown">
+                  <li><a href="{#TODO#}">Edit Your Info</a></li>
+
+                  {# TODO: forwarding email permissions check here #}
+                  <li><a href="{#TODO#}">Forwarding Email</a></li>
+
+                  {# Only candidates and members may submit resumes. #}
+                  {% if is_member or is_candidate %}<li><a href="{#TODO#}">Edit Resume</a></li>{% endif %}
+
+                  <li><a href="{#TODO#}">Change Password</a></li>
+
+                  <li><a href="{#TODO#}">Attendance</a></li>
+                </ul>
+              </li>
+              <li><span class="dropdown-title">Tools</span>
+                <ul class="dropdown">
+                  {% if is_officer %}
+                  <li><a href="{#TODO#}">Officer Portal</a></li>
+                  <li><a href="{#TODO#}">Candidate Admin</a></li>
+                  {% endif %}
+
+                  {% if is_member and not is_officer %}
+                  {# Give members access to Minutes via "Tools". Officers have portal. #}
+                  <li><a href="{#TODO#}">Meeting Minutes</a></li>
+                  {% endif %}
+
+                  {% if is_candidate %}
+                  <li><a href="{#TODO#}">Candidate Portal</a></li>
+                  {% endif %}
+
+                  <li><a href="{#TODO#}">Procrastination</a></li>
+
+                  {% if request.user.is_IT %}
+                  <li><a href="{#TODO#}">IT Tools</a></li>
+                  {% endif %}
+                </ul>
+              </li>
+              <li><a href="{{ logout_url }}?next={{ request.path }}">Log Out</a></li>
+            </ul>
+            {% endwith is_member %}
+            {% endwith is_officer %}
+            {% endwith is_candidate %}
+            {% else %} {# if not authenticated #}
+            <a href="{{ login_url }}?next={{ request.path }}">Log in</a>
+            {% endif %}
+            {% endblock login_dropdown %}
+          </div><!-- end login -->
+        </div><!-- end header-focus -->
+      </div><!-- end header -->
+      {% endblock header %}
+
+      {% block nav %}{% include "nav.html" %}{% endblock nav %}
+      {% block subheader %}{% endblock subheader %}
+
+      <div id="container">
+        <div id="content" style="{% block content_style %}{% endblock content_style %}">
+        {% block intro %}{% endblock intro %}
+        {% block content %}{% endblock content %}
+        </div>
+      </div>
+
+      <div id="push"></div>
+    </div><!-- end wrapper-->
+
+    <div id="footer">
+      <div id="footer-focus">
+      {% block footer %}
+        <div id="socialmedia">
+          <a href="https://www.facebook.com/tbpberkeley" title="Facebook">
+            <img src="{% static "images/facebook.png" %}" alt="Facebook">
+          </a>
+        </div>
+        <div id="copyright">
+          <p><a href="/">Home</a> | <a href="{#TODO#}">Contact Us</a></p>
+          <p>Copyright &copy; 2008-{% now "Y" %} Tau Beta Pi, California Alpha Chapter</p>
+          <p><a href="http://www.tbp.org/">Tau Beta Pi Nationals</a> | <a href="http://coe.berkeley.edu/">College of Engineering</a></p>
+        </div>
+      {% endblock footer %}
+      </div>
+    </div>
+
+  {# TODO(sjdemartini): add in js for user notifications #}
+  {# TODO(sjdemartini): Google analytics? #}
+  <!--Page finished rendering {% now "r" %}-->
+  </body>
+</html>

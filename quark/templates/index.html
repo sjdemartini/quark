@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Home | {{ block.super }}{% endblock title %}
+
+{# Make background color of whole page match that of the header #}
+{% block wrapper_style %}background-image: url('/static/images/gray_light_texture.jpg'); background-color: #eee;{% endblock wrapper_style %}
+
+{% block subheader %}
+      <div id="banner">
+        <div id="banner-focus">
+            <div id="banner-text">
+              <h1>Tau Beta Pi, California Alpha Chapter</h1>
+              <h3>Tau Beta Pi is the oldest national engineering honor society in the country, and one of the most nationally recognized societies. TBP stresses scholarship, personal character, and service to the profession, community, and college. We offer many student resources, including a test bank, infosessions, and resume workshops.</h3>
+            </div>
+        </div>
+      </div>
+{% endblock subheader %}
+
+{% block content %}
+{# TODO(sjdemartini): make this content dynamic. currently static test content #}
+          <div id="updates">
+            <div>
+              <a href=""><h2>Student Resources</h2></a>
+              <ul>
+                <li>
+                  <a href=""><div class="updatetitle">Exam Files</div>
+                  <div class="updatedesc">Endless Practice Tests</div></a>
+                </li>
+                <li>
+                  <a href=""><div class="updatetitle">Course Surveys</div>
+                  <div class="updatedesc">In Depth Reviews</div></a>
+                </li>
+                <li>
+                  <a href=""><div class="updatetitle">Helpdesk</div>
+                  <div class="updatedesc">Help? Advice?</div></a>
+                </li>
+                <li>
+                  <a href="{#TODO mailto #}"><div class="updatetitle">Resume Critiquing</div>
+                  <div class="updatedesc">Let us polish up your resume</div></a>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <a href=""><h2>Upcoming events</h2></a>
+              <ul>
+                <li>
+                  <a href=""><div class="updatetitle">General Meeting 3</div>
+                  <div class="updatedesc small">Thu, Apr 11 6:00 PM - 8:00 PM, The Woz</div>
+                  <div class="updatedesc">Show off your skillz at the TALENT SHOW!</div></a>
+                </li>
+                <li>
+                  <a href=""><div class="updatetitle">Internship Panel</div>
+                  <div class="updatedesc small">Tue, Apr 16 7:30 PM - 9:00 PM, 3110 Etcheverry</div>
+                  <div class="updatedesc">How to score that dream job</div></a>
+                </li>
+                <li>
+                  <a href=""><div class="updatetitle">Delphini Worksession #4</div>
+                  <div class="updatedesc small">Tue, Apr 16 8:00 PM - 10:00 PM, 101 O'Brien</div>
+                  <div class="updatedesc">Last worksession!</div></a>
+                </li>
+            </div>
+
+            <div>
+              <a href=""><h2>Third test div</h2></a>
+              <ul>
+                <li><a href=""><div class="updatetitle">Exam Files</div>
+                <div class="updatedesc">Endless Practice Tests</div></a></li>
+                <li><a href=""><div class="updatetitle">Course Surveys</div>
+                <div class="updatedesc">In Depth Reviews</div></a></li>
+                <li><a href=""><div class="updatetitle">Helpdesk</div>
+                <div class="updatedesc">Help? Advice?</div></a></li>
+              </ul>
+            </div>
+          </div>
+{% endblock content %}
