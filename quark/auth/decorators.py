@@ -45,7 +45,7 @@ def officer_types_required(officer_types=None, exclude=False, current=False):
     def new_officer_decorator(orig_view):
         def new_view(request, *args, **kwargs):
             if request.user.is_authenticated():
-                if request.user.is_tbp_officer(current=True):
+                if request.user.is_tbp_officer(current=current):
                     if not officer_types:
                         return orig_view(request, *args, **kwargs)
 
@@ -53,6 +53,7 @@ def officer_types_required(officer_types=None, exclude=False, current=False):
                             else None)
                     positions = request.user.get_tbp_officer_positions(
                         term=term)
+                    positions = [pos.short_name.lower() for pos in positions]
 
                     # check if any desired officer type is in user's positions
                     pos_matches = officer_types.intersection(positions)
