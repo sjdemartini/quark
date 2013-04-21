@@ -5,7 +5,7 @@ from quark.project_reports.views import ProjectReportListAllView
 from quark.project_reports.views import ProjectReportListView
 
 # pylint: disable=E1120
-urlspatterns = patterns(
+urlpatterns = patterns(
     '',
     url(r'^$', ProjectReportListView.as_view(), name='list-current'),
     url(r'^(?P<term>\w{2}\d{4})/$', ProjectReportListView.as_view(),
