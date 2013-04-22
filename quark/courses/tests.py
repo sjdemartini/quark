@@ -71,6 +71,17 @@ def make_test_db(testcase):
         submitter=testcase.user,
         published=True)
     testcase.survey_cs_1.save()
+    testcase.survey_cs_1_b = Survey(
+        course=testcase.course_cs_1,
+        term=testcase.term,
+        instructor=testcase.instructor_cs,
+        prof_rating=0,
+        course_rating=5,
+        time_commitment=0,
+        comments='Test comments',
+        submitter=testcase.user,
+        published=True)
+    testcase.survey_cs_1_b.save()
     testcase.exam_ee_1 = Exam(
         course_instance=testcase.courseInstance_ee_1,
         submitter=testcase.user,
@@ -251,6 +262,8 @@ class DepartmentListViewTest(TestCase):
         self.exam_ee_1.save()
         self.survey_cs_1.published = False
         self.survey_cs_1.save()
+        self.survey_cs_1_b.published = False
+        self.survey_cs_1_b.save()
         resp = self.client.get('/courses/')
         # Filters out departments that don't have exams/surveys
         self.assertEqual(resp.context['department_list'].count(), 0)
@@ -269,15 +282,19 @@ class CourseListViewTest(TestCase):
     def test_course_filter(self):
         resp = self.client.get('/courses/cs/')
         self.assertEqual(resp.context['course_list'].count(), 1)
-        self.survey_cs_1.published = False
-        self.survey_cs_1.save()
-        # Filters out courses that don't have exams/surveys
-        self.assertEqual(resp.context['course_list'].count(), 0)
         resp = self.client.get('/courses/ee/')
         self.assertEqual(resp.context['course_list'].count(), 1)
+        self.survey_cs_1.published = False
+        self.survey_cs_1.save()
+        self.survey_cs_1_b.published = False
+        self.survey_cs_1_b.save()
         self.exam_ee_1.approved = False
         self.exam_ee_1.save()
-        self.assertEqual(resp.context['course_list'].count(), 0)
+        # Filters out courses that don't have exams/surveys
+        resp = self.client.get('/courses/cs/')
+        self.assertEqual(resp.status_code, 404)
+        resp = self.client.get('/courses/ee/')
+        self.assertEqual(resp.status_code, 404)
 
 
 class CourseDetailViewTest(TestCase):
@@ -298,7 +315,19 @@ class CourseDetailViewTest(TestCase):
                          self.course_cs_1.pk)
         self.assertEqual(resp.context['course_instances'].count(), 1)
         self.assertEqual(resp.context['exams'].count(), 0)
-        self.assertEqual(resp.context['surveys'].count(), 1)
+        self.assertEqual(resp.context['surveys'].count(), 2)
+        self.assertEqual(resp.context['instructors'].count(), 1)
+
+    def test_course_aggregates(self):
+        resp = self.client.get('/courses/cs/1/')
+        self.assertEqual(resp.context['total_course_ratings_avg'], 5)
+        # Value for this dictionary is (avg_prof_rating, avg_course_rating)
+        self.assertEqual(
+            resp.context['prof_ratings_avg'][
+                self.instructor_cs.full_name()], 2.5)
+        self.assertEqual(
+            resp.context['course_ratings_avg'][
+                self.instructor_cs.full_name()], 5)
 
 
 class InstructorDetailViewTest(TestCase):
@@ -318,4 +347,12 @@ class InstructorDetailViewTest(TestCase):
         self.assertEqual(resp.context['instructor'].pk, self.instructor_cs.pk)
         self.assertEqual(resp.context['course_instances'].count(), 1)
         self.assertEqual(resp.context['exams'].count(), 0)
-        self.assertEqual(resp.context['surveys'].count(), 1)
+        self.assertEqual(resp.context['surveys'].count(), 2)
+        self.assertEqual(resp.context['total_prof_ratings_avg'], 2.5)
+        # Value for this dictionary is (avg_prof_rating, avg_course_rating)
+        self.assertEqual(
+            resp.context['course_ratings_avg'][
+                self.course_cs_1.abbreviation()], 5)
+        self.assertEqual(
+            resp.context['prof_ratings_avg'][
+                self.course_cs_1.abbreviation()], 2.5)

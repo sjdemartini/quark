@@ -1,3 +1,4 @@
+from django.db.models import Avg
 from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404
@@ -23,7 +24,7 @@ class DepartmentListView(ListView):
                 exam__approved=True))
         return Department.objects.filter(
             Q(course__in=courses_with_surveys) |
-            Q(course__in=courses_with_exams)).order_by('long_name')
+            Q(course__in=courses_with_exams)).order_by('long_name').distinct()
 
 
 class CourseListView(ListView):
@@ -40,7 +41,7 @@ class CourseListView(ListView):
         courses_query = Course.objects.filter(
             Q(survey__published=True) |
             Q(courseinstance__in=CourseInstance.objects.filter(
-                exam__approved=True)), department=self.dept)
+                exam__approved=True)), department=self.dept).distinct()
         if not courses_query.exists():
             raise Http404
         return courses_query
@@ -70,6 +71,26 @@ class CourseDetailView(DetailView):
         context['exams'] = Exam.objects.filter(
             course_instance__course=self.course)
         context['surveys'] = Survey.objects.filter(course=self.course)
+        context['instructors'] = Instructor.objects.filter(
+            survey__in=context['course_instances'])
+        # Average of course_rating values across all surveys for this course
+        context['total_course_ratings_avg'] = context['surveys'].aggregate(
+            Avg('course_rating'))['course_rating__avg']
+        # For each instructor, average the prof_rating and course_rating
+        # across that instructor's surveys, and put them in the dictionaries
+        # prof_ratings_avg and course_ratings_avg with key = instructor,
+        # value = avg_rating
+        prof_ratings_avg = dict()
+        course_ratings_avg = dict()
+        for inst in context['instructors']:
+            ratings = context['surveys'].filter(instructor=inst).aggregate(
+                Avg('prof_rating'), Avg('course_rating'))
+            prof_ratings_avg[inst.full_name()] = (
+                ratings['prof_rating__avg'])
+            course_ratings_avg[inst.full_name()] = (
+                ratings['course_rating__avg'])
+        context['prof_ratings_avg'] = prof_ratings_avg
+        context['course_ratings_avg'] = course_ratings_avg
         return context
 
 
@@ -90,4 +111,24 @@ class InstructorDetailView(DetailView):
         context['exams'] = Exam.objects.filter(
             course_instance__in=context['course_instances'])
         context['surveys'] = Survey.objects.filter(instructor=self.instructor)
+        context['courses'] = Course.objects.filter(
+            courseinstance__in=context['course_instances'])
+        context['total_prof_ratings_avg'] = context['surveys'].aggregate(
+            Avg('prof_rating'))['prof_rating__avg']
+        # For each course that this instructor has taught, average the
+        # prof_rating course_rating across the instructor's surveys for each
+        # course, and put them in the dictionaries prof_ratings_avg and
+        # course_ratings_avg  with key = course.abbreviation(),
+        # value = avg_rating
+        prof_ratings_avg = dict()
+        course_ratings_avg = dict()
+        for c in context['courses']:
+            ratings = context['surveys'].filter(course=c).aggregate(
+                Avg('prof_rating'), Avg('course_rating'))
+            prof_ratings_avg[c.abbreviation()] = (
+                ratings['prof_rating__avg'])
+            course_ratings_avg[c.abbreviation()] = (
+                ratings['course_rating__avg'])
+        context['prof_ratings_avg'] = prof_ratings_avg
+        context['course_ratings_avg'] = course_ratings_avg
         return context
