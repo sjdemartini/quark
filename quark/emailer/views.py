@@ -12,8 +12,8 @@ from django.views.generic.edit import FormView
 
 # TODO(nitishp) uncomment things as functionality is added to quark
 # from quark.base.decorators import officer_required
-from quark.base.models import Officer
 from quark.base.models import Term
+from quark.base_tbp.models import Officer
 from quark.emailer.forms import ContactCaptcha, ContactForm
 # from quark.events.views import get_event
 from quark.events.models import Event  # until get_event is added

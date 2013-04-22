@@ -6,11 +6,11 @@ from django.test import TestCase
 from django.utils import timezone
 from django.utils.timezone import make_aware
 
-from quark.base.models import OfficerPosition
 from quark.base.models import Term
 from quark.base_pie.models import School
 from quark.base_pie.models import Season
 from quark.base_pie.models import Team
+from quark.base_tbp.models import OfficerPosition
 
 
 class SeasonManagerTest(TestCase):
@@ -20,10 +20,10 @@ class SeasonManagerTest(TestCase):
         self.assertEquals(season.end_date, end)
 
     def assertSeasonSaved(self, season):
-        # Check if an object matching this Season exists in the database. Django
-        # doesn't have a good way of actually checking this, so the best we can
-        # do is verify that an object with all the same fields set to the same
-        # values exists in the database.
+        # Check if an object matching this Season exists in the database.
+        # Django doesn't have a good way of actually checking this, so the best
+        # we can do is verify that an object with all the same fields set to
+        # the same values exists in the database.
         self.assertTrue(
             Season.objects.filter(pk=season.pk,
                                   year=season.year,
@@ -334,7 +334,7 @@ class PiEOfficerPositionTest(TestCase):
     directory. It verifies that we aren't having collisions between
     the primary keys of the different positions in TBP and PiE.
     """
-    fixtures = ['../../base/fixtures/officer_position.yaml',
+    fixtures = ['../../base_tbp/fixtures/officer_position.yaml',
                 'officer_position.yaml']
 
     def test_initial_data(self):

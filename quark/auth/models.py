@@ -166,7 +166,7 @@ class QuarkUser(AbstractBaseUser, PermissionsMixin):
         # Note that QuerySets are lazy, so there is no database activity until
         # the list comprehension
         # Import OfficerPosition here to avoid circular dependency
-        from quark.base.models import OfficerPosition
+        from quark.base_tbp.models import OfficerPosition
         officers = self.officer_set.filter(
             position__position_type=OfficerPosition.TBP_OFFICER).order_by(
                 'term', 'position')

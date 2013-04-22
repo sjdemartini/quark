@@ -7,9 +7,9 @@ from django.test import TestCase
 from django.utils import timezone
 
 from quark.auth.models import User
-from quark.base.models import Officer
-from quark.base.models import OfficerPosition
 from quark.base.models import Term
+from quark.base_tbp.models import Officer
+from quark.base_tbp.models import OfficerPosition
 from quark.candidates.models import Candidate
 from quark.candidates.models import CandidateRequirement
 from quark.candidates.models import CandidateProgress

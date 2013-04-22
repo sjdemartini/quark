@@ -11,9 +11,9 @@ from quark.auth.models import QuarkUser
 from quark.auth.models import User
 from quark.auth.fields import UserCommonNameChoiceField
 from quark.auth.fields import UserCommonNameMultipleChoiceField
-from quark.base.models import Officer
-from quark.base.models import OfficerPosition
 from quark.base.models import Term
+from quark.base_tbp.models import Officer
+from quark.base_tbp.models import OfficerPosition
 from quark.candidates.models import Candidate
 from quark.qldap.utils import username_exists
 from quark.qldap.utils import delete_user

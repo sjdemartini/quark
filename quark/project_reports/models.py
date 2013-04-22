@@ -4,8 +4,8 @@ from django.db import models
 from django.utils import timezone
 
 from quark.auth.models import User
-from quark.base.models import OfficerPosition
 from quark.base.models import Term
+from quark.base_tbp.models import OfficerPosition
 
 
 class ProjectReport(models.Model):

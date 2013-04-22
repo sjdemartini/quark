@@ -4,7 +4,7 @@
     position_type: 0
     rank: 1
     short_name: president
-  model: base.OfficerPosition
+  model: base_tbp.OfficerPosition
   pk: 1
 - fields:
     long_name: Vice President
@@ -12,7 +12,7 @@
     position_type: 0
     rank: 2
     short_name: vp
-  model: base.OfficerPosition
+  model: base_tbp.OfficerPosition
   pk: 2
 - fields:
     long_name: Recording Secretary
@@ -20,7 +20,7 @@
     position_type: 0
     rank: 3
     short_name: rsec
-  model: base.OfficerPosition
+  model: base_tbp.OfficerPosition
   pk: 3
 - fields:
     long_name: Corresponding Secretary
@@ -28,7 +28,7 @@
     position_type: 0
     rank: 4
     short_name: csec
-  model: base.OfficerPosition
+  model: base_tbp.OfficerPosition
   pk: 4
 - fields:
     long_name: Treasurer
@@ -36,7 +36,7 @@
     position_type: 0
     rank: 5
     short_name: treasurer
-  model: base.OfficerPosition
+  model: base_tbp.OfficerPosition
   pk: 5
 - fields:
     long_name: Activities
@@ -44,7 +44,7 @@
     position_type: 0
     rank: 6
     short_name: activities
-  model: base.OfficerPosition
+  model: base_tbp.OfficerPosition
   pk: 6
 - fields:
     long_name: Industrial Relations
@@ -52,7 +52,7 @@
     position_type: 0
     rank: 7
     short_name: indrel
-  model: base.OfficerPosition
+  model: base_tbp.OfficerPosition
   pk: 7
 - fields:
     long_name: Professional Development
@@ -60,7 +60,7 @@
     position_type: 0
     rank: 8
     short_name: prodev
-  model: base.OfficerPosition
+  model: base_tbp.OfficerPosition
   pk: 8
 - fields:
     long_name: Publicity
@@ -68,7 +68,7 @@
     position_type: 0
     rank: 9
     short_name: publicity
-  model: base.OfficerPosition
+  model: base_tbp.OfficerPosition
   pk: 9
 - fields:
     long_name: Engineering 98
@@ -76,7 +76,7 @@
     position_type: 0
     rank: 10
     short_name: e98
-  model: base.OfficerPosition
+  model: base_tbp.OfficerPosition
   pk: 10
 - fields:
     long_name: Information Technology
@@ -84,7 +84,7 @@
     position_type: 0
     rank: 11
     short_name: it
-  model: base.OfficerPosition
+  model: base_tbp.OfficerPosition
   pk: 11
 - fields:
     long_name: Historian
@@ -92,7 +92,7 @@
     position_type: 0
     rank: 12
     short_name: historian
-  model: base.OfficerPosition
+  model: base_tbp.OfficerPosition
   pk: 12
 - fields:
     long_name: STARS
@@ -100,7 +100,7 @@
     position_type: 0
     rank: 13
     short_name: stars
-  model: base.OfficerPosition
+  model: base_tbp.OfficerPosition
   pk: 13
 - fields:
     long_name: Service
@@ -108,7 +108,7 @@
     position_type: 0
     rank: 14
     short_name: service
-  model: base.OfficerPosition
+  model: base_tbp.OfficerPosition
   pk: 14
 - fields:
     long_name: House Leader
@@ -116,7 +116,7 @@
     position_type: 0
     rank: 15
     short_name: house-leaders
-  model: base.OfficerPosition
+  model: base_tbp.OfficerPosition
   pk: 15
 - fields:
     long_name: Faculty Advisor
@@ -124,7 +124,7 @@
     position_type: 0
     rank: 16
     short_name: faculty
-  model: base.OfficerPosition
+  model: base_tbp.OfficerPosition
   pk: 16
 - fields:
     long_name: Advisor
@@ -132,7 +132,7 @@
     position_type: 0
     rank: 17
     short_name: advisor
-  model: base.OfficerPosition
+  model: base_tbp.OfficerPosition
   pk: 17
 - fields:
     long_name: External Relations
@@ -140,7 +140,7 @@
     position_type: 0
     rank: 4.5
     short_name: extrel
-  model: base.OfficerPosition
+  model: base_tbp.OfficerPosition
   pk: 18
 - fields:
     long_name: Advising
@@ -148,7 +148,7 @@
     position_type: 0
     rank: 14.5
     short_name: advising
-  model: base.OfficerPosition
+  model: base_tbp.OfficerPosition
   pk: 19
 - fields:
     long_name: EJC Representative
@@ -156,7 +156,7 @@
     position_type: 0
     rank: 14.6
     short_name: ejc
-  model: base.OfficerPosition
+  model: base_tbp.OfficerPosition
   pk: 20
 - fields:
     long_name: New Projects
@@ -164,6 +164,6 @@
     position_type: 0
     rank: 14.7
     short_name: np
-  model: base.OfficerPosition
+  model: base_tbp.OfficerPosition
   pk: 21
 

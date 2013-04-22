@@ -4,8 +4,8 @@ from django.test import TestCase
 from django.utils import timezone
 
 from quark.auth.models import User
-from quark.base.models import OfficerPosition
 from quark.base.models import Term
+from quark.base_tbp.models import OfficerPosition
 from quark.events.models import Event
 from quark.events.models import EventType
 

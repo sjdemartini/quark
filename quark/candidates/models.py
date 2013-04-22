@@ -1,8 +1,8 @@
 from django.db import models
 
 from quark.auth.models import User
-from quark.base.models import Officer
 from quark.base.models import Term
+from quark.base_tbp.models import Officer
 from quark.events.models import EventAttendance
 from quark.events.models import EventType
 from quark.exam_files.models import Exam
