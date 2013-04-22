@@ -4,10 +4,13 @@ from quark.auth.models import User
 
 
 class Quote(models.Model):
-    submitter = models.ForeignKey(User, related_name='+')
-    speakers = models.ManyToManyField(User, related_name='+')
     quote = models.TextField(blank=False)
+    speakers = models.ManyToManyField(User, related_name='+')
+    submitter = models.ForeignKey(User, related_name='+')
     time = models.DateField(auto_now_add=True)
 
     def __unicode__(self):
         return self.quote
+
+    class Meta:
+        ordering = ('-time',)
