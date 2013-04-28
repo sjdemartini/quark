@@ -1,7 +1,8 @@
 /*****  BASIC STYLING  *****/
-html, body {
-  height: 100%;
+html,
+body {
   background-color: #fff;
+  height: 100%;
 }
 
 p {
@@ -12,19 +13,20 @@ a img {
   border: none;
 }
 
-ul, li {
+ul,
+li {
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-body,div {
+body,
+div {
   margin: 0;
   padding: 0;
   position: relative; /*IE fix; also fixes jQuery autocomplete layout issue in which the inserted div's position is absolute*/
 }
 
-/* tables */
 table {
   border-collapse: collapse;
   border-spacing: 0;
@@ -32,15 +34,16 @@ table {
   width: 90%;
 }
 
-th, td {
+th,
+td {
   padding: 5px;
   vertical-align: top; /* fixes images in tables */
 }
 
 th {
   border-bottom: 2px solid #666;
-  font-weight: bold;
   color: #c7aa36;
+  font-weight: bold;
   text-align: left;
 }
 
@@ -52,32 +55,34 @@ td {
 /*****  TYPOGRAPHY  *****/
 body {
   font-family: 'Open Sans', Arial, Helvetica, sans-serif;
+  font-weight: 300;
 }
 
 body a {
-  text-decoration: none;
   color: #009;
+  text-decoration: none;
 }
 
 body a:hover {
   text-decoration: underline;
 }
 
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 400;
+}
+
 h1 {
   font-size: 1.875em;
-  font-weight: 600;
   color: #3e3e83;
 }
 
 h2 {
   font-size: 1.5em;
-  font-weight: 600;
   color: #c7aa36;
 }
 
 h3 {
   font-size: 1.125em;
-  font-weight: 600;
   color: #666;
 }
 
@@ -86,7 +91,7 @@ h4 {
 }
 
 .small {
-  font-size: 0.8em;
+  font-size: .8em;
 }
 
 .whiteshadow {
@@ -98,23 +103,26 @@ pre {
   font-family: monospace;
 }
 
-b, strong, label, dt {
-  font-weight: bolder;
+b,
+strong,
+label,
+dt {
+  font-weight: bold;
 }
 
 blockquote {
+  border-left: 10px solid #ccc;
   margin-left: 20px;
   margin-right: 20px;
   padding-left: 8px;
-  border-left: 10px solid #ccc;
 }
 
 
 /*****  BASE LAYOUT  *****/
 #header {
-  margin: auto;
-  background-image: url('/static/images/gray_light_texture.jpg');
   background-color: #eee;
+  background-image: url(/static/images/gray_light_texture.jpg);
+  margin: auto;
 }
 
 #header-focus {
@@ -123,58 +131,59 @@ blockquote {
 }
 
 #logo {
-  width: 65px;
-  height: 65px;
-  margin-top: 8px;
+  height: 60px;
+  margin-top: 5px;
+  width: 60px;
 }
 
 #logo-name {
   display: inline;
-  position: absolute;
-  top: 8px;
-  left: 75px;
   font-size: 32px;
-  font-weight: bold;
+  font-weight: 600;
+  position: absolute;
+  left: 75px;
+  top: 5px;
 }
 
 #logo-location {
   display: inline;
   position: absolute;
   left: 78px;
-  top: 45px;
+  top: 42px;
 }
 
 #logo-link {
-  color: #3e3e83;
   border: none;
+  color: #3e3e83;
 }
 
 #logo-overlay {  /* for making the area all linkable, as if an image */
   position: absolute;
-  left: 0px;
+  height: 65px;
+  left: 0;
   width: 260px;
-  height: 78px;
   z-index: 1;
 }
 
 /* Login/Options menu */
 #login {
-  position: absolute;
-  right: 0px;
-  top: 0px;
   background-color: #fff;
-  height: 15px;
   border: solid #000;
-  border-width: 0px 1px 1px;
+  border-width: 0 1px 1px;
+  font-size: .9em;
+  height: 15px;
   padding: 5px;
-  -webkit-border-bottom-right-radius: .5em;
-  -webkit-border-bottom-left-radius: .5em;
-  -moz-border-radius-bottomright: .5em;
+  position: absolute;
+  right: 0;
+  top: 0;
   -moz-border-radius-bottomleft: .5em;
-  border-bottom-right-radius: .5em;
+  -moz-border-radius-bottomright: .5em;
+  -ms-border-bottom-left-radius: .5em;
+  -ms-border-bottom-right-radius: .5em;
+  -webkit-border-bottom-left-radius: .5em;
+  -webkit-border-bottom-right-radius: .5em;
   border-bottom-left-radius: .5em;
-  text-align: right;
-  font-size: 0.9em;
+  border-bottom-right-radius: .5em;
 }
 
 #login a {
@@ -188,8 +197,8 @@ blockquote {
 
 #login ul {
   list-style-type: none;
-  padding: 0;
   margin: 0;
+  padding: 0;
 }
 
 #login li {
@@ -197,61 +206,97 @@ blockquote {
   position: relative;
 }
 
-#login .dropdown-title {
-  padding-right: 15px;
-  margin-right: 5px;
-  background-repeat: no-repeat;
-  background-position: right center;
+.dropdown-title {
+  background: url(/static/images/arrow.png) no-repeat right center;
   background-size: 10px 6px;
-  background-image: url('/static/images/arrow.png');
+  margin-right: 5px;
+  padding-right: 15px;
   cursor: pointer;
 }
 
 #login ul.dropdown {
-  display: none;
-  position: absolute;
-  right: 0px;
-  top: 15px;
   background-color: #fff;
-  width: 120px;
-  padding: 0px 5px 5px;
-  -webkit-border-bottom-right-radius: .5em;
-  -webkit-border-bottom-left-radius: .5em;
-  -moz-border-radius-bottomright: .5em;
-  -moz-border-radius-bottomleft: .5em;
-  border-bottom-right-radius: .5em;
-  border-bottom-left-radius: .5em;
+  display: block;
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 10px;
+  min-width: 120px;
+  max-width: 180px;
+  padding: 5px 10px;
   z-index: 100;
+  border: 1px solid #000;
+  -moz-border-radius: .3em;
+  -ms-border-radius: .3em;
+  -webkit-border-radius: .3em;
+  border-radius: .3em;
+  -moz-box-shadow: 0 0 .4em rgba(0,0,0,.3), inset 0 0 0 #000;
+  -ms-box-shadow: 0 0 .4em rgba(0,0,0,.3), inset 0 0 0 #000;
+  -webkit-box-shadow: 0 0 .4em rgba(0,0,0,.3), inset 0 0 0 #000;
+  box-shadow: 0 0 .4em rgba(0,0,0,.3), inset 0 0 0 #000;
+}
+
+.dropdown-arrow {
+  border-color: transparent transparent #fff transparent;
+  border-style: solid;
+  border-width: 9px;
+  height: 0;
+  width: 0;
+  position: absolute;
+  top: -17px;
+  right: 30px;
+}
+
+.dropdown-arrow-border {  /* border color for arrow */
+  border-color: transparent transparent #000 transparent;
+  border-style: solid;
+  border-width: 9px;
+  height: 0;
+  width: 0;
+  position: absolute;
+  top: -18px;
+  right: 30px;
+}
+
+#login ul.dropdown li {
+  display: block;
+  margin: 0;
+  padding: 0;
 }
 
 #login ul.dropdown li a {
   display: block;
+  margin: 0 -10px;  /* extend to edges of dropdown container */
+  padding: 3px 10px;
 }
 
-#login li:hover ul.dropdown {
-  display: block;
+#login ul.dropdown li a:hover {
+  background-color: #eee;
 }
 
 /* Navigation */
-#nav, #subnav {
+#nav,
+#subnav {
   max-width: none;
   text-align: center;
 }
 
 #nav {
-  background-image: url('/static/images/gray_texture.jpg');
+  background-image: url(/static/images/gray_texture.jpg);
   background-color: gray;
   border-top: 1px solid #f2f2f2;
   border-bottom: 1px solid #333;
 }
 
-#nav ul, #subnav ul {
+#nav ul,
+#subnav ul {
   list-style-type: none;
   margin: 0;
   padding: 10px 0;
 }
 
-#nav li, #subnav li {
+#nav li,
+#subnav li {
   display: inline;
 }
 
@@ -260,23 +305,29 @@ blockquote {
 }
 
 #nav ul ul {
+  background-image: url(/static/images/gray_texture.jpg);
+  background-color: gray;
   display: block;
-  opacity: 0; /* make the submenu invisible until transition */
   height: 0; /* make the submenu invisible until transition */
+  opacity: 0; /* make the submenu invisible until transition */
   position: absolute;
   top: 100%;
   z-index: 100;
-  background-image: url('/static/images/gray_texture.jpg');
-  background-color: gray;
   border-left: 1px solid #333;
   border-right: 1px solid #333;
   border-bottom: 1px solid #333;
+  -moz-border-radius-bottomleft: 3px;
+  -moz-border-radius-bottomright: 3px;
+  -ms-border-bottom-left-radius: 3px;
+  -ms-border-bottom-right-radius: 3px;
+  -webkit-border-bottom-left-radius: 3px;
+  -webkit-border-bottom-right-radius: 3px;
   border-bottom-left-radius: 3px;
   border-bottom-right-radius: 3px;
   padding: 0;
   margin-top: 11px;
   text-align: left;
-  font-size: 0.85em;
+  font-size: .85em;
   transition: all 125ms ease-in;
   overflow: hidden;
 }
@@ -295,21 +346,24 @@ blockquote {
 }
 
 #nav a {
-  display: inline;
-  padding: 10px 27px;
-  font-size: 1.225em;
   color: #fff;
+  display: inline;
+  font-size: 1.175em;
+  font-weight: 400;
+  padding: 10px 27px;
   transition: all 125ms ease-in;
 }
 
-#nav a:hover, #nav a:active, #nav a.selected {
-  text-decoration: none;
+#nav a:active,
+#nav a:hover,
+#nav a.selected {
   color: #000;
+  text-decoration: none;
 }
 
 #nav a.selected {
+  background-color: rgba(255,255,255,.2);  /* white transparent overlay */
   font-weight: 600;
-  background-color: rgba(255,255,255,0.2);  /* white transparent overlay */
 }
 
 #nav ul ul a {
@@ -318,27 +372,29 @@ blockquote {
 }
 
 #subnav {
-  border-bottom: 1px solid gray;
   background-color: #eee;
-  -webkit-box-shadow: inset 0 0 5px #999;
+  border-bottom: 1px solid gray;
   -moz-box-shadow: inset 0 0 5px #999;
   -ms-box-shadow: inset 0 0 5px #999;
+  -webkit-box-shadow: inset 0 0 5px #999;
   box-shadow: inset 0 0 5px #999;
 }
 
 #subnav a {
-  padding: 5px 15px;
-  font-size: 1em;
   color: #333;
+  font-size: 1em;
+  padding: 5px 15px;
 }
 
-#subnav a:hover, #subnav a.selected {
-  text-decoration: none;
+#subnav a:hover,
+#subnav a.selected {
   background-color: #fff;
-  -webkit-border-radius: 0.3em;
-  -moz-border-radius: 0.3em;
-  border-radius: 0.3em;
   color: #000;
+  text-decoration: none;
+  -moz-border-radius: .3em;
+  -ms-border-radius: .3em;
+  -webkit-border-radius: .3em;
+  border-radius: .3em;
 }
 
 #subnav a.selected {
@@ -375,16 +431,17 @@ blockquote {
 
 #bubble {
   background-color: #fff;
+  margin: 15px;
+  overflow: hidden;
   padding: 15px 15px 15px;
-  border-radius: 1em;
-  -webkit-border-radius: 1em;
   -moz-border-radius: 1em;
-  border-right: 1px solid #bbb;
+  -ms-border-radius: 1em;
+  -webkit-border-radius: 1em;
+  border-radius: 1em;
   border-bottom: 1px solid #bbb;
   border-top: 1px solid #ddd;
   border-left: 1px solid #ddd;
-  overflow: hidden;
-  margin: 15px;
+  border-right: 1px solid #bbb;
 }
 
 /* wrapper and push used to make footer stick to bottom of window */
@@ -401,16 +458,16 @@ blockquote {
 }
 
 #footer {
-  height: 60px;
-  padding: 20px 0;
-  margin-top: 30px;
-  color: #666;
-  font-size: 0.75em;
   background-color: #eee;
   border-top: 1px solid #999;
-  -webkit-box-shadow: inset 0 30px 30px -30px #999;
+  color: #666;
+  font-size: .75em;
+  height: 60px;
+  margin-top: 30px;
+  padding: 20px 0;
   -moz-box-shadow: inset 0 30px 30px -30px #999;
   -ms-box-shadow: inset 0 30px 30px -30px #999;
+  -webkit-box-shadow: inset 0 30px 30px -30px #999;
   box-shadow: inset 0 30px 30px -30px #999;
 }
 
@@ -424,7 +481,7 @@ blockquote {
 }
 
 #footer p {
-  margin: 0.5em 0;
+  margin: .5em 0;
 }
 
 #socialmedia {
@@ -446,31 +503,34 @@ blockquote {
 }
 
 #banner {
+  background: url(/static/images/banner.jpg) #000 top center no-repeat;
   min-height: 338px;
   max-width: none;
   margin: 0 auto;
-  background: url('/static/images/banner.jpg') #000 top center no-repeat;
 }
 
 #banner-focus {  /* used to create a max-width on banner elements */
+  margin: 0 auto;
   max-width: 1000px;
   position: relative;
-  margin: 0 auto;
 }
 
 #banner-text {
-  background-color: rgba(0,0,0,0.3);
-  /*box-shadow: inset 0px 2px 12px 2px rgba(0, 0, 0, 0.1);*/
+  background-color: rgba(0,0,0,.3);
   color: #fff;
-  padding: 0.3em 1em;
-  top: 1em;
   margin-left: 43%;
   margin-right: 2%;
+  padding: .3em 1em;
+  top: 1em;
 }
 
-#banner-text h1, #banner-text h3 {
-  font-weight: lighter;
+#banner-text h1,
+#banner-text h3 {
   color: #fff;
+}
+
+#banner-text h3 {
+  font-weight: 300;
 }
 
 #updates {
@@ -478,29 +538,29 @@ blockquote {
 }
 
 #updates > div {
-  -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
   -ms-border-radius: 4px;
+  -webkit-border-radius: 4px;
   border-radius: 4px;
-  -webkit-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
-  -moz-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
-  -ms-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: 0 1px 5px rgba(0, 0, 0, .2);
+  -ms-box-shadow: 0 1px 5px rgba(0, 0, 0, .2);
+  -webkit-box-shadow: 0 1px 5px rgba(0, 0, 0, .2);
+  box-shadow: 0 1px 5px rgba(0, 0, 0, .2);
   background-color: #fff;
   float: left;
   margin: 15px 1.667%;
   padding-top: 0;
   padding-bottom: 0;
-  width: 30%;
   position: relative;
   text-align: center;
+  width: 30%;
 }
 
 #updates > div:hover {
-  -webkit-box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
-  -moz-box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
-  -ms-box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+  -moz-box-shadow: 0 3px 10px rgba(0, 0, 0, .4);
+  -ms-box-shadow: 0 3px 10px rgba(0, 0, 0, .4);
+  -webkit-box-shadow: 0 3px 10px rgba(0, 0, 0, .4);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, .4);
 }
 
 #updates > div li {
@@ -512,12 +572,12 @@ blockquote {
 }
 
 #updates > div li:last-child:hover {
-  -webkit-border-bottom-right-radius: 4px;
-  -webkit-border-bottom-left-radius: 4px;
   -moz-border-radius-bottomright: 4px;
   -moz-border-radius-bottomleft: 4px;
   -ms-border-bottom-right-radius: 4px;
   -ms-border-bottom-left-radius: 4px;
+  -webkit-border-bottom-right-radius: 4px;
+  -webkit-border-bottom-left-radius: 4px;
   border-bottom-right-radius: 4px;
   border-bottom-left-radius: 4px;
 }
@@ -526,8 +586,9 @@ blockquote {
   text-decoration: none;
 }
 
-.updatedesc, .updatetitle {
-  padding: 0.2em 0.5em;
+.updatedesc,
+.updatetitle {
+  padding: .2em .5em;
 }
 
 .updatetitle {
@@ -560,7 +621,7 @@ blockquote {
     list-style-type: none;
     margin: 0;
     padding: 0;
-    top: 0px;
+    top: 0;
   }
 
   #nav ul ul {
@@ -578,17 +639,18 @@ blockquote {
     padding: 5px 5%;
   }
 
-  #nav a:hover, #nav a:active {
+  #nav a:active,
+  #nav a:hover {
     transition: all 200ms;
     border: 1px solid #fff;
-    -webkit-box-shadow: inset 0 0 12px #ddd;
     -moz-box-shadow: inset 0 0 12px #ddd;
     -ms-box-shadow: inset 0 0 12px #ddd;
+    -webkit-box-shadow: inset 0 0 12px #ddd;
     box-shadow: inset 0 0 12px #ddd;
   }
 
   #banner-text {
-    background-color: rgba(0,0,0,0.7);
+    background-color: rgba(0,0,0,.7);
     margin-left: 3%;
     margin-right: 3%;
   }

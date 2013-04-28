@@ -10,15 +10,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% block meta %}{% endblock meta %}
 
-    <link rel="shortcut icon" href="{% static "images/favicon.ico" %}" />
-    <link href="http://fonts.googleapis.com/css?family=Open+Sans:400italic,400,600,700" rel="stylesheet" type="text/css">
-    <link rel="stylesheet" href="{% static "css/normalize.css" %}" />
-    <link rel="stylesheet" href="{% static "css/style.css" %}" />
-    {% block jquery %}
+    <link rel="shortcut icon" href="{% static "images/favicon.ico" %}">
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,300,400,600,700" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="{% static "css/normalize.css" %}">
+    <link rel="stylesheet" href="{% static "css/style.css" %}">
+    {% block jquery %}<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>{% endblock jquery %}
     {# TODO(sjdemartini): add chosen css and js files #}
-    {# TODO(sjdemartini): {% include "jquery.html" %} #}
-    {# TODO(sjdemartini): add common js file #}
-    {% endblock jquery %}
+    <script src="{% static "js/main.js" %}"></script>
     {% block head %}{% endblock head %}
   </head>
   <body>
@@ -42,8 +40,10 @@
             {% with is_candidate=request.user.is_tbp_candidate %}
             <ul>
               <li id="welcome">Welcome, {{ request.user.preferred_name }}!</li>
-              <li><span class="dropdown-title">Profile</span>
+              <li><a href="javascript:void(0)" class="dropdown-title">Profile</a>
                 <ul class="dropdown">
+                  <div class="dropdown-arrow-border"></div>
+                  <div class="dropdown-arrow"></div>
                   <li><a href="{#TODO#}">Edit Your Info</a></li>
 
                   {# TODO: forwarding email permissions check here #}
@@ -57,8 +57,10 @@
                   <li><a href="{#TODO#}">Attendance</a></li>
                 </ul>
               </li>
-              <li><span class="dropdown-title">Tools</span>
+              <li><a href="javascript:void(0)" class="dropdown-title">Tools</a>
                 <ul class="dropdown">
+                  <div class="dropdown-arrow-border"></div>
+                  <div class="dropdown-arrow"></div>
                   {% if is_officer %}
                   <li><a href="{#TODO#}">Officer Portal</a></li>
                   <li><a href="{#TODO#}">Candidate Admin</a></li>
