@@ -66,6 +66,7 @@ class University(models.Model):
 
     class Meta:
         ordering = ('long_name',)
+        verbose_name_plural = 'universities'
 
 
 class Major(models.Model):
