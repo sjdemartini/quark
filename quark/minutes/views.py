@@ -1,5 +1,4 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView
 from django.views.generic import DetailView
@@ -27,6 +26,7 @@ class MinutesListView(ListView):
     def get_context_data(self, **kwargs):
         context = super(MinutesListView, self).get_context_data(**kwargs)
         context['terms'] = Term.objects.all()
+        context['term_selected'] = self.term
         return context
 
 
@@ -46,10 +46,10 @@ class MinutesCreateView(CreateView):
 
 
 class MinutesDetailView(DetailView):
-    minute = None
+    context_object_name = 'minutes'
     model = Minutes
-    template_name = 'minutes/detail.html'
     pk_url_kwarg = 'minute_id'
+    template_name = 'minutes/detail.html'
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
@@ -58,9 +58,8 @@ class MinutesDetailView(DetailView):
 
 class MinutesEditView(UpdateView):
     form_class = InputForm
-    minute = None
-    template_name = 'minutes/edit.html'
     pk_url_kwarg = 'minute_id'
+    template_name = 'minutes/edit.html'
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
@@ -68,8 +67,8 @@ class MinutesEditView(UpdateView):
 
 
 class MinutesUploadView(CreateView):
-    template_name = 'minutes/upload.html'
     form_class = UploadForm
+    template_name = 'minutes/upload.html'
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
