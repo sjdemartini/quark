@@ -122,12 +122,12 @@ class InstructorDetailView(DetailView):
         # value = avg_rating
         prof_ratings_avg = dict()
         course_ratings_avg = dict()
-        for c in context['courses']:
-            ratings = context['surveys'].filter(course=c).aggregate(
+        for course in context['courses']:
+            ratings = context['surveys'].filter(course=course).aggregate(
                 Avg('prof_rating'), Avg('course_rating'))
-            prof_ratings_avg[c.abbreviation()] = (
+            prof_ratings_avg[course.abbreviation()] = (
                 ratings['prof_rating__avg'])
-            course_ratings_avg[c.abbreviation()] = (
+            course_ratings_avg[course.abbreviation()] = (
                 ratings['course_rating__avg'])
         context['prof_ratings_avg'] = prof_ratings_avg
         context['course_ratings_avg'] = course_ratings_avg
