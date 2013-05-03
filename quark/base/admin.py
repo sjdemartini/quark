@@ -6,13 +6,31 @@ from quark.base.models import Term
 from quark.base.models import University
 
 
+class MajorAdmin(admin.ModelAdmin):
+    list_display = ('short_name', 'long_name', 'university')
+    list_display_links = ('short_name', 'long_name')
+    list_filter = ('university',)
+    search_fields = ('short_name', 'long_name', 'university__short_name',
+                     'university__long_name')
+
+
 class RandomTokenAdmin(admin.ModelAdmin):
     list_display = ('email', 'user', 'used', 'created', 'expiration_date',)
     list_filter = ('used', 'created', 'expiration_date',)
     search_fields = ('email',)
 
 
-admin.site.register(Major)
+class TermAdmin(admin.ModelAdmin):
+    exclude = ('id',)
+
+
+class UniversityAdmin(admin.ModelAdmin):
+    list_display = ('short_name', 'long_name')
+    list_display_links = ('short_name', 'long_name')
+    search_fields = ('short_name', 'long_name')
+
+
+admin.site.register(Major, MajorAdmin)
 admin.site.register(RandomToken, RandomTokenAdmin)
-admin.site.register(Term)
-admin.site.register(University)
+admin.site.register(Term, TermAdmin)
+admin.site.register(University, UniversityAdmin)
