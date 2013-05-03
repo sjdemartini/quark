@@ -2,7 +2,6 @@ from django.db import models
 
 from quark.auth.models import User
 from quark.base.models import Term
-from quark.base_tbp.models import Officer
 from quark.events.models import EventAttendance
 from quark.events.models import EventType
 from quark.exam_files.models import Exam
@@ -23,13 +22,6 @@ class Candidate(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
-    def __unicode__(self):
-        return u'%s (%s)' % (self.user, self.term)
-
-    class Meta:
-        ordering = ('-term', 'user')
-        unique_together = ('user', 'term')
-
     def get_progress(self, requirement_type):
         """
         Returns a tuple (#completed, #required) for a given requirement type.
@@ -43,6 +35,13 @@ class Candidate(models.Model):
         required = sum([x[1] for x in progress])
 
         return (completed, required)
+
+    def __unicode__(self):
+        return u'%s (%s)' % (self.user, self.term)
+
+    class Meta:
+        ordering = ('-term', 'user')
+        unique_together = ('user', 'term')
 
 
 def candidate_post_save(sender, instance, created, **kwargs):
@@ -75,7 +74,7 @@ class Challenge(models.Model):
     A challenge done by a Candidate.
 
     Challenges are requested by the Candidate upon completion
-    and verified by the Officer who gave it.
+    and verified by the person who gave the candidate the challenge.
     """
     INDIVIDUAL = 1
     GROUP = 2
@@ -87,14 +86,16 @@ class Challenge(models.Model):
     challenge_type = models.PositiveSmallIntegerField(choices=TYPES,
                                                       default=INDIVIDUAL)
     description = models.CharField(max_length=255)
-    officer = models.ForeignKey(Officer)
+    verifying_user = models.ForeignKey(
+        User, help_text='Person who verified the challenge.')
     verified = models.BooleanField(default=False)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
-        return u'%s: Challenge given by %s' % (self.candidate, self.officer)
+        return u'%s: Challenge given by %s' % (
+            self.candidate, self.verifying_user)
 
     class Meta:
         ordering = ('candidate', 'updated')
@@ -103,10 +104,10 @@ class Challenge(models.Model):
 class CandidateRequirement(models.Model):
     """A requirement for a given term."""
     EVENT = 1
-    MANUAL = 2
-    CHALLENGE = 3
-    EXAM_FILE = 4
-    RESUME = 5
+    CHALLENGE = 2
+    EXAM_FILE = 3
+    RESUME = 4
+    MANUAL = 5
     TYPES = (
         (EVENT, 'Event'),
         (CHALLENGE, 'Challenge'),
@@ -114,7 +115,6 @@ class CandidateRequirement(models.Model):
         (RESUME, 'Resume'),
         (MANUAL, 'Other (manually verified)'))
 
-    name = models.CharField(max_length=60, db_index=True)
     requirement_type = models.PositiveSmallIntegerField(choices=TYPES,
                                                         db_index=True)
     credits_needed = models.IntegerField()
@@ -129,9 +129,6 @@ class CandidateRequirement(models.Model):
 
         if (self.requirement_type == CandidateRequirement.EVENT):
             completed = self.eventcandidaterequirement.get_completed(candidate)
-        elif (self.requirement_type == CandidateRequirement.MANUAL):
-            # Actual credits earned is read from CandidateProgress below
-            completed = 0
         elif (self.requirement_type == CandidateRequirement.CHALLENGE):
             completed = self.challengecandidaterequirement.get_completed(
                 candidate)
@@ -139,31 +136,37 @@ class CandidateRequirement(models.Model):
             completed = self.examfilecandidaterequirement.get_completed(
                 candidate)
         elif (self.requirement_type == CandidateRequirement.RESUME):
-            # TODO (wangj) requires resumes, this is just a placeholder
+            # TODO(wangj): requires resumes, this is just a placeholder
+            completed = 0
+        elif (self.requirement_type == CandidateRequirement.MANUAL):
+            # Actual credits earned is read from CandidateProgress below
             completed = 0
         else:
-            raise NotImplementedError('Unknown type %d' % self.requirement_type)
+            raise NotImplementedError(
+                'Unknown type %d' % self.requirement_type)
 
         # Check per-candidate overrides and exemptions
         try:
-            progress = CandidateProgress.objects.get(candidate=candidate,
-                                                     requirement=self)
+            progress = CandidateRequirementProgress.objects.get(
+                candidate=candidate, requirement=self)
             completed += progress.credits_earned
             required -= progress.credits_exempted
-        except CandidateProgress.DoesNotExist:
+        except CandidateRequirementProgress.DoesNotExist:
             pass
 
         return (completed, required)
 
     def __unicode__(self):
-        return u'%s (%s)' % (self.name, self.term)
+        return u'%s, %d required (%s)' % (
+            self.get_requirement_type_display(), self.credits_needed,
+            self.term)
 
     class Meta:
-        ordering = ('-term', 'requirement_type', 'name')
-        unique_together = ('name', 'term')
+        ordering = ('-term', 'requirement_type')
 
 
 class EventCandidateRequirement(CandidateRequirement):
+    """Requirement for attending events of a certain type."""
     event_type = models.ForeignKey(EventType)
 
     def save(self, *args, **kwargs):
@@ -178,6 +181,11 @@ class EventCandidateRequirement(CandidateRequirement):
             event__term=candidate.term,
             event__event_type=self.event_type)
         return sum([e.event.requirements_credit for e in events_attended])
+
+    def __unicode__(self):
+        return u'%s %s' % (
+            self.event_type.name,
+            super(EventCandidateRequirement, self).__unicode__())
 
 
 class ChallengeCandidateRequirement(CandidateRequirement):
@@ -195,8 +203,15 @@ class ChallengeCandidateRequirement(CandidateRequirement):
             challenge_type=self.challenge_type,
             verified=True).count()
 
+    def __unicode__(self):
+        return u'%s %s' % (
+            self.get_challenge_type_display(),
+            super(ChallengeCandidateRequirement, self).__unicode__())
+
 
 class ExamFileCandidateRequirement(CandidateRequirement):
+    """Requirement for uploading exam files to the site."""
+
     def save(self, *args, **kwargs):
         """Override save handler to ensure that requirement_type is correct"""
         self.requirement_type = CandidateRequirement.EXAM_FILE
@@ -205,13 +220,27 @@ class ExamFileCandidateRequirement(CandidateRequirement):
     def get_completed(self, candidate):
         """Returns the number of credits completed by candidate"""
         return Exam.objects.filter(
-            submitter=candidate.user,
-            approved=True).count()
+            submitter=candidate.user, approved=True).count()
 
 
-class CandidateProgress(models.Model):
-    """
-    Tracks one candidate's progress towards one requirement.
+class ManualCandidateRequirement(CandidateRequirement):
+    name = models.CharField(max_length=60, db_index=True)
+
+    def save(self, *args, **kwargs):
+        """Override save handler to ensure that requirement_type is correct"""
+        self.requirement_type = CandidateRequirement.MANUAL
+        super(ManualCandidateRequirement, self).save(*args, **kwargs)
+
+    def __unicode__(self):
+        return u'%s, %d required (%s)' % (
+            self.name, self.credits_needed, self.term)
+
+    class Meta:
+        ordering = ('-term', 'requirement_type', 'name')
+
+
+class CandidateRequirementProgress(models.Model):
+    """Tracks one candidate's progress towards one requirement.
 
     For MANUAL requirements, the credits_earned field is set manually.
     For EVENT and other auto requirements, both credits_earned and
@@ -221,7 +250,7 @@ class CandidateProgress(models.Model):
     requirement = models.ForeignKey(CandidateRequirement)
     credits_earned = models.IntegerField(default=0)
     credits_exempted = models.IntegerField(default=0)
-    comments = models.TextField()
+    comments = models.TextField(blank=True)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)

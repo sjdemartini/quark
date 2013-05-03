@@ -12,11 +12,12 @@ from quark.base_tbp.models import Officer
 from quark.base_tbp.models import OfficerPosition
 from quark.candidates.models import Candidate
 from quark.candidates.models import CandidateRequirement
-from quark.candidates.models import CandidateProgress
+from quark.candidates.models import CandidateRequirementProgress
 from quark.candidates.models import Challenge
 from quark.candidates.models import ChallengeCandidateRequirement
 from quark.candidates.models import EventCandidateRequirement
 from quark.candidates.models import ExamFileCandidateRequirement
+from quark.candidates.models import ManualCandidateRequirement
 from quark.courses.models import CourseInstance
 from quark.events.models import Event
 from quark.events.models import EventAttendance
@@ -61,13 +62,13 @@ class CandidateTest(TestCase):
         self.officer.save()
 
         # Create some manual candidate requirements
-        self.manual_req1 = CandidateRequirement(
+        self.manual_req1 = ManualCandidateRequirement(
             name='Manual 1',
             requirement_type=CandidateRequirement.MANUAL,
             credits_needed=2,
             term=self.term)
         self.manual_req1.save()
-        self.manual_req2 = CandidateRequirement(
+        self.manual_req2 = ManualCandidateRequirement(
             name='Manual 2',
             requirement_type=CandidateRequirement.MANUAL,
             credits_needed=5,
@@ -76,7 +77,6 @@ class CandidateTest(TestCase):
 
         # Create a challenge requirement
         self.challenge_req = ChallengeCandidateRequirement(
-            name='Challenge',
             challenge_type=Challenge.INDIVIDUAL,
             credits_needed=3,
             term=self.term)
@@ -113,7 +113,6 @@ class CandidateTest(TestCase):
                                   contact=officer_user)
         self.notfun_event.save()
         self.event_req = EventCandidateRequirement(
-            name='Mandatory Fun',
             event_type=self.event_type1,
             credits_needed=4,
             term=self.term)
@@ -137,7 +136,6 @@ class CandidateTest(TestCase):
         self.test_exam2.course_instance.course.department.save()
         self.folder2 = self.test_exam2.unique_id[0:2]
         self.exam_req = ExamFileCandidateRequirement(
-            name='Exam files',
             credits_needed=2,
             term=self.term)
         self.exam_req.save()
@@ -173,7 +171,7 @@ class CandidateTest(TestCase):
         Test that credits for manual requirements are counted correctly.
         """
         # Create some candidate progress
-        CandidateProgress(
+        CandidateRequirementProgress(
             candidate=self.candidate,
             requirement=self.manual_req1,
             credits_earned=2).save()
@@ -183,7 +181,7 @@ class CandidateTest(TestCase):
         self.assertEqual(needed, 7)
 
         # Test the simple summing of credits
-        progress2 = CandidateProgress(
+        progress2 = CandidateRequirementProgress(
             candidate=self.candidate,
             requirement=self.manual_req2,
             credits_earned=3)
@@ -209,7 +207,7 @@ class CandidateTest(TestCase):
         challenge = Challenge(
             candidate=self.candidate,
             description='Hello kitty',
-            officer=self.officer)
+            verifying_user=self.officer.user)
         challenge.save()
         complete, needed = self.candidate.get_progress(
             CandidateRequirement.CHALLENGE)
@@ -224,7 +222,7 @@ class CandidateTest(TestCase):
         self.assertEqual(complete, 1)
 
         # Test exemptions
-        CandidateProgress(
+        CandidateRequirementProgress(
             candidate=self.candidate,
             requirement=self.challenge_req,
             credits_exempted=1).save()
