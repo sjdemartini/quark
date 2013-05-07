@@ -158,9 +158,12 @@ def rename_user(username, new_username):
     # Search in posixGroups (i.e. cn=web) for old username and replace
     # with new username. groupOfNames are automatically changed by rename_s
     search_str = '(memberUid=%s)' % (username)
-    group_results = ldap_handle.search_s(settings.LDAP_BASE['GROUP'],
-                                         settings.LDAP['SCOPE'],
-                                         search_str)
+    try:
+        group_results = ldap_handle.search_s(
+            settings.LDAP_BASE['GROUP'], settings.LDAP['SCOPE'], search_str)
+    except ldap.LDAPError:
+        return (False, 'LDAP error while searching for group memberships')
+
     for (gdn, gattr) in group_results:
         new_g = copy.copy(gattr)
         new_g['memberUid'] = [member if member != username else new_username
@@ -304,32 +307,35 @@ def check_password(username, password):
         password = smart_bytes(password)
 
         # attempt to bind as user
-        try:
-            user_dn = 'uid=%s,%s' % (username, settings.LDAP_BASE['PEOPLE'])
-            out = initialize(user_dn, password)
-            if out is not None:
-                # Authentication successful; attempt to migrate password
-                searchstr = '(&(objectClass=inetOrgPerson)(uid=%s))' % username
+        user_dn = 'uid=%s,%s' % (username, settings.LDAP_BASE['PEOPLE'])
+        out = initialize(user_dn, password)
+        if out is None:
+            return False
+        else:
+            # Authentication successful; attempt to migrate password
+            # Then return success
+            searchstr = '(&(objectClass=inetOrgPerson)(uid=%s))' % username
+            try:
                 pw_result = ldap_handle.search_s(
                     settings.LDAP_BASE['PEOPLE'],
                     settings.LDAP['SCOPE'],
                     searchstr,
                     ['userPassword'])
-                # pw_result must be of the form:
-                # [(DN, {'userPassword': ['password',],}),]
-                if len(pw_result) != 1 or len(pw_result[0]) != 2:
-                    mail_admins('LDAP Anomaly Detected',
-                                ('Non-standard password results for %s in'
-                                 'check_password') % username)
-                # Automatically update password to new hash algorithm
-                if '{SHA1}' not in pw_result[0][1]['userPassword'][0]:
-                    set_password(username, password)
-                return True
-            else:
+            except ldap.LDAPError:
                 return False
-        except ldap.LDAPError:
-            return False
-    return False
+            # pw_result must be of the form:
+            # [(DN, {'userPassword': ['password',],}),]
+            if len(pw_result) != 1 or len(pw_result[0]) != 2:
+                mail_admins('LDAP Anomaly Detected',
+                            ('Non-standard password results for %s in'
+                             'check_password') % username)
+            # Automatically update password to new hash algorithm
+            if '{SHA1}' not in pw_result[0][1]['userPassword'][0]:
+                set_password(username, password)
+            return True
+    else:
+        # Bad username or password
+        return False
 
 
 def get_property(attributes, key, index=0):
@@ -389,43 +395,15 @@ def is_group_member(username, group):
     return len(result) > 0
 
 
-def is_tbp(username):
-    """
-    Convenience method for checking if a username is in any of TBP groups.
-    """
-    return is_group_member(username, 'tbp-*')
-
-
-def is_in_tbp_group(username, group):
-    """
-    Convenience method for checking if a username is part of a specified TBP
-    LDAP group, entered as a string (e.g., 'members' or 'officers').
-    """
-    return is_group_member(username, 'tbp-%s' % group)
-
-
-def is_pie(username):
-    """
-    Convenience method for checking if a username is in any of the PIE groups.
-    """
-    return is_group_member(username, 'pie-*')
-
-
-def is_pie_staff(username):
-    """
-    Convenience method for checking if a username is in the staff pie group.
-    """
-    return is_group_member(username, 'pie-staff')
-
-
 def create_group(group, object_class='groupOfNames'):
     """
     Create a new ldap group, either of class groupOfNames or posixGroup.
     The group is initialized with the default user if it is a groupOfNames,
     and initialized with no users if it is posixGroup.
-    The parameter 'group' specifies the new group name. Note that typically,
-    group names for TBP-specific groups begin with "tbp-", while PiE-specific
-    groups begin with "pie-".
+    The parameter 'group' specifies the new group name.
+    Note that typically, group names for TBP-specific groups begin with "tbp-",
+    to differentiate from similarly named groups in other organizations that
+    may share the same LDAP directory.
     """
     if object_class not in ['groupOfNames', 'posixGroup']:
         return False
@@ -444,7 +422,7 @@ def create_group(group, object_class='groupOfNames'):
         # groupOfNames objectClass requires at least one member in the group
         # at all times, so add the default user to this new groupOfNames group
         # initially. (Note that the default user can later be removed after
-        # other members have been added, if desired.):
+        # other members have been added, if desired.)
         attr.append(('member', settings.LDAP_DEFAULT_USER))
     else:
         attr.append(('gidNumber', str(generate_new_gidnumber())))
@@ -669,3 +647,33 @@ def clear_group_members(group):
     except ldap.LDAPError:
         return False
     return True
+
+
+# TODO(flieee): move else where or delete for quark tbp/pie repo split
+def is_tbp(username):
+    """
+    Convenience method for checking if a username is in any of TBP groups.
+    """
+    return is_group_member(username, 'tbp-*')
+
+
+def is_in_tbp_group(username, group):
+    """
+    Convenience method for checking if a username is part of a specified TBP
+    LDAP group, entered as a string (e.g., 'members' or 'officers').
+    """
+    return is_group_member(username, 'tbp-%s' % group)
+
+
+def is_pie(username):
+    """
+    Convenience method for checking if a username is in any of the PIE groups.
+    """
+    return is_group_member(username, 'pie-*')
+
+
+def is_pie_staff(username):
+    """
+    Convenience method for checking if a username is in the staff pie group.
+    """
+    return is_group_member(username, 'pie-staff')
