@@ -16,13 +16,9 @@ class EventTypeManager(models.Manager):
 
 
 class EventType(models.Model):
-    objects = EventTypeManager()
-
     name = models.CharField(max_length=60, unique=True)
 
-    # TODO(sjdemartini): define colors mechanism to be used for event types'
-    # color field. A viable option appears to be webcolors:
-    # http://docs.b-list.org/webcolors/1.4/
+    objects = EventTypeManager()
 
     def __unicode__(self):
         return self.name
@@ -43,6 +39,9 @@ class Event(models.Model):
     contact = models.ForeignKey(User)
     committee = models.ForeignKey(OfficerPosition)
     signup_limit = models.PositiveSmallIntegerField(default=0)
+    max_guests_per_person = models.PositiveSmallIntegerField(
+        default=0,
+        help_text='Maximum number of guests each person is allowed to bring.')
     needs_drivers = models.BooleanField(default=False)
     cancelled = models.BooleanField(default=False)
 
@@ -72,7 +71,7 @@ class Event(models.Model):
         verbose_name_plural = 'events'
 
     def __unicode__(self):
-        return u'%s - %s' % (self.name, unicode(self.term))
+        return '{} - {}'.format(self.name, unicode(self.term))
 
     # TODO(sjdemartini): implement get_absolute_url(self) for returning the
     # URL of an event object
@@ -95,7 +94,7 @@ class Event(models.Model):
         """
         date = Event.__get_abbrev_date_string(self.start_datetime)
         if self.is_multiday():
-            date = '%s - %s' % (
+            date = '{} - {}'.format(
                 date, Event.__get_abbrev_date_string(self.end_datetime))
         return date
 
@@ -108,18 +107,18 @@ class Event(models.Model):
         start_time = Event.__get_time_string(self.start_datetime)
         end_time = Event.__get_time_string(self.end_datetime)
         if self.is_multiday():
-            start_date = '(%s/%s)' % (
+            start_date = '({}/{})'.format(
                 self.start_datetime.strftime('%m').lstrip('0'),
                 self.start_datetime.strftime('%d').lstrip('0'))
-            end_date = '(%s/%s)' % (
+            end_date = '({}/{})'.format(
                 self.end_datetime.strftime('%m').lstrip('0'),
                 self.end_datetime.strftime('%d').lstrip('0'))
-            return '%s %s - %s %s' % (start_date, start_time, end_date,
-                                      end_time)
+            return '{} {} - {} {}'.format(
+                start_date, start_time, end_date, end_time)
         elif start_time == end_time:
             return 'TBA'
         else:
-            return '%s - %s' % (start_time, end_time)
+            return '{} - {}'.format(start_time, end_time)
 
     def view_datetime(self):
         """Returns a succinct string representation of the event date and time.
@@ -131,11 +130,11 @@ class Event(models.Model):
         start_date = Event.__get_abbrev_date_string(self.start_datetime)
         end_string = Event.__get_time_string(self.end_datetime)
         if self.is_multiday():
-            end_string = '%s %s' % (
+            end_string = '{} {}'.format(
                 Event.__get_abbrev_date_string(self.end_datetime), end_string)
         elif start_time == end_string:
-            return '%s Time TBA' % start_date
-        return '%s %s to %s' % (start_date, start_time, end_string)
+            return '{} Time TBA'.format(start_date)
+        return '{} {} to {}'.format(start_date, start_time, end_string)
 
     # TODO(sjdemartini): re-implement Google Calendar utilities
 
@@ -150,8 +149,8 @@ class Event(models.Model):
 
         An example output could be 'Sat, Nov 3'.
         """
-        return '%s %s' % (datetime_object.strftime('%a, %b'),
-                          datetime_object.strftime("%d").lstrip('0'))
+        return '{} {}'.format(datetime_object.strftime('%a, %b'),
+                              datetime_object.strftime("%d").lstrip('0'))
 
     @staticmethod
     def __get_time_string(datetime_object):
@@ -166,6 +165,9 @@ class EventSignUp(models.Model):
     event = models.ForeignKey(Event)
     person = models.ForeignKey(User, null=True)
     name = models.CharField(max_length=255)  # Person's name used for signup
+    num_guests = models.PositiveSmallIntegerField(
+        default=0,
+        verbose_name='Number of guests (in addition to you)')
     driving = models.PositiveSmallIntegerField(
         default=0,
         verbose_name=('How many people fit in your car, including yourself '
@@ -190,7 +192,13 @@ class EventSignUp(models.Model):
             name = self.name
         else:
             name = self.person.get_common_name()
-        return '%s has %s up for %s' % (name, action, self.event.name)
+        guest_string = (
+            ' (+{})'.format(self.num_guests) if self.num_guests > 0 else '')
+        return '{person}{guests} has {action} up for {event_name}'.format(
+            person=name,
+            guests=guest_string,
+            action=action,
+            event_name=self.event.name)
 
 
 class EventAttendance(models.Model):
@@ -202,8 +210,8 @@ class EventAttendance(models.Model):
     # imports, as well as ImportedAttendance objects
 
     def __unicode__(self):
-        return '%s attended %s' % (self.person.get_common_name(),
-                                   self.event.name)
+        return '{} attended {}'.format(self.person.get_common_name(),
+                                       self.event.name)
 
     class Meta:
         unique_together = ('event', 'person')

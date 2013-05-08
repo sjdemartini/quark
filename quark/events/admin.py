@@ -26,7 +26,8 @@ class EventAttendanceAdmin(admin.ModelAdmin):
 
 
 class EventSignupAdmin(admin.ModelAdmin):
-    list_display = ('event', 'person', 'name', get_term, 'unsignup')
+    list_display = ('event', 'person', 'name', get_term, 'num_guests',
+                    'unsignup')
     list_filter = ('event__term',)
     search_fields = ('event__name', 'person__username',
                      'person__preferred_name', 'person__first_name',

@@ -8,6 +8,7 @@ from quark.base.models import Term
 from quark.base_tbp.models import OfficerPosition
 from quark.events.forms import EventForm
 from quark.events.models import Event
+from quark.events.models import EventSignUp
 from quark.events.models import EventType
 from quark.project_reports.models import ProjectReport
 from quark.shortcuts import get_object_or_none
@@ -206,6 +207,41 @@ class EventTest(EventTesting, TestCase):
         event.save()
         self.assertEqual(event.view_datetime(), 'Sat, Mar 14 Time TBA')
 
+    def test_unicode(self):
+        start_time = timezone.now()
+        end_time = start_time + datetime.timedelta(hours=2)
+        event = self.create_tbp_event(start_time, end_time)
+        event.save()
+        signup = EventSignUp(name='Edward', event=event, num_guests=0)
+        signup.save()
+        expected_str = u'{name} has signed up for {event_name}'.format(
+            name=signup.name, event_name=event.name)
+        self.assertEqual(expected_str, unicode(signup))
+
+        signup.person = self.user
+        signup.save()
+        expected_str = u'{name} has signed up for {event_name}'.format(
+            name=self.user.get_common_name(), event_name=event.name)
+        self.assertEqual(expected_str, unicode(signup))
+
+        signup.num_guests = 1
+        signup.save()
+        expected_str = u'{name} (+1) has signed up for {event_name}'.format(
+            name=self.user.get_common_name(), event_name=event.name)
+        self.assertEqual(expected_str, unicode(signup))
+
+        signup.num_guests = 2
+        signup.save()
+        expected_str = u'{name} (+2) has signed up for {event_name}'.format(
+            name=self.user.get_common_name(), event_name=event.name)
+        self.assertEqual(expected_str, unicode(signup))
+
+        signup.unsignup = True
+        signup.save()
+        expected_str = u'{name} (+2) has unsigned up for {event_name}'.format(
+            name=self.user.get_common_name(), event_name=event.name)
+        self.assertEqual(expected_str, unicode(signup))
+
 
 class EventFormsTest(EventTesting, TestCase):
     def setUp(self):
@@ -243,6 +279,7 @@ class EventFormsTest(EventTesting, TestCase):
                   'committee': self.event.committee.pk,
                   'location': self.event.location,
                   'requirements_credit': self.event.requirements_credit,
+                  'max_guests_per_person': self.event.max_guests_per_person,
                   'signup_limit': self.event.signup_limit}
         if extra_fields:
             fields.update(extra_fields)
@@ -323,6 +360,7 @@ class EventFormsTest(EventTesting, TestCase):
                   'committee': self.event.committee.pk,
                   'location': self.event.location,
                   'requirements_credit': self.event.requirements_credit,
+                  'max_guests_per_person': self.event.max_guests_per_person,
                   'signup_limit': self.event.signup_limit,
                   'start_datetime_0': self.start_date,
                   'start_datetime_1': self.start_time,

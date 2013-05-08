@@ -99,10 +99,10 @@ class EventForm(forms.ModelForm):
 class EventSignUpForm(forms.ModelForm):
     class Meta:
         model = EventSignUp
-        fields = ('name', 'comments', 'driving')
+        fields = ('name', 'comments', 'driving', 'num_guests')
 
 
 class EventSignUpAnonymousForm(forms.ModelForm):
     class Meta:
         model = EventSignUp
-        fields = ('name', 'comments', 'driving', 'email')
+        fields = ('name', 'comments', 'driving', 'num_guests', 'email')
