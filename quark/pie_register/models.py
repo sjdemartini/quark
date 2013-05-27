@@ -41,6 +41,7 @@ class TeamRegistration(models.Model):
         null=True,
         verbose_name='If other, then where did you hear about PiE?')
     parents_drive = models.BooleanField(
+        default=False,
         verbose_name=(
             'Can the parents drive students to UC Berkeley '
             'for events or work sessions?'))
@@ -54,6 +55,7 @@ class TeamRegistration(models.Model):
             'in the following format: first_name, last_name, grade <br>'
             '<em>Example:</em> Oski, Bear, 12'))
     teacher_drive = models.BooleanField(
+        default=False,
         verbose_name=(
             'Can the teacher drive students to UC Berkeley '
             'for events or work sessions?'))
@@ -71,6 +73,7 @@ class TeamRegistration(models.Model):
         verbose_name=(
             'Briefly describe why you are interested in participating in PiE'))
     work_area = models.BooleanField(
+        default=False,
         verbose_name=(
             'Does your school have a space where your team can work on '
             'the robot?'))

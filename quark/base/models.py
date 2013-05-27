@@ -165,7 +165,7 @@ class Term(models.Model):
     id = models.IntegerField(primary_key=True)
     term = models.CharField(max_length=2, choices=TERM_CHOICES)
     year = models.PositiveSmallIntegerField()
-    current = models.BooleanField()
+    current = models.BooleanField(default=False)
 
     objects = TermManager()
 
