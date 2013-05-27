@@ -6,7 +6,6 @@ from quark.emailer.views import HelpdeskEmailerView
 from quark.emailer.views import CompanyEmailerView
 
 
-# pylint: disable=E1120
 urlpatterns = patterns(
     '',
     url(r'^helpdesk/$', HelpdeskEmailerView.as_view(),

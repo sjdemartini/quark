@@ -11,16 +11,20 @@ admin.autodiscover()
 urlpatterns = patterns('',
     url(r'^$', TemplateView.as_view(template_name='index.html'), name='index'),
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^courses/', include(
-        'quark.courses.urls', app_name='courses', namespace='courses')),
-    url(r'^email/', include(
-        'quark.emailer.urls', app_name='emailer', namespace='emailer')),
-    url(r'^minutes/', include(
-        'quark.minutes.urls', app_name='minutes', namespace='minutes')),
+    url(r'^courses/', include('quark.courses.urls',
+                              app_name='courses',
+                              namespace='courses')),
+    url(r'^email/', include('quark.emailer.urls',
+                            app_name='emailer',
+                            namespace='emailer')),
+    url(r'^minutes/', include('quark.minutes.urls',
+                              app_name='minutes',
+                              namespace='minutes')),
+    url(r'^project-reports/', include('quark.project_reports.urls',
+                                      app_name='project-reports',
+                                      namespace='project-reports')),
     # TODO(mattchang): Get django-cms working for django-1.5
     #url(r'^', include('cms.urls')),
-    url(r'^project-reports/', include('quark.project_reports.urls',
-                                      namespace='project-reports')),
 )
 
 if settings.DEBUG:

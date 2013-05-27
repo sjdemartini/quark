@@ -6,7 +6,7 @@ from quark.courses.views import CourseListView
 from quark.courses.views import DepartmentListView
 from quark.courses.views import InstructorDetailView
 
-# pylint: disable=E1120
+
 urlpatterns = patterns(
     '',
     url(r'^instructors/(?P<inst_pk>[0-9]+)/$',

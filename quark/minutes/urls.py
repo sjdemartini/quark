@@ -7,7 +7,7 @@ from quark.minutes.views import MinutesDetailView
 from quark.minutes.views import MinutesEditView
 from quark.minutes.views import MinutesUploadView
 
-# pylint: disable=E1120
+
 urlpatterns = patterns(
     '',
     url(r'^$', MinutesListView.as_view(),

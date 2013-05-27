@@ -6,7 +6,6 @@ from quark.quote_board.views import QuoteDetailView
 from quark.quote_board.views import QuoteListView
 
 
-# pylint: disable=E1120
 urlpatterns = patterns(
     '',
     url(r'^$', QuoteListView.as_view(), name='list'),

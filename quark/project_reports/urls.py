@@ -4,7 +4,7 @@ from django.conf.urls import url
 from quark.project_reports.views import ProjectReportListAllView
 from quark.project_reports.views import ProjectReportListView
 
-# pylint: disable=E1120
+
 urlpatterns = patterns(
     '',
     url(r'^$', ProjectReportListView.as_view(), name='list-current'),
