@@ -2,6 +2,10 @@
 
 {% block title %}Home | {{ block.super }}{% endblock title %}
 
+{% block head %}{% load static %}
+    <link rel="stylesheet" href="{% static "css/home.css" %}">
+{% endblock head %}
+
 {# Make background color of whole page match that of the header #}
 {% block wrapper_style %}background-image: url('/static/images/gray_light_texture.jpg'); background-color: #eee;{% endblock wrapper_style %}
 
