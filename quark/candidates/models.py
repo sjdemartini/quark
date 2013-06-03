@@ -4,7 +4,7 @@ from quark.auth.models import User
 from quark.base.models import Term
 from quark.events.models import EventAttendance
 from quark.events.models import EventType
-from quark.exam_files.models import Exam
+from quark.exams.models import Exam
 
 
 class Candidate(models.Model):
@@ -219,8 +219,8 @@ class ExamFileCandidateRequirement(CandidateRequirement):
 
     def get_completed(self, candidate):
         """Returns the number of credits completed by candidate"""
-        return Exam.objects.filter(
-            submitter=candidate.user, approved=True).count()
+        return Exam.objects.approved_set().filter(
+            submitter=candidate.user).count()
 
 
 class ManualCandidateRequirement(CandidateRequirement):

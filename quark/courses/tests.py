@@ -7,7 +7,7 @@ from quark.courses.models import CourseInstance
 from quark.courses.models import Department
 from quark.courses.models import Instructor
 from quark.course_surveys.models import Survey
-from quark.exam_files.models import Exam
+from quark.exams.models import Exam
 
 
 def make_test_department():
@@ -85,11 +85,11 @@ def make_test_db(testcase):
     testcase.exam_ee_1 = Exam(
         course_instance=testcase.courseInstance_ee_1,
         submitter=testcase.user,
-        exam='final',
-        exam_type='exam',
+        exam_number=Exam.FINAL,
+        exam_type=Exam.EXAM,
         unique_id='abcdefg',
         file_ext='.pdf',
-        approved=True)
+        verified=True)
     testcase.exam_ee_1.save()
     return
 
@@ -258,7 +258,7 @@ class DepartmentListViewTest(TestCase):
     def test_dept_filter(self):
         resp = self.client.get('/courses/')
         self.assertEqual(resp.context['department_list'].count(), 2)
-        self.exam_ee_1.approved = False
+        self.exam_ee_1.verified = False
         self.exam_ee_1.save()
         self.survey_cs_1.published = False
         self.survey_cs_1.save()
@@ -288,7 +288,7 @@ class CourseListViewTest(TestCase):
         self.survey_cs_1.save()
         self.survey_cs_1_b.published = False
         self.survey_cs_1_b.save()
-        self.exam_ee_1.approved = False
+        self.exam_ee_1.verified = False
         self.exam_ee_1.save()
         # Filters out courses that don't have exams/surveys
         resp = self.client.get('/courses/cs/')

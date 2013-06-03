@@ -1,15 +1,9 @@
 - fields:
-    long_name: Test Department 1
-    short_name: Tst Dep 1
-    abbreviation: TEST DEPT 1
+    long_name: Test Department
+    short_name: Test
+    abbreviation: TEST DEPT
   model: courses.Department
   pk: 1
-- fields:
-    long_name: Test Department 2
-    short_name: Tst Dep 2
-    abbreviation: TEST DEPT 2
-  model: courses.Department
-  pk: 2
 - fields:
     last_name: Tau
     department: 1

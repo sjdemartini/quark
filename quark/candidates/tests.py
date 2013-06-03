@@ -22,7 +22,7 @@ from quark.courses.models import CourseInstance
 from quark.events.models import Event
 from quark.events.models import EventAttendance
 from quark.events.models import EventType
-from quark.exam_files.models import Exam
+from quark.exams.models import Exam
 from quark.shortcuts import get_object_or_none
 from quark.user_profiles.models import TBPProfile
 
@@ -126,15 +126,15 @@ class CandidateTest(TestCase):
         test_file.write('This is a test file.')
         self.test_exam1 = Exam(
             course_instance=CourseInstance.objects.get(pk=10000),
-            exam=Exam.MT1,
-            exam_type=Exam.EXAM, approved=True, exam_file=File(test_file))
+            exam_number=Exam.MT1,
+            exam_type=Exam.EXAM, verified=True, exam_file=File(test_file))
         self.test_exam1.save()
         self.test_exam1.course_instance.course.department.save()
         self.folder1 = self.test_exam1.unique_id[0:2]
         self.test_exam2 = Exam(
             course_instance=CourseInstance.objects.get(pk=20000),
-            exam=Exam.MT1,
-            exam_type=Exam.EXAM, approved=True, exam_file=File(test_file))
+            exam_number=Exam.MT1,
+            exam_type=Exam.EXAM, verified=True, exam_file=File(test_file))
         self.test_exam2.save()
         self.test_exam2.course_instance.course.department.save()
         self.folder2 = self.test_exam2.unique_id[0:2]
@@ -254,11 +254,11 @@ class CandidateTest(TestCase):
         complete, _ = self.candidate.get_progress(CandidateRequirement.EVENT)
         self.assertEqual(complete, 3)
 
-    def test_exam_files_requirements(self):
+    def test_exams_requirements(self):
         """
         Test that credits for exam files are counted correctly.
         """
-        # Upload 1 approved exam
+        # Upload 1 verified exam
         self.test_exam1.submitter = self.user
         self.test_exam1.save()
         complete, _ = self.candidate.get_progress(
@@ -266,15 +266,15 @@ class CandidateTest(TestCase):
         self.assertEqual(self.user, self.test_exam1.submitter)
         self.assertEqual(complete, 1)
 
-        # Upload 2 approved exams
+        # Upload 2 verified exams
         self.test_exam2.submitter = self.user
         self.test_exam2.save()
         complete, _ = self.candidate.get_progress(
             CandidateRequirement.EXAM_FILE)
         self.assertEqual(complete, 2)
 
-        # Unapprove an exam (doesn't count anymore)
-        self.test_exam1.approved = False
+        # Unverify an exam (doesn't count anymore)
+        self.test_exam1.verified = False
         self.test_exam1.save()
         complete, _ = self.candidate.get_progress(
             CandidateRequirement.EXAM_FILE)

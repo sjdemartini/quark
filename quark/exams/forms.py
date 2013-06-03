@@ -8,14 +8,15 @@ from quark.base.models import Term
 from quark.courses.models import CourseInstance
 from quark.courses.models import Instructor
 from quark.course_surveys.forms import courses_as_optgroups
-from quark.exam_files.models import Exam
-from quark.exam_files.models import ExamFlag
-from quark.exam_files.models import InstructorPermission
+from quark.exams.models import Exam
+from quark.exams.models import ExamFlag
+from quark.exams.models import InstructorPermission
 
 
 class ExamForm(forms.ModelForm):
     """Used as a base for UploadForm and EditForm."""
-    exam = forms.ChoiceField(label='Exam', choices=Exam.EXAM_CHOICES)
+    exam_number = forms.ChoiceField(
+        label='Exam Number', choices=Exam.EXAM_NUMBER_CHOICES)
     exam_type = forms.ChoiceField(
         label='Exam or solution file?', choices=Exam.EXAM_TYPE_CHOICES)
     instructors = chosen_forms.ChosenModelMultipleChoiceField(
@@ -23,7 +24,7 @@ class ExamForm(forms.ModelForm):
 
     class Meta:
         model = Exam
-        fields = ('exam', 'exam_type')
+        fields = ('exam_number', 'exam_type')
         chosen_forms.widgets = {
             'course': chosen_forms.ChosenGroupSelect(),
             'term': chosen_forms.ChosenSelect(),
@@ -45,7 +46,7 @@ class ExamForm(forms.ModelForm):
         duplicates = Exam.objects.filter(
             course_instance__course=cleaned_data.get('course'),
             course_instance__term=cleaned_data.get('term'),
-            exam=cleaned_data.get('exam'),
+            exam_number=cleaned_data.get('exam_number'),
             exam_type=cleaned_data.get('exam_type'))
         if duplicates.count() > 0:
             raise forms.ValidationError(
@@ -74,7 +75,7 @@ class UploadForm(ExamForm):
         'this document.'))
 
     class Meta(ExamForm.Meta):
-        fields = ('exam', 'exam_type', 'exam_file')
+        fields = ('exam_number', 'exam_type', 'exam_file')
 
     def clean(self):
         """Check if uploaded exam already exists, whether the file is of
@@ -104,10 +105,10 @@ class UploadForm(ExamForm):
 
 
 class EditForm(ExamForm):
-    approved = forms.BooleanField(label='Approved')
+    verified = forms.BooleanField(label='Verified')
 
     class Meta(ExamForm.Meta):
-        fields = ('exam', 'exam_type', 'approved')
+        fields = ('exam_number', 'exam_type', 'verified')
 
     def clean(self):
         """Check if an exam already exists with the new changes."""

@@ -12,8 +12,23 @@ from quark.courses.models import CourseInstance
 from quark.courses.models import Instructor
 
 
+class ExamManager(models.Manager):
+    def approved_set(self):
+        """Returns a query set of all approved exams.
+
+          An exam is 'approved' if it meets all of the following conditions:
+          1. Verified by an officer
+          2. Has less than or equal to ExamFlag.LIMIT flags
+          3. Is not associated with a blacklisted instructor
+        """
+        return Exam.objects.filter(
+            verified=True,
+            flags__lte=ExamFlag.LIMIT,
+            blacklisted=False)
+
+
 class Exam(models.Model):
-    # Exam constants
+    # Exam Number constants
     UNKNOWN = 'un'
     MT1 = 'mt1'
     MT2 = 'mt2'
@@ -21,7 +36,7 @@ class Exam(models.Model):
     MT4 = 'mt4'
     FINAL = 'final'
 
-    EXAM_CHOICES = (
+    EXAM_NUMBER_CHOICES = (
         (UNKNOWN, 'Unknown'),
         (MT1, 'Midterm 1'),
         (MT2, 'Midterm 2'),
@@ -55,17 +70,18 @@ class Exam(models.Model):
                             instance.unique_id[0:2],
                             instance.unique_id + instance.file_ext)
 
-    # TODO(ericdwang): switch from approved to verified, adjust queries
     course_instance = models.ForeignKey(CourseInstance)
     submitter = models.ForeignKey(User, null=True, blank=True)
-    exam = models.CharField(max_length=5, choices=EXAM_CHOICES)
+    exam_number = models.CharField(max_length=5, choices=EXAM_NUMBER_CHOICES)
     exam_type = models.CharField(max_length=4, choices=EXAM_TYPE_CHOICES)
     unique_id = models.CharField(max_length=32, unique=True)
     file_ext = models.CharField(max_length=5)  # includes the period
-    approved = models.BooleanField(default=False)
+    verified = models.BooleanField(default=False)  # must be verified by officer
     flags = models.PositiveSmallIntegerField(default=0)
     blacklisted = models.BooleanField(default=False)
     exam_file = models.FileField(upload_to=rename_file)
+
+    objects = ExamManager()
 
     def get_department(self):
         return self.course_instance.course.department
@@ -108,12 +124,13 @@ class Exam(models.Model):
 
     def __unicode__(self):
         """Return a human-readable representation of the exam file."""
-        return '{course}-{term}-{exam}-{instructors}-{exam_type}{ext}'.format(
+        return '{course}-{term}-{number}-{instructors}-{type}{ext}'.format(
             course=self.course_instance.course.get_url_name(),
-            term=self.course_instance.term.get_url_name(), exam=self.exam,
+            term=self.course_instance.term.get_url_name(),
+            number=self.exam_number,
             instructors='_'.join(
                 [i.last_name for i in self.get_instructors()]),
-            exam_type=self.exam_type, ext=self.file_ext)
+            type=self.exam_type, ext=self.file_ext)
 
 
 class ExamFlag(models.Model):
@@ -166,36 +183,24 @@ def delete_file(sender, instance, **kwargs):
     # with deleting the exam model
 
 
-def hide_exam_limit_exceeded(sender, instance, **kwargs):
-    """Hide an exam if it has been flagged more than ExamFlag.LIMIT times.
-    Unhide an exam if flag has been resolved and professors aren't blacklisted.
-    Also updates the amount of flags an exam has every time a flag is updated.
-    """
-    instance.exam.flags = ExamFlag.objects.filter(
-        exam=instance.exam, resolved=False).count()
-    if instance.exam.flags > ExamFlag.LIMIT:
-        instance.exam.approved = False
-    elif instance.exam.has_permission():
-        instance.exam.approved = True
-    instance.exam.save()
+def update_exam_flags(sender, instance, **kwargs):
+    """Updates the amount of flags an exam has every time a flag is updated."""
+    exam = Exam.objects.get(pk=instance.exam.pk)
+    exam.flags = ExamFlag.objects.filter(exam=exam, resolved=False).count()
+    exam.save()
 
 
-def hide_exam_blacklisted(sender, instance, **kwargs):
-    """Hide all exams associated with a blacklisted professor.
-    Unhide all unflagged exams if a professor has been unblacklisted.
-    Also updates whether an exam is blacklisted every time an
+def update_exam_blacklist(sender, instance, **kwargs):
+    """Updates whether an exam is blacklisted every time an
     instructor permission is updated.
     """
-    query = Exam.objects.filter(
+    exams = Exam.objects.filter(
         course_instance__instructors=instance.instructor)
     if instance.permission_allowed is False:
-        query.exclude(approved=False, blacklisted=True).update(
-            approved=False, blacklisted=True)
+        exams.exclude(blacklisted=True).update(blacklisted=True)
     else:
-        query = query.filter(flags__lte=ExamFlag.LIMIT)
-        for exam in query:
+        for exam in exams:
             if exam.has_permission():
-                exam.approved = True
                 exam.blacklisted = False
                 exam.save()
 
@@ -203,5 +208,5 @@ def hide_exam_blacklisted(sender, instance, **kwargs):
 post_init.connect(assign_unique_id, sender=Exam)
 post_save.connect(create_new_permissions, sender=Exam)
 post_delete.connect(delete_file, sender=Exam)
-post_save.connect(hide_exam_limit_exceeded, sender=ExamFlag)
-post_save.connect(hide_exam_blacklisted, sender=InstructorPermission)
+post_save.connect(update_exam_flags, sender=ExamFlag)
+post_save.connect(update_exam_blacklist, sender=InstructorPermission)

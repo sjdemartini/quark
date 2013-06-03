@@ -185,7 +185,7 @@ PROJECT_APPS = [
     'quark.course_surveys',
     'quark.emailer',
     'quark.events',
-    'quark.exam_files',
+    'quark.exams',
     'quark.minutes',
     'quark.past_presidents',
     'quark.pie_events',

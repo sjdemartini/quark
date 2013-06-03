@@ -7,18 +7,21 @@ from django.test import TestCase
 
 from quark.base.models import Term
 from quark.courses.models import CourseInstance
-from quark.exam_files.models import Exam
-from quark.exam_files.models import ExamFlag
+from quark.exams.models import Exam
+from quark.exams.models import ExamFlag
 
 
 def make_test_exam(number):
     test_file = open('test.txt', 'w+')
     test_file.write('This is a test file.')
     test_exam = Exam(
-        course_instance=CourseInstance.objects.get(pk=number), exam=Exam.MT1,
-        exam_type=Exam.EXAM, approved=True, exam_file=File(test_file))
+        course_instance=CourseInstance.objects.get(pk=number),
+        exam_number=Exam.MT1, exam_type=Exam.EXAM, verified=True,
+        exam_file=File(test_file))
     test_exam.save()
     test_exam.course_instance.course.department.save()
+    test_exam.course_instance.course.save()
+    test_exam.course_instance.save()
     return test_exam
 
 
@@ -41,10 +44,10 @@ class ExamTest(TestCase):
         self.assertEquals(self.test_exam.get_term_name(), 'Spring 2013')
         self.assertEquals(
             unicode(self.test_exam),
-            '{course}-{term}-{exam}-{instructors}-{exam_type}{ext}'.format(
-                course='tst-dep-1100', term=Term.SPRING + '2013',
-                exam=Exam.MT1, instructors='Beta_Tau',
-                exam_type=Exam.EXAM, ext='.txt'))
+            '{course}-{term}-{number}-{instructors}-{type}{ext}'.format(
+                course='test100', term=Term.SPRING + '2013',
+                number=Exam.MT1, instructors='Beta_Tau',
+                type=Exam.EXAM, ext='.txt'))
 
 
 class ExamFlagTest(TestCase):
@@ -111,7 +114,7 @@ class DeleteFileTest(TestCase):
         self.assertFalse(os.path.exists(file_name))
 
 
-class HideExamTest(TestCase):
+class ExamListTest(TestCase):
     fixtures = ['test/course_instance.yaml']
 
     def setUp(self):
@@ -134,172 +137,245 @@ class HideExamTest(TestCase):
         shutil.rmtree(folder3, ignore_errors=True)
         os.remove('test.txt')
 
+    def test_response(self):
+        resp = self.client.get('/courses/Test/100/')
+        # A successful HTTP GET request has status code 200
+        self.assertEqual(resp.status_code, 200)
+
     def test_multiple_blacklists_and_exams(self):
         """Permission 1 affects only Exam 1.
         Permission 2 affects Exam 1 and Exam 2.
         Permission 3 affects Exam 2 and Exam 3.
         """
-        # pylint: disable=W0612
+        # pylint: disable=W0612,R0915
+        resp = self.client.get('/courses/Test/100/')
         permission1 = list(self.test_exam1.get_permissions())[0]
         permission2 = list(self.test_exam2.get_permissions())[0]
         permission3 = list(self.test_exam3.get_permissions())[0]
+        # All exams with 0 blacklists
+        self.assertEqual(resp.context['exams'].count(), 3)
+        # Exam 1 with 1 blacklist, Exam 2 with 0, Exam 3 with 0
         permission1.permission_allowed = False
         permission1.save()
         self.test_exam1 = Exam.objects.get(pk=self.test_exam1.pk)
         self.test_exam2 = Exam.objects.get(pk=self.test_exam2.pk)
         self.test_exam3 = Exam.objects.get(pk=self.test_exam3.pk)
-        # Exam 1 with 1 blacklist, Exam 2 with 0, Exam 3 with 0
-        self.assertFalse(self.test_exam1.approved)
-        self.assertTrue(self.test_exam2.approved)
-        self.assertTrue(self.test_exam3.approved)
+        self.assertTrue(self.test_exam1.blacklisted)
+        self.assertFalse(self.test_exam2.blacklisted)
+        self.assertFalse(self.test_exam3.blacklisted)
+        resp = self.client.get('/courses/Test/100/')
+        self.assertEqual(resp.context['exams'].count(), 2)
+        # Exam 1 with 2 blacklists, Exam 2 with 1, Exam 3 with 0
         permission2.permission_allowed = False
         permission2.save()
         self.test_exam1 = Exam.objects.get(pk=self.test_exam1.pk)
         self.test_exam2 = Exam.objects.get(pk=self.test_exam2.pk)
         self.test_exam3 = Exam.objects.get(pk=self.test_exam3.pk)
-        # Exam 1 with 2 blacklists, Exam 2 with 1, Exam 3 with 0
-        self.assertFalse(self.test_exam1.approved)
-        self.assertFalse(self.test_exam2.approved)
-        self.assertTrue(self.test_exam3.approved)
+        self.assertTrue(self.test_exam1.blacklisted)
+        self.assertTrue(self.test_exam2.blacklisted)
+        self.assertFalse(self.test_exam3.blacklisted)
+        resp = self.client.get('/courses/Test/100/')
+        self.assertEqual(resp.context['exams'].count(), 1)
+        # Exam 1 with 1 blacklists, Exam 2 with 0, Exam 3 with 0
         permission2.permission_allowed = True
         permission2.save()
         self.test_exam1 = Exam.objects.get(pk=self.test_exam1.pk)
         self.test_exam2 = Exam.objects.get(pk=self.test_exam2.pk)
         self.test_exam3 = Exam.objects.get(pk=self.test_exam3.pk)
-        # Exam 1 with 1 blacklists, Exam 2 with 0, Exam 3 with 0
-        self.assertFalse(self.test_exam1.approved)
-        self.assertTrue(self.test_exam2.approved)
-        self.assertTrue(self.test_exam3.approved)
+        self.assertTrue(self.test_exam1.blacklisted)
+        self.assertFalse(self.test_exam2.blacklisted)
+        self.assertFalse(self.test_exam3.blacklisted)
+        resp = self.client.get('/courses/Test/100/')
+        self.assertEqual(resp.context['exams'].count(), 2)
+        # Exam 1 with 1 blacklists, Exam 2 with 1, Exam 3 with 1
         permission3.permission_allowed = False
         permission3.save()
         self.test_exam1 = Exam.objects.get(pk=self.test_exam1.pk)
         self.test_exam2 = Exam.objects.get(pk=self.test_exam2.pk)
         self.test_exam3 = Exam.objects.get(pk=self.test_exam3.pk)
-        # Exam 1 with 1 blacklists, Exam 2 with 1, Exam 3 with 1
-        self.assertFalse(self.test_exam1.approved)
-        self.assertFalse(self.test_exam2.approved)
-        self.assertFalse(self.test_exam3.approved)
+        self.assertTrue(self.test_exam1.blacklisted)
+        self.assertTrue(self.test_exam2.blacklisted)
+        self.assertTrue(self.test_exam3.blacklisted)
+        resp = self.client.get('/courses/Test/100/')
+        self.assertEqual(resp.context['exams'].count(), 0)
+        # Exam 1 with 2 blacklists, Exam 2 with 2, Exam 3 with 1
         permission2.permission_allowed = False
         permission2.save()
         self.test_exam1 = Exam.objects.get(pk=self.test_exam1.pk)
         self.test_exam2 = Exam.objects.get(pk=self.test_exam2.pk)
         self.test_exam3 = Exam.objects.get(pk=self.test_exam3.pk)
-        # Exam 1 with 2 blacklists, Exam 2 with 2, Exam 3 with 1
-        self.assertFalse(self.test_exam1.approved)
-        self.assertFalse(self.test_exam2.approved)
-        self.assertFalse(self.test_exam3.approved)
+        self.assertTrue(self.test_exam1.blacklisted)
+        self.assertTrue(self.test_exam2.blacklisted)
+        self.assertTrue(self.test_exam3.blacklisted)
+        resp = self.client.get('/courses/Test/100/')
+        self.assertEqual(resp.context['exams'].count(), 0)
+        # Exam 1 with 2 blacklists, Exam 2 with 1, Exam 3 with 0
         permission3.permission_allowed = True
         permission3.save()
         self.test_exam1 = Exam.objects.get(pk=self.test_exam1.pk)
         self.test_exam2 = Exam.objects.get(pk=self.test_exam2.pk)
         self.test_exam3 = Exam.objects.get(pk=self.test_exam3.pk)
-        # Exam 1 with 2 blacklists, Exam 2 with 1, Exam 3 with 0
-        self.assertFalse(self.test_exam1.approved)
-        self.assertFalse(self.test_exam2.approved)
-        self.assertTrue(self.test_exam3.approved)
+        self.assertTrue(self.test_exam1.blacklisted)
+        self.assertTrue(self.test_exam2.blacklisted)
+        self.assertFalse(self.test_exam3.blacklisted)
+        resp = self.client.get('/courses/Test/100/')
+        self.assertEqual(resp.context['exams'].count(), 1)
+        # Exam 1 with 1 blacklist, Exam 2 with 0, Exam 3 with 0
         permission2.permission_allowed = True
         permission2.save()
         self.test_exam1 = Exam.objects.get(pk=self.test_exam1.pk)
         self.test_exam2 = Exam.objects.get(pk=self.test_exam2.pk)
         self.test_exam3 = Exam.objects.get(pk=self.test_exam3.pk)
-        # Exam 1 with 1 blacklist, Exam 2 with 0, Exam 3 with 0
-        self.assertFalse(self.test_exam1.approved)
-        self.assertTrue(self.test_exam2.approved)
-        self.assertTrue(self.test_exam3.approved)
+        self.assertTrue(self.test_exam1.blacklisted)
+        self.assertFalse(self.test_exam2.blacklisted)
+        self.assertFalse(self.test_exam3.blacklisted)
+        resp = self.client.get('/courses/Test/100/')
+        self.assertEqual(resp.context['exams'].count(), 2)
+        # Exam 1 with 0 blacklists, Exam 2 with 0, Exam 3 with 0
         permission1.permission_allowed = True
         permission1.save()
         self.test_exam1 = Exam.objects.get(pk=self.test_exam1.pk)
         self.test_exam2 = Exam.objects.get(pk=self.test_exam2.pk)
         self.test_exam3 = Exam.objects.get(pk=self.test_exam3.pk)
-        # Exam 1 with 0 blacklists, Exam 2 with 0, Exam 3 with 0
-        self.assertTrue(self.test_exam1.approved)
-        self.assertTrue(self.test_exam2.approved)
-        self.assertTrue(self.test_exam3.approved)
+        self.assertFalse(self.test_exam1.blacklisted)
+        self.assertFalse(self.test_exam2.blacklisted)
+        self.assertFalse(self.test_exam3.blacklisted)
+        resp = self.client.get('/courses/Test/100/')
+        self.assertEqual(resp.context['exams'].count(), 3)
+        # Exam 1 with 0 blacklist, Exam 2 with 1, Exam 3 with 1
         permission3.permission_allowed = False
         permission3.save()
         self.test_exam1 = Exam.objects.get(pk=self.test_exam1.pk)
         self.test_exam2 = Exam.objects.get(pk=self.test_exam2.pk)
         self.test_exam3 = Exam.objects.get(pk=self.test_exam3.pk)
-        # Exam 1 with 0 blacklist, Exam 2 with 1, Exam 3 with 1
-        self.assertTrue(self.test_exam1.approved)
-        self.assertFalse(self.test_exam2.approved)
-        self.assertFalse(self.test_exam3.approved)
+        self.assertFalse(self.test_exam1.blacklisted)
+        self.assertTrue(self.test_exam2.blacklisted)
+        self.assertTrue(self.test_exam3.blacklisted)
+        resp = self.client.get('/courses/Test/100/')
+        self.assertEqual(resp.context['exams'].count(), 1)
+        # Exam 1 with 1 blacklist, Exam 2 with 2, Exam 3 with 1
         permission2.permission_allowed = False
         permission2.save()
         self.test_exam1 = Exam.objects.get(pk=self.test_exam1.pk)
         self.test_exam2 = Exam.objects.get(pk=self.test_exam2.pk)
         self.test_exam3 = Exam.objects.get(pk=self.test_exam3.pk)
-        # Exam 1 with 1 blacklist, Exam 2 with 2, Exam 3 with 1
-        self.assertFalse(self.test_exam1.approved)
-        self.assertFalse(self.test_exam2.approved)
-        self.assertFalse(self.test_exam3.approved)
+        self.assertTrue(self.test_exam1.blacklisted)
+        self.assertTrue(self.test_exam2.blacklisted)
+        self.assertTrue(self.test_exam3.blacklisted)
+        resp = self.client.get('/courses/Test/100/')
+        self.assertEqual(resp.context['exams'].count(), 0)
+        # Exam 1 with 0 blacklists, Exam 2 with 1, Exam 3 with 1
         permission2.permission_allowed = True
         permission2.save()
         self.test_exam1 = Exam.objects.get(pk=self.test_exam1.pk)
         self.test_exam2 = Exam.objects.get(pk=self.test_exam2.pk)
         self.test_exam3 = Exam.objects.get(pk=self.test_exam3.pk)
-        # Exam 1 with 0 blacklists, Exam 2 with 1, Exam 3 with 1
-        self.assertTrue(self.test_exam1.approved)
-        self.assertFalse(self.test_exam2.approved)
-        self.assertFalse(self.test_exam3.approved)
+        self.assertFalse(self.test_exam1.blacklisted)
+        self.assertTrue(self.test_exam2.blacklisted)
+        self.assertTrue(self.test_exam3.blacklisted)
+        resp = self.client.get('/courses/Test/100/')
+        self.assertEqual(resp.context['exams'].count(), 1)
+        # Exam 1 with 0 blacklists, Exam 2 with 0, Exam 3 with 0
         permission3.permission_allowed = True
         permission3.save()
         self.test_exam1 = Exam.objects.get(pk=self.test_exam1.pk)
         self.test_exam2 = Exam.objects.get(pk=self.test_exam2.pk)
         self.test_exam3 = Exam.objects.get(pk=self.test_exam3.pk)
-        # Exam 1 with 0 blacklists, Exam 2 with 0, Exam 3 with 0
-        self.assertTrue(self.test_exam1.approved)
-        self.assertTrue(self.test_exam2.approved)
-        self.assertTrue(self.test_exam3.approved)
+        self.assertFalse(self.test_exam1.blacklisted)
+        self.assertFalse(self.test_exam2.blacklisted)
+        self.assertFalse(self.test_exam3.blacklisted)
+        resp = self.client.get('/courses/Test/100/')
+        self.assertEqual(resp.context['exams'].count(), 3)
 
-    def test_exam_limit_and_blacklist(self):
+    def test_flags_verified_and_blacklist(self):
+        """Tests all 8 combinations of flags, blacklisted, and verified."""
         # pylint: disable=W0612
-        self.assertTrue(self.test_exam1.approved)
+        self.assertTrue(self.test_exam1.flags <= ExamFlag.LIMIT)
+        self.assertTrue(not self.test_exam1.blacklisted)
+        self.assertTrue(self.test_exam1.verified)
+        resp = self.client.get('/courses/Test/100/')
+        self.assertEqual(resp.context['exams'].count(), 3)
+        # Under flag limit, not blacklisted, verified
         exam_flag_list = []
         for i in range(0, ExamFlag.LIMIT):
             exam_flag = ExamFlag(exam=self.test_exam1)
             exam_flag.save()
             exam_flag_list.append(exam_flag)
-        # Under flag limit, not blacklisted
-        self.assertTrue(self.test_exam1.approved)
+        self.test_exam1 = Exam.objects.get(pk=self.test_exam1.pk)
+        self.assertTrue(self.test_exam1.flags <= ExamFlag.LIMIT)
+        self.assertTrue(not self.test_exam1.blacklisted)
+        self.assertTrue(self.test_exam1.verified)
+        resp = self.client.get('/courses/Test/100/')
+        self.assertEqual(resp.context['exams'].count(), 3)
+        # Over flag limit, not blacklisted, verified
         last_exam_flag = ExamFlag(exam=self.test_exam1)
         last_exam_flag.save()
-        # Over flag limit, not blacklisted
-        self.assertFalse(self.test_exam1.approved)
+        self.test_exam1 = Exam.objects.get(pk=self.test_exam1.pk)
+        self.assertFalse(self.test_exam1.flags <= ExamFlag.LIMIT)
+        self.assertTrue(not self.test_exam1.blacklisted)
+        self.assertTrue(self.test_exam1.verified)
+        resp = self.client.get('/courses/Test/100/')
+        self.assertEqual(resp.context['exams'].count(), 2)
+        # Under flag limit, blacklisted, verified
+        exam_flag_list[0].resolved = True
+        exam_flag_list[0].save()
         permission1 = list(self.test_exam1.get_permissions())[0]
         permission1.permission_allowed = False
         permission1.save()
         self.test_exam1 = Exam.objects.get(pk=self.test_exam1.pk)
-        # Over flag limit, blacklisted
-        self.assertFalse(self.test_exam1.approved)
-        self.test_exam1 = Exam.objects.get(pk=self.test_exam1.pk)
+        self.assertTrue(self.test_exam1.flags <= ExamFlag.LIMIT)
+        self.assertFalse(not self.test_exam1.blacklisted)
+        self.assertTrue(self.test_exam1.verified)
+        resp = self.client.get('/courses/Test/100/')
+        self.assertEqual(resp.context['exams'].count(), 2)
+        # Under flag limit, not blacklisted, not verified
         permission1.permission_allowed = True
         permission1.save()
         self.test_exam1 = Exam.objects.get(pk=self.test_exam1.pk)
-        # Over flag limit, not blacklisted after being blacklisted
-        self.assertFalse(self.test_exam1.approved)
-        exam_flag_list[0].resolved = True
-        exam_flag_list[0].save()
-        self.test_exam1 = Exam.objects.get(pk=self.test_exam1.pk)
-        # Under flag limit after being over, not blacklisted
-        self.assertTrue(self.test_exam1.approved)
-        permission1.permission_allowed = False
-        permission1.save()
-        self.test_exam1 = Exam.objects.get(pk=self.test_exam1.pk)
-        # Under flag limit, blacklisted
-        self.assertFalse(self.test_exam1.approved)
+        self.test_exam1.verified = False
+        self.test_exam1.save()
+        self.assertTrue(self.test_exam1.flags <= ExamFlag.LIMIT)
+        self.assertTrue(not self.test_exam1.blacklisted)
+        self.assertFalse(self.test_exam1.verified)
+        resp = self.client.get('/courses/Test/100/')
+        self.assertEqual(resp.context['exams'].count(), 2)
+        # Over flag limit, not blacklisted, not verified
         exam_flag_list[0].resolved = False
         exam_flag_list[0].save()
         self.test_exam1 = Exam.objects.get(pk=self.test_exam1.pk)
-        # Over flag limit, blacklisted
-        self.assertFalse(self.test_exam1.approved)
+        self.assertFalse(self.test_exam1.flags <= ExamFlag.LIMIT)
+        self.assertTrue(not self.test_exam1.blacklisted)
+        self.assertFalse(self.test_exam1.verified)
+        resp = self.client.get('/courses/Test/100/')
+        self.assertEqual(resp.context['exams'].count(), 2)
+        # Over flag limit, blacklisted, verified
+        self.test_exam1.verified = True
+        self.test_exam1.save()
+        permission1.permission_allowed = False
+        permission1.save()
+        self.test_exam1 = Exam.objects.get(pk=self.test_exam1.pk)
+        self.assertFalse(self.test_exam1.flags <= ExamFlag.LIMIT)
+        self.assertFalse(not self.test_exam1.blacklisted)
+        self.assertTrue(self.test_exam1.verified)
+        resp = self.client.get('/courses/Test/100/')
+        self.assertEqual(resp.context['exams'].count(), 2)
+        # Under flag limit, blacklisted, not verified
         exam_flag_list[0].resolved = True
         exam_flag_list[0].save()
         self.test_exam1 = Exam.objects.get(pk=self.test_exam1.pk)
-        # Under flag limit after being over, blacklisted
-        self.assertFalse(self.test_exam1.approved)
-        permission1.permission_allowed = True
-        permission1.save()
+        self.test_exam1.verified = False
+        self.test_exam1.save()
+        self.assertTrue(self.test_exam1.flags <= ExamFlag.LIMIT)
+        self.assertFalse(not self.test_exam1.blacklisted)
+        self.assertFalse(self.test_exam1.verified)
+        resp = self.client.get('/courses/Test/100/')
+        self.assertEqual(resp.context['exams'].count(), 2)
+        # Over flag limit, blacklisted, not verified
+        exam_flag_list[0].resolved = False
+        exam_flag_list[0].save()
         self.test_exam1 = Exam.objects.get(pk=self.test_exam1.pk)
-        # Under flag limit, not blacklisted
-        self.assertTrue(self.test_exam1.approved)
+        self.assertFalse(self.test_exam1.flags <= ExamFlag.LIMIT)
+        self.assertFalse(not self.test_exam1.blacklisted)
+        self.assertFalse(self.test_exam1.verified)
+        resp = self.client.get('/courses/Test/100/')
+        self.assertEqual(resp.context['exams'].count(), 2)

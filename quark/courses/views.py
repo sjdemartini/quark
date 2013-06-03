@@ -10,7 +10,7 @@ from quark.courses.models import CourseInstance
 from quark.courses.models import Department
 from quark.courses.models import Instructor
 from quark.course_surveys.models import Survey
-from quark.exam_files.models import Exam
+from quark.exams.models import Exam
 
 
 class DepartmentListView(ListView):
@@ -19,9 +19,9 @@ class DepartmentListView(ListView):
 
     def get_queryset(self):
         courses_with_surveys = Course.objects.filter(survey__published=True)
-        courses_with_exams = Course.objects.filter(
-            courseinstance__in=CourseInstance.objects.filter(
-                exam__approved=True))
+        course_ids = Exam.objects.approved_set().values_list(
+            'course_instance__course_id', flat=True)
+        courses_with_exams = Course.objects.filter(id__in=course_ids)
         return Department.objects.filter(
             Q(course__in=courses_with_surveys) |
             Q(course__in=courses_with_exams)).order_by('long_name').distinct()
@@ -38,10 +38,14 @@ class CourseListView(ListView):
         return super(CourseListView, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
+        course_instance_ids = Exam.objects.approved_set().values_list(
+            'course_instance_id', flat=True)
+        course_instances_with_exams = CourseInstance.objects.filter(
+            id__in=course_instance_ids)
         courses_query = Course.objects.filter(
             Q(survey__published=True) |
-            Q(courseinstance__in=CourseInstance.objects.filter(
-                exam__approved=True)), department=self.dept).distinct()
+            Q(courseinstance__in=course_instances_with_exams),
+            department=self.dept).distinct()
         if not courses_query.exists():
             raise Http404
         return courses_query
@@ -68,7 +72,7 @@ class CourseDetailView(DetailView):
         context = super(CourseDetailView, self).get_context_data(**kwargs)
         context['course_instances'] = CourseInstance.objects.filter(
             course=self.course)
-        context['exams'] = Exam.objects.filter(
+        context['exams'] = Exam.objects.approved_set().filter(
             course_instance__course=self.course)
         context['surveys'] = Survey.objects.filter(course=self.course)
         context['instructors'] = Instructor.objects.filter(
@@ -108,7 +112,7 @@ class InstructorDetailView(DetailView):
         context = super(InstructorDetailView, self).get_context_data(**kwargs)
         context['course_instances'] = CourseInstance.objects.filter(
             instructors=self.instructor)
-        context['exams'] = Exam.objects.filter(
+        context['exams'] = Exam.objects.approved_set().filter(
             course_instance__in=context['course_instances'])
         context['surveys'] = Survey.objects.filter(instructor=self.instructor)
         context['courses'] = Course.objects.filter(
