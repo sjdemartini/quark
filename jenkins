@@ -12,6 +12,9 @@ source /home/tbp/virtualenv/django15/bin/activate
 # Clean up compiled python files
 find . -type f -name "*.py[co]" -delete
 
+# Go to directory of the script
+pushd $(dirname $0)
+
 # The following conditions must be true for jenkins to return true:
 #   1. The tests must pass.
 #   2. pylint must be perfect, as evidenced by a perfect score of "10.00/10".
@@ -20,21 +23,29 @@ find . -type f -name "*.py[co]" -delete
 # flag. Jenkins will report the other lint errors in pretty graphs though.
 python manage.py jenkins \
     --settings=quark.settings.test \
-    --pep8-max-line-length=80
+    --pep8-max-line-length=80 \
+# Error code should be 0 (no errors)
 jenkins_status=$?
+
+# Check if pylint is perfect (error code should be 0: grep should find that line)
 grep -q "Your code has been rated at 10.00/10" reports/pylint.report
 pylint_status=$?
+
+# Check if pep8 is perfect (error code should not be 0: grep shouldn't find that line)
 grep -q "py" reports/pep8.report
 pep8_status=$?
 
-if [[ ($jenkins_status == 0) && ($pylint_status == 0) && ($pep8_status != 0) ]]; then
+success=$(($jenkins_status != 0 || $pylint_status != 0 || $pep8_status == 0))
+echo $success
+
+if [[ $success == 0 ]]; then
     echo -e "\nEverything looks good!"
-    exit 0
 else
     if [[ $pylint_status != 0 ]]; then
         echo -e "\nPYLINT VIOLATIONS"
         echo "================================================================"
-        grep "^quark" reports/pylint.report
+        # Print until first blank line (the lines that say the errors)
+        awk '/^\s*$/{exit}1' reports/pylint.report
     else
         echo -e "\nNo pylint violations."
     fi
@@ -42,11 +53,14 @@ else
     if [[ $pep8_status == 0 ]]; then
         echo -e "\nPEP8 VIOLATIONS"
         echo "================================================================"
+        # Print the whole file (all lines say the errors)
         cat reports/pep8.report
     else
         echo -e "\nNo pep8 violations."
     fi
 
     echo -e "\nPlease fix all errors before doing git review!"
-    exit 1
 fi
+
+popd
+exit $success
