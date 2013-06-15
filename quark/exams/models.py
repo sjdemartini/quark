@@ -4,7 +4,6 @@ import uuid
 from django.conf import settings
 from django.db import models
 from django.db.models.signals import post_delete
-from django.db.models.signals import post_init
 from django.db.models.signals import post_save
 
 from quark.auth.models import User
@@ -57,6 +56,11 @@ class Exam(models.Model):
     # Constants
     EXAM_FILES_LOCATION = 'exam_files'
 
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.unique_id = uuid.uuid4().hex
+        super(Exam, self).save(*args, **kwargs)
+
     def rename_file(instance, filename):
         """Files are stored in directories inside the exam files directory
         corresponding to the first two characters of the unique id. File names
@@ -89,8 +93,8 @@ class Exam(models.Model):
     def get_number(self):
         return self.course_instance.course.number
 
-    def get_term(self):
-        return self.course_instance.term.term
+    def get_term_display(self):
+        return self.course_instance.term.get_term_display()
 
     def get_year(self):
         return self.course_instance.term.year
@@ -159,11 +163,6 @@ class InstructorPermission(models.Model):
         return unicode(self.instructor) + ' Permission'
 
 
-def assign_unique_id(sender, instance, **kwargs):
-    """Assign a unique 32-character alphanumeric id to a newly created Exam."""
-    instance.unique_id = uuid.uuid4().hex
-
-
 def create_new_permissions(sender, instance, **kwargs):
     """Check if new InstructorPermissions need to be created after an exam
     is saved.
@@ -205,7 +204,6 @@ def update_exam_blacklist(sender, instance, **kwargs):
                 exam.save()
 
 
-post_init.connect(assign_unique_id, sender=Exam)
 post_save.connect(create_new_permissions, sender=Exam)
 post_delete.connect(delete_file, sender=Exam)
 post_save.connect(update_exam_flags, sender=ExamFlag)

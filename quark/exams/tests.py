@@ -41,6 +41,7 @@ class ExamTest(TestCase):
     def test_properites(self):
         self.assertEquals(self.test_exam.file_ext, '.txt')
         self.assertNotEqual(self.test_exam.unique_id, '')
+        self.assertEquals(self.test_exam.get_term_display(), 'Spring')
         self.assertEquals(self.test_exam.get_term_name(), 'Spring 2013')
         self.assertEquals(
             unicode(self.test_exam),
