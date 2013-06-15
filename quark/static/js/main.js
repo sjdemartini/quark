@@ -48,7 +48,7 @@ $(function() {
     newHTML[0].closedSubMenu = true;
     // actuallyClosed is whether the tab is actually closed
     newHTML[0].actuallyClosed = false;
-    newHTML.bind('click.subMenu', function() {
+    newHTML.bind('click.subMenu', function(event) {
       event.preventDefault();
       heightToggle($(this).next().next());
       this.closedSubMenu = !this.closedSubMenu;
