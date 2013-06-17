@@ -53,6 +53,16 @@ td {
   border-bottom: 1px dashed #666;
 }
 
+/* Make tables used to render forms use ordinary width and borders */
+form table {
+  margin: 10px 0;
+  width: auto;
+}
+
+form td,
+form th {
+  border: 0;
+}
 
 /*****  TYPOGRAPHY  *****/
 body {

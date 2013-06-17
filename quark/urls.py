@@ -1,5 +1,7 @@
 from django.conf import settings
-from django.conf.urls import patterns, include, url
+from django.conf.urls import include
+from django.conf.urls import patterns
+from django.conf.urls import url
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
@@ -9,7 +11,10 @@ from django.views.generic import TemplateView
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    url(r'^$', TemplateView.as_view(template_name='index.html'), name='index'),
+    url(r'^$', TemplateView.as_view(template_name='index.html'), name='home'),
+    url(r'^accounts/', include('quark.auth.urls',
+                               app_name='auth',
+                               namespace='auth')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^courses/', include('quark.courses.urls',
                               app_name='courses',

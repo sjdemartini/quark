@@ -77,13 +77,13 @@
                     {% endif %}
                   </ul>
                 </li>
-                <li><a href="{{ logout_url }}?next={{ request.path }}">Log Out</a></li>
+                <li><a href="{% url 'auth:logout' %}?next={{ request.path }}">Log Out</a></li>
               </ul>
               {% endwith is_member %}
               {% endwith is_officer %}
               {% endwith is_candidate %}
               {% else %} {# if not authenticated #}
-              <a href="{{ login_url }}?next={{ request.path }}">Log in</a>
+              <a href="{% url 'auth:login' %}?next={{ request.path }}">Log In</a>
               {% endif %}
               {% endblock login_dropdown %}
             </div>
@@ -91,16 +91,16 @@
           </div><!-- end login -->
 
           <div id="logo-group">
-            <a href="" id="logo-link"><img src="{% static "images/bent_circle.png" %}" id="logo">
+            <a href="{% url 'home' %}" id="logo-link"><img src="{% static "images/bent_circle.png" %}" id="logo">
               <div id="logo-name">Tau Beta Pi</div>
               <div id="logo-location">UC Berkeley</div></a>
-            <a href="" id="logo-overlay"></a>
+            <a href="{% url 'home' %}" id="logo-overlay"></a>
           </div>
         </div><!-- end header-focus -->
       </div><!-- end header -->
       {% endblock header %}
 
-      {% block nav %}{% include "nav.html" %}{% endblock nav %}
+      {% block nav %}{% include 'nav.html' %}{% endblock nav %}
       {% block subheader %}{% endblock subheader %}
 
       <div id="container">
