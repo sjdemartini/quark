@@ -3,7 +3,7 @@ import uuid
 
 from django.conf import settings
 from django.db import models
-from django.db.models.signals import post_delete
+from django.db.models.signals import pre_delete
 from django.db.models.signals import post_save
 
 from quark.courses.models import CourseInstance
@@ -55,11 +55,6 @@ class Exam(models.Model):
     # Constants
     EXAM_FILES_LOCATION = 'exam_files'
 
-    def save(self, *args, **kwargs):
-        if not self.pk:
-            self.unique_id = uuid.uuid4().hex
-        super(Exam, self).save(*args, **kwargs)
-
     def rename_file(instance, filename):
         """Files are stored in directories inside the exam files directory
         corresponding to the first two characters of the unique id. File names
@@ -87,26 +82,30 @@ class Exam(models.Model):
 
     objects = ExamManager()
 
-    def get_department(self):
+    @property
+    def department(self):
         return self.course_instance.course.department
 
-    def get_number(self):
+    @property
+    def number(self):
         return self.course_instance.course.number
 
-    def get_term_display(self):
-        return self.course_instance.term.get_term_display()
+    @property
+    def term(self):
+        return self.course_instance.term
 
-    def get_year(self):
-        return self.course_instance.term.year
-
-    def get_instructors(self):
-        """Return a QuerySet of all instructors."""
+    @property
+    def instructors(self):
+        """Return a QuerySet of all instructors associated with the exam."""
         return self.course_instance.instructors.all()
 
-    def get_permissions(self):
-        """Return a QuerySet of all instructor permissions."""
+    @property
+    def permissions(self):
+        """Return a QuerySet of all instructor permissions associated
+        with the exam.
+        """
         return InstructorPermission.objects.filter(
-            instructor__in=self.get_instructors())
+            instructor__in=self.instructors)
 
     def has_permission(self):
         """Return whether this exam has permission from all instructors
@@ -116,9 +115,10 @@ class Exam(models.Model):
         return not InstructorPermission.objects.filter(
             instructor__in=instructors, permission_allowed=False).exists()
 
-    def get_term_name(self):
-        """Return a human-readable representation of the exam's term."""
-        return self.course_instance.term.verbose_name()
+    def get_folder(self):
+        """Return the path of the folder where the exam file is."""
+        return os.path.join(
+            settings.MEDIA_ROOT, Exam.EXAM_FILES_LOCATION, self.unique_id[0:2])
 
     def get_absolute_pathname(self):
         """Return the absolute path of the exam file."""
@@ -126,14 +126,22 @@ class Exam(models.Model):
                             str(self.unique_id)[0:2],
                             self.unique_id + self.file_ext)
 
+    def save(self, *args, **kwargs):
+        """Assign a unique for a newly created exam."""
+        if not self.pk:
+            self.unique_id = uuid.uuid4().hex
+        super(Exam, self).save(*args, **kwargs)
+
     def __unicode__(self):
-        """Return a human-readable representation of the exam file."""
+        """Return a human-readable representation of the exam file.
+        Also the file name that is used when the exam is downloaded.
+        """
         return '{course}-{term}-{number}-{instructors}-{type}{ext}'.format(
             course=self.course_instance.course.get_url_name(),
             term=self.course_instance.term.get_url_name(),
             number=self.exam_number,
             instructors='_'.join(
-                [i.last_name for i in self.get_instructors()]),
+                [i.last_name for i in self.instructors]),
             type=self.exam_type, ext=self.file_ext)
 
 
@@ -155,8 +163,16 @@ class ExamFlag(models.Model):
 
 
 class InstructorPermission(models.Model):
+    # Permission Allowed constants
+    PERMISSION_ALLOWED_CHOICES = (
+        (None, 'Unknown'),
+        (True, 'Allow'),
+        (False, 'Deny'),
+    )
+
     instructor = models.OneToOneField(Instructor)
-    permission_allowed = models.NullBooleanField()
+    permission_allowed = models.NullBooleanField(
+        choices=PERMISSION_ALLOWED_CHOICES)
     correspondence = models.TextField(blank=True)
 
     def __unicode__(self):
@@ -205,6 +221,6 @@ def update_exam_blacklist(sender, instance, **kwargs):
 
 
 post_save.connect(create_new_permissions, sender=Exam)
-post_delete.connect(delete_file, sender=Exam)
+pre_delete.connect(delete_file, sender=Exam)
 post_save.connect(update_exam_flags, sender=ExamFlag)
 post_save.connect(update_exam_blacklist, sender=InstructorPermission)

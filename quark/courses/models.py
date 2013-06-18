@@ -31,6 +31,9 @@ class Department(models.Model):
         self.abbreviation = self.abbreviation.upper().strip()
         super(Department, self).save(*args, **kwargs)
 
+    class Meta:
+        ordering = ('long_name',)
+
 
 class Course(models.Model):
     department = models.ForeignKey(Department)

@@ -4,6 +4,7 @@ import shutil
 from django.conf import settings
 from django.core.files import File
 from django.test import TestCase
+from django.test.utils import override_settings
 
 from quark.base.models import Term
 from quark.courses.models import CourseInstance
@@ -25,118 +26,54 @@ def make_test_exam(number):
     return test_exam
 
 
+@override_settings(
+    MEDIA_ROOT=os.path.join(settings.WORKSPACE_ROOT, 'media', 'tests'))
 class ExamTest(TestCase):
-    fixtures = ['test/course_instance.yaml']
-
-    def setUp(self):
-        self.test_exam = make_test_exam(10000)
-        self.folder = self.test_exam.unique_id[0:2]
-
-    def tearDown(self):
-        folder = os.path.join(
-            settings.MEDIA_ROOT, Exam.EXAM_FILES_LOCATION, self.folder)
-        shutil.rmtree(folder, ignore_errors=True)
-        os.remove('test.txt')
-
-    def test_properites(self):
-        self.assertEquals(self.test_exam.file_ext, '.txt')
-        self.assertNotEqual(self.test_exam.unique_id, '')
-        self.assertEquals(self.test_exam.get_term_display(), 'Spring')
-        self.assertEquals(self.test_exam.get_term_name(), 'Spring 2013')
-        self.assertEquals(
-            unicode(self.test_exam),
-            '{course}-{term}-{number}-{instructors}-{type}{ext}'.format(
-                course='test100', term=Term.SPRING + '2013',
-                number=Exam.MT1, instructors='Beta_Tau',
-                type=Exam.EXAM, ext='.txt'))
-
-
-class ExamFlagTest(TestCase):
-    fixtures = ['test/course_instance.yaml']
-
-    def setUp(self):
-        self.test_exam = make_test_exam(10000)
-        self.folder = self.test_exam.unique_id[0:2]
-
-    def tearDown(self):
-        folder = os.path.join(
-            settings.MEDIA_ROOT, Exam.EXAM_FILES_LOCATION, self.folder)
-        shutil.rmtree(folder, ignore_errors=True)
-        os.remove('test.txt')
-
-    def test_properites(self):
-        exam_flag = ExamFlag(exam=self.test_exam)
-        self.assertEquals(
-            unicode(exam_flag), unicode(self.test_exam) + ' Flag')
-        self.assertFalse(exam_flag.resolved)
-
-
-class InstructorPermissionTest(TestCase):
-    fixtures = ['test/course_instance.yaml']
-
-    def setUp(self):
-        self.test_exam = make_test_exam(10000)
-        self.folder = self.test_exam.unique_id[0:2]
-
-    def tearDown(self):
-        folder = os.path.join(
-            settings.MEDIA_ROOT, Exam.EXAM_FILES_LOCATION, self.folder)
-        shutil.rmtree(folder, ignore_errors=True)
-        os.remove('test.txt')
-
-    def test_properites(self):
-        permission = list(self.test_exam.get_permissions())[0]
-        self.assertIsNone(permission.permission_allowed)
-
-
-class DeleteFileTest(TestCase):
-    fixtures = ['test/course_instance.yaml']
-
-    def setUp(self):
-        self.test_exam = make_test_exam(10000)
-        self.folder = self.test_exam.unique_id[0:2]
-
-    def tearDown(self):
-        folder = os.path.join(
-            settings.MEDIA_ROOT, Exam.EXAM_FILES_LOCATION, self.folder)
-        shutil.rmtree(folder, ignore_errors=True)
-        os.remove('test.txt')
-
-    def test_delete_exam_with_file(self):
-        file_name = self.test_exam.get_absolute_pathname()
-        self.assertTrue(os.path.exists(file_name))
-        self.test_exam.delete()
-        self.assertFalse(os.path.exists(file_name))
-
-    def test_delete_exam_without_file(self):
-        self.test_exam.exam_file.delete()
-        file_name = self.test_exam.get_absolute_pathname()
-        self.test_exam.delete()
-        self.assertFalse(os.path.exists(file_name))
-
-
-class ExamListTest(TestCase):
     fixtures = ['test/course_instance.yaml']
 
     def setUp(self):
         self.test_exam1 = make_test_exam(10000)
         self.test_exam2 = make_test_exam(20000)
         self.test_exam3 = make_test_exam(30000)
-        self.folder1 = self.test_exam1.unique_id[0:2]
-        self.folder2 = self.test_exam2.unique_id[0:2]
-        self.folder3 = self.test_exam3.unique_id[0:2]
 
-    def tearDown(self):
-        folder1 = os.path.join(
-            settings.MEDIA_ROOT, Exam.EXAM_FILES_LOCATION, self.folder1)
-        folder2 = os.path.join(
-            settings.MEDIA_ROOT, Exam.EXAM_FILES_LOCATION, self.folder2)
-        folder3 = os.path.join(
-            settings.MEDIA_ROOT, Exam.EXAM_FILES_LOCATION, self.folder3)
-        shutil.rmtree(folder1, ignore_errors=True)
-        shutil.rmtree(folder2, ignore_errors=True)
-        shutil.rmtree(folder3, ignore_errors=True)
+    @classmethod
+    def tearDownClass(cls):
         os.remove('test.txt')
+        shutil.rmtree(os.path.join(settings.WORKSPACE_ROOT, 'media', 'tests'),
+                      ignore_errors=True)
+
+    def test_properites(self):
+        self.assertEquals(self.test_exam1.file_ext, '.txt')
+        self.assertNotEqual(self.test_exam1.unique_id, '')
+        self.assertEquals(
+            unicode(self.test_exam1),
+            '{course}-{term}-{number}-{instructors}-{type}{ext}'.format(
+                course='test100', term=Term.SPRING + '2013',
+                number=Exam.MT1, instructors='Beta_Tau',
+                type=Exam.EXAM, ext='.txt'))
+
+    def test_flag_properites(self):
+        exam_flag = ExamFlag(exam=self.test_exam1)
+        self.assertEquals(
+            unicode(exam_flag), unicode(self.test_exam1) + ' Flag')
+        self.assertFalse(exam_flag.resolved)
+
+    def test_permission_properites(self):
+        permission = list(self.test_exam1.permissions)[0]
+        self.assertIsNone(permission.permission_allowed)
+
+    def test_delete_exam_with_file(self):
+        file_name = self.test_exam1.get_absolute_pathname()
+        self.assertTrue(os.path.exists(file_name))
+        self.test_exam1.delete()
+        self.assertFalse(os.path.exists(file_name))
+
+    def test_delete_exam_without_file(self):
+        # pylint: disable=E1103
+        self.test_exam1.exam_file.delete()
+        file_name = self.test_exam1.get_absolute_pathname()
+        self.test_exam1.delete()
+        self.assertFalse(os.path.exists(file_name))
 
     def test_response(self):
         resp = self.client.get('/courses/Test/100/')
@@ -148,11 +85,11 @@ class ExamListTest(TestCase):
         Permission 2 affects Exam 1 and Exam 2.
         Permission 3 affects Exam 2 and Exam 3.
         """
-        # pylint: disable=W0612,R0915
+        # pylint: disable=R0915
         resp = self.client.get('/courses/Test/100/')
-        permission1 = list(self.test_exam1.get_permissions())[0]
-        permission2 = list(self.test_exam2.get_permissions())[0]
-        permission3 = list(self.test_exam3.get_permissions())[0]
+        permission1 = list(self.test_exam1.permissions)[0]
+        permission2 = list(self.test_exam2.permissions)[0]
+        permission3 = list(self.test_exam3.permissions)[0]
         # All exams with 0 blacklists
         self.assertEqual(resp.context['exams'].count(), 3)
         # Exam 1 with 1 blacklist, Exam 2 with 0, Exam 3 with 0
@@ -320,7 +257,7 @@ class ExamListTest(TestCase):
         # Under flag limit, blacklisted, verified
         exam_flag_list[0].resolved = True
         exam_flag_list[0].save()
-        permission1 = list(self.test_exam1.get_permissions())[0]
+        permission1 = list(self.test_exam1.permissions)[0]
         permission1.permission_allowed = False
         permission1.save()
         self.test_exam1 = Exam.objects.get(pk=self.test_exam1.pk)

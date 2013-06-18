@@ -1,0 +1,21 @@
+{% extends "exams/base.html" %}
+
+{% block title %}Delete Exam | {{ block.super }}{% endblock title %}
+
+{% block intro %}<h1>Delete Exam</h1>{% endblock %}
+
+{% block content %}
+{% include "exams/header.html" %}
+<div> Are you SURE you want to delete this exam? THIS ACTION IS NOT REVERSIBLE.</div>
+
+<form action="{% url 'exams:delete' exam_pk=exam.pk %}" method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <table>
+    {{ form.as_table }}
+  </table>
+  <div><input type="submit" value="Delete" /></div>
+</form>
+
+<div><a href="{% url 'exams:edit' exam_pk=exam.pk %}"><strong>Edit exam instead</strong></a></div>
+{% include "exams/footer.html" %}
+{% endblock %}

@@ -1,4 +1,4 @@
-import os
+import magic
 
 from chosen import forms as chosen_forms
 from django import forms
@@ -6,8 +6,8 @@ from django.utils.safestring import mark_safe
 
 from quark.base.models import Term
 from quark.courses.models import CourseInstance
+from quark.courses.models import Department
 from quark.courses.models import Instructor
-from quark.course_surveys.forms import courses_as_optgroups
 from quark.exams.models import Exam
 from quark.exams.models import ExamFlag
 from quark.exams.models import InstructorPermission
@@ -15,81 +15,103 @@ from quark.exams.models import InstructorPermission
 
 class ExamForm(forms.ModelForm):
     """Used as a base for UploadForm and EditForm."""
-    exam_number = forms.ChoiceField(
-        label='Exam Number', choices=Exam.EXAM_NUMBER_CHOICES)
-    exam_type = forms.ChoiceField(
-        label='Exam or solution file?', choices=Exam.EXAM_TYPE_CHOICES)
+    department = chosen_forms.ChosenModelChoiceField(
+        label='Department', queryset=Department.objects.all())
+    course_number = forms.CharField()
     instructors = chosen_forms.ChosenModelMultipleChoiceField(
         label='Instructors', queryset=Instructor.objects.all())
+    exam_number = chosen_forms.ChosenChoiceField(
+        label='Exam Number', choices=Exam.EXAM_NUMBER_CHOICES)
+    exam_type = chosen_forms.ChosenChoiceField(
+        label='Exam or solution file?', choices=Exam.EXAM_TYPE_CHOICES)
 
-    class Meta:
-        model = Exam
-        fields = ('exam_number', 'exam_type')
-        chosen_forms.widgets = {
-            'course': chosen_forms.ChosenGroupSelect(),
-            'term': chosen_forms.ChosenSelect(),
-        }
+    course_instance = None  # set by check_course_instance
 
     def __init__(self, *args, **kwargs):
         super(ExamForm, self).__init__(*args, **kwargs)
-        # Create fields in __init__ to avoid database errors in Django's test
-        # runner caused by trying to use functions that aren't "lazy" that
-        # access the database
-        self.fields['course'].label = 'Course Number'
-        self.fields['course'].choices = courses_as_optgroups()
-        self.fields['term'].label = 'Term'
-        self.fields['term'].queryset = Term.objects.get_terms(
-            include_summer=True)
+        self.fields['term'] = chosen_forms.ChosenModelChoiceField(
+            label='Term', queryset=Term.objects.get_terms(include_summer=True))
 
-    def check_duplicates(self, cleaned_data, message):
-        """Check for duplicate exams."""
-        duplicates = Exam.objects.filter(
-            course_instance__course=cleaned_data.get('course'),
-            course_instance__term=cleaned_data.get('term'),
-            exam_number=cleaned_data.get('exam_number'),
-            exam_type=cleaned_data.get('exam_type'))
-        if duplicates.count() > 0:
+    def check_course_instance(self, cleaned_data):
+        """Check if the course instance exists."""
+        course_instance = CourseInstance.objects.filter(
+            course__department=self.cleaned_data.get('department'),
+            course__number=self.cleaned_data.get('course_number'),
+            term=self.cleaned_data.get('term'))
+        # check instructors to prevent trying to iterate over nothing
+        if self.cleaned_data.get('instructors') is None:
+            raise forms.ValidationError('Please fill out all fields.')
+        for instructor in self.cleaned_data.get('instructors'):
+            course_instance = course_instance.filter(instructors=instructor)
+        if len(course_instance) == 0:
+            instructors = ', '.join(
+                [i.last_name for i in self.cleaned_data.get('instructors')])
             raise forms.ValidationError(
-                'This exam already exists in the database. ' + message)
-        return cleaned_data
+                '{department} {number} ({term}), taught by {instructors}'
+                ' never existed.'.format(
+                    term=self.cleaned_data.get('term').verbose_name(),
+                    department=self.cleaned_data.get('department'),
+                    number=self.cleaned_data.get('course_number'),
+                    instructors=instructors))
+        self.course_instance = course_instance[0]
 
     def save(self, *args, **kwargs):
         """Add a course instance to the exam."""
         exam = super(ExamForm, self).save(*args, **kwargs)
-        course_instance = CourseInstance.objects.get(
-            course=self.cleaned_data.get('course'),
-            term=self.cleaned_data.get('term'))
-        exam.course_instance = course_instance
+        exam.course_instance = self.course_instance
         exam.save()
         return exam
 
 
 class UploadForm(ExamForm):
-    ACCEPTED_FORMATS = ['.pdf', '.doc', '.docx', '.rtf']
-
-    exam_file = forms.FileField(label='File (pdf or doc only please)')
+    exam_file = forms.FileField(
+        label='File (PDF only please)')
     agreed = forms.BooleanField(required=True, label=mark_safe(
         'I agree, per campus policy on Course Note-Taking and Materials '
         '(available <a href="http://campuspol.chance.berkeley.edu/policies/'
         'coursenotes.pdf">here</a>), that I am allowed to upload '
         'this document.'))
 
-    class Meta(ExamForm.Meta):
+    class Meta:
+        model = Exam
         fields = ('exam_number', 'exam_type', 'exam_file')
 
-    def clean(self):
-        """Check if uploaded exam already exists, whether the file is of
-        an acceptable format, and whether the professor is blacklisted."""
-        cleaned_data = super(UploadForm, self).clean()
-        # check for duplicates
-        cleaned_data = self.check_duplicates(
-            cleaned_data, 'Please upload a new exam.')
+    def __init__(self, *args, **kwargs):
+        super(UploadForm, self).__init__(*args, **kwargs)
+        self.fields.keyOrder = [
+            'department', 'course_number', 'instructors', 'term', 'exam_number',
+            'exam_type', 'exam_file', 'agreed']
 
-        # check if uploaded file is doc or pdf
-        file_ext = os.path.splitext(cleaned_data.get('exam_file').name)[1]
-        if file_ext not in ExamForm.ACCEPTED_FORMATS:
+    def clean(self):
+        """Check if uploaded exam already exists and whether the file is of
+        an acceptable format."""
+        cleaned_data = super(UploadForm, self).clean()
+        self.check_course_instance(cleaned_data)
+        duplicates = Exam.objects.filter(
+            course_instance=self.course_instance,
+            exam_number=cleaned_data.get('exam_number'),
+            exam_type=cleaned_data.get('exam_type'))
+        if duplicates.count() > 0:
             raise forms.ValidationError(
-                'Uploaded file must be an MSWord doc or PDF file.')
+                'This exam already exists in the database. '
+                'Please upload a new exam.')
+
+        # check if a file was actually uploaded
+        exam_file = cleaned_data.get('exam_file')
+        if not exam_file:
+            raise forms.ValidationError('Please attach a file.')
+
+        # Use python-magic to verify the file type so someone cannot upload
+        # an unallowed file type by simply changing the file extension.
+        # If the uploaded file is greater than 2.5MB (if multiple_chunks()
+        # returns True), then it will be stored temporarily on disk;
+        # otherwise, it will be stored in memory.
+        if exam_file.multiple_chunks():
+            output = magic.from_file(exam_file.temporary_file_path(), mime=True)
+        else:
+            output = magic.from_buffer(exam_file.read(), mime=True)
+        if output != 'application/pdf':
+            raise forms.ValidationError('Uploaded file must be a PDF file.')
         return cleaned_data
 
     def save(self, *args, **kwargs):
@@ -98,24 +120,46 @@ class UploadForm(ExamForm):
         for instructor in self.cleaned_data.get('instructors'):
             permission = InstructorPermission.objects.get(
                 instructor=instructor).permission_allowed
-            if not permission:
+            if permission is False:
                 exam.blacklisted = True
         exam.save()
         return exam
 
 
 class EditForm(ExamForm):
-    verified = forms.BooleanField(label='Verified')
+    verified = forms.BooleanField(label='Verified', required=False)
 
-    class Meta(ExamForm.Meta):
+    class Meta:
+        model = Exam
         fields = ('exam_number', 'exam_type', 'verified')
+
+    def __init__(self, *args, **kwargs):
+        super(EditForm, self).__init__(*args, **kwargs)
+        self.fields['department'].initial = \
+            self.instance.course_instance.course.department
+        self.fields['course_number'].initial = \
+            self.instance.course_instance.course.number
+        self.fields['instructors'].initial = \
+            self.instance.course_instance.instructors.all()
+        self.fields['term'].initial = self.instance.course_instance.term
+        self.fields.keyOrder = [
+            'department', 'course_number', 'instructors', 'term', 'exam_number',
+            'exam_type', 'verified']
 
     def clean(self):
         """Check if an exam already exists with the new changes."""
         cleaned_data = super(EditForm, self).clean()
-        # check for duplicates
-        return self.check_duplicates(
-            cleaned_data, 'Please double check and delete as necessary.')
+        self.check_course_instance(cleaned_data)
+        duplicates = Exam.objects.filter(
+            course_instance=self.course_instance,
+            exam_number=cleaned_data.get('exam_number'),
+            exam_type=cleaned_data.get('exam_type'),
+            verified=cleaned_data.get('verified'))
+        if duplicates.count() > 0:
+            raise forms.ValidationError(
+                'This exam already exists in the database. '
+                'Please double check and delete as necessary.')
+        return cleaned_data
 
 
 class FlagForm(forms.ModelForm):
@@ -125,11 +169,6 @@ class FlagForm(forms.ModelForm):
         model = ExamFlag
         fields = ('reason',)
 
-    def clean_reason(self):
-        if len(self.cleaned_data.get('reason')) < 10:
-            raise forms.ValidationError('Please be more descriptive.')
-        return super(FlagForm, self).clean()
-
 
 class ResolveFlagForm(forms.ModelForm):
     resolution = forms.CharField(widget=forms.Textarea, label='Resolution')
@@ -138,7 +177,12 @@ class ResolveFlagForm(forms.ModelForm):
         model = ExamFlag
         fields = ('resolution',)
 
-    def clean_reason(self):
-        if len(self.cleaned_data.get('resolution')) < 10:
-            raise forms.ValidationError('Please be more descriptive.')
-        return super(ResolveFlagForm, self).clean()
+
+class EditPermissionForm(forms.ModelForm):
+    permission_allowed = forms.NullBooleanField(label='Permission allowed')
+    correspondence = forms.CharField(
+        widget=forms.Textarea, label='Correspondence', required=False)
+
+    class Meta:
+        model = InstructorPermission
+        fields = ('permission_allowed', 'correspondence')

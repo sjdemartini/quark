@@ -1,0 +1,57 @@
+{% extends "exams/base.html" %}
+{% block sidebar %}
+{% endblock %}
+
+{% block title %}Edit Exam | {{ block.super }}{% endblock title %}
+
+{% block intro %}<h1>Edit Exam</h1>{% endblock intro %}
+
+
+{% block content %}
+{% include "exams/header.html" %}
+
+<h3>There {{ flags|pluralize:"is,are" }} {{ flags|length }} flag{{ flags|pluralize }} for this exam.</h3>
+{% if flags %}
+  <ul id="flags">
+    {% for flag in flags %}
+      <li>
+        <div><strong>Reason:</strong> {{ flag.reason }} - {{ flag.created }}</div>
+        {% if flag.resolved %}
+          <div><strong>Resolution:</strong> {{ flag.resolution }} - {{ flag.updated }}</div>
+        {% else %}
+          <strong><a href="{% url 'exams:resolve' flag_pk=flag.pk %}">Resolve</a></strong>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+<h3>There {{ permissions|pluralize:"is,are" }} {{ permissions|length }} permission{{ permissions|pluralize }} for this exam.</h3>
+<ul id="permissions">
+  {% for permission in permissions %}
+  <li><a href="{% url 'exams:permission' permission_pk=permission.pk %}"><strong>{{ permission.instructor }}</strong></a> - Permission allowed: {{ permission.get_permission_allowed_display }}</li>
+  {% endfor %}
+</ul>
+
+<form action="{% url 'exams:edit' exam_pk=exam.pk %}" method="post" name="edit">
+  {% csrf_token %}
+  {% if form.errors %}
+    <strong><div class="error-message">Please correct your input fields.</div></strong>
+  {% endif %}
+  <table>
+    {{ form.as_table }}
+  </table>
+  <div><a href="{% url 'exams:download' exam_pk=exam.pk %}"><strong>Download Exam</strong></a></div>
+  <div><input type="submit" value="Update" /></div>
+</form>
+
+<form action="{% url 'exams:delete' exam_pk=exam.pk %}">
+    <input type="submit" value="Delete">
+</form>
+
+<iframe id="exam-preview" style="width: 100%; height: 500px;" src="{% url 'exams:download' exam_pk=exam.pk %}">
+    <div>Your browser does not support iframes.</div>
+</iframe>
+
+{% include "exams/footer.html" %}
+{% endblock %}

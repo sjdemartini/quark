@@ -19,7 +19,7 @@ class ExamAdmin(admin.ModelAdmin):
     def instructor_names(self, obj):
         return ', '.join(
             ['{} {}'.format(instructor.first_name, instructor.last_name)
-             for instructor in obj.get_instructors()])
+             for instructor in obj.instructors])
     instructor_names.short_description = 'Instructor(s)'
 
 
