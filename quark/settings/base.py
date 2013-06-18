@@ -203,6 +203,7 @@ PROJECT_APPS = [
 
 # Third-party apps belong here, since we won't use them for testing.
 THIRD_PARTY_APPS = [
+    'chosen',
     # TODO(mattchang): get django-cms working with django-1.5
     #'cms',
     #'cms.plugins.link',
