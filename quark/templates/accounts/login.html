@@ -3,6 +3,7 @@
 {% block title %}Login | {{ block.super }}{% endblock title %}
 
 {% block content %}
+{% load settings_values %}
 <h1>Log In</h1>
 
 {% if form.errors %}
@@ -27,7 +28,7 @@
 </form>
 
 <p>Forgot your password? <a href="{#TODO: {% url accounts:password-reset %} #}">Reset it</a>!</p>
-{# TODO(sjdemartini): Don't hardcode email addresses like below #}
-<p>Are you a member without an account? Request one by emailing IT at <a href="mailto:it@tbp.berkeley.edu">it@tbp.berkeley.edu</a>.</p>
+{% settings_assign 'IT_ADDRESS' as it_addr %}
+<p>Are you a member without an account? Request one by emailing IT at <a href="mailto:{{ it_addr }}">{{ it_addr }}</a>.</p>
 
 {% endblock %}

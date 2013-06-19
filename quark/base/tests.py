@@ -5,6 +5,8 @@ import uuid
 
 from django.db import IntegrityError
 from django.core.exceptions import ValidationError
+from django.template import Context
+from django.template import Template
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils import timezone
@@ -439,3 +441,47 @@ class FieldsTest(TestCase):
         self.assertRaises(ValidationError, time_field.to_python, '3:14')
         # Must use colon delimiter:
         self.assertRaises(ValidationError, time_field.to_python, '5.30')
+
+
+@override_settings(TEST_SETTING='testing')
+class TemplateTagsTest(TestCase):
+    def setUp(self):
+        self.base_string = 'Hello world '
+        self.context = Context({'base_string': self.base_string})
+        self.test_setting = 'testing'
+
+    def test_settings(self):
+        # Test with valid settings variable
+        template = Template(
+            '{% load settings_values %}{{ base_string }}'
+            '{% settings "TEST_SETTING" %}'
+        )
+        self.assertEquals(self.base_string + self.test_setting,
+                          template.render(self.context))
+
+        # Test with settings variable that does not exist
+        template = Template(
+            '{% load settings_values %}{{ base_string }}'
+            '{% settings "NON_EXISTENT_SETTING" %}'
+        )
+        self.assertEquals(self.base_string,
+                          template.render(self.context))
+
+    def test_settings_assign(self):
+        # Test with valid assignment
+        template = Template(
+            '{% load settings_values %}'
+            '{% settings_assign "TEST_SETTING" as test_var %}'
+            '{{ base_string }}{{ test_var }}'
+        )
+        self.assertEquals(self.base_string + self.test_setting,
+                          template.render(self.context))
+
+        # Test with assignment, with variable that does not exist
+        template = Template(
+            '{% load settings_values %}'
+            '{% settings_assign "NON_EXISTENT_SETTING" as test_var %}'
+            '{{ base_string }}{{ test_var }}'
+        )
+        self.assertEquals(self.base_string,
+                          template.render(self.context))
