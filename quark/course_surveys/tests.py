@@ -1,6 +1,6 @@
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 
-from quark.auth.models import User
 from quark.base.models import Term
 from quark.courses.models import Course
 from quark.courses.models import Department
@@ -39,9 +39,10 @@ class SurveyFormTest(TestCase):
             year=2013,
             current=True)
         self.term_test.save()
-        self.user_test = User(
+        self.user_test = get_user_model().objects.create_user(
             username='taubate',
             email='tbp.berkeley.edu',
+            password='testpassword',
             first_name='Tau',
             last_name='Bate')
         self.user_test.save()

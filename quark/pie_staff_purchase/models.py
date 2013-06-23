@@ -1,6 +1,6 @@
+from django.conf import settings
 from django.db import models
 
-from quark.auth.models import User
 from quark.pie_inventory.models import Item
 
 
@@ -45,7 +45,7 @@ class PartsReceipt(models.Model):
     tracking_number = models.CharField(max_length=20)
     vendor = models.ForeignKey(Vendor)
 
-    purchaser = models.ForeignKey(User)
+    purchaser = models.ForeignKey(settings.AUTH_USER_MODEL)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -105,7 +105,7 @@ class PartOrder(models.Model):
     purchase_category = models.CharField(
         max_length=3,
         choices=CATEGORIES)
-    submitted_by = models.ForeignKey(User)
+    submitted_by = models.ForeignKey(settings.AUTH_USER_MODEL)
 
     objects = PartOrderManager()
 
@@ -141,7 +141,7 @@ class PartOrderStatus(models.Model):
     status = models.CharField(
         max_length=3,
         choices=STATUS_OPTIONS)
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
 
     created = models.DateTimeField(auto_now_add=True)
 

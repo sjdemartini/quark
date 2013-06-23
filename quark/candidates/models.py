@@ -1,6 +1,6 @@
+from django.conf import settings
 from django.db import models
 
-from quark.auth.models import User
 from quark.base.models import Term
 from quark.events.models import EventAttendance
 from quark.events.models import EventType
@@ -15,7 +15,7 @@ class Candidate(models.Model):
     only for a single term. To account for past progress, one will
     have to query multiple Candidate objects.
     """
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
     term = models.ForeignKey(Term)
     initiated = models.BooleanField(default=False)
 
@@ -87,7 +87,8 @@ class Challenge(models.Model):
                                                       default=INDIVIDUAL)
     description = models.CharField(max_length=255)
     verifying_user = models.ForeignKey(
-        User, help_text='Person who verified the challenge.')
+        settings.AUTH_USER_MODEL,
+        help_text='Person who verified the challenge.')
     verified = models.BooleanField(default=False)
 
     created = models.DateTimeField(auto_now_add=True)

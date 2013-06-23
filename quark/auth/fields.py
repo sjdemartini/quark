@@ -2,16 +2,16 @@ from chosen import forms
 
 from quark.auth.models import QuarkUser
 from quark.auth.models import LDAPQuarkUser
-from quark.auth.models import CompanyQuarkUser
 
 
 def user_common_name_label(obj):
     """Returns common name label for a given object."""
     if isinstance(obj, QuarkUser) or isinstance(obj, LDAPQuarkUser):
         return obj.get_common_name()
-    if isinstance(obj, CompanyQuarkUser):
-        return obj.get_full_name()
-    return unicode(obj)
+    try:
+        return obj.get_full_name()  # A default User model method
+    except AttributeError:  # If no get_full_name method available
+        return str(obj)
 
 
 class UserCommonNameChoiceField(forms.ChosenModelChoiceField):

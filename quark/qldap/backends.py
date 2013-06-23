@@ -1,8 +1,12 @@
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
 
-from quark.auth.models import User
 from quark.qldap import utils
+
+
+# pylint: disable=C0103
+User = get_user_model()
 
 
 class LDAPBackend(ModelBackend):

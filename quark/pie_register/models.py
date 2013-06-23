@@ -1,7 +1,7 @@
-from django_localflavor_us.models import PhoneNumberField
+from django.conf import settings
 from django.db import models
+from django_localflavor_us.models import PhoneNumberField
 
-from quark.auth.models import User
 from quark.base_pie.models import Season
 
 
@@ -89,7 +89,7 @@ class TeamRegistration(models.Model):
             '<em> Example </em>:<br> &nbsp;Th, 1400-1800, 1700'
             '-1900<br> &nbsp;F, 1500-1900'))
 
-    applicant = models.ForeignKey(User, null=True)
+    applicant = models.ForeignKey(settings.AUTH_USER_MODEL, null=True)
     season = models.ForeignKey(Season)
 
     created = models.DateTimeField(auto_now_add=True)

@@ -6,7 +6,6 @@ from django.db import models
 from django.db.models.signals import post_delete
 from django.db.models.signals import post_save
 
-from quark.auth.models import User
 from quark.courses.models import CourseInstance
 from quark.courses.models import Instructor
 
@@ -75,7 +74,8 @@ class Exam(models.Model):
                             instance.unique_id + instance.file_ext)
 
     course_instance = models.ForeignKey(CourseInstance)
-    submitter = models.ForeignKey(User, null=True, blank=True)
+    submitter = models.ForeignKey(settings.AUTH_USER_MODEL, null=True,
+                                  blank=True)
     exam_number = models.CharField(max_length=5, choices=EXAM_NUMBER_CHOICES)
     exam_type = models.CharField(max_length=4, choices=EXAM_TYPE_CHOICES)
     unique_id = models.CharField(max_length=32, unique=True)

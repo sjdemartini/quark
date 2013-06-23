@@ -4,8 +4,6 @@ from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
-from quark.auth.models import User
-
 
 # Mixins
 class IDCodeMixin(models.Model):
@@ -37,7 +35,7 @@ class RandomToken(models.Model):
     token = models.CharField(unique=True, max_length=64)
     used = models.BooleanField(default=False)
 
-    user = models.ForeignKey(User, blank=True, null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True)
 
     objects = RandomTokenManager()
 

@@ -1,5 +1,6 @@
 import os
 
+from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth.models import User as DefaultUser
@@ -13,11 +14,9 @@ from quark.auth.decorators import candidate_required
 from quark.auth.decorators import current_officer_required
 from quark.auth.decorators import officer_required
 from quark.auth.decorators import officer_types_required
-from quark.auth.models import get_user_model
 from quark.auth.models import CompanyQuarkUser
 from quark.auth.models import LDAPQuarkUser
 from quark.auth.models import QuarkUser
-from quark.auth.models import User
 from quark.auth.fields import UserCommonNameChoiceField
 from quark.auth.fields import UserCommonNameMultipleChoiceField
 from quark.base.models import Term
@@ -283,7 +282,7 @@ class UserTypeMethodTesting(TestCase):
     #                   methods (e.g., is_tbp_officer LDAP group test)
 
     def setUp(self):
-        self.user = User.objects.create_user(
+        self.user = get_user_model().objects.create_user(
             'test_user', 'it@tbp.berkeley.edu', 'testpw', 'Edward', 'Williams')
 
         self.committee = OfficerPosition(
@@ -489,11 +488,12 @@ class DecoratorsTest(TestCase):
         response = Mock(status_code=200)
         self.view = Mock(return_value=response)
 
-        self.user = User.objects.create_user(username='testuser',
-                                             email='test@tbp.berkeley.edu',
-                                             password='secretpass',
-                                             first_name='Test',
-                                             last_name='User')
+        self.user = get_user_model().objects.create_user(
+            username='testuser',
+            email='test@tbp.berkeley.edu',
+            password='secretpass',
+            first_name='Test',
+            last_name='User')
         self.factory = RequestFactory()
         self.request = self.factory.get('/')
         self.request.session = {}

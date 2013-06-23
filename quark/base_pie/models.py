@@ -1,10 +1,10 @@
 import datetime
 
-from django_localflavor_us.models import USStateField
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
+from django_localflavor_us.models import USStateField
 
-from quark.auth.models import User
 from quark.base.models import IDCodeMixin
 from quark.base.models import Term
 
@@ -216,7 +216,7 @@ class Team(models.Model):
 
 
 class Teacher(IDCodeMixin):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
     team = models.ForeignKey(Team)
 
     created = models.DateField(auto_now_add=True)
@@ -227,7 +227,7 @@ class Teacher(IDCodeMixin):
 
 
 class Mentor(IDCodeMixin):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
     team = models.ForeignKey(Team)
 
     created = models.DateField(auto_now_add=True)
@@ -249,7 +249,7 @@ class Student(IDCodeMixin):
         (SENIOR, 'Senior'),
     )
 
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
     team = models.ForeignKey(Team)
 
     # Leaders are allowed to edit the roster and assign editing power

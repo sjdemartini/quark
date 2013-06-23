@@ -1,6 +1,7 @@
 import mox
 
 from django import forms
+from django.contrib.auth import get_user_model
 from django.core import mail
 from django.core.mail import BadHeaderError
 from django.core.urlresolvers import reverse
@@ -9,7 +10,6 @@ from django.test.client import Client
 from django.test.utils import override_settings
 from django.utils import unittest
 
-from quark.auth.models import User
 from quark.emailer.forms import ContactForm, ContactCaptcha
 #from quark.events.models import Event
 
@@ -207,11 +207,12 @@ class EventEmailerTest(TestCase):
         self.client = Client()
         self.url = reverse('emailer:event', kwargs={'event_id': '1'})
         # TODO(nitishp) make an officer after permissions decorators are done
-        self.user = User.objects.create_user(username='testuser',
-                                             email='test@tbp.berkeley.edu',
-                                             password='secretpass',
-                                             first_name='Test',
-                                             last_name='User')
+        self.user = get_user_model().objects.create_user(
+            username='testuser',
+            email='test@tbp.berkeley.edu',
+            password='secretpass',
+            first_name='Test',
+            last_name='User')
         self.client.login(username='testuser', password='secretpass')
         # TODO(nitishp) finish checking events when EventSignUp is ported
         # self.event = Event()
@@ -247,7 +248,7 @@ class CompanyEmailerTest(TestCase):
         self.client = Client()
         self.url = reverse('emailer:company')
         # TODO(nitishp) make a company user
-        self.user = User.objects.create_user(
+        self.user = get_user_model().objects.create_user(
             username='testcompany',
             email='test_logged_in@tbp.berkeley.edu',
             password='secretpass',

@@ -1,7 +1,7 @@
 from chosen import forms as chosen_forms
 from django import forms
+from django.contrib.auth import get_user_model
 
-from quark.auth.models import User
 from quark.auth.fields import UserCommonNameChoiceField
 from quark.base.fields import VisualSplitDateTimeField
 from quark.base.models import Term
@@ -25,7 +25,8 @@ class EventForm(forms.ModelForm):
 
     needs_pr = forms.BooleanField(label='Needs project report', required=False)
 
-    contact = UserCommonNameChoiceField(queryset=User.objects.all())
+    contact = UserCommonNameChoiceField(
+        queryset=get_user_model().objects.all())
 
     class Meta:
         model = Event

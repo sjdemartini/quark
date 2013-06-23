@@ -1,6 +1,6 @@
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 
-from quark.auth.models import User
 from quark.base.models import Term
 from quark.base_tbp.models import Officer
 from quark.base_tbp.models import OfficerPosition
@@ -52,7 +52,7 @@ class OfficerTest(TestCase):
     fixtures = ['officer_position.yaml']
 
     def setUp(self):
-        self.user = User.objects.create_user(
+        self.user = get_user_model().objects.create_user(
             username='officer',
             email='it@tbp.berkeley.edu',
             password='officerpw',

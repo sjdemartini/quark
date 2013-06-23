@@ -1,11 +1,9 @@
 from chosen import forms as chosen_forms
 from django import forms
 from django.contrib.admin import widgets
+from django.contrib.auth import get_user_model
 
-from quark.auth.models import User
 from quark.auth.fields import UserCommonNameChoiceField
-# TODO(giovanni): figure out standard for importing, example:
-#                 chosen_forms.ChosenChoiceField or just ChosenChoiceField
 from quark.auth.fields import UserCommonNameMultipleChoiceField
 from quark.base.models import Term
 from quark.base_tbp.models import OfficerPosition
@@ -17,13 +15,14 @@ class ProjectReportForm(forms.ModelForm):
         queryset=OfficerPosition.objects.filter(
             position_type=OfficerPosition.TBP_OFFICER))
     area = chosen_forms.ChosenChoiceField()
-    author = UserCommonNameChoiceField(queryset=User.objects.all())
+    author = UserCommonNameChoiceField(
+        queryset=get_user_model().objects.all())
     officer_list = UserCommonNameMultipleChoiceField(
-        queryset=User.objects.all(), required=False)
+        queryset=get_user_model().objects.all(), required=False)
     candidate_list = UserCommonNameMultipleChoiceField(
-        queryset=User.objects.all(), required=False)
+        queryset=get_user_model().objects.all(), required=False)
     member_list = UserCommonNameMultipleChoiceField(
-        queryset=User.objects.all(), required=False)
+        queryset=get_user_model().objects.all(), required=False)
     date = forms.DateField(widget=widgets.AdminDateWidget)
 
     class Meta:

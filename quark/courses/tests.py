@@ -1,6 +1,6 @@
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 
-from quark.auth.models import User
 from quark.base.models import Term
 from quark.courses.models import Course
 from quark.courses.models import CourseInstance
@@ -54,9 +54,10 @@ def make_test_db(testcase):
     testcase.courseInstance_ee_1.save()
     testcase.courseInstance_ee_1.instructors.add(testcase.instructor_ee)
     testcase.courseInstance_ee_1.save()
-    testcase.user = User(
+    testcase.user = get_user_model().objects.create_user(
         username='tbpUser',
         email='tbp.berkeley.edu',
+        password='testpassword',
         first_name='tbp',
         last_name='user')
     testcase.user.save()

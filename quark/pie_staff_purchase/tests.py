@@ -1,7 +1,7 @@
+from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 
-from quark.auth.models import User
 from quark.pie_inventory.models import Item
 from quark.pie_staff_purchase.models import PartOrder
 from quark.pie_staff_purchase.models import PartOrderStatus
@@ -10,7 +10,7 @@ from quark.pie_staff_purchase.models import Vendor
 
 class PartOrderStatusTest(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
+        self.user = get_user_model().objects.create_user(
             username='testuser',
             email='pit@pioneers.berkeley.edu',
             password='testpw',
@@ -76,8 +76,8 @@ class PartOrderManagerTest(TestCase):
     def setUp(self):
         self.part2 = PartOrder.objects.get(pk=2)
         self.part3 = PartOrder.objects.get(pk=3)
-        self.coord_user = User.objects.get(username='coorduser')
-        self.staff_user = User.objects.get(username='staffuser')
+        self.coord_user = get_user_model().objects.get(username='coorduser')
+        self.staff_user = get_user_model().objects.get(username='staffuser')
 
     def make_part_order(self, item, vendor, user):
         return PartOrder(
@@ -144,7 +144,7 @@ class PartsReceiptFormTest(TestCase):
     fixtures = ['test_data/parts_receipt.yaml']
 
     def setUp(self):
-        self.purchaser = User.objects.get(username='coorduser')
+        self.purchaser = get_user_model().objects.get(username='coorduser')
         self.vendor = Vendor.objects.get(pk=1)
         self.receipt_data = {'receipt': SimpleUploadedFile('test.pdf', 'hi')}
 

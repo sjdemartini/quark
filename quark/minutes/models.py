@@ -1,8 +1,8 @@
 from datetime import datetime
 
+from django.conf import settings
 from django.db import models
 
-from quark.auth.models import User
 from quark.base.models import Term
 
 
@@ -23,7 +23,7 @@ class Minutes(models.Model):
     meeting_type = models.PositiveSmallIntegerField(choices=MEETING_TYPES)
     notes = models.TextField()
     public = models.BooleanField(default=False)
-    author = models.ForeignKey(User)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 

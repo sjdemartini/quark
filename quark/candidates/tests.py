@@ -1,12 +1,12 @@
 import os
 import shutil
 
+from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.core.files import File
 from django.test import TestCase
 from django.utils import timezone
 
-from quark.auth.models import User
 from quark.base.models import Term
 from quark.base_tbp.models import Officer
 from quark.base_tbp.models import OfficerPosition
@@ -31,8 +31,9 @@ class CandidateTest(TestCase):
     fixtures = ['test/course_instance.yaml']
 
     def setUp(self):
+        user_model = get_user_model()
         # Create candidate
-        self.user = User.objects.create_user(
+        self.user = user_model.objects.create_user(
             username='luser',
             email='test@tbp.berkeley.edu',
             password='password',
@@ -44,7 +45,7 @@ class CandidateTest(TestCase):
         self.candidate.save()
 
         # Create officer
-        officer_user = User.objects.create_user(
+        officer_user = user_model.objects.create_user(
             username='officer',
             email='it@tbp.berkeley.edu',
             password='password',

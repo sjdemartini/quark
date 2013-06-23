@@ -1,7 +1,7 @@
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
-from quark.auth.models import User
 from quark.base.models import Term
 from quark.base_tbp.models import OfficerPosition
 from quark.project_reports.models import ProjectReport
@@ -36,7 +36,7 @@ class Event(models.Model):
     tagline = models.CharField(max_length=200, blank=True)
     description = models.TextField(blank=True)
     location = models.CharField(max_length=80)
-    contact = models.ForeignKey(User)
+    contact = models.ForeignKey(settings.AUTH_USER_MODEL)
     committee = models.ForeignKey(OfficerPosition)
     signup_limit = models.PositiveSmallIntegerField(default=0)
     max_guests_per_person = models.PositiveSmallIntegerField(
@@ -163,7 +163,7 @@ class Event(models.Model):
 
 class EventSignUp(models.Model):
     event = models.ForeignKey(Event)
-    person = models.ForeignKey(User, null=True)
+    person = models.ForeignKey(settings.AUTH_USER_MODEL, null=True)
     name = models.CharField(max_length=255)  # Person's name used for signup
     num_guests = models.PositiveSmallIntegerField(
         default=0,
@@ -203,7 +203,7 @@ class EventSignUp(models.Model):
 
 class EventAttendance(models.Model):
     event = models.ForeignKey(Event)
-    person = models.ForeignKey(User)
+    person = models.ForeignKey(settings.AUTH_USER_MODEL)
 
     # TODO(sjdemartini): Deal with the pre-noiro attendance importing? Note
     # that noiro added a separate field here to handle pre-noiro attendance

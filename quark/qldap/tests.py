@@ -1,12 +1,12 @@
 import os
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.test.client import Client
 from django.test.utils import override_settings
 from ldap import MOD_ADD
 
-from quark.auth.models import User
 from quark.qldap import utils
 
 
@@ -155,7 +155,7 @@ class LDAPTestCase(TestCase):
         client = Client()
         self.assertTrue(client.login(username=self.user,
                                      password=self.password))
-        new_user = User.objects.get(username=self.user)
+        new_user = get_user_model().objects.get(username=self.user)
         self.assertTrue(new_user.is_superuser)
         self.assertFalse(client.login(username=self.user, password=''))
         self.assertFalse(client.login(username='superfakeuser', password=''))

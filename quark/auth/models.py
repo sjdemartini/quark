@@ -1,25 +1,11 @@
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
-from django.db.models import get_model
 from django.utils import timezone
 
 from quark.qldap import utils as ldap_utils
-
-
-try:
-    from django.contrib.auth import get_user_model
-except ImportError:
-    # TODO(flieee): Remove try/except when django 1.5 is deployed
-    def get_user_model():
-        # Lazy loading of setting variable
-        from django.conf import settings
-        user = get_model(*settings.AUTH_USER_MODEL.split('.', 1))
-        if user is None:
-            raise NameError(
-                'User model not found: {}'.format(settings.AUTH_USER_MODEL))
-        return user
 
 
 class QuarkUserManager(BaseUserManager):

@@ -1,9 +1,9 @@
+from django.conf import settings
 from django.db import models
 from django_localflavor_us.models import PhoneNumberField
 from django_localflavor_us.models import USStateField
 from filer.fields.image import FilerImageField
 
-from quark.auth.models import User
 from quark.base.models import IDCodeMixin
 from quark.base.models import Major
 from quark.base.models import Term
@@ -16,7 +16,7 @@ class CollegeStudentInfo(IDCodeMixin):
         ('M', 'Male'),
     )
 
-    user = models.ForeignKey(User, unique=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, unique=True)
     # Note that the student's University is encapsulated in the "major" field
     major = models.ForeignKey(Major, null=True)
 
@@ -35,7 +35,7 @@ class CollegeStudentInfo(IDCodeMixin):
 
 
 class UserContactInfo(models.Model):
-    user = models.ForeignKey(User, unique=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, unique=True)
 
     alt_email = models.EmailField(
         blank=True,
@@ -71,7 +71,7 @@ class UserContactInfo(models.Model):
 
 
 class TBPProfile(models.Model):
-    user = models.ForeignKey(User, unique=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, unique=True)
 
     initiation_term = models.ForeignKey(Term, related_name='+',
                                         blank=True, null=True,

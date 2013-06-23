@@ -1,6 +1,6 @@
+from django.conf import settings
 from django.db import models
 
-from quark.auth.models import User
 from quark.base.models import IDCodeMixin
 from quark.pie_inventory.models import Item
 
@@ -22,8 +22,9 @@ class ToolStatus(models.Model):
         (RETIRED, 'retired')
     )
 
-    authorizing_user = models.ForeignKey(User, related_name='+')
-    user = models.ForeignKey(User, related_name='+')
+    authorizing_user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                                         related_name='+')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
     instance = models.ForeignKey('ToolInstance')
     status = models.CharField(max_length=3,
                               choices=STATUS_CHOICES,

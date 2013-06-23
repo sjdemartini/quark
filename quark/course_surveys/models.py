@@ -1,6 +1,6 @@
+from django.conf import settings
 from django.db import models
 
-from quark.auth.models import User
 from quark.base.models import Term
 from quark.courses.models import Course
 from quark.courses.models import Instructor
@@ -16,7 +16,7 @@ class Survey(models.Model):
     exam_difficulty = models.PositiveSmallIntegerField(blank=True, null=True)
     hw_difficulty = models.PositiveSmallIntegerField(blank=True, null=True)
     comments = models.TextField()
-    submitter = models.ForeignKey(User)
+    submitter = models.ForeignKey(settings.AUTH_USER_MODEL)
     published = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
 

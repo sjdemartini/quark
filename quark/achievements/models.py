@@ -1,6 +1,6 @@
+from django.conf import settings
 from django.db import models
 
-from quark.auth.models import User
 from quark.base.models import Term
 
 
@@ -79,7 +79,7 @@ class Achievement(models.Model):
     icon = models.ImageField(
         upload_to='images/achievements/', blank=True, null=True)
     icon_creator = models.ForeignKey(
-        User, blank=True, null=True,
+        settings.AUTH_USER_MODEL, blank=True, null=True,
         help_text='The creator of the icon used for this achievement.')
 
     class Meta:
@@ -97,7 +97,7 @@ class UserAchievement(models.Model):
     should only be awarded once per person at most, but that will be enforced
     at the app level and not the database level.
     """
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
     achievement = models.ForeignKey(Achievement)
 
     acquired = models.BooleanField(
@@ -112,9 +112,9 @@ class UserAchievement(models.Model):
                    'progress bar should be hidden.'))
 
     assigner = models.ForeignKey(
-        User, related_name='assigner', null=True, blank=True,
-        help_text=('The person who assigned this achievement. Null if the '
-                   'system assigned it.'))
+        settings.AUTH_USER_MODEL, related_name='assigner', null=True,
+        blank=True, help_text=('The person who assigned this achievement. '
+                               'Null if the system assigned it.'))
 
     term = models.ForeignKey(
         Term, null=True, blank=True,

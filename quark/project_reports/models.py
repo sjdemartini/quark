@@ -1,9 +1,9 @@
 import re
 
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
-from quark.auth.models import User
 from quark.base.models import Term
 from quark.base_tbp.models import OfficerPosition
 
@@ -19,7 +19,7 @@ class ProjectReport(models.Model):
     term = models.ForeignKey(Term)
     date = models.DateField()
     title = models.CharField(max_length=80)
-    author = models.ForeignKey(User)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL)
     committee = models.ForeignKey(OfficerPosition)
     area = models.CharField(
         max_length=2, choices=PROJECT_AREA_CHOICES, blank=True)
@@ -46,11 +46,11 @@ class ProjectReport(models.Model):
     problems = models.TextField(blank=True)
     results = models.TextField(blank=True)
     officer_list = models.ManyToManyField(
-        User, related_name='officer_list+', blank=True)
+        settings.AUTH_USER_MODEL, related_name='officer_list+', blank=True)
     member_list = models.ManyToManyField(
-        User, related_name='member_list+', blank=True)
+        settings.AUTH_USER_MODEL, related_name='member_list+', blank=True)
     candidate_list = models.ManyToManyField(
-        User, related_name='candidate_list+', blank=True)
+        settings.AUTH_USER_MODEL, related_name='candidate_list+', blank=True)
     non_tbp = models.PositiveSmallIntegerField(
         default=0, help_text='Number of non-TBP participants')
     complete = models.BooleanField(

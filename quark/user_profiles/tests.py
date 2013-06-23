@@ -1,6 +1,6 @@
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 
-from quark.auth.models import User
 from quark.base.models import Term
 from quark.candidates.models import Candidate
 from quark.shortcuts import get_object_or_none
@@ -13,7 +13,7 @@ class TBPProfilesTest(TestCase):
     def setUp(self):
         self.model = TBPProfile
 
-        self.user = User.objects.create_user(
+        self.user = get_user_model().objects.create_user(
             'test_user', 'it@tbp.berkeley.edu', 'testpw', 'Edward', 'Williams')
 
         self.profile = TBPProfile(user=self.user)
@@ -99,7 +99,7 @@ class TBPProfilesTest(TestCase):
 
         # Create user who only has initiation term data and no Candidate
         # objects:
-        temp_user = User.objects.create_user(
+        temp_user = get_user_model().objects.create_user(
             'tester', 'test@tbp.berkeley.edu', 'testpw', 'Bentley', 'Bent')
         temp_user.save()
 
