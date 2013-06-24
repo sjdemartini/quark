@@ -4,6 +4,12 @@
 
 {% block head %}{% load static %}
     <link rel="stylesheet" href="{% static "css/home.css" %}">
+    <script src="{% static "js/slideshow.js" %}"></script>
+    <script>
+      $(document).ready(function() {
+        slideshow("#slideshow", { addInfoHeight: true });
+      });
+    </script>
 {% endblock head %}
 
 {# Make background color of whole page match that of the header #}
@@ -22,29 +28,37 @@
 
 {% block content %}
 {# TODO(sjdemartini): make this content dynamic. currently static test content #}
-          <div id="updates">
-            <div>
-              <a href=""><h2>Student Resources</h2></a>
-              <ul>
-                <li>
-                  <a href=""><div class="updatetitle">Exam Files</div>
-                  <div class="updatedesc">Endless Practice Tests</div></a>
-                </li>
-                <li>
-                  <a href=""><div class="updatetitle">Course Surveys</div>
-                  <div class="updatedesc">In Depth Reviews</div></a>
-                </li>
-                <li>
-                  <a href=""><div class="updatetitle">Helpdesk</div>
-                  <div class="updatedesc">Help? Advice?</div></a>
-                </li>
-                <li>
-                  <a href="{#TODO mailto #}"><div class="updatetitle">Resume Critiquing</div>
-                  <div class="updatedesc">Let us polish up your resume</div></a>
-                </li>
-              </ul>
+          <div id="slideshow">
+            <div id="slideshowSlides">
+              <li id="slide-0" class="slide">
+                <img src="http://www.placehold.it/700x600"/>
+                <div class="slideInfo">
+                  Test 1  Test 1  Test 1  Test 1  Test 1  Test 1  Test 1  Test 1  Test 1  Test 1  Test 1  Test 1  Test 1
+                </div>
+              </li>
+              <li id="slide-1" class="slide">
+                <img src="http://www.placehold.it/600x400"/>
+                <div class="slideInfo">
+                  Test 2
+                </div>
+              </li>
+              <li id="slide-2" class="slide">
+                <img src="http://www.placehold.it/300x200"/>
+                <div class="slideInfo">
+                  Test 3
+                </div>
+              </li>
+              <li id="slide-3" class="slide">
+                <img src="http://www.placehold.it/350x150"/>
+                <div class="slideInfo">
+                  Test 4
+                </div>
+              </li>
+              <div id="slideshowLeft" class="slideshowButton"><div id="slideshowLeftArrow"></div></div>
+              <div id="slideshowRight" class="slideshowButton"><div id="slideshowRightArrow"></div></div>
             </div>
-
+          </div>
+          <div id="updates">
             <div>
               <a href=""><h2>Upcoming events</h2></a>
               <ul>
@@ -63,18 +77,6 @@
                   <div class="updatedesc small">Tue, Apr 16 8:00 PM - 10:00 PM, 101 O'Brien</div>
                   <div class="updatedesc">Last worksession!</div></a>
                 </li>
-            </div>
-
-            <div>
-              <a href=""><h2>Third test div</h2></a>
-              <ul>
-                <li><a href=""><div class="updatetitle">Exam Files</div>
-                <div class="updatedesc">Endless Practice Tests</div></a></li>
-                <li><a href=""><div class="updatetitle">Course Surveys</div>
-                <div class="updatedesc">In Depth Reviews</div></a></li>
-                <li><a href=""><div class="updatetitle">Helpdesk</div>
-                <div class="updatedesc">Help? Advice?</div></a></li>
-              </ul>
             </div>
           </div>
 {% endblock content %}
