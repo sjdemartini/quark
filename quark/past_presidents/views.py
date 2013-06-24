@@ -11,7 +11,7 @@ class PastPresidentsListView(ListView):
 
 
 class PastPresidentsDetailView(DetailView):
-    context_obejct_name = 'president'
+    context_object_name = 'president'
     model = PastPresident
     pk_url_kwarg = 'past_president_id'
     template_name = 'past_presidents/detail.html'

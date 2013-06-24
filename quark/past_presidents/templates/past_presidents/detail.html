@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% load markup %}
+{% load static %}
+
+{% block title %}{{ president }} | {{ block.super }}{% endblock %}
+
+{% block content %}
+<p><a href="{% url 'past-presidents:list' %}">&laquo; Back to List</a></p>
+
+<div>
+  <h1>
+    {% if president.title %}
+      {{ president.title }}
+    {% else %}
+      {{ president.name }} - {{ president.term }}
+    {% endif %}
+  </h1>
+
+  <div>
+    <div class="profile-picture">
+    {% if president.picture %}
+      <img src="{% static president.picture.url %}" alt="{{ president.name }}">
+    {% else %}
+      <img src="{% static 'images/missing.jpg' %}" alt="{{ president.name }}">
+    {% endif %}
+    </div>
+
+    {% if president.summary %}
+    <div class='profile-summary'>
+      {{ president.summary|markdown }}
+    </div>
+    {% endif %}
+  </div>
+
+  {% if president.body %}
+  <div class='profile-body'>
+    {{ president.body|markdown }}
+  </div>
+  {% endif %}
+
+  {% if president.contributions %}
+  <div>
+    <h2>Important Contributions and New Traditions</h2>
+    {{ president.contributions|markdown }}
+  </div>
+  {% endif %}
+</div>
+
+{% endblock content %}

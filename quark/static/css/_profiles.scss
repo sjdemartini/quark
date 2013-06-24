@@ -1,0 +1,25 @@
+// _profiles.scss
+@import "base";
+
+/* Profiles */
+.profile-picture {
+  margin-bottom: 1em;
+  margin-right: 15px;
+  float: left;
+  img {
+    width: 200px;
+  }
+}
+
+.profile-body {
+  clear: left;
+}
+
+.profile-entry {
+  clear: left;
+  border-top: 1px solid #aaa;
+}
+
+.profile-summary {
+  color: #132988;
+}

@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% load markup static %}
+
+{% block title %}Past Presidents | {{ block.super }}{% endblock %}
+
+{% block intro %}
+<h1>Past Presidents</h1>
+{% endblock intro %}
+
+{% block content %}
+<div>
+  {% for p in past_presidents %}
+  <div class='profile-entry'>
+    <h2>
+      {% if p.body %}<a href="{% url 'past-presidents:detail' p.pk %}">{% endif %}{{ p.name }}{% if p.body %}</a>{% endif %}
+      ({{ p.term }})
+    </h2>
+
+    {% if p.picture %}
+    <div class="profile-picture">
+      {% if p.body %}<a href="{% url 'past-presidents:detail' p.pk %}">{% endif %}<img src="{% static p.picture.url %}" alt="{{ p.name }}" />{% if p.body %}</a>{% endif %}
+    </div>
+    {% endif %}
+
+    {% if p.bio %}
+    {{ p.bio|markdown }}
+    {% endif %}
+
+    {% if p.body %}
+    <p><a href="{% url 'past-presidents:detail' p.pk %}">Read this president's thoughts about the semester.</a></p>
+    {% endif %}
+
+    {% if p.email %}
+    <p>Send an email: <a href="mailto:{{ p.email }}">{{ p.email }}</a></p>
+    {% endif %}
+
+  </div>
+  {% endfor %}
+</div>
+
+{% endblock content %}

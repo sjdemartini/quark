@@ -434,8 +434,6 @@ blockquote {
     transition: all 125ms; }
 
 .nav-child-arrow-container {
-  /* Ensure arrow container hidden. Necessary for cross-browser compatibility.
-   * This container is used only for narrow viewports. */
   display: none; }
 
 #subnav {
@@ -787,3 +785,21 @@ blockquote {
     .leaderboard .count-container {
       /* !important is needed to override inline HTML style specifying width */
       width: 25% !important; } }
+
+/* Profiles */
+.profile-picture {
+  margin-bottom: 1em;
+  float: left;
+  margin-right: 15px; }
+  .profile-picture img {
+    width: 200px; }
+
+.profile-body {
+  clear: left; }
+
+.profile-entry {
+  clear: left;
+  border-top: 1px solid #aaa; }
+
+.profile-summary {
+  color: #132988; }
