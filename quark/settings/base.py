@@ -204,6 +204,7 @@ PROJECT_APPS = [
     'quark.quote_board',
     'quark.user_profiles',
     'quark.utils',
+    'quark.vote',
 ]
 
 # Third-party apps belong here, since we won't use them for testing.
