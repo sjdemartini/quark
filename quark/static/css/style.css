@@ -30,8 +30,6 @@ div {
 }
 
 table {
-  border-collapse: collapse;
-  border-spacing: 0;
   margin: 10px 5%;
   width: 90%;
 }
@@ -94,7 +92,7 @@ h2 {
 }
 
 h3 {
-  font-size: 1.125em;
+  font-size: 1.2em;
   color: #666;
 }
 
@@ -116,10 +114,13 @@ pre {
 }
 
 b,
-strong,
+strong {
+  font-weight: bold;
+}
+
 label,
 dt {
-  font-weight: bold;
+  font-weight: 400;
 }
 
 blockquote {
@@ -348,6 +349,7 @@ li#login-welcome {
   opacity: 0; /* make the submenu invisible until transition */
   position: absolute;
   top: 100%;
+  left: 0;
   z-index: 100;
   border-left: 1px solid #333;
   border-right: 1px solid #333;
@@ -407,6 +409,12 @@ li#login-welcome {
   transition: all 125ms;
 }
 
+.nav-child-arrow-container {
+  /* Ensure arrow container hidden. Necessary for cross-browser compatibility.
+   * This container is used only for narrow viewports. */
+  display: none;
+}
+
 #subnav {
   background-color: #eee;
   border-bottom: 1px solid gray;
@@ -436,23 +444,6 @@ li#login-welcome {
 #subnav a.selected {
   font-weight: 600;
 }
-
-
-/* Triangle shown under selected nav element */
-/*
-#nav a.selected:after {
-  content: '';
-  position: absolute;
-  top: 100%;
-  margin-top: 4px;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-left: 6px solid transparent;
-  border-right: 6px solid transparent;
-  border-bottom: 10px solid #eee;
-}
-*/
 
 /* Remaining content */
 #container {
@@ -545,7 +536,7 @@ li#login-welcome {
     font-size: 32px;
     left: 40px;
     top: 27px;
-}
+  }
 
   #logo-location {
     display: none;
@@ -578,6 +569,7 @@ li#login-welcome {
     text-decoration: none;
     transition: all 125ms ease-in;
   }
+
   #nav-menubar-open:hover {
     color: #000;
   }
@@ -593,9 +585,11 @@ li#login-welcome {
     transition: all 125ms ease-in;
     cursor: pointer;
   }
+
   .nav-menubar-icon:hover {
     background: #222;
   }
+
   .nav-menubar-icon-bar {
     display: block;
     width: 18px;
@@ -612,15 +606,6 @@ li#login-welcome {
     top: 0;
   }
 
-  #nav ul ul {
-    margin-top: 0;
-    margin-left: 20px;
-  }
-
-  #nav ul ul a {
-    background: #5c5c5c;
-  }
-
   #nav a {
     display: block;
     padding: 5px 5%;
@@ -628,11 +613,7 @@ li#login-welcome {
 
   #nav a:active,
   #nav a:hover {
-    transition: all 200ms;
-    -moz-box-shadow: inset 0 0 12px #ddd;
-    -ms-box-shadow: inset 0 0 12px #ddd;
-    -webkit-box-shadow: inset 0 0 12px #ddd;
-    box-shadow: inset 0 0 12px #ddd;
+    background-color: rgba(255,255,255,.2);  /* white transparent overlay */
   }
 
   .nav-child-arrow-container {
@@ -647,9 +628,11 @@ li#login-welcome {
     z-index: 100;
     cursor: pointer;
   }
+
   .nav-child-arrow-container:hover {
     background: #222;
   }
+
   .nav-child-arrow {
     border: 10px solid transparent;
     border-top-color: #fff;
@@ -663,17 +646,24 @@ li#login-welcome {
     opacity: 1;
     height: auto;
     position: static;
-    margin: 0 5% 0 5%;
-    background: #5c5c5c;
+    margin: 0 5%;
     transition: none;
-    border: 1px solid #333;
-
-    -moz-border-radius: 3px;
-    -ms-border-radius: 3px;
-    -webkit-border-radius: 3px;
-    border-radius: 3px;
+    -moz-border-radius: 0;
+    -ms-border-radius: 0;
+    -webkit-border-radius: 0;
+    border-radius: 0;
+    border: none;
+    border-left: 13px solid rgba(0,0,0,0.4);
   }
+
   #nav ul ul li {
     width: 100%;
+    background: rgba(0,0,0,.28);
+  }
+
+  #nav ul ul li:hover {
+    /* Make sure the link hover looks the same as the nav ul li elements by
+     * removing the ul ul li background color on hover. */
+    background: none;
   }
 }
