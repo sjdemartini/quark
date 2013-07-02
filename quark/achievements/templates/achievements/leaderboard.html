@@ -1,0 +1,29 @@
+{% extends 'achievements/base.html' %}
+
+{% block title %}Leaderboard | {{ block.super }}{% endblock title %}
+
+{% block intro %}<h1>Achievements Leaderboard</h1>{% endblock intro %}
+
+{% block content %}
+
+<ul class="leaderboard">
+  {% for entry in leader_list %}
+  <li>
+    {# TODO(natebailey): Make names link to users' achievement pages. #}
+    <div class="name {% cycle 'odd' 'even' %}
+      {% if entry.user == user %}self{% endif %}">
+        {{ entry.rank }}. <a>{{ entry.user.get_full_name }}</a>
+    </div>
+    <span class="count-container {% cycle 'odd' 'even' %}"
+       style="width: {{ entry.factor }}%;">
+      <span class="count">{{ entry.user.score }}</span>
+    </span>
+  </li>
+  {% empty %}
+  <p>Nobody has any achievements yet! :(</p>
+  {% endfor %}
+</ul>
+
+{% include 'pagination.html' %}
+
+{% endblock content %}

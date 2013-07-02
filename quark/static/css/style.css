@@ -527,6 +527,65 @@ li#login-welcome {
   margin: 0 15px;
 }
 
+#pagination {
+  text-align: center;
+  font-size: 0.9em;
+}
+
+/* LEADERBOARDS */
+
+.leaderboard {
+  margin: 0 0 25px 0;
+}
+
+.leaderboard li {
+  clear: both;
+  height: 24px;
+}
+
+.leaderboard .name {
+  float: left;
+  width: 25%;
+  padding: 0.075em 1%;
+  color: #000;
+}
+
+.leaderboard .name.self {
+  font-weight: bold;
+}
+
+.leaderboard .name a {
+  color: #000;
+}
+
+.leaderboard .name.odd {
+  background-color: #aaa;
+}
+
+.leaderboard .name.even {
+  background-color: #eee;
+}
+
+.leaderboard .count {
+  float: right;
+  padding-right: 0.5em;
+}
+
+.leaderboard .count-container {
+  float: left;
+  color: #fff;
+  border-radius: 0 0.5em 0.5em 0;
+  padding-bottom: 0.15em;
+}
+
+.leaderboard .count-container.odd {
+  background-color: #71b7e6;
+}
+
+.leaderboard .count-container.even {
+  background-color: #9bceed;
+}
+
 /*****  MEDIA QUERIES  *****/
 @media (max-width: 820px) {
 
@@ -671,4 +730,19 @@ li#login-welcome {
      * removing the ul ul li background color on hover. */
     background: none;
   }
+}
+
+@media (max-width: 480px) {
+  /* LEADERBOARD MEDIA QUERIES */
+
+  .leaderboard .name {
+    height: auto;
+    width: 70%;
+  }
+
+  .leaderboard .count-container {
+    /* !important is needed to override inline HTML style specifying width */
+    width: 25% !important;
+  }
+
 }
