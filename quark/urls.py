@@ -12,9 +12,9 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     url(r'^$', TemplateView.as_view(template_name='index.html'), name='home'),
-    url(r'^accounts/', include('quark.auth.urls',
-                               app_name='auth',
-                               namespace='auth')),
+    url(r'^accounts/', include('quark.accounts.urls',
+                               app_name='accounts',
+                               namespace='accounts')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^courses/', include('quark.courses.urls',
                               app_name='courses',

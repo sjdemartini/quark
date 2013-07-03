@@ -153,7 +153,7 @@
     preferred_name: Staff
     user_permissions: []
     username: staffuser
-  model: auth.quarkuser
+  model: accounts.quarkuser
   pk: 10
 - fields:
     created: '2013-01-05T00:00:00+00:00'
@@ -168,5 +168,5 @@
     preferred_name: Coord
     user_permissions: []
     username: coorduser
-  model: auth.quarkuser
+  model: accounts.quarkuser
   pk: 11

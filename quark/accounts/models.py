@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
@@ -309,7 +308,3 @@ class CompanyQuarkUser(AbstractBaseUser, PermissionsMixin):
     @property
     def is_staff(self):
         return False
-
-
-# pylint: disable=C0103
-User = get_user_model()

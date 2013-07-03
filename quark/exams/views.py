@@ -12,7 +12,7 @@ from django.views.generic import DetailView
 from django.views.generic import ListView
 from django.views.generic import UpdateView
 
-from quark.auth.decorators import officer_required
+from quark.accounts.decorators import officer_required
 from quark.exams.forms import EditForm
 from quark.exams.forms import EditPermissionForm
 from quark.exams.forms import FlagForm

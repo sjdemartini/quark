@@ -9,7 +9,7 @@
 <div class="error">Invalid username and/or password</div>
 {% endif %}
 
-<form method="post" action="{% url 'auth:login' %}">
+<form method="post" action="{% url 'accounts:login' %}">
 {% csrf_token %}
 <table>
 <tr>
@@ -26,7 +26,7 @@
 <input type="hidden" name="next" value="{{ next }}" />
 </form>
 
-<p>Forgot your password? <a href="{#TODO: {% url auth:password-reset %} #}">Reset it</a>!</p>
+<p>Forgot your password? <a href="{#TODO: {% url accounts:password-reset %} #}">Reset it</a>!</p>
 {# TODO(sjdemartini): Don't hardcode email addresses like below #}
 <p>Are you a member without an account? Request one by emailing IT at <a href="mailto:it@tbp.berkeley.edu">it@tbp.berkeley.edu</a>.</p>
 

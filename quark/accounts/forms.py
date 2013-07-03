@@ -2,8 +2,8 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 
-from quark.auth.models import LDAPQuarkUser
-from quark.auth.models import QuarkUser
+from quark.accounts.models import LDAPQuarkUser
+from quark.accounts.models import QuarkUser
 
 
 class UserCreationForm(forms.ModelForm):

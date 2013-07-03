@@ -3,8 +3,8 @@ from django import forms
 from django.contrib.admin import widgets
 from django.contrib.auth import get_user_model
 
-from quark.auth.fields import UserCommonNameChoiceField
-from quark.auth.fields import UserCommonNameMultipleChoiceField
+from quark.accounts.fields import UserCommonNameChoiceField
+from quark.accounts.fields import UserCommonNameMultipleChoiceField
 from quark.base.models import Term
 from quark.base_tbp.models import OfficerPosition
 from quark.project_reports.models import ProjectReport

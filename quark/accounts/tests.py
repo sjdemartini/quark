@@ -10,15 +10,15 @@ from django.test.client import RequestFactory
 from django.test.utils import override_settings
 from mock import Mock
 
-from quark.auth.decorators import candidate_required
-from quark.auth.decorators import current_officer_required
-from quark.auth.decorators import officer_required
-from quark.auth.decorators import officer_types_required
-from quark.auth.models import CompanyQuarkUser
-from quark.auth.models import LDAPQuarkUser
-from quark.auth.models import QuarkUser
-from quark.auth.fields import UserCommonNameChoiceField
-from quark.auth.fields import UserCommonNameMultipleChoiceField
+from quark.accounts.decorators import candidate_required
+from quark.accounts.decorators import current_officer_required
+from quark.accounts.decorators import officer_required
+from quark.accounts.decorators import officer_types_required
+from quark.accounts.models import CompanyQuarkUser
+from quark.accounts.models import LDAPQuarkUser
+from quark.accounts.models import QuarkUser
+from quark.accounts.fields import UserCommonNameChoiceField
+from quark.accounts.fields import UserCommonNameMultipleChoiceField
 from quark.base.models import Term
 from quark.base_tbp.models import Officer
 from quark.base_tbp.models import OfficerPosition
@@ -38,7 +38,7 @@ class UserModelTest(TestCase):
         self.assertRaises(NameError, get_user_model)
 
 
-@override_settings(AUTH_USER_MODEL='auth.QuarkUser')
+@override_settings(AUTH_USER_MODEL='accounts.QuarkUser')
 class CreateQuarkUserTestCase(TestCase):
     def setUp(self):
         self.model = QuarkUser
@@ -110,7 +110,7 @@ class CreateQuarkUserTestCase(TestCase):
         self.assertEqual(user.get_short_name(), preferred_name)
 
 
-@override_settings(AUTH_USER_MODEL='auth.LDAPQuarkUser')
+@override_settings(AUTH_USER_MODEL='accounts.LDAPQuarkUser')
 class CreateLDAPQuarkUserTestCase(CreateQuarkUserTestCase):
     def setUp(self):
         super(CreateLDAPQuarkUserTestCase, self).setUp()
@@ -169,7 +169,7 @@ class CreateLDAPQuarkUserTestCase(CreateQuarkUserTestCase):
         self.assertFalse(username_exists(self.username))
 
 
-@override_settings(AUTH_USER_MODEL='auth.CompanyQuarkUser')
+@override_settings(AUTH_USER_MODEL='accounts.CompanyQuarkUser')
 class CreateCompanyQuarkUserTestCase(TestCase):
     def setUp(self):
         self.model = CompanyQuarkUser

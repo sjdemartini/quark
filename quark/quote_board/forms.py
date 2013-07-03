@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth import get_user_model
 
-from quark.auth.fields import UserCommonNameMultipleChoiceField
+from quark.accounts.fields import UserCommonNameMultipleChoiceField
 from quark.quote_board.models import Quote
 
 

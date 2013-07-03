@@ -1,7 +1,7 @@
 from chosen import forms
 
-from quark.auth.models import QuarkUser
-from quark.auth.models import LDAPQuarkUser
+from quark.accounts.models import QuarkUser
+from quark.accounts.models import LDAPQuarkUser
 
 
 def user_common_name_label(obj):

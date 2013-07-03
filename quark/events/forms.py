@@ -2,7 +2,7 @@ from chosen import forms as chosen_forms
 from django import forms
 from django.contrib.auth import get_user_model
 
-from quark.auth.fields import UserCommonNameChoiceField
+from quark.accounts.fields import UserCommonNameChoiceField
 from quark.base.fields import VisualSplitDateTimeField
 from quark.base.models import Term
 from quark.base_tbp.models import OfficerPosition

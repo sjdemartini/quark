@@ -44,8 +44,8 @@ DATABASES = {
 
 # Use 'app_label.model_name'
 # Currently use django.contrib.auth.User.
-# After Django 1.5, use custom user: quark.auth.QuarkUser
-AUTH_USER_MODEL = 'auth.QuarkUser'
+# After Django 1.5, use custom user: quark.accounts.QuarkUser
+AUTH_USER_MODEL = 'accounts.QuarkUser'
 
 AUTHENTICATION_BACKENDS = (
     'quark.qldap.backends.LDAPBackend',
@@ -53,8 +53,8 @@ AUTHENTICATION_BACKENDS = (
 )
 
 LOGIN_REDIRECT_URL = '/'
-LOGIN_URL = 'auth:login'
-LOGOUT_URL = 'auth:logout'
+LOGIN_URL = 'accounts:login'
+LOGOUT_URL = 'accounts:logout'
 REDIRECT_FIELD_NAME = 'next'
 
 # Local time zone for this installation. Choices can be found here:
@@ -180,8 +180,8 @@ TEMPLATE_DIRS = (
 
 # All projects that we write (and thus, need to be tested) should go here.
 PROJECT_APPS = [
+    'quark.accounts',
     'quark.achievements',
-    'quark.auth',
     'quark.base',
     'quark.base_pie',
     'quark.base_tbp',

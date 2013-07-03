@@ -15,7 +15,7 @@ DATABASES = {
 }
 
 # Use nonLDAP model
-AUTH_USER_MODEL = 'auth.QuarkUser'
+AUTH_USER_MODEL = 'accounts.QuarkUser'
 
 # We don't need to test these apps.
 BLACKLISTED_APPS = ['django_evolution', 'django.contrib.flatpages', 'south']

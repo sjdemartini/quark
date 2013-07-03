@@ -34,7 +34,7 @@ ADMINS = ((_name, _email),)
 MANAGERS = ADMINS
 
 # Do not use LDAP for dev server. Authentication backend still possible
-AUTH_USER_MODEL = 'auth.QuarkUser'
+AUTH_USER_MODEL = 'accounts.QuarkUser'
 
 DATABASES = {
     'default': {

@@ -12,7 +12,7 @@ MANAGERS = ADMINS
 
 # Only use LDAP user in production. Just use QuarkUser for staging.
 # If you believe LDAP causes issues in production, change it locally to test
-AUTH_USER_MODEL = 'auth.QuarkUser'
+AUTH_USER_MODEL = 'accounts.QuarkUser'
 
 DATABASES = {
     'default': {

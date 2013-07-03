@@ -77,13 +77,13 @@
                     {% endif %}
                   </ul>
                 </li>
-                <li><a href="{% url 'auth:logout' %}?next={{ request.path }}">Log Out</a></li>
+                <li><a href="{% url 'accounts:logout' %}?next={{ request.path }}">Log Out</a></li>
               </ul>
               {% endwith is_member %}
               {% endwith is_officer %}
               {% endwith is_candidate %}
               {% else %} {# if not authenticated #}
-              <a href="{% url 'auth:login' %}?next={{ request.path }}">Log In</a>
+              <a href="{% url 'accounts:login' %}?next={{ request.path }}">Log In</a>
               {% endif %}
               {% endblock login_dropdown %}
             </div>

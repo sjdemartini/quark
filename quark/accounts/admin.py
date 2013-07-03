@@ -2,12 +2,12 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from quark.auth.forms import LDAPUserAdminChangeForm
-from quark.auth.forms import LDAPUserCreationForm
-from quark.auth.forms import UserAdminChangeForm
-from quark.auth.forms import UserCreationForm
-from quark.auth.models import LDAPQuarkUser
-from quark.auth.models import QuarkUser
+from quark.accounts.forms import LDAPUserAdminChangeForm
+from quark.accounts.forms import LDAPUserCreationForm
+from quark.accounts.forms import UserAdminChangeForm
+from quark.accounts.forms import UserCreationForm
+from quark.accounts.models import LDAPQuarkUser
+from quark.accounts.models import QuarkUser
 
 
 class QuarkUserAdmin(UserAdmin):
@@ -42,7 +42,7 @@ class LDAPQuarkUserAdmin(QuarkUserAdmin):
     add_form = LDAPUserCreationForm
 
 
-if settings.AUTH_USER_MODEL == 'auth.QuarkUser':
+if settings.AUTH_USER_MODEL == 'accounts.QuarkUser':
     admin.site.register(QuarkUser, QuarkUserAdmin)
-elif settings.AUTH_USER_MODEL == 'auth.LDAPQuarkUser':
+elif settings.AUTH_USER_MODEL == 'accounts.LDAPQuarkUser':
     admin.site.register(LDAPQuarkUser, LDAPQuarkUserAdmin)
