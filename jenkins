@@ -17,8 +17,8 @@ pushd $(dirname $0)
 
 # The following conditions must be true for jenkins to return true:
 #   1. The tests must pass.
-#   2. pylint must be perfect, as evidenced by a perfect score of "10.00/10".
-#   3. pep8 must be perfect, as evidenced by no lines with "py" in the report.
+#   2. pylint must be perfect, as evidenced by no lines with ".py" in the report.
+#   3. pep8 must be perfect, as evidenced by no lines with ".py" in the report.
 # All other lint errors are not taken into consideration for the +/- Verified
 # flag. Jenkins will report the other lint errors in pretty graphs though.
 python manage.py jenkins \
@@ -27,21 +27,20 @@ python manage.py jenkins \
 # Error code should be 0 (no errors)
 jenkins_status=$?
 
-# Check if pylint is perfect (error code should be 0: grep should find that line)
-grep -q "Your code has been rated at 10.00/10" reports/pylint.report
+# Check if pylint is perfect (error code should not be 0: grep shouldn't find any lines with .py)
+grep -q ".py" reports/pylint.report
 pylint_status=$?
 
-# Check if pep8 is perfect (error code should not be 0: grep shouldn't find that line)
-grep -q "py" reports/pep8.report
+# Check if pep8 is perfect (error code should not be 0: grep shouldn't find any lines with .py)
+grep -q ".py" reports/pep8.report
 pep8_status=$?
 
-success=$(($jenkins_status != 0 || $pylint_status != 0 || $pep8_status == 0))
-echo $success
+success=$(($jenkins_status != 0 || $pylint_status == 0 || $pep8_status == 0))
 
 if [[ $success == 0 ]]; then
     echo -e "\nEverything looks good!"
 else
-    if [[ $pylint_status != 0 ]]; then
+    if [[ $pylint_status == 0 ]]; then
         echo -e "\nPYLINT VIOLATIONS"
         echo "================================================================"
         # Print until first blank line (the lines that say the errors)
