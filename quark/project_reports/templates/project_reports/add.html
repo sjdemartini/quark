@@ -1,0 +1,13 @@
+{% extends 'project_reports/base.html' %}
+
+{% block title %}Add New Project Report | {{ block.super }}{% endblock title %}
+
+{% block content %}
+<form action="{% url 'project-reports:add' %}" method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <table>
+  {{ form.as_table }}
+  </table>
+<div><input type="submit" value="Submit"></div>
+</form>
+{% endblock content %}

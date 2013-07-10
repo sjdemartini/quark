@@ -24,10 +24,10 @@ class ProjectReport(models.Model):
     area = models.CharField(
         max_length=2, choices=PROJECT_AREA_CHOICES, blank=True)
     organize_hours = models.PositiveSmallIntegerField(
-        default=0, help_text='Number of hours spent organizing the event')
+        default=0, help_text='Number of hours spent organizing the event.')
     participate_hours = models.PositiveSmallIntegerField(
         default=0, help_text=('Number of hours spent by a single person '
-                              'participating in the event'))
+                              'participating in the event.'))
     is_new = models.BooleanField(
         default=False, help_text=('Was this the first time an event like this '
                                   'had been held?'))

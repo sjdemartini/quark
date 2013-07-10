@@ -1,0 +1,74 @@
+{% extends 'project_reports/base.html' %}
+
+{% block title %}{{ project_report.title }} | {{ block.super }}{% endblock title %}
+
+{% block intro %}
+<h1>{{ project_report.title }} {% if not project_report.complete %}(Incomplete){% endif %}</h1>
+{% endblock intro %}
+
+{% block content %}
+<div>
+  {% if perms.project_reports.change_projectreport %}
+  <div><a href="{% url 'project-reports:edit' project_report.pk %}">Edit This Project Report</a></div>
+  {% endif %}
+  <dl>
+    <dt class="inline">Author</dt>
+      <dd>{{ project_report.author }}</dd>
+    <dt class="inline">Date of Project</dt>
+      <dd>{{ project_report.date }}</dd>
+    <dt class="inline">Project Area</dt>
+      <dd>{{ project_report.get_area_display }}</dd>
+    <dt class="inline">Organization Hours</dt>
+      <dd>{{ project_report.organize_hours }}</dd>
+    <dt class="inline">Participation Hours</dt>
+      <dd>{{ project_report.participate_hours }}</dd>
+    <dt class="inline">Is New?</dt>
+      <dd>{{ project_report.is_new|yesno:"Yes,No" }}</dd>
+    {% if project_report.other_group %}
+    <dt class="inline">Other Groups</dt>
+      <dd>{{ project_report.other_group }}</dd>
+    {% endif %}
+    <dt>Description</dt>
+      <dd>{{ project_report.description }}</dd>
+    <dt>Purpose</dt>
+      <dd>{{ project_report.purpose }}</dd>
+    <dt>Organization</dt>
+      <dd>{{ project_report.organization }}</dd>
+    <dt>Cost</dt>
+      <dd>{{ project_report.cost }}</dd>
+    <dt>Problems</dt>
+      <dd>{{ project_report.problems }}</dd>
+    <dt>Results</dt>
+      <dd>{{ project_report.results }}</dd>
+    <dt>Officers ({{ project_report.officer_list.count }})</dt>
+      <dd>
+      {% for officer in project_report.officer_list.all %}{{ officer }}{% if not forloop.last %}, {% endif %}
+      {% empty %}
+      None
+      {% endfor %}
+      </dd>
+    <dt>Members ({{ project_report.member_list.count }})</dt>
+      <dd>
+      {% for member in project_report.member_list.all %}{{ member }}{% if not forloop.last %}, {% endif %}
+      {% empty %}
+      None
+      {% endfor %}
+      </dd>
+    <dt>Candidates ({{ project_report.candidate_list.count }})</dt>
+      <dd>
+      {% for candidate in project_report.candidate_list.all %}{{ candidate }}{% if not forloop.last %}, {% endif %}
+      {% empty %}
+      None
+      {% endfor %}
+      </dd>
+    {% if project_report.non_tbp %}
+    <dt>Non-TBP Participants</dt>
+      <dd>{{ project_report.non_tbp }}</dd>
+    {% endif %}
+    {% if project_report.attachment %}
+    <dt>Attachment</dt>
+      <dd><a href="{{ project_report.attachment.url }}">{{ project_report.attachment }}</a></dd>
+    {% endif %}
+  </dl>
+</div>
+{% endblock content %}

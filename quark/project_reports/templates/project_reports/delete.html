@@ -1,0 +1,16 @@
+{% extends 'project_reports/base.html' %}
+
+{% block title %}Confirm Deletion | {{ block.super }}{% endblock title %}
+
+{% block intro %}
+<h1>Delete Project Report</h1>
+{% endblock intro %}
+
+{% block content %}
+<p>You want to delete {{ project_report }}.</p>
+<p>Are you sure?</p>
+<form method="post">
+  {% csrf_token %}
+  <div><input type="submit" value="Delete"></div>
+</form>
+{% endblock content %}

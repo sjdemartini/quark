@@ -1,0 +1,13 @@
+{% extends 'project_reports/base.html' %}
+
+{% block title %}Modify {{ project_report }} | {{ block.super }}{% endblock title %}
+
+{% block content %}
+<form method="post">
+  {% csrf_token %}
+  <table>
+  {{ form.as_table }}
+  </table>
+  <div><input type="submit" value="Submit"></div>
+</form>
+{% endblock content %}
