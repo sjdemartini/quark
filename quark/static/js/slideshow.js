@@ -70,13 +70,13 @@ var slideshow = function(selector, options) {
     options = {};
   // The slide container id (can be different than the first argument)
   if (!(isString(options.slideContainer)))
-    options.slideContainer = '#slideshowSlides';
+    options.slideContainer = '#slideshow-slides';
   // The id of the left button
   if (!(isString(options.leftButtonID)))
-    options.leftButtonID = '#slideshowLeft';
+    options.leftButtonID = '#slideshow-left';
   // The id of the right button
   if (!(isString(options.rightButtonID)))
-    options.rightButtonID = '#slideshowRight';
+    options.rightButtonID = '#slideshow-right';
   // The beginning of the id of each slide.  Is followed by the index.
   if (!(isString(options.slideID)))
     options.slideID = '#slide-';
@@ -86,7 +86,7 @@ var slideshow = function(selector, options) {
   // The class of the info boxes or the container of whatever else is displayed
   // with the slide other than the image.
   if (!(isString(options.slideInfoClass)))
-    options.slideInfoClass = '.slideInfo';
+    options.slideInfoClass = '.slide-info';
   // First slide index
   if (!(isNumber(options.firstSlideIndex)))
     options.firstSlideIndex = 0;
@@ -109,7 +109,7 @@ var slideshow = function(selector, options) {
   if (!(isNumber(options.dimensionsRatio)))
     options.dimensionsRatio = 2 / 3;
   else
-    options.dimensionsRatio = makePositiveInt(options.dimensionsRatio);
+    options.dimensionsRatio = Math.abs(options.dimensionsRatio);
   // Whether to add the info box height to the height of the slideshow
   if (!(isBoolean(options.addInfoHeight)))
     options.addInfoHeight = false;

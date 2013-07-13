@@ -1,0 +1,44 @@
+// _base.scss - defines variables and custom mixins for general css3 aid and is
+// imported in all other pages except compass and common
+@import "compass";
+
+// Variables
+$break-small: 480px;
+$break-medium: 820px;
+
+$color-focus: #009;
+
+// Mixins
+@mixin respond-to($media) {
+  @if $media == small {
+    @media only screen and (max-width: $break-small) { @content; }
+  }
+  @else if $media == medium {
+    @media only screen and (max-width: $break-medium) { @content; }
+  }
+}
+
+@mixin background-light {
+  background: {
+    color: #eee;
+    image: url(/static/images/gray_light_texture.jpg);
+  }
+}
+
+@mixin background-gray {
+  background: {
+    color: gray;
+    image: url(/static/images/gray_texture.jpg);
+  }
+}
+
+@mixin absolute-position($left: "", $top: "", $right: "", $bottom: "",
+    $width: "", $height: "") {
+  position: absolute;
+  left: unquote($left);
+  top: unquote($top);
+  right: unquote($right);
+  bottom: unquote($bottom);
+  width: unquote($width);
+  height: unquote($height);
+}

@@ -3,7 +3,6 @@
 {% block title %}Home | {{ block.super }}{% endblock title %}
 
 {% block head %}{% load static %}
-    <link rel="stylesheet" href="{% static 'css/home.css' %}">
     <script src="{% static 'js/slideshow.js' %}"></script>
     <script>
       $(document).ready(function() {
@@ -29,33 +28,33 @@
 {% block content %}
 {# TODO(sjdemartini): make this content dynamic. currently static test content #}
           <div id="slideshow">
-            <div id="slideshowSlides">
+            <div id="slideshow-slides">
               <li id="slide-0" class="slide">
                 <img src="http://www.placehold.it/700x600"/>
-                <div class="slideInfo">
+                <div class="slide-info">
                   Test 1  Test 1  Test 1  Test 1  Test 1  Test 1  Test 1  Test 1  Test 1  Test 1  Test 1  Test 1  Test 1
                 </div>
               </li>
               <li id="slide-1" class="slide">
                 <img src="http://www.placehold.it/600x400"/>
-                <div class="slideInfo">
+                <div class="slide-info">
                   Test 2
                 </div>
               </li>
               <li id="slide-2" class="slide">
                 <img src="http://www.placehold.it/300x200"/>
-                <div class="slideInfo">
+                <div class="slide-info">
                   Test 3
                 </div>
               </li>
               <li id="slide-3" class="slide">
                 <img src="http://www.placehold.it/350x150"/>
-                <div class="slideInfo">
+                <div class="slide-info">
                   Test 4
                 </div>
               </li>
-              <div id="slideshowLeft" class="slideshowButton"><div id="slideshowLeftArrow"></div></div>
-              <div id="slideshowRight" class="slideshowButton"><div id="slideshowRightArrow"></div></div>
+              <div id="slideshow-left" class="slideshow-button"><div id="slideshow-left-arrow"></div></div>
+              <div id="slideshow-right" class="slideshow-button"><div id="slideshow-right-arrow"></div></div>
             </div>
           </div>
           <div id="updates">

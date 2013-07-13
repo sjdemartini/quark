@@ -1,0 +1,214 @@
+// _home.scss
+@import "base";
+
+/* FRONT PAGE */
+#welcome {
+  padding-right: 15px;
+  font-weight: bold;
+}
+
+#banner {
+  background: url(/static/images/banner.jpg) black top center no-repeat;
+  min-height: 338px;
+  max-width: none;
+  margin: 0 auto;
+  @include respond-to(small) {
+    background: none;
+  }
+}
+
+#banner-focus {
+  // used to create a max-width on banner elements
+  margin: 0 auto;
+  max-width: 1000px;
+  position: relative;
+}
+
+#banner-text {
+  background-color: rgba(0, 0, 0, 0.3);
+  color: #fff;
+  margin-left: 43%;
+  margin-right: 2%;
+  padding: .3em 1em;
+  top: 1em;
+  h1 {
+    color: #fff;
+  }
+  h3 {
+    color: #fff;
+    font-weight: 300;
+  }
+  @include respond-to(medium) {
+    background-color: rgba(0, 0, 0, 0.7);
+    margin-left: 3%;
+    margin-right: 3%;
+  }
+  @include respond-to(small) {
+    margin: 0;
+    top: 0;
+  }
+}
+
+#updates {
+  padding-bottom: 10px;
+  > div {
+    @include border-radius(4px);
+    @include box-shadow(0 1px 5px rgba(0, 0, 0, 0.2));
+    background-color: #fff;
+    float: left;
+    margin: 15px 1.667%;
+    padding-top: 0;
+    padding-bottom: 0;
+    position: relative;
+    text-align: center;
+    width: 30%;
+    &:hover {
+      @include box-shadow(0 3px 10px rgba(0, 0, 0, 0.4));
+    }
+    @include respond-to(medium) {
+      margin-left: 10%;
+      margin-right: 10%;
+      width: 80%;
+    }
+    @include respond-to(small) {
+      margin-left: 5%;
+      margin-right: 5%;
+      width: 90%;
+    }
+    li {
+      padding-bottom: 10px;
+      &:hover {
+        background: #eee;
+      }
+      &:last-child:hover {
+        @include border-bottom-radius(4px);
+      }
+    }
+    a {
+      text-decoration: none;
+    }
+  }
+}
+
+.updatedesc {
+  padding: .2em .5em;
+}
+
+.updatetitle {
+  padding: .2em .5em;
+  font-weight: bold;
+}
+
+.updatedesc {
+  color: #000;
+}
+
+/* SLIDESHOW */
+#slideshow-slides {
+  background-color: #444;
+  float: left;
+  overflow: hidden;
+  @include border-radius(4px);
+  @include box-shadow(0 1px 5px rgba(0, 0, 0, 0.2));
+  &:hover {
+    @include box-shadow(0 3px 10px rgba(0, 0, 0, 0.4));
+  }
+  width: 60%;
+  margin: 15px 1.667%;
+  @include respond-to(small) {
+    width: 90%;
+    margin: 15px 5% 0 5%;
+  }
+  @include respond-to(medium) {
+    width: 80%;
+    margin: 15px 10% 0 10%;
+  }
+}
+
+#slideshow img {
+  @include absolute-position(0px, 0px, $width:100%);
+}
+
+.slide {
+  width: 100%;
+  height: 100%;
+}
+
+.slide-info {
+  background: #fff;
+  @include box-shadow(0 3px 10px rgba(0, 0, 0, 0.4));
+  position: absolute;
+  bottom: 0%;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 5px;
+  @include border-bottom-radius(4px);
+  height: 55px;
+  @include respond-to(small) {
+    height: 80px;
+  }
+}
+
+#slideshow-left {
+  top: 15px;
+  left: 15px;
+}
+
+#slideshow-left-arrow {
+  // needs to be in front of border-right-color
+  border: 18px solid transparent;
+  top: 5px;
+  right: 7px;
+  @include respond-to(small) {
+    border: 10px solid transparent;
+    top: 5px;
+    right: 2px;
+  }
+}
+#slideshow-left-arrow {
+  width: 0;
+  height: 0;
+  border-right-color: #000;
+}
+
+#slideshow-right {
+  top: 15px;
+  right: 15px;
+}
+
+#slideshow-right-arrow {
+  // needs to be in front of border-left-color
+  border: 18px solid transparent;
+  left: 18px;
+  top: 5px;
+  @include respond-to(small) {
+    border: 10px solid transparent;
+    left: 12px;
+  }
+}
+#slideshow-right-arrow {
+  width: 0;
+  height: 0;
+  border-left-color: #000;
+}
+
+.slideshow-button {
+  width: 48px;
+  height: 48px;
+  @include respond-to(small) {
+    width: 32px;
+    height: 32px;
+  }
+  background-color: #fff;
+  position: absolute;
+  opacity: 0.2;
+  transition: all 125ms ease-in;
+  border-radius: 48px;
+  font-size: 30px;
+  text-align: center;
+  -webkit-touch-callout: none;
+  @include experimental(user-select, none);
+  &:hover {
+    opacity: 1;
+  }
+}
