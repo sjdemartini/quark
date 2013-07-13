@@ -19,7 +19,7 @@ class DepartmentListView(ListView):
 
     def get_queryset(self):
         courses_with_surveys = Course.objects.filter(survey__published=True)
-        course_ids = Exam.objects.approved_set().values_list(
+        course_ids = Exam.objects.get_approved().values_list(
             'course_instance__course_id', flat=True)
         courses_with_exams = Course.objects.filter(id__in=course_ids)
         return Department.objects.filter(
@@ -38,7 +38,7 @@ class CourseListView(ListView):
         return super(CourseListView, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
-        course_instance_ids = Exam.objects.approved_set().values_list(
+        course_instance_ids = Exam.objects.get_approved().values_list(
             'course_instance_id', flat=True)
         course_instances_with_exams = CourseInstance.objects.filter(
             id__in=course_instance_ids)
@@ -72,7 +72,7 @@ class CourseDetailView(DetailView):
         context = super(CourseDetailView, self).get_context_data(**kwargs)
         context['course_instances'] = CourseInstance.objects.filter(
             course=self.course)
-        context['exams'] = Exam.objects.approved_set().filter(
+        context['exams'] = Exam.objects.get_approved().filter(
             course_instance__course=self.course)
         context['surveys'] = Survey.objects.filter(course=self.course)
         context['instructors'] = Instructor.objects.filter(
@@ -112,7 +112,7 @@ class InstructorDetailView(DetailView):
         context = super(InstructorDetailView, self).get_context_data(**kwargs)
         context['course_instances'] = CourseInstance.objects.filter(
             instructors=self.instructor)
-        context['exams'] = Exam.objects.approved_set().filter(
+        context['exams'] = Exam.objects.get_approved().filter(
             course_instance__in=context['course_instances'])
         context['surveys'] = Survey.objects.filter(instructor=self.instructor)
         context['courses'] = Course.objects.filter(

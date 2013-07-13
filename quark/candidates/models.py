@@ -220,7 +220,7 @@ class ExamFileCandidateRequirement(CandidateRequirement):
 
     def get_completed(self, candidate):
         """Returns the number of credits completed by candidate"""
-        return Exam.objects.approved_set().filter(
+        return Exam.objects.get_approved().filter(
             submitter=candidate.user).count()
 
 

@@ -57,10 +57,8 @@ class ExamForm(forms.ModelForm):
 
     def save(self, *args, **kwargs):
         """Add a course instance to the exam."""
-        exam = super(ExamForm, self).save(*args, **kwargs)
-        exam.course_instance = self.course_instance
-        exam.save()
-        return exam
+        self.instance.course_instance = self.course_instance
+        return super(ExamForm, self).save(*args, **kwargs)
 
 
 class UploadForm(ExamForm):
@@ -116,14 +114,12 @@ class UploadForm(ExamForm):
 
     def save(self, *args, **kwargs):
         """Check if professors are blacklisted."""
-        exam = super(UploadForm, self).save(*args, **kwargs)
         for instructor in self.cleaned_data.get('instructors'):
             permission = InstructorPermission.objects.get(
                 instructor=instructor).permission_allowed
             if permission is False:
-                exam.blacklisted = True
-        exam.save()
-        return exam
+                self.instance.blacklisted = True
+        return super(UploadForm, self).save(*args, **kwargs)
 
 
 class EditForm(ExamForm):
@@ -170,7 +166,7 @@ class FlagForm(forms.ModelForm):
         fields = ('reason',)
 
 
-class ResolveFlagForm(forms.ModelForm):
+class FlagResolveForm(forms.ModelForm):
     resolution = forms.CharField(widget=forms.Textarea, label='Resolution')
 
     class Meta:

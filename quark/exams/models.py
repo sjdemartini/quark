@@ -11,18 +11,16 @@ from quark.courses.models import Instructor
 
 
 class ExamManager(models.Manager):
-    def approved_set(self):
-        """Returns a query set of all approved exams.
+    def get_approved(self):
+        """Return a filtered queryset of approved exams.
 
-          An exam is 'approved' if it meets all of the following conditions:
+        An exam is 'approved' if it meets all of the following conditions:
           1. Verified by an officer
           2. Has less than or equal to ExamFlag.LIMIT flags
           3. Is not associated with a blacklisted instructor
         """
-        return Exam.objects.filter(
-            verified=True,
-            flags__lte=ExamFlag.LIMIT,
-            blacklisted=False)
+        return self.filter(verified=True, flags__lte=ExamFlag.LIMIT,
+                           blacklisted=False)
 
 
 class Exam(models.Model):
@@ -56,10 +54,12 @@ class Exam(models.Model):
     EXAM_FILES_LOCATION = 'exam_files'
 
     def rename_file(instance, filename):
-        """Files are stored in directories inside the exam files directory
+        """Rename this exam file as a unique id.
+
+        Files are stored in directories inside the exam files directory
         corresponding to the first two characters of the unique id. File names
-        consist of the whole unique 32-character alphanumeric id,
-        without hyphens.
+        consist of the whole unique 32-character alphanumeric id, without
+        hyphens.
         """
         # TODO(ericdwang): look into using django-filer
         # pylint: disable=E0213
@@ -146,11 +146,13 @@ class Exam(models.Model):
 
 
 class ExamFlag(models.Model):
+    """Flag an issue with a particular exam on the website."""
     # Constant for how many times an exam can be flagged before being hidden
     LIMIT = 2
 
-    exam = models.ForeignKey(Exam)
-    reason = models.TextField(blank=False)
+    exam = models.ForeignKey(Exam, help_text='The exam that has an issue.')
+    reason = models.TextField(blank=False,
+                              help_text='Why is the exam being flagged?')
     created = models.DateTimeField(auto_now_add=True)
     # After flagged exam is dealt with, an explanation about how it was
     # resolved should be added, and then it should be de-flagged
@@ -199,15 +201,15 @@ def delete_file(sender, instance, **kwargs):
 
 
 def update_exam_flags(sender, instance, **kwargs):
-    """Updates the amount of flags an exam has every time a flag is updated."""
+    """Update the amount of flags an exam has every time a flag is updated."""
     exam = Exam.objects.get(pk=instance.exam.pk)
     exam.flags = ExamFlag.objects.filter(exam=exam, resolved=False).count()
     exam.save()
 
 
 def update_exam_blacklist(sender, instance, **kwargs):
-    """Updates whether an exam is blacklisted every time an
-    instructor permission is updated.
+    """Update whether an exam is blacklisted every time an instructor
+    permission is updated.
     """
     exams = Exam.objects.filter(
         course_instance__instructors=instance.instructor)

@@ -1,9 +1,11 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import permission_required
 from django.core.servers.basehttp import FileWrapper
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.utils.encoding import smart_bytes
 from django.views.generic import CreateView
@@ -12,11 +14,10 @@ from django.views.generic import DetailView
 from django.views.generic import ListView
 from django.views.generic import UpdateView
 
-from quark.accounts.decorators import officer_required
 from quark.exams.forms import EditForm
 from quark.exams.forms import EditPermissionForm
 from quark.exams.forms import FlagForm
-from quark.exams.forms import ResolveFlagForm
+from quark.exams.forms import FlagResolveForm
 from quark.exams.forms import UploadForm
 from quark.exams.models import Exam
 from quark.exams.models import ExamFlag
@@ -32,34 +33,30 @@ class ExamUploadView(CreateView):
         return super(ExamUploadView, self).dispatch(*args, **kwargs)
 
     def form_valid(self, form):
-        """Assign submitter to the exam, and convert the exam_file to pdf
-        if it is not already a pdf.
-        """
-        exam = form.save(commit=False)
-        exam.submitter = self.request.user
-        exam.save()
+        """Assign submitter to the exam."""
+        form.instance.submitter = self.request.user
         return super(ExamUploadView, self).form_valid(form)
 
     def get_success_url(self):
-        return reverse('courses:list-departments')
+        """Go to the course page corresponding to the uploaded exam."""
+        return reverse('courses:detail',
+                       kwargs={'dept_slug': self.object.department.slug,
+                               'course_num': self.object.number})
 
 
 class ExamDownloadView(DetailView):
     """View for downloading exams."""
-    exam = None
-
-    def dispatch(self, *args, **kwargs):
-        self.exam = get_object_or_404(Exam, pk=self.kwargs['exam_pk'])
-        return super(ExamDownloadView, self).dispatch(*args, **kwargs)
-
-    def get_object(self, queryset=None):
-        return self.exam
+    model = Exam
+    object = None
+    pk_url_kwarg = 'exam_pk'
 
     def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
         response = HttpResponse(
-            FileWrapper(self.exam.exam_file), content_type='application/pdf')
+            FileWrapper(self.object.exam_file),
+            content_type='application/pdf')
         response['Content-Disposition'] = 'inline;filename="{exam}"'.format(
-            exam=smart_bytes(self.exam, encoding='ascii'))
+            exam=smart_bytes(self.object, encoding='ascii'))
         return response
 
 
@@ -70,7 +67,9 @@ class ExamReviewListView(ListView):
         Q(blacklisted=False), Q(verified=False) | Q(flags__gt=0))
     template_name = 'exams/review.html'
 
-    @method_decorator(officer_required)
+    @method_decorator(login_required)
+    @method_decorator(
+        permission_required('exams.change_exam', raise_exception=True))
     def dispatch(self, *args, **kwargs):
         return super(ExamReviewListView, self).dispatch(*args, **kwargs)
 
@@ -90,7 +89,9 @@ class ExamEditView(UpdateView):
     template_name = 'exams/edit.html'
     exam = None
 
-    @method_decorator(officer_required)
+    @method_decorator(login_required)
+    @method_decorator(
+        permission_required('exams.change_exam', raise_exception=True))
     def dispatch(self, *args, **kwargs):
         self.exam = get_object_or_404(Exam, pk=self.kwargs['exam_pk'])
         return super(ExamEditView, self).dispatch(*args, **kwargs)
@@ -111,21 +112,15 @@ class ExamEditView(UpdateView):
 
 class ExamDeleteView(DeleteView):
     context_object_name = 'exam'
+    model = Exam
+    pk_url_kwarg = 'exam_pk'
     template_name = 'exams/delete.html'
-    exam = None
 
-    @method_decorator(officer_required)
+    @method_decorator(login_required)
+    @method_decorator(
+        permission_required('exams.delete_exam', raise_exception=True))
     def dispatch(self, *args, **kwargs):
-        self.exam = get_object_or_404(Exam, pk=self.kwargs['exam_pk'])
         return super(ExamDeleteView, self).dispatch(*args, **kwargs)
-
-    def get_object(self, queryset=None):
-        return self.exam
-
-    def form_valid(self, form):
-        exam = form.save(commit=False)
-        exam.delete()
-        return super(ExamDeleteView, self).form_valid(form)
 
     def get_success_url(self):
         return reverse('exams:review')
@@ -142,9 +137,7 @@ class ExamFlagCreateView(CreateView):
 
     def form_valid(self, form):
         """Flag exam if valid data is posted."""
-        flag = form.save(commit=False)
-        flag.exam = self.exam
-        flag.save()
+        form.instance.exam = self.exam
         return super(ExamFlagCreateView, self).form_valid(form)
 
     def get_context_data(self, **kwargs):
@@ -157,24 +150,33 @@ class ExamFlagCreateView(CreateView):
 
 
 class ExamFlagResolveView(UpdateView):
-    form_class = ResolveFlagForm
+    form_class = FlagResolveForm
     context_object_name = 'flag'
+    model = ExamFlag
+    object = None
+    pk_url_kwarg = 'flag_pk'
     template_name = 'exams/resolve.html'
-    flag = None
 
-    @method_decorator(officer_required)
+    @method_decorator(login_required)
+    @method_decorator(
+        permission_required('exams.change_examflag', raise_exception=True))
     def dispatch(self, *args, **kwargs):
-        self.flag = get_object_or_404(ExamFlag, pk=kwargs['flag_pk'])
         return super(ExamFlagResolveView, self).dispatch(*args, **kwargs)
 
-    def get_object(self, queryset=None):
-        return self.flag
+    def get(self, *args, **kwargs):
+        self.object = self.get_object()  # get the flag object
+
+        # If the exam pk provided in the URL doesn't match the exam for which
+        # this flag is addressing, redirect to the proper address for the flag
+        if self.kwargs['exam_pk'] != str(self.object.exam.pk):
+            return redirect('exams:flag-resolve', exam_pk=self.object.exam.pk,
+                            flag_pk=self.object.pk)
+        else:
+            return super(ExamFlagResolveView, self).get(self, *args, **kwargs)
 
     def form_valid(self, form):
         """Resolve flag if valid data is posted."""
-        flag = form.save(commit=False)
-        flag.resolved = True
-        flag.save()
+        form.instance.resolved = True
         return super(ExamFlagResolveView, self).form_valid(form)
 
     def get_success_url(self):
@@ -182,19 +184,18 @@ class ExamFlagResolveView(UpdateView):
 
 
 class PermissionEditView(UpdateView):
-    form_class = EditPermissionForm
     context_object_name = 'permission'
+    form_class = EditPermissionForm
+    model = InstructorPermission
+    pk_url_kwarg = 'permission_pk'
     template_name = 'exams/permission.html'
-    permission = None
 
-    @method_decorator(officer_required)
+    @method_decorator(login_required)
+    @method_decorator(
+        permission_required('exams.change_instructorpermission',
+                            raise_exception=True))
     def dispatch(self, *args, **kwargs):
-        self.permission = get_object_or_404(
-            InstructorPermission, pk=self.kwargs['permission_pk'])
         return super(PermissionEditView, self).dispatch(*args, **kwargs)
-
-    def get_object(self, queryset=None):
-        return self.permission
 
     def get_success_url(self):
         return reverse('exams:review')

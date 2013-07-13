@@ -12,15 +12,15 @@ from quark.exams.views import PermissionEditView
 
 urlpatterns = patterns(
     '',
-    url(r'^upload/$', ExamUploadView.as_view(), name='upload'),
     url(r'^review/$', ExamReviewListView.as_view(), name='review'),
-    url(r'^download/(?P<exam_pk>\d+)/$', ExamDownloadView.as_view(),
+    url(r'^upload/$', ExamUploadView.as_view(), name='upload'),
+    url(r'^(?P<exam_pk>\d+)/edit/$', ExamEditView.as_view(), name='edit'),
+    url(r'^(?P<exam_pk>\d+)/delete/$', ExamDeleteView.as_view(), name='delete'),
+    url(r'^(?P<exam_pk>\d+)/download/$', ExamDownloadView.as_view(),
         name='download'),
-    url(r'^edit/(?P<exam_pk>\d+)/$', ExamEditView.as_view(), name='edit'),
-    url(r'^delete/(?P<exam_pk>\d+)/$', ExamDeleteView.as_view(), name='delete'),
-    url(r'^flag/(?P<exam_pk>\d+)/$', ExamFlagCreateView.as_view(), name='flag'),
-    url(r'^resolve/(?P<flag_pk>\d+)/$', ExamFlagResolveView.as_view(),
-        name='resolve'),
+    url(r'^(?P<exam_pk>\d+)/flag/$', ExamFlagCreateView.as_view(), name='flag'),
+    url(r'^(?P<exam_pk>\d+)/flag/(?P<flag_pk>\d+)/$',
+        ExamFlagResolveView.as_view(), name='flag-resolve'),
     url(r'^permission/(?P<permission_pk>\d+)/$', PermissionEditView.as_view(),
         name='permission')
 )

@@ -15,10 +15,10 @@
   <table>
     {{ form.as_table }}
   </table>
-  <div><input type="submit" value="Submit" /></div>
+  <div><input type="submit" value="Submit"></div>
 </form>
 
-{% if request.user.is_tbp_officer %}
+{% if perms.exams.change_exam %}
   <div><a href="{% url 'exams:edit' exam_pk=exam.pk %}"><strong>Edit exam</strong></a></div>
   {% include "exams/footer.html" %}
 {% endif %}

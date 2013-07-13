@@ -12,22 +12,22 @@
 
 <h3>There {{ flags|pluralize:"is,are" }} {{ flags|length }} flag{{ flags|pluralize }} for this exam.</h3>
 {% if flags %}
-  <ul id="flags">
-    {% for flag in flags %}
-      <li>
-        <div><strong>Reason:</strong> {{ flag.reason }} - {{ flag.created }}</div>
-        {% if flag.resolved %}
-          <div><strong>Resolution:</strong> {{ flag.resolution }} - {{ flag.updated }}</div>
-        {% else %}
-          <strong><a href="{% url 'exams:resolve' flag_pk=flag.pk %}">Resolve</a></strong>
-        {% endif %}
-      </li>
-    {% endfor %}
-  </ul>
+<ul>
+  {% for flag in flags %}
+  <li>
+    <div><strong>Reason:</strong> {{ flag.reason }} - {{ flag.created }}</div>
+    {% if flag.resolved %}
+      <div><strong>Resolution:</strong> {{ flag.resolution }} - {{ flag.updated }}</div>
+    {% else %}
+      <strong><a href="{% url 'exams:flag-resolve' exam_pk=exam.pk flag_pk=flag.pk %}">Resolve</a></strong>
+    {% endif %}
+  </li>
+  {% endfor %}
+</ul>
 {% endif %}
 
 <h3>There {{ permissions|pluralize:"is,are" }} {{ permissions|length }} permission{{ permissions|pluralize }} for this exam.</h3>
-<ul id="permissions">
+<ul>
   {% for permission in permissions %}
   <li><a href="{% url 'exams:permission' permission_pk=permission.pk %}"><strong>{{ permission.instructor }}</strong></a> - Permission allowed: {{ permission.get_permission_allowed_display }}</li>
   {% endfor %}
@@ -42,7 +42,7 @@
     {{ form.as_table }}
   </table>
   <div><a href="{% url 'exams:download' exam_pk=exam.pk %}"><strong>Download Exam</strong></a></div>
-  <div><input type="submit" value="Update" /></div>
+  <div><input type="submit" value="Update"></div>
 </form>
 
 <form action="{% url 'exams:delete' exam_pk=exam.pk %}">

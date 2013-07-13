@@ -42,6 +42,18 @@ class ExamTest(TestCase):
         shutil.rmtree(os.path.join(settings.WORKSPACE_ROOT, 'media', 'tests'),
                       ignore_errors=True)
 
+    def test_exam_manager(self):
+        # All of the 3 test exams have approval (verified, no flags, not
+        # blacklisted) when created in setUp:
+        self.assertEquals(3, Exam.objects.get_approved().count())
+
+        # Remove test_exam1 verification:
+        self.test_exam1.verified = False
+        self.test_exam1.save()
+        approved_set = Exam.objects.get_approved()
+        self.assertEquals(2, approved_set.count())
+        self.assertNotIn(self.test_exam1, approved_set)
+
     def test_properites(self):
         self.assertEquals(self.test_exam1.file_ext, '.txt')
         self.assertNotEqual(self.test_exam1.unique_id, '')

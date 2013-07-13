@@ -11,6 +11,7 @@
 <div>There {{ flagged_exams|pluralize:"is,are" }} <strong>{{ flagged_exams|length }}</strong> flagged exam{{ flagged_exams|pluralize }} needing attention.</div>
 <div>There {{ blacklisted_exams|pluralize:"is,are" }} <strong>{{ blacklisted_exams|length }}</strong> blacklisted exam{{ blacklisted_exams|pluralize }}.</div>
 
+<div>
 <h2>Non-Blacklisted Exams</h2>
 {% if exams %}
   <table id="exam-table">
@@ -50,9 +51,11 @@
     {% endfor %}
   </table>
 {% else %}
-  There are currently no non-blacklisted exams that need to be reviewed.
+  <p>There are currently no non-blacklisted exams that need to be reviewed.</p>
 {% endif %}
+</div>
 
+<div>
 <h2>Blacklisted Exams</h2>
 {% if blacklisted_exams %}
   <table id="blacklisted-exam-table">
@@ -90,10 +93,13 @@
       <td><a href="{% url 'exams:delete' exam_pk=exam.pk %}">Delete</a></td>
     </tr>
     {% endfor %}
-</table>
+  </table>
 {% else %}
-  There are currently no blacklisted exams.
+  <p>There are currently no blacklisted exams.</p>
 {% endif %}
+</div>
 
-<div>Can't get enough reviewing? <a href="{% url 'exams:upload' %}"><strong>Upload an exam</strong></a>!</div>
+<div>
+  <p>Can't get enough reviewing? <a href="{% url 'exams:upload' %}"><strong>Upload an exam</strong></a>!</p>
+</div>
 {% endblock %}

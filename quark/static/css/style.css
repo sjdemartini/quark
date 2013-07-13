@@ -130,6 +130,11 @@ blockquote {
   padding-left: 8px;
 }
 
+.errorlist {
+  color: #f00;
+  font-weight: 400;
+}
+
 
 /*****  BASE LAYOUT  *****/
 #header {
