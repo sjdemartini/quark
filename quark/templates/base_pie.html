@@ -104,8 +104,8 @@
             {% block footer %}{% endblock %}
             <div id="loginbutton">
             {% comment %}
-              {% if request.user.is_authenticated %}
-                <p>Logged in as: <strong>{{ request.user }}</strong> |
+              {% if user.is_authenticated %}
+                <p>Logged in as: <strong>{{ user }}</strong> |
                 <a href="{% url 'auth_logout' %}">Logout</a></p>
               {% else %}
               <a href="{% url 'auth_login' %}">Member Login</a>

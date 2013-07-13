@@ -29,12 +29,12 @@
           <div id="login">
             <div id="login-inner">
               {% block login_dropdown %}
-              {% if request.user.is_authenticated %}
-              {% with is_officer=request.user.is_tbp_officer %}
-              {% with is_member=request.user.is_tbp_member %}
-              {% with is_candidate=request.user.is_tbp_candidate %}
+              {% if user.is_authenticated %}
+              {% with is_officer=user.is_tbp_officer %}
+              {% with is_member=user.is_tbp_member %}
+              {% with is_candidate=user.is_tbp_candidate %}
               <ul>
-                <li id="login-welcome">Welcome, {{ request.user.preferred_name }}!</li>
+                <li id="login-welcome">Welcome, {{ user.preferred_name }}!</li>
                 <li><a href="javascript:void(0)" class="dropdown-title">Profile</a>
                   <ul class="dropdown">
                     <div class="dropdown-arrow-border"></div>
@@ -72,7 +72,7 @@
 
                     <li><a href="{#TODO#}">Procrastination</a></li>
 
-                    {% if request.user.is_IT %}
+                    {% if user.is_IT %}
                     <li><a href="{#TODO#}">IT Tools</a></li>
                     {% endif %}
                   </ul>
