@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Page Not Found | {{ block.super }}{% endblock %}
+
+{% block content %}
+<h1>Error: Page not found</h1>
+<p>The page you requested could not be found.</p>
+
+{% comment %}
+TODO(sjdemartini): Suggest common pages once they are implemented, similar to
+the following:
+
+<p>Perhaps you were looking for one of the following pages?</p>
+<ul class="help">
+  <li><a href="{% url 'courses:list-departments' %}">Course surveys and exam files</a></li>
+  <li><a href="{# TODO: {% url 'helpdesk' %} #}">Helpdesk</a></li>
+  <li><a href="{# TODO: {% url 'events:list-upcoming' %} #}">Upcoming events</a></li>
+</ul>
+{% endcomment %}
+
+{% endblock content %}
