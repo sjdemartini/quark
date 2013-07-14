@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.core.files import File
 from django.test import TestCase
+from django.test.utils import override_settings
 from django.utils import timezone
 
 from quark.base.models import Term
@@ -27,6 +28,8 @@ from quark.shortcuts import get_object_or_none
 from quark.user_profiles.models import TBPProfile
 
 
+@override_settings(
+    MEDIA_ROOT=os.path.join(settings.WORKSPACE_ROOT, 'media', 'tests'))
 class CandidateTest(TestCase):
     fixtures = ['test/course_instance.yaml']
 
@@ -131,27 +134,22 @@ class CandidateTest(TestCase):
             exam_type=Exam.EXAM, verified=True, exam_file=File(test_file))
         self.test_exam1.save()
         self.test_exam1.course_instance.course.department.save()
-        self.folder1 = self.test_exam1.unique_id[0:2]
         self.test_exam2 = Exam(
             course_instance=CourseInstance.objects.get(pk=20000),
             exam_number=Exam.MT1,
             exam_type=Exam.EXAM, verified=True, exam_file=File(test_file))
         self.test_exam2.save()
         self.test_exam2.course_instance.course.department.save()
-        self.folder2 = self.test_exam2.unique_id[0:2]
         self.exam_req = ExamFileCandidateRequirement(
             credits_needed=2,
             term=self.term)
         self.exam_req.save()
 
-    def tearDown(self):
-        folder1 = os.path.join(
-            settings.MEDIA_ROOT, Exam.EXAM_FILES_LOCATION, self.folder1)
-        folder2 = os.path.join(
-            settings.MEDIA_ROOT, Exam.EXAM_FILES_LOCATION, self.folder2)
-        shutil.rmtree(folder1, ignore_errors=True)
-        shutil.rmtree(folder2, ignore_errors=True)
+    @classmethod
+    def tearDownClass(cls):
         os.remove('test.txt')
+        shutil.rmtree(os.path.join(settings.WORKSPACE_ROOT, 'media', 'tests'),
+                      ignore_errors=True)
 
     def test_candidate_post_save(self):
         tbp_profile = get_object_or_none(TBPProfile, user=self.user)
@@ -178,7 +176,8 @@ class CandidateTest(TestCase):
         CandidateRequirementProgress(
             candidate=self.candidate,
             requirement=self.manual_req1,
-            credits_earned=2).save()
+            manually_recorded_credits=2,
+            alternate_credits_needed=2).save()
         complete, needed = self.candidate.get_progress(
             CandidateRequirement.MANUAL)
         self.assertEqual(complete, 2)
@@ -188,15 +187,16 @@ class CandidateTest(TestCase):
         progress2 = CandidateRequirementProgress(
             candidate=self.candidate,
             requirement=self.manual_req2,
-            credits_earned=3)
+            manually_recorded_credits=3,
+            alternate_credits_needed=5)
         progress2.save()
         complete, needed = self.candidate.get_progress(
             CandidateRequirement.MANUAL)
         self.assertEqual(complete, 5)
         self.assertEqual(needed, 7)
 
-        # Test credits exempted
-        progress2.credits_exempted = 1
+        # Test alternate credit requirement
+        progress2.alternate_credits_needed = 4
         progress2.save()
         complete, needed = self.candidate.get_progress(
             CandidateRequirement.MANUAL)
@@ -225,11 +225,11 @@ class CandidateTest(TestCase):
             CandidateRequirement.CHALLENGE)
         self.assertEqual(complete, 1)
 
-        # Test exemptions
+        # Test alternate credit requirement
         CandidateRequirementProgress(
             candidate=self.candidate,
             requirement=self.challenge_req,
-            credits_exempted=1).save()
+            alternate_credits_needed=2).save()
         _, needed = self.candidate.get_progress(CandidateRequirement.CHALLENGE)
         self.assertEqual(needed, 2)
 

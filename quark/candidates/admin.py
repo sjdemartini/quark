@@ -23,8 +23,8 @@ class CandidateRequirementAdmin(admin.ModelAdmin):
 
 
 class CandidateRequirementProgressAdmin(admin.ModelAdmin):
-    list_display = ('candidate', 'requirement', 'credits_earned',
-                    'credits_exempted')
+    list_display = ('candidate', 'requirement', 'manually_recorded_credits',
+                    'alternate_credits_needed')
 
 
 class ChallengeAdmin(admin.ModelAdmin):

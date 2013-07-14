@@ -1,0 +1,24 @@
+{% extends 'candidates/base.html' %}
+{% block sidebar %}
+{% endblock %}
+
+{% block title %}Edit Candidate | {{ block.super }}{% endblock title %}
+
+{% block intro %}<h1>Candidate Management for {{ candidate.user.get_full_name }}</h1>{% endblock intro %}
+
+{% block content %}
+{# TODO(ericdwang): add the rest of candidate admin #}
+
+<form action="" method="post">
+  {% csrf_token %}
+  {{ form.management_form }}
+
+  {% include 'candidates/individual_progress.html' with req_type='Event' entries=requirement_types.event %}
+  {% include 'candidates/individual_progress.html' with req_type='Challenge' entries=requirement_types.challenge %}
+  {% include 'candidates/individual_progress.html' with req_type='Exam File' entries=requirement_types.exam %}
+  {% include 'candidates/individual_progress.html' with req_type='Resume' entries=requirement_types.resume %}
+  {% include 'candidates/individual_progress.html' with req_type='Manual' entries=requirement_types.manual %}
+
+  <div><input type="submit" value="Update"></div>
+</form>
+{% endblock content %}

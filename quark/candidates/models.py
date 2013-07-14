@@ -1,3 +1,5 @@
+import os
+
 from django.conf import settings
 from django.db import models
 
@@ -8,16 +10,26 @@ from quark.exams.models import Exam
 
 
 class Candidate(models.Model):
-    """
-    A candidate for a given term.
+    """A candidate for a given term.
 
     Provides an interface for each candidate's progress, but
     only for a single term. To account for past progress, one will
     have to query multiple Candidate objects.
     """
+    PHOTOS_LOCATION = 'candidates'
+
+    def get_photo_path(instance, filename):
+        # pylint: disable=E0213
+        """Files are stored in directories corresponding to the candidate's
+        term.
+        """
+        return os.path.join(
+            Candidate.PHOTOS_LOCATION, instance.term.get_url_name(), filename)
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     term = models.ForeignKey(Term)
     initiated = models.BooleanField(default=False)
+    photo = models.ImageField(blank=True, upload_to=get_photo_path)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -37,7 +49,7 @@ class Candidate(models.Model):
         return (completed, required)
 
     def __unicode__(self):
-        return u'%s (%s)' % (self.user, self.term)
+        return '{user} ({term})'.format(user=self.user, term=self.term)
 
     class Meta:
         ordering = ('-term', 'user')
@@ -45,7 +57,7 @@ class Candidate(models.Model):
 
 
 def candidate_post_save(sender, instance, created, **kwargs):
-    """Ensures that a TBPProfile exists for every Candidate, and updates the
+    """Ensure that a TBPProfile exists for every Candidate, and update the
     profile's 'initiation_term' field.
 
     The field in TBPProfile is updated in two scenarios:
@@ -70,62 +82,75 @@ models.signals.post_save.connect(candidate_post_save, sender=Candidate)
 
 
 class Challenge(models.Model):
-    """
-    A challenge done by a Candidate.
+    """A challenge done by a Candidate.
 
     Challenges are requested by the Candidate upon completion
     and verified by the person who gave the candidate the challenge.
     """
+    # Challenge Type constants
     INDIVIDUAL = 1
     GROUP = 2
-    TYPES = (
+
+    CHALLENGE_TYPE_CHOICES = (
         (INDIVIDUAL, 'Individual'),
-        (GROUP, 'Group'))
+        (GROUP, 'Group')
+    )
+
+    # Verified constants
+    VERIFIED_CHOICES = (
+        (None, 'Pending'),
+        (True, 'Approve'),
+        (False, 'Deny'),
+    )
 
     candidate = models.ForeignKey(Candidate)
-    challenge_type = models.PositiveSmallIntegerField(choices=TYPES,
-                                                      default=INDIVIDUAL)
+    challenge_type = models.PositiveSmallIntegerField(
+        choices=CHALLENGE_TYPE_CHOICES, default=INDIVIDUAL)
     description = models.CharField(max_length=255)
     verifying_user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         help_text='Person who verified the challenge.')
-    verified = models.BooleanField(default=False)
+    verified = models.NullBooleanField(choices=VERIFIED_CHOICES)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
-        return u'%s: Challenge given by %s' % (
-            self.candidate, self.verifying_user)
+        return '{candidate}: Challenge given by {user}'.format(
+            candidate=self.candidate, user=self.verifying_user)
 
     class Meta:
         ordering = ('candidate', 'updated')
 
 
 class CandidateRequirement(models.Model):
-    """A requirement for a given term."""
-    EVENT = 1
-    CHALLENGE = 2
-    EXAM_FILE = 3
-    RESUME = 4
-    MANUAL = 5
-    TYPES = (
+    """A base for other requirements."""
+    # Requirement Type constants
+    EVENT = 'event'
+    CHALLENGE = 'challenge'
+    EXAM_FILE = 'exam'
+    RESUME = 'resume'
+    MANUAL = 'manual'
+
+    REQUIREMENT_TYPE_CHOICES = (
         (EVENT, 'Event'),
         (CHALLENGE, 'Challenge'),
         (EXAM_FILE, 'Exam File'),
         (RESUME, 'Resume'),
-        (MANUAL, 'Other (manually verified)'))
+        (MANUAL, 'Other (manually verified)')
+    )
 
-    requirement_type = models.PositiveSmallIntegerField(choices=TYPES,
-                                                        db_index=True)
-    credits_needed = models.IntegerField()
+    requirement_type = models.CharField(
+        max_length=9, choices=REQUIREMENT_TYPE_CHOICES, db_index=True)
+    credits_needed = models.IntegerField(
+        help_text='Amount of credits needed to fulfill a candidate requirement')
     term = models.ForeignKey(Term)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
     def get_progress(self, candidate):
-        """Returns a tuple (#completed, #required) for the given candidate"""
+        """Return a tuple (#completed, #required) for the given candidate."""
         required = self.credits_needed
 
         if (self.requirement_type == CandidateRequirement.EVENT):
@@ -144,23 +169,40 @@ class CandidateRequirement(models.Model):
             completed = 0
         else:
             raise NotImplementedError(
-                'Unknown type %d' % self.requirement_type)
+                'Unknown type {}'.format(self.requirement_type))
 
         # Check per-candidate overrides and exemptions
         try:
             progress = CandidateRequirementProgress.objects.get(
                 candidate=candidate, requirement=self)
-            completed += progress.credits_earned
-            required -= progress.credits_exempted
+            completed += progress.manually_recorded_credits
+            required = progress.alternate_credits_needed
         except CandidateRequirementProgress.DoesNotExist:
             pass
 
         return (completed, required)
 
+    def get_name(self):
+        """Return a name for the requirement based on the requirement type."""
+        if (self.requirement_type == CandidateRequirement.EVENT):
+            return self.eventcandidaterequirement.event_type.name
+        elif (self.requirement_type == CandidateRequirement.CHALLENGE):
+            return (self.challengecandidaterequirement.
+                    get_challenge_type_display())
+        elif (self.requirement_type == CandidateRequirement.EXAM_FILE):
+            return 'Exam Files'
+        elif (self.requirement_type == CandidateRequirement.RESUME):
+            return 'Resume'
+        elif (self.requirement_type == CandidateRequirement.MANUAL):
+            return self.manualcandidaterequirement.name
+        else:
+            raise NotImplementedError(
+                'Unknown type {}'.format(self.requirement_type))
+
     def __unicode__(self):
-        return u'%s, %d required (%s)' % (
-            self.get_requirement_type_display(), self.credits_needed,
-            self.term)
+        return '{req_type}, {credits} required ({term})'.format(
+            req_type=self.get_requirement_type_display(),
+            credits=self.credits_needed, term=self.term)
 
     class Meta:
         ordering = ('-term', 'requirement_type')
@@ -171,12 +213,12 @@ class EventCandidateRequirement(CandidateRequirement):
     event_type = models.ForeignKey(EventType)
 
     def save(self, *args, **kwargs):
-        """Override save handler to ensure that requirement_type is correct"""
+        """Override save handler to ensure that requirement_type is correct."""
         self.requirement_type = CandidateRequirement.EVENT
         super(EventCandidateRequirement, self).save(*args, **kwargs)
 
     def get_completed(self, candidate):
-        """Returns the number of credits completed by candidate"""
+        """Return the number of credits completed by candidate."""
         events_attended = EventAttendance.objects.filter(
             person=candidate.user,
             event__term=candidate.term,
@@ -184,37 +226,41 @@ class EventCandidateRequirement(CandidateRequirement):
         return sum([e.event.requirements_credit for e in events_attended])
 
     def __unicode__(self):
-        return u'%s %s' % (
-            self.event_type.name,
-            super(EventCandidateRequirement, self).__unicode__())
+        return '{event_type} {req}'.format(
+            event_type=self.event_type.name,
+            req=super(EventCandidateRequirement, self).__unicode__())
 
 
 class ChallengeCandidateRequirement(CandidateRequirement):
-    challenge_type = models.PositiveSmallIntegerField(choices=Challenge.TYPES)
+    challenge_type = models.PositiveSmallIntegerField(
+        choices=Challenge.CHALLENGE_TYPE_CHOICES)
 
     def save(self, *args, **kwargs):
-        """Override save handler to ensure that requirement_type is correct"""
+        """Override save handler to ensure that requirement_type is correct."""
         self.requirement_type = CandidateRequirement.CHALLENGE
         super(ChallengeCandidateRequirement, self).save(*args, **kwargs)
 
     def get_completed(self, candidate):
-        """Returns the number of credits completed by candidate"""
+        """Return the number of credits completed by candidate."""
         return Challenge.objects.filter(
             candidate=candidate,
             challenge_type=self.challenge_type,
             verified=True).count()
 
+    def get_name(self):
+        return self.get_challenge_type_display()
+
     def __unicode__(self):
-        return u'%s %s' % (
-            self.get_challenge_type_display(),
-            super(ChallengeCandidateRequirement, self).__unicode__())
+        return '{challenge_type} {req}'.format(
+            challenge_type=self.get_challenge_type_display(),
+            req=super(ChallengeCandidateRequirement, self).__unicode__())
 
 
 class ExamFileCandidateRequirement(CandidateRequirement):
     """Requirement for uploading exam files to the site."""
 
     def save(self, *args, **kwargs):
-        """Override save handler to ensure that requirement_type is correct"""
+        """Override save handler to ensure that requirement_type is correct."""
         self.requirement_type = CandidateRequirement.EXAM_FILE
         super(ExamFileCandidateRequirement, self).save(*args, **kwargs)
 
@@ -228,36 +274,42 @@ class ManualCandidateRequirement(CandidateRequirement):
     name = models.CharField(max_length=60, db_index=True)
 
     def save(self, *args, **kwargs):
-        """Override save handler to ensure that requirement_type is correct"""
+        """Override save handler to ensure that requirement_type is correct."""
         self.requirement_type = CandidateRequirement.MANUAL
         super(ManualCandidateRequirement, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        return u'%s, %d required (%s)' % (
-            self.name, self.credits_needed, self.term)
+        return '{name}, {credits} required ({term})'.format(
+            name=self.name, credits=self.credits_needed, term=self.term)
 
     class Meta:
         ordering = ('-term', 'requirement_type', 'name')
 
 
 class CandidateRequirementProgress(models.Model):
-    """Tracks one candidate's progress towards one requirement.
+    """Track one candidate's progress towards one requirement.
 
-    For MANUAL requirements, the credits_earned field is set manually.
-    For EVENT and other auto requirements, both credits_earned and
-    credits_exempted field may be used as manual adjustments.
+    For MANUAL requirements, the manually_recorded_credits field is set
+    manually. For EVENT and other auto requirements, both the
+    manually_recorded_credits and the alternate_credits_needed fields may be
+    used as manual adjustments.
     """
     candidate = models.ForeignKey(Candidate)
     requirement = models.ForeignKey(CandidateRequirement)
-    credits_earned = models.IntegerField(default=0)
-    credits_exempted = models.IntegerField(default=0)
+    manually_recorded_credits = models.IntegerField(
+        default=0, help_text='Additional credits that go toward fulfilling a '
+        'candidate requirement')
+    alternate_credits_needed = models.IntegerField(
+        default=0, help_text='Alternate amount of credits needed to fulfill a '
+        'candidate requirement')
     comments = models.TextField(blank=True)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
-        return u'%s: %s' % (self.candidate, self.requirement)
+        return '{candidate}: {req}'.format(
+            candidate=self.candidate, req=self.requirement)
 
     class Meta:
         ordering = ('candidate', 'requirement')
