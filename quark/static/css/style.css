@@ -245,7 +245,7 @@ li#login-welcome {
 
 #login ul.dropdown {
   background-color: #fff;
-  display: block;
+  display: none;  /* The dropdowns are displayed using JS actions */
   position: absolute;
   right: 0;
   top: 100%;

@@ -1,15 +1,19 @@
 $(function() {
   /***** LOGIN DROPDOWN MENU TOGGLING *****/
-  /* Make clicks anywhere in HTML body close the login dropdowns */
+  // Ensure all dropdowns initially hidden on page ready
+  $('.dropdown').hide();
+
+  // Make clicks anywhere in HTML body close the login dropdowns
   $('html').click(function() {
     $('.dropdown').hide();
   });
-  $('.dropdown').hide();
+  // Make clicks on dropdown-title toggle the appropriate dropdown and close
+  // others
   $('.dropdown-title').click(function(event){
-    var nextDropdown = $(this).next();
-    $('.dropdown').not(nextDropdown).hide();
-    nextDropdown.toggle();
-    /* Prevent the click from propagating to the document body */
+    var thisDropdown = $(this).next();
+    $('.dropdown').not(thisDropdown).hide();
+    thisDropdown.toggle();
+    // Prevent the click from propagating to the document body
     event.stopPropagation();
   });
   /***** END LOGIN DROPDOWN MENU TOGGLING *****/
