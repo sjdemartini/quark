@@ -485,3 +485,27 @@ class TemplateTagsTest(TestCase):
         )
         self.assertEquals(self.base_string,
                           template.render(self.context))
+
+
+class TemplateUtilsTest(TestCase):
+    def setUp(self):
+        self.test_value = 'test_value'
+        self.test_dict = {'test_key': self.test_value}
+        self.context = Context({'test_dict': self.test_dict,
+                                'key': 'test_key',
+                                'bad_key': 'bad_key'})
+
+    def test_lookup(self):
+        # Test with valid key
+        template = Template(
+            '{% load template_utils %}'
+            '{{ test_dict|get_item:key }}'
+        )
+        self.assertEquals(self.test_value, template.render(self.context))
+
+        # Test with invalid key
+        template = Template(
+            '{% load template_utils %}'
+            '{{ test_dict|get_item:bad_key }}'
+        )
+        self.assertEquals('None', template.render(self.context))
