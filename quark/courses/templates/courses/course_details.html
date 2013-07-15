@@ -1,5 +1,7 @@
 {% extends 'courses/base.html' %}
 
+{% load template_utils %}
+
 {% block title %}{{ course.abbreviation }} | {{ block.super }}{% endblock title %}
 
 {% block intro %}
@@ -14,6 +16,18 @@
     <input type="text" id="search-course" name="search-course" value="Course">
   </div>
 </form>
+
+<h2>Average Course Rating: {{ total_course_ratings_avg }}</h2>
+{% for inst in instructors %}
+{% with name=inst.full_name %}
+<div class="avg-rating">
+  <h3><a href="{% url 'courses:instructor' inst_pk=inst.pk %}">{{ name }}</a></h3>
+  <div class="rating-number"><strong>Teaching Effectivenss</strong> {{ prof_ratings_avg|get_item:name }}</div>
+  <div class="rating-number"><strong>Course Quality</strong> {{ course_ratings_avg|get_item:name }}</div>
+</div>
+{% endwith %}
+{% endfor %}
+
 <h2>Exams</h2>
 {% if exams %}
   <table id="exam-table">
@@ -43,20 +57,32 @@
 {% else %}
   There are currently no exams for this course.
 {% endif %}
+
 <h2>Course Surveys</h2>
-{% if surveys %}
-  {% for survey in surveys %}
-    <div class="survey">
-      <h3>{{ survey.term.verbose_name }} {{ survey.instructor }}</h3>
-      <div class="rating-number"><strong>Instructor Rating</strong>{{ survey.prof_rating }}</div>
-      <div class="rating-number"><strong>Course Rating</strong>{{ survey.course_raing }}</div>
-      <div class="rating-number"><strong>Workload</strong>{{ survey.time_commitment }}</div>
-      <div class="rating-number"><strong>Exam Difficulty</strong>{{ survey.exam_difficulty }}</div>
-      <div class="rating-number"><strong>Assignment Difficulty</strong>{{ survey.hw_difficulty }}</div>
-      <p class="rating-comment"><strong>Comments</strong>{{ survey.comments }}</p>
-    </div>
-  {% endfor %}
-  {% else %}
-    There are currently no surveys for this course.
-{% endif %}
+{% for survey in surveys %}
+  <div class="survey">
+    <h3>{{ survey.term.verbose_name }}
+    <a href="{% url 'courses:instructor' inst_pk=survey.instructor.pk %}">{{ survey.instructor.full_name }}</a></h3>
+    {% if survey.prof_rating %}
+    <div class="rating-number"><strong>Instructor Rating</strong> {{ survey.prof_rating }}</div>
+    {% endif %}
+    {% if survey.course_rating %}
+    <div class="rating-number"><strong>Course Rating</strong> {{ survey.course_rating }}</div>
+    {% endif %}
+    {% if survey.time_commitment %}
+    <div class="rating-number"><strong>Workload</strong> {{ survey.time_commitment }}</div>
+    {% endif %}
+    {% if survey.exam_difficulty %}
+    <div class="rating-number"><strong>Exam Difficulty</strong> {{ survey.exam_difficulty }}</div>
+    {% endif %}
+    {% if survey.hw_difficulty %}
+    <div class="rating-number"><strong>Assignment Difficulty</strong> {{ survey.hw_difficulty }}</div>
+    {% endif %}
+    {% if survey.comments %}
+    <p class="rating-comment"><strong>Comments</strong> {{ survey.comments }}</p>
+    {% endif %}
+  </div>
+{% empty %}
+There are currently no surveys for this course.
+{% endfor %}
 {% endblock %}

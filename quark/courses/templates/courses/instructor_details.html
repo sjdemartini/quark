@@ -1,10 +1,52 @@
 {% extends 'courses/base.html' %}
 
+{% load template_utils %}
+
 {% block title %}{{ instructor.full_name }} | {{ block.super }}{% endblock title %}
 
 {% block intro %}
 {{ block.super }}
-<h2>{{ instructor.full_name }}</h2>
+<h1>{{ instructor.full_name }}</h1>
 {% endblock %}
 
-<!-- TODO: add ratings/surveys/exams/courses taught -->
+{% block content %}
+<h2>Average Rating: {{ total_prof_ratings_avg }}</h2>
+<h2>Average Ratings For Individual Courses</h2>
+{% for course in courses %}
+{% with name=course.abbreviation %}
+<div class="avg-rating">
+  <h3><a href="{% url 'courses:detail' dept_slug=course.department.slug course_num=course.number  %}">{{ name }}</a></h3>
+  <div class="rating-number"><strong>Teaching Effectiveness</strong> {{ prof_ratings_avg|get_item:name }}</div>
+  <div class="rating-number"><strong>Course Quality</strong> {{ course_ratings_avg|get_item:name }}</div>
+</div>
+{% endwith %}
+{% endfor %}
+
+<h2>Course Surveys</h2>
+{% for survey in surveys %}
+  <div class="survey">
+    <h3>{{ survey.term.verbose_name }}
+    <a href="{% url 'courses:detail' dept_slug=survey.course.department.slug course_num=survey.course.number  %}">{{ survey.course.abbreviation }}</a></h3>
+    {% if survey.prof_rating %}
+    <div class="rating-number"><strong>Instructor Rating</strong> {{ survey.prof_rating }}</div>
+    {% endif %}
+    {% if survey.course_rating %}
+    <div class="rating-number"><strong>Course Rating</strong> {{ survey.course_rating }}</div>
+    {% endif %}
+    {% if survey.time_commitment %}
+    <div class="rating-number"><strong>Workload</strong> {{ survey.time_commitment }}</div>
+    {% endif %}
+    {% if survey.exam_difficulty %}
+    <div class="rating-number"><strong>Exam Difficulty</strong> {{ survey.exam_difficulty }}</div>
+    {% endif %}
+    {% if survey.hw_difficulty %}
+    <div class="rating-number"><strong>Assignment Difficulty</strong> {{ survey.hw_difficulty }}</div>
+    {% endif %}
+    {% if survey.comments %}
+    <p class="rating-comment"><strong>Comments</strong> {{ survey.comments }}</p>
+    {% endif %}
+  </div>
+{% empty %}
+There are currently no surveys for this course.
+{% endfor %}
+{% endblock %}

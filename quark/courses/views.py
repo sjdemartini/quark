@@ -76,7 +76,7 @@ class CourseDetailView(DetailView):
             course_instance__course=self.course)
         context['surveys'] = Survey.objects.filter(course=self.course)
         context['instructors'] = Instructor.objects.filter(
-            survey__in=context['course_instances'])
+            courseinstance__in=context['course_instances'])
         # Average of course_rating values across all surveys for this course
         context['total_course_ratings_avg'] = context['surveys'].aggregate(
             Avg('course_rating'))['course_rating__avg']

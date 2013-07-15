@@ -9,8 +9,8 @@
 
 {% block content %}
 <ul>
-    {% for course in course_list %}
-    <li><a href={% url 'courses:detail' department.slug course.number %}>{{ course.abbreviation }}</a></li>
-    {% endfor %}
+  {% for course in course_list %}
+  <li><a href="{% url 'courses:detail' department.slug course.number %}">{{ course.abbreviation }}</a></li>
+  {% endfor %}
 </ul>
 {% endblock %}
