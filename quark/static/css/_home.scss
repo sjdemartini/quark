@@ -44,6 +44,7 @@
     margin-right: 3%;
   }
   @include respond-to(small) {
+    background-color: rgba(0, 0, 0, 0.9);
     margin: 0;
     top: 0;
   }

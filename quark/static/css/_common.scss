@@ -534,7 +534,14 @@ blockquote {
 }
 
 #nav {
+  display: block;
+
   @include respond-to(medium) {
+    // Initially hide the nav options for narrower viewports. JS will open the
+    // nav and close the nav as needed. Hiding the #nav options by default
+    // ensures that when the page loads with a narrow viewport, the nav doesn't
+    // start open and suddenly collapse when the JS runs.
+    display: none;
     height: initial;
     text-align: left;
 
@@ -655,7 +662,7 @@ blockquote {
     padding: 10px 27px;
     @include respond-to(medium) {
       display: block;
-      padding: 5px 5%;
+      padding: 6px 5%;
     }
   }
   ul ul a {
@@ -673,7 +680,7 @@ blockquote {
     }
     .selected > ul,
     .ancestor > ul {
-      display: none;
+      display: none !important;
     }
   }
 }

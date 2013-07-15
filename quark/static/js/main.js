@@ -10,90 +10,108 @@ $(function() {
  * as showing or hiding the nav elements).
  */
 function setupNav() {
-  // navMenuBarWasVisible refers to whether #nav-menubar was
-  //   visible in the last loop
-  var navMenuBarWasVisible = false;
-  // navOpen refers to whether #nav is open or shut
-  var navOpen = true;
+  var nav = $('#nav');
+  var mediumWidth = 820;
 
-  // heightToggle(selector, time)
-  // Helper Function for toggling the height of a bar
-  // selector - the identifier of the element for which we toggle the height
-  // time - how long to take (default: 300ms)
+  // wasNarrow refers to whether the window width (viewport) was narrow in the
+  // previous call to the navResize function. Note that this is necessary as an
+  // indicator for whether the window width just changed to become narrow (as
+  // opposed to a window resive event in which the width remains narrow).
+  var wasNarrow = $(window).width < mediumWidth;
+
+  /**
+   * Toggle the height of an element.
+   *
+   * selector - the identifier of the element for which we toggle the height
+   * time - how long to take (default: 300ms)
+   */
   var heightToggle = function(selector, time) {
-    if (typeof(time)==='undefined')
+    if (typeof(time) === 'undefined') {
       time = 300;
-    $(selector).stop(true, true).animate({ height: 'toggle' }, time);
+    }
+    $(selector).stop(true, true).slideToggle(time);
   }
 
   // Controls toggle of main nav bar
   $('#nav-menubar').click(function(event) {
-    heightToggle('#nav');
-    navOpen = !navOpen;
+    heightToggle(nav);
   });
 
-  // Manage Submenus
-  $('#nav ul ul').each(function( index ) {
-    var newHTML = '<div class="nav-child-arrow-container"><div '
-      + 'class="nav-child-arrow"></div></div>';
-    $(this).parent().prepend(newHTML);
-    newHTML = $(this).prev().prev();
-    // closedSubMenu is whether the user closed the tab (saves during
-    //   wide version)
-    newHTML[0].closedSubMenu = true;
-    // actuallyClosed is whether the tab is actually closed
-    newHTML[0].actuallyClosed = false;
-    newHTML.bind('click.subMenu', function(event) {
+  // Manage submenus. Select and modify all subnested ul elements (indicating a
+  // submenu beneath an element in the nav list):
+  var navSubMenus = $('ul ul', nav);
+  navSubMenus.each(function(index) {
+    var subMenu = $(this);
+
+    // Add buttons used for expanding sub-menus of parent navigation elements:
+    var subMenuButton = $('<div class="nav-child-arrow-container">'
+      + '<div class="nav-child-arrow"></div></div>');
+    // Add to the parent of the submenu the submenu toggle button:
+    subMenu.parent().prepend(subMenuButton);
+
+    // Add fields to the actual HTML element for the subMenuButton:
+    var subMenuButtonElem = subMenuButton.get(0);
+
+    // "closedSubMenu" indicates whether the user collapsed the submenu. This
+    // saves state if the user goes between wide and narrow viewports.
+    // Initialize all submenus as collapsed.
+    subMenuButtonElem.closedSubMenu = true;
+
+    // "subMenu" is the actual submenu ul element, for which this button
+    // controls the visibility
+    subMenuButtonElem.subMenu = subMenu;
+
+    // Similarly, add to this element a pointer to the subMenuButton:
+    this.menuButton = subMenuButtonElem;
+
+    subMenuButton.on('click', function(event) {
       event.preventDefault();
-      heightToggle($(this).next().next());
+      heightToggle(this.subMenu);
       this.closedSubMenu = !this.closedSubMenu;
-      this.actuallyClosed = !this.actuallyClosed;
-    }); // End of click.subMenu
+    });
   });
 
-  // Loop to detect window size changes
-  var navLoop = function() {
-    if (!$('#nav-menubar').is(':visible')) {
-      // Wide window -> make sure nav bar is shown
-      if (!navOpen) {
-        heightToggle('#nav', 0);
-        navOpen = !navOpen;
+  // Function to ensure proper display when resizing of page occurs
+  var navResize = function() {
+    if ($(window).width() > mediumWidth) {
+      // Wide viewport
+      if (wasNarrow) {
+        // First, hide all submenu elements, since they were taken out of the
+        // flow in the narrow viewport
+        navSubMenus.hide();
+
+        // Make sure nav bar is shown, first hiding and then showing, to ensure
+        // that the view is force-refreshed after submenu elements are hidden
+        nav.hide();
+        heightToggle(nav, 0);
+
+        // Now open all subnavs so that they can be drop downs
+        heightToggle(navSubMenus, 0);
       }
-      if (navMenuBarWasVisible) {
-        // Just became a wide window
-        // -> Open all subnavs so that they can be drop downs
-        $('#nav ul ul').each(function( index ) {
-          var head = $(this).prev().prev()[0];
-          if (head.actuallyClosed) {
-            heightToggle(this, 0);
-            head.actuallyClosed = !head.actuallyClosed;
-          }
-        });
-        // -> Make sure nav bar is correct by forcing it to
-        // recalculate its positioning
-        heightToggle('#nav', 0);
-        navOpen = !navOpen;
-      }
-    } else if (!navMenuBarWasVisible) {
-      // Just became a thin window -> hide nav bar
-      if (navOpen) {
-        heightToggle('#nav', 0);
-        navOpen = !navOpen;
-        // Close all subnavs that were closed
-        $('#nav ul ul').each(function( index ) {
-          var head = $(this).prev().prev()[0];
-          if (head.closedSubMenu) {
-            heightToggle(this, 0);
-            head.actuallyClosed = !head.actuallyClosed;
-          }
-        });
-      }
+      wasNarrow = false;
+    } else if (!wasNarrow) {
+      // Just became a narrow viewport (since window is now narrow but was not
+      // before), so hide the nav bar:
+      nav.hide();
+
+      // Close all subnavs that were closed by the user:
+      navSubMenus.each(function(index) {
+        if (this.menuButton.closedSubMenu) {
+          heightToggle(this, 0);
+        }
+      });
+      wasNarrow = true;
     }
-    navMenuBarWasVisible = $('#nav-menubar').is(':visible');
-    /* Loops this function at ~60fps */
-    setTimeout(navLoop, 15);
   };
-  navLoop();
+
+  // Initialize the nav by calling navResize:
+  navResize();
+
+  // Set a window resize event to ensure that elements display correctly when
+  // the browser window is resized
+  $(window).resize(function() {
+    navResize();
+  });
 }
 
 
