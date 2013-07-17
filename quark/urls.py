@@ -40,6 +40,9 @@ urlpatterns = patterns('',
     url(r'^project-reports/', include('quark.project_reports.urls',
                                       app_name='project-reports',
                                       namespace='project-reports')),
+    url(r'^vote/', include('quark.vote.urls',
+                           app_name='vote',
+                           namespace='vote')),
     # TODO(mattchang): Get django-cms working for django-1.5
     #url(r'^', include('cms.urls')),
 )
