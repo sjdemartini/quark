@@ -10,6 +10,8 @@
   {% for entry in leader_list %}
   <li>
     {# TODO(natebailey): Make names link to users' achievement pages. #}
+    {# Spaceless to fix whitespace issues with inline-block css style #}
+    {% spaceless %}
     <div class="name {% cycle 'odd' 'even' %}
       {% if entry.user == user %}self{% endif %}">
         {{ entry.rank }}. <a>{{ entry.user.get_full_name }}</a>
@@ -18,6 +20,7 @@
        style="width: {{ entry.factor }}%;">
       <span class="count">{{ entry.user.score }}</span>
     </span>
+    {% endspaceless %}
   </li>
   {% empty %}
   <p>Nobody has any achievements yet! :(</p>

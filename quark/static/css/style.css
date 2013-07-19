@@ -538,16 +538,12 @@ li#login-welcome {
   margin: 0 0 25px 0;
 }
 
-.leaderboard li {
-  clear: both;
-  height: 24px;
-}
-
 .leaderboard .name {
-  float: left;
-  width: 25%;
-  padding: 0.075em 1%;
   color: #000;
+  display: inline-block;
+  padding: 0.075em 1%;
+  vertical-align: top;
+  width: 25%;
 }
 
 .leaderboard .name.self {
@@ -567,16 +563,18 @@ li#login-welcome {
 }
 
 .leaderboard .count {
-  float: right;
+  display: inline-block;
   padding-right: 0.5em;
 }
 
 .leaderboard .count-container {
-  float: left;
-  color: #fff;
   border-radius: 0 0.5em 0.5em 0;
+  color: #fff;
+  display: inline-block;
   padding-bottom: 0.15em;
-}
+  text-align: right;
+  vertical-align: top;
+ }
 
 .leaderboard .count-container.odd {
   background-color: #71b7e6;
