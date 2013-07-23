@@ -1,10 +1,10 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block title %}Home | {{ block.super }}{% endblock title %}
 
 {% block head %}{% load static %}
-    <link rel="stylesheet" href="{% static "css/home.css" %}">
-    <script src="{% static "js/slideshow.js" %}"></script>
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <script src="{% static 'js/slideshow.js' %}"></script>
     <script>
       $(document).ready(function() {
         slideshow("#slideshow", { addInfoHeight: true });

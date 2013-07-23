@@ -1,0 +1,5 @@
+{% for message in messages %}
+  {% if message.tags == 'info' or message.tags == 'success' or message.tags == 'warning' or message.tags == 'error' %}
+  <div class="{{ message.tags }}"><strong>{{ message }}</strong></div>
+  {% endif %}
+{% endfor %}

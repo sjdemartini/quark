@@ -115,8 +115,8 @@ class UploadForm(ExamForm):
     def save(self, *args, **kwargs):
         """Check if professors are blacklisted."""
         for instructor in self.cleaned_data.get('instructors'):
-            permission = InstructorPermission.objects.get(
-                instructor=instructor).permission_allowed
+            permission = InstructorPermission.objects.get_or_create(
+                instructor=instructor)[0].permission_allowed
             if permission is False:
                 self.instance.blacklisted = True
         return super(UploadForm, self).save(*args, **kwargs)
@@ -131,12 +131,12 @@ class EditForm(ExamForm):
 
     def __init__(self, *args, **kwargs):
         super(EditForm, self).__init__(*args, **kwargs)
-        self.fields['department'].initial = \
-            self.instance.course_instance.course.department
-        self.fields['course_number'].initial = \
-            self.instance.course_instance.course.number
-        self.fields['instructors'].initial = \
-            self.instance.course_instance.instructors.all()
+        self.fields['department'].initial = (
+            self.instance.course_instance.course.department)
+        self.fields['course_number'].initial = (
+            self.instance.course_instance.course.number)
+        self.fields['instructors'].initial = (
+            self.instance.course_instance.instructors.all())
         self.fields['term'].initial = self.instance.course_instance.term
         self.fields.keyOrder = [
             'department', 'course_number', 'instructors', 'term', 'exam_number',

@@ -1,15 +1,17 @@
-{% extends "exams/base.html" %}
+{% extends 'exams/base.html' %}
 {% block sidebar %}
 {% endblock %}
 
 {% block title %}Exam Review | {{ block.super }}{% endblock title %}
 
-{% block intro %}<h1>Exam Review</h1>{% endblock intro %}
+{% block intro %}
+<h1>Exam Review</h1>
+{% endblock intro %}
 
 {% block content %}
-<div>There {{ unverified_exams|pluralize:"is,are" }} <strong>{{ unverified_exams|length }}</strong> exam{{ unverified_exams|pluralize }} awaiting verification.</div>
-<div>There {{ flagged_exams|pluralize:"is,are" }} <strong>{{ flagged_exams|length }}</strong> flagged exam{{ flagged_exams|pluralize }} needing attention.</div>
-<div>There {{ blacklisted_exams|pluralize:"is,are" }} <strong>{{ blacklisted_exams|length }}</strong> blacklisted exam{{ blacklisted_exams|pluralize }}.</div>
+<div>There {{ unverified_exams|pluralize:'is,are' }} <strong>{{ unverified_exams|length }}</strong> exam{{ unverified_exams|pluralize }} awaiting verification.</div>
+<div>There {{ flagged_exams|pluralize:'is,are' }} <strong>{{ flagged_exams|length }}</strong> flagged exam{{ flagged_exams|pluralize }} needing attention.</div>
+<div>There {{ blacklisted_exams|pluralize:'is,are' }} <strong>{{ blacklisted_exams|length }}</strong> blacklisted exam{{ blacklisted_exams|pluralize }}.</div>
 
 <div>
 <h2>Non-Blacklisted Exams</h2>

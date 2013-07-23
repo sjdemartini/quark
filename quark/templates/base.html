@@ -10,12 +10,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% block meta %}{% endblock meta %}
 
-    <link rel="shortcut icon" href="{% static "images/favicon.ico" %}">
+    <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
     <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,300,400,600,700" rel="stylesheet" type="text/css">
-    <link rel="stylesheet" href="{% static "css/normalize.css" %}">
-    <link rel="stylesheet" href="{% static "css/style.css" %}">
+    <link rel="stylesheet" href="{% static 'css/normalize.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
     {% block jquery %}{% include 'jquery.html' %}{% endblock jquery %}
-    <script src="{% static "js/main.js" %}"></script>
+    <script src="{% static 'js/main.js' %}"></script>
     {{ form.media.css }}
     {{ form.media.js }}
     {% block head %}{% endblock head %}
@@ -91,7 +91,7 @@
           </div><!-- end login -->
 
           <div id="logo-group">
-            <a href="{% url 'home' %}" id="logo-link"><img src="{% static "images/bent_circle.png" %}" id="logo">
+            <a href="{% url 'home' %}" id="logo-link"><img src="{% static 'images/bent_circle.png' %}" id="logo">
               <div id="logo-name">Tau Beta Pi</div>
               <div id="logo-location">UC Berkeley</div></a>
             <a href="{% url 'home' %}" id="logo-overlay"></a>
@@ -106,6 +106,7 @@
       <div id="container">
         <div id="content" style="{% block content_style %}{% endblock content_style %}">
         {% block intro %}{% endblock intro %}
+        {% block messages %}{% include 'messages.html' %}{% endblock messages %}
         {% block content %}{% endblock content %}
         </div>
       </div>
@@ -118,12 +119,12 @@
       {% block footer %}
         <div id="socialmedia">
           <a href="https://www.facebook.com/tbpberkeley" title="Facebook">
-            <img src="{% static "images/facebook.png" %}" alt="Facebook">
+            <img src="{% static 'images/facebook.png' %}" alt="Facebook">
           </a>
         </div>
         <div id="copyright">
           <p><a href="/">Home</a> | <a href="{#TODO#}">Contact Us</a></p>
-          <p>Copyright &copy; 2008-{% now "Y" %} Tau Beta Pi, California Alpha Chapter</p>
+          <p>Copyright &copy; 2008-{% now 'Y' %} Tau Beta Pi, California Alpha Chapter</p>
           <p><a href="http://www.tbp.org/">Tau Beta Pi Nationals</a> | <a href="http://coe.berkeley.edu/">College of Engineering</a></p>
         </div>
       {% endblock footer %}
@@ -132,6 +133,6 @@
 
   {# TODO(sjdemartini): add in js for user notifications #}
   {# TODO(sjdemartini): Google analytics? #}
-  <!--Page finished rendering {% now "r" %}-->
+  <!--Page finished rendering {% now 'r' %}-->
   </body>
 </html>

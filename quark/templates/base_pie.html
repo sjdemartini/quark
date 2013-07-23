@@ -13,11 +13,11 @@
         {% endblock title %}
       {% endblock title_wrapper %}
     </title>
-    <link href="{% static "css/pie.css" %}" rel="stylesheet" />
+    <link href="{% static 'css/pie.css' %}" rel="stylesheet" />
     <link href='https://fonts.googleapis.com/css?family=Open+Sans|Bree+Serif' rel='stylesheet' type='text/css'>
-    <link rel="shortcut icon" href="{% static "favicon.ico" %}" type="image/x-icon" />
+    <link rel="shortcut icon" href="{% static 'favicon.ico' %}" type="image/x-icon" />
     {% block link %}{% endblock link %}
-    <script src="{% static "js/jquery-1.8.2.min.js" %}"></script>
+    <script src="{% static 'js/jquery-1.8.2.min.js' %}"></script>
     {% block extra_head %}{% endblock %}
   </head>
   <body>
@@ -25,7 +25,7 @@
       <div id="topnav">
         <div id="topnavfocus">
           <div id="toplogo">
-            <a href="/"><img src="{% static "images/toplogo_full.png" %}" alt="Pioneers in Engineering" /></a>
+            <a href="/"><img src="{% static 'images/toplogo_full.png' %}" alt="Pioneers in Engineering" /></a>
           </div>
           <ul id="menu">
             <li class="sibling">
@@ -92,13 +92,13 @@
         <div id="footerfocus">
           <div id="socialmedia">
             <a href="http://youtube.com/user/pierobotics">
-              <img src="{% static "images/youtube.png" %}" alt="Subscribe to our YouTube Channel" />
+              <img src="{% static 'images/youtube.png' %}" alt="Subscribe to our YouTube Channel" />
             </a>
             <a href="https://www.facebook.com/pages/Pioneers-in-Engineering/121487711267056">
-              <img src="{% static "images/facebook.png" %}" alt="Like us on Facebook" />
+              <img src="{% static 'images/facebook.png' %}" alt="Like us on Facebook" />
             </a>
             <a href="http://twitter.com/PiERobotics">
-              <img src="{% static "images/twitter.png" %}" alt="Follow us on Twitter" />
+              <img src="{% static 'images/twitter.png' %}" alt="Follow us on Twitter" />
             </a>
             </div>
             {% block footer %}{% endblock %}
@@ -112,7 +112,7 @@
               {% endif %}
             {% endcomment %}
             </div>
-            <p>Copyright &copy; 2008-{% now "Y" %} Pioneers in Engineering. PiE is a project of <a href="https://tbp.berkeley.edu">Tau Beta Pi, CA-Alpha Chapter</a>.
+            <p>Copyright &copy; 2008-{% now 'Y' %} Pioneers in Engineering. PiE is a project of <a href="https://tbp.berkeley.edu">Tau Beta Pi, CA-Alpha Chapter</a>.
             <br />Email: <a href="mailto:coordinators@pioneers.berkeley.edu">coordinators@pioneers.berkeley.edu</a></p>
         </div>
       </div>

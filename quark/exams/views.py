@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import permission_required
 from django.core.servers.basehttp import FileWrapper
@@ -37,8 +38,13 @@ class ExamUploadView(CreateView):
         form.instance.submitter = self.request.user
         return super(ExamUploadView, self).form_valid(form)
 
+    def form_invalid(self, form):
+        messages.error(self.request, 'Please correct your input fields.')
+        return super(ExamUploadView, self).form_invalid(form)
+
     def get_success_url(self):
         """Go to the course page corresponding to the uploaded exam."""
+        messages.success(self.request, 'Exam uploaded!')
         return reverse('courses:detail',
                        kwargs={'dept_slug': self.object.department.slug,
                                'course_num': self.object.number})
@@ -106,8 +112,13 @@ class ExamEditView(UpdateView):
             instructor__in=self.exam.instructors)
         return context
 
+    def form_invalid(self, form):
+        messages.error(self.request, 'Please correct your input fields.')
+        return super(ExamEditView, self).form_invalid(form)
+
     def get_success_url(self):
-        return reverse('exams:review')
+        messages.success(self.request, 'Changes saved!')
+        return reverse('exams:edit', kwargs={'exam_pk': self.exam.pk})
 
 
 class ExamDeleteView(DeleteView):
@@ -123,6 +134,7 @@ class ExamDeleteView(DeleteView):
         return super(ExamDeleteView, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
+        messages.success(self.request, 'Exam deleted!')
         return reverse('exams:review')
 
 
@@ -140,13 +152,21 @@ class ExamFlagCreateView(CreateView):
         form.instance.exam = self.exam
         return super(ExamFlagCreateView, self).form_valid(form)
 
+    def form_invalid(self, form):
+        messages.error(self.request, 'Please correct your input fields.')
+        return super(ExamFlagCreateView, self).form_invalid(form)
+
     def get_context_data(self, **kwargs):
         context = super(ExamFlagCreateView, self).get_context_data(**kwargs)
         context['exam'] = self.exam
         return context
 
     def get_success_url(self):
-        return reverse('exams:review')
+        """Go to the course page corresponding to the flagged exam."""
+        messages.success(self.request, 'Exam flag created!')
+        return reverse('courses:detail',
+                       kwargs={'dept_slug': self.exam.department.slug,
+                               'course_num': self.exam.number})
 
 
 class ExamFlagResolveView(UpdateView):
@@ -179,8 +199,13 @@ class ExamFlagResolveView(UpdateView):
         form.instance.resolved = True
         return super(ExamFlagResolveView, self).form_valid(form)
 
+    def form_invalid(self, form):
+        messages.error(self.request, 'Please correct your input fields.')
+        return super(ExamFlagResolveView, self).form_invalid(form)
+
     def get_success_url(self):
-        return reverse('exams:review')
+        messages.success(self.request, 'Exam flag resolved!')
+        return reverse('exams:edit', kwargs={'exam_pk': self.kwargs['exam_pk']})
 
 
 class PermissionEditView(UpdateView):
@@ -198,4 +223,5 @@ class PermissionEditView(UpdateView):
         return super(PermissionEditView, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
+        messages.success(self.request, 'Changes saved!')
         return reverse('exams:review')

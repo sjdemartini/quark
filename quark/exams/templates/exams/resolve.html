@@ -1,10 +1,12 @@
-{% extends "exams/base.html" %}
+{% extends 'exams/base.html' %}
 {% block sidebar %}
 {% endblock %}
 
 {% block title %}Resolve Flag | {{ block.super }}{% endblock title %}
 
-{% block intro %}<h1>Resolve Flag</h1>{% endblock intro %}
+{% block intro %}
+<h1>Resolve Flag</h1>
+{% endblock intro %}
 
 {% block content %}
 <h3>Reason: <strong>{{ flag.reason }}</strong> - {{ flag.created }}</h3>
@@ -17,5 +19,5 @@
   <div><input type="submit" value="Submit"></div>
 </form>
 
-{% include "exams/footer.html" %}
+{% include 'exams/footer.html' %}
 {% endblock %}
