@@ -5,11 +5,11 @@ from quark.achievements.models import UserAchievement
 
 
 class AchievementAdmin(admin.ModelAdmin):
-    fields = ('name', 'points')
+    fields = ('name', 'points', 'privacy', 'manual', 'rank')
     search_fields = ('name', 'points')
-    list_filter = ('secret', 'private', 'manual', 'repeatable')
-    list_display = (
-        'name', 'points', 'secret', 'private', 'manual', 'repeatable', 'icon')
+    list_filter = ('privacy', 'manual', 'repeatable')
+    list_display = ('name', 'points', 'privacy', 'manual',
+                    'repeatable', 'rank', 'icon')
 
 
 class UserAchievementAdmin(admin.ModelAdmin):

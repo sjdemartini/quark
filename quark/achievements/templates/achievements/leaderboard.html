@@ -9,15 +9,14 @@
 <ul class="leaderboard">
   {% for entry in leader_list %}
   <li>
-    {# TODO(natebailey): Make names link to users' achievement pages. #}
     {# Spaceless to fix whitespace issues with inline-block css style #}
     {% spaceless %}
     <div class="name {% cycle 'odd' 'even' %}
       {% if entry.user == user %}self{% endif %}">
-        {{ entry.rank }}. <a>{{ entry.user.get_full_name }}</a>
+        {{ entry.rank }}. <a href="{% url 'achievements:user' entry.user.id %}">{{ entry.user.get_full_name }}</a>
     </div>
     <span class="count-container {% cycle 'odd' 'even' %}"
-       style="width: {{ entry.factor }}%;">
+      style="width: {{ entry.factor }}%;">
       <span class="count">{{ entry.user.score }}</span>
     </span>
     {% endspaceless %}

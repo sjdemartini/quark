@@ -25,6 +25,15 @@ class Achievement(models.Model):
         (ORGANIZATION_ALL, 'All'),
     )
 
+    PRIVACY_PUBLIC = 'public'
+    PRIVACY_PRIVATE = 'private'
+    PRIVACY_SECRET = 'secret'
+    PRIVACY_SETTINGS = (
+        (PRIVACY_PUBLIC, 'Public'),
+        (PRIVACY_PRIVATE, 'Private'),
+        (PRIVACY_SECRET, 'Secret'),
+    )
+
     name = models.CharField(
         max_length=64, help_text='The short name of the achievement.')
 
@@ -54,14 +63,15 @@ class Achievement(models.Model):
         help_text=('The number of points this achievement is worth. Can be '
                    'positive or negative.'))
 
-    secret = models.BooleanField(
-        default=False, db_index=True,
-        help_text=('The description for secret achievements are hidden until '
-                   'unlocked.'))
-    private = models.BooleanField(
-        default=False, db_index=True,
-        help_text=('Private achievements can only be seen by the user who has '
-                   'it.'))
+    privacy = models.CharField(
+        choices=PRIVACY_SETTINGS, max_length=8, db_index=True,
+        default=PRIVACY_PUBLIC,
+        help_text=('Each achievement can be public, secret, or private. '
+                   'A public achievement is viewable by everyone. A secret '
+                   'achievement\'s name and description is hidden until '
+                   'unlocked. A private achievement can\'t be seen except '
+                   'by the user who has it.'))
+
     manual = models.BooleanField(
         default=False, db_index=True,
         help_text='Manual achievements can only be assigned by a human.')
