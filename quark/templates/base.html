@@ -68,7 +68,7 @@
                     <div class="dropdown-arrow"></div>
                     {% if is_officer %}
                     <li><a href="{#TODO#}">Officer Portal</a></li>
-                    <li><a href="{#TODO#}">Candidate Admin</a></li>
+                    <li><a href="{% url 'candidates:list-current' %}">Candidate Admin</a></li>
                     {% endif %}
 
                     {% if is_member and not is_officer %}
@@ -77,7 +77,7 @@
                     {% endif %}
 
                     {% if is_candidate %}
-                    <li><a href="{#TODO#}">Candidate Portal</a></li>
+                    <li><a href="{% url 'candidates:portal' %}">Candidate Portal</a></li>
                     {% endif %}
 
                     <li><a href="{#TODO#}">Procrastination</a></li>

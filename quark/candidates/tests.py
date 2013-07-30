@@ -16,6 +16,7 @@ from quark.candidates.models import CandidateRequirement
 from quark.candidates.models import CandidateRequirementProgress
 from quark.candidates.models import Challenge
 from quark.candidates.models import ChallengeCandidateRequirement
+from quark.candidates.models import ChallengeType
 from quark.candidates.models import EventCandidateRequirement
 from quark.candidates.models import ExamFileCandidateRequirement
 from quark.candidates.models import ManualCandidateRequirement
@@ -79,9 +80,13 @@ class CandidateTest(TestCase):
             term=self.term)
         self.manual_req2.save()
 
+        # Create a challenge type
+        self.individual_challenge_type = ChallengeType(name='Individual')
+        self.individual_challenge_type.save()
+
         # Create a challenge requirement
         self.challenge_req = ChallengeCandidateRequirement(
-            challenge_type=Challenge.INDIVIDUAL,
+            challenge_type=self.individual_challenge_type,
             credits_needed=3,
             term=self.term)
         self.challenge_req.save()
@@ -211,7 +216,8 @@ class CandidateTest(TestCase):
         challenge = Challenge(
             candidate=self.candidate,
             description='Hello kitty',
-            verifying_user=self.officer.user)
+            verifying_user=self.officer.user,
+            challenge_type=self.individual_challenge_type)
         challenge.save()
         complete, needed = self.candidate.get_progress(
             CandidateRequirement.CHALLENGE)

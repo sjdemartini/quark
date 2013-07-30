@@ -2,6 +2,7 @@ from django.contrib import admin
 
 from quark.candidates.models import Candidate
 from quark.candidates.models import Challenge
+from quark.candidates.models import ChallengeType
 from quark.candidates.models import ChallengeCandidateRequirement
 from quark.candidates.models import EventCandidateRequirement
 from quark.candidates.models import ExamFileCandidateRequirement
@@ -59,3 +60,4 @@ admin.site.register(ExamFileCandidateRequirement,
                     CandidateRequirementAdmin)
 admin.site.register(ManualCandidateRequirement,
                     ManualCandidateRequirementAdmin)
+admin.site.register(ChallengeType)

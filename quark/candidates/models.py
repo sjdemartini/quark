@@ -48,6 +48,16 @@ class Candidate(models.Model):
 
         return (completed, required)
 
+    def get_college_student_info(self):
+        # Avoid circular dependency by importing here:
+        from quark.user_profiles.models import CollegeStudentInfo
+        return CollegeStudentInfo.objects.get(user=self.user)
+
+    def get_user_contact_info(self):
+        # Avoid circular dependency by importing here:
+        from quark.user_profiles.models import UserContactInfo
+        return UserContactInfo.objects.get(user=self.user)
+
     def __unicode__(self):
         return '{user} ({term})'.format(user=self.user, term=self.term)
 
@@ -81,31 +91,41 @@ def candidate_post_save(sender, instance, created, **kwargs):
 models.signals.post_save.connect(candidate_post_save, sender=Candidate)
 
 
+class ChallengeTypeManager(models.Manager):
+    def get_by_natural_key(self, name):
+        try:
+            return self.get(name=name)
+        except ChallengeType.DoesNotExist:
+            return None
+
+
+class ChallengeType(models.Model):
+    name = models.CharField(max_length=60, unique=True)
+
+    objects = ChallengeTypeManager()
+
+    def __unicode__(self):
+        return self.name
+
+    def natural_key(self):
+        return (self.name,)
+
+
 class Challenge(models.Model):
     """A challenge done by a Candidate.
 
     Challenges are requested by the Candidate upon completion
     and verified by the person who gave the candidate the challenge.
     """
-    # Challenge Type constants
-    INDIVIDUAL = 1
-    GROUP = 2
-
-    CHALLENGE_TYPE_CHOICES = (
-        (INDIVIDUAL, 'Individual'),
-        (GROUP, 'Group')
-    )
-
-    # Verified constants
+    # Custom displays for the verified NullBooleanField
     VERIFIED_CHOICES = (
         (None, 'Pending'),
-        (True, 'Approve'),
-        (False, 'Deny'),
+        (True, 'Approved'),
+        (False, 'Denied'),
     )
 
     candidate = models.ForeignKey(Candidate)
-    challenge_type = models.PositiveSmallIntegerField(
-        choices=CHALLENGE_TYPE_CHOICES, default=INDIVIDUAL)
+    challenge_type = models.ForeignKey(ChallengeType)
     description = models.CharField(max_length=255)
     verifying_user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -120,7 +140,7 @@ class Challenge(models.Model):
             candidate=self.candidate, user=self.verifying_user)
 
     class Meta:
-        ordering = ('candidate', 'updated')
+        ordering = ('candidate', 'created')
 
 
 class CandidateRequirement(models.Model):
@@ -187,12 +207,11 @@ class CandidateRequirement(models.Model):
         if (self.requirement_type == CandidateRequirement.EVENT):
             return self.eventcandidaterequirement.event_type.name
         elif (self.requirement_type == CandidateRequirement.CHALLENGE):
-            return (self.challengecandidaterequirement.
-                    get_challenge_type_display())
+            return (self.challengecandidaterequirement.challenge_type.name)
         elif (self.requirement_type == CandidateRequirement.EXAM_FILE):
-            return 'Exam Files'
+            return ''
         elif (self.requirement_type == CandidateRequirement.RESUME):
-            return 'Resume'
+            return ''
         elif (self.requirement_type == CandidateRequirement.MANUAL):
             return self.manualcandidaterequirement.name
         else:
@@ -232,8 +251,8 @@ class EventCandidateRequirement(CandidateRequirement):
 
 
 class ChallengeCandidateRequirement(CandidateRequirement):
-    challenge_type = models.PositiveSmallIntegerField(
-        choices=Challenge.CHALLENGE_TYPE_CHOICES)
+    """Requirement for completing challenges issued by officers."""
+    challenge_type = models.ForeignKey(ChallengeType)
 
     def save(self, *args, **kwargs):
         """Override save handler to ensure that requirement_type is correct."""
@@ -247,18 +266,14 @@ class ChallengeCandidateRequirement(CandidateRequirement):
             challenge_type=self.challenge_type,
             verified=True).count()
 
-    def get_name(self):
-        return self.get_challenge_type_display()
-
     def __unicode__(self):
         return '{challenge_type} {req}'.format(
-            challenge_type=self.get_challenge_type_display(),
+            challenge_type=self.challenge_type.name,
             req=super(ChallengeCandidateRequirement, self).__unicode__())
 
 
 class ExamFileCandidateRequirement(CandidateRequirement):
     """Requirement for uploading exam files to the site."""
-
     def save(self, *args, **kwargs):
         """Override save handler to ensure that requirement_type is correct."""
         self.requirement_type = CandidateRequirement.EXAM_FILE
@@ -312,4 +327,4 @@ class CandidateRequirementProgress(models.Model):
             candidate=self.candidate, req=self.requirement)
 
     class Meta:
-        ordering = ('candidate', 'requirement')
+        ordering = ('requirement', 'candidate')

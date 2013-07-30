@@ -1,0 +1,47 @@
+{% extends 'candidates/base.html' %}
+
+{% block title %}Verify Challenges | {{ block.super }}{% endblock title %}
+
+{% block intro %}
+<h1>Verify Challenges for {{ term.verbose_name }}</h1>
+{% endblock intro %}
+
+{% block content %}
+<form method="post">
+  {% csrf_token %}
+  {{ form.management_form }}
+
+  {% if form|length != 0 %}
+  <table>
+    <thead>
+      <tr>
+        <th>Challenge Description</th>
+        <th>Candidate</th>
+        <th>Type</th>
+        <th>Verified</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for challenge_form in form %}
+    <tr>
+      <td>{{ challenge_form.instance.description }}</td>
+      <td>{{ challenge_form.instance.candidate.user.get_full_name }}</td>
+      <td>{{ challenge_form.instance.get_challenge_type_display }}</td>
+      <td>{{ challenge_form.verified }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  You have no pending challenges.
+  {% endif %}
+
+  <div>
+    <input type="submit" value="Verify">
+  </div>
+</form>
+
+<div>
+  <a href="{% url 'candidates:term' term.get_url_name %}"><strong>{{ term.verbose_name }} Candidates</strong></a>
+</div>
+{% endblock content %}

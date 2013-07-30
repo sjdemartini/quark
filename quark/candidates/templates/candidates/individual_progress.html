@@ -1,16 +1,14 @@
-<h2>{{ req_type }}</h2>
-{% for entry in entries %}
-  {{ entry.errors }}
-  <div>
-    {% if entry.requirement.requirement_type == entry.requirement.MANUAL %}
-      <strong>{{ entry.requirement.get_name }}: [{{ entry.form.manually_recorded_credits }} / {{entry.form.credits_needed}}] ({{ entry.requirement.credits_needed }})</strong>
-    {% else %}
-      <strong>{{ entry.requirement.get_name }}: [{{ entry.completed }} / {{entry.form.credits_needed}}] ({{ entry.requirement.credits_needed }})</strong>
-      {# Hide the manually_recorded_credits field because non manual requirements don't need it. #}
-      {{ entry.form.manually_recorded_credits.as_hidden }}
-    {% endif %}
-  </div>
-  <div>Comments: {{ entry.form.comments }}</div>
-{% empty %}
-  There are no {{ req_type }} requirements.
-{% endfor %}
+{# This template is included in edit.html to edit an individual progress for a candidate. #}
+{{ entry.form.errors.credits_needed }}
+{{ entry.form.errors.manually_recorded_credits }}
+
+<h3>{{ entry.requirement.get_name }}</h3>
+<div>
+  {% if entry.requirement.requirement_type == entry.requirement.MANUAL %}
+  <strong>[{{ entry.form.manually_recorded_credits }} / {{entry.form.credits_needed}}] ({{ entry.requirement.credits_needed }})</strong>
+  {% else %}
+  <strong>[{{ entry.completed }} / {{entry.form.credits_needed}}] ({{ entry.requirement.credits_needed }})</strong>
+  {# Hide the manually_recorded_credits field because non manual requirements don't need it. #}
+  {{ entry.form.manually_recorded_credits.as_hidden }}
+  {% endif %}
+</div>

@@ -1,24 +1,167 @@
 {% extends 'candidates/base.html' %}
-{% block sidebar %}
-{% endblock %}
+{% load template_utils %}
 
-{% block title %}Edit Candidate | {{ block.super }}{% endblock title %}
+{% block title %}Candidate Management | {{ block.super }}{% endblock title %}
 
-{% block intro %}<h1>Candidate Management for {{ candidate.user.get_full_name }}</h1>{% endblock intro %}
+{% block intro %}
+<h1>Candidate Management for {{ candidate.user.get_full_name }}</h1>
+{% endblock intro %}
 
 {% block content %}
-{# TODO(ericdwang): add the rest of candidate admin #}
+<h2>Photo</h2>
+{% if candidate.photo %}
+<div>
+  <img src="{{ candidate.photo.url }}" alt="{{ candidate.user.get_full_name }}">
+</div>
+{% else %}
+No photo uploaded yet.
+{% endif %}
+<div>
+  <a href="{% url 'candidates:photo' candidate.pk %}">Upload photo</a>
+</div>
 
-<form action="" method="post">
+<h2>Candidate Information</h2>
+{% with student_info=candidate.get_college_student_info %}
+<ul>
+  <li>
+    Major:
+    {% if student_info.major %}
+    {{ student_info.major }}
+    {% else %}
+    Not specified
+    {% endif %}
+  </li>
+  <li>
+    Phone: {{ candidate.get_user_contact_info.cell_phone }}
+    ({% if candidate.get_user_contact_info.receive_text %}does not receive{% else %}receives{% endif %} texts)
+  </li>
+  <li>Email: <a href="mailto:{{ candidate.user.email }}">{{ candidate.user.email }}</a></li>
+  <li>University start term: {{ student_info.start_term.verbose_name }}</li>
+</ul>
+{% endwith %}
+
+<form method="post">
   {% csrf_token %}
   {{ form.management_form }}
 
-  {% include 'candidates/individual_progress.html' with req_type='Event' entries=requirement_types.event %}
-  {% include 'candidates/individual_progress.html' with req_type='Challenge' entries=requirement_types.challenge %}
-  {% include 'candidates/individual_progress.html' with req_type='Exam File' entries=requirement_types.exam %}
-  {% include 'candidates/individual_progress.html' with req_type='Resume' entries=requirement_types.resume %}
-  {% include 'candidates/individual_progress.html' with req_type='Manual' entries=requirement_types.manual %}
+  <h2>Event Requirements</h2>
+  {% for entry in req_types.event %}
+  {% include 'candidates/individual_progress.html' with entry=entry%}
+  <ul>
+    {% with event_type=entry.requirement.eventcandidaterequirement.event_type.name %}
+    {% for event in events|get_item:event_type %}
+    <li>{{ event.name }}</li>
+    {% empty %}
+    No {{ event_type }} events attended.
+    {% endfor %}
+    {% endwith %}
+  </ul>
+  <div>
+    Comments: {{ entry.form.comments }}
+  </div>
+  {% empty %}
+  There are no Event requirements.
+  {% endfor %}
 
-  <div><input type="submit" value="Update"></div>
+  <h2>Challenge Requirements</h2>
+  {% for entry in req_types.challenge %}
+  {% include 'candidates/individual_progress.html' with entry=entry%}
+  {% with challenge_type=entry.requirement.challengecandidaterequirement.challenge_type.name %}
+  {% if challenges|get_item:challenge_type %}
+  <table>
+    <thead>
+      <tr>
+        <th>Challenge Description</th>
+        <th>Officer</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for challenge in challenges|get_item:challenge_type %}
+      <tr>
+        <td>{{ challenge.description }}</td>
+        <td>{{ challenge.verifying_user.get_full_name }}</td>
+        <td>{{ challenge.get_verified_display }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  No {{ challenge_type }} challenges submitted.
+  {% endif %}
+  {% endwith %}
+  <div>
+    Comments: {{ entry.form.comments }}
+  </div>
+  {% empty %}
+  There are no Challenge requirements.
+  {% endfor %}
+
+  <h2>Exam File Requirements</h2>
+  {% for entry in req_types.exam %}
+  {% include 'candidates/individual_progress.html' with entry=entry%}
+
+  <h3>Approved Exams Uploaded</h3>
+  <ul>
+    {% for exam in approved_exams %}
+    <li><a href="{% url 'exams:edit' exam.pk %}">{{ exam }}</a></li>
+    {% empty %}
+    No approved exams uploaded.
+    {% endfor %}
+  </ul>
+
+  <h3>Uploaded Exams Awaiting Verification</h3>
+  <ul>
+    {% for exam in unverified_exams %}
+    <li><a href="{% url 'exams:edit' exam.pk %}">{{ exam }}</a></li>
+    {% empty %}
+    No uploaded exams awaiting verification.
+    {% endfor %}
+  </ul>
+
+  <h3>Blacklisted Exams Uploaded</h3>
+  <ul>
+    {% for exam in blacklisted_exams %}
+    <li><a href="{% url 'exams:edit' exam.pk %}">{{ exam }}</a></li>
+    {% empty %}
+    No blacklisted exams uploaded.
+    {% endfor %}
+  </ul>
+  <p>Note: uploaded exams from blacklisted professors DO NOT count towards candidate requirements.</p>
+
+  <div>
+    Comments: {{ entry.form.comments }}
+  </div>
+  {% empty %}
+  There are no Exam File requirements.
+  {% endfor %}
+
+  <h2>Resume Requirements</h2>
+  {% for entry in req_types.resume %}
+  {% include 'candidates/individual_progress.html' with entry=entry%}
+  <div>
+    Comments: {{ entry.form.comments }}
+  </div>
+  {% empty %}
+  There are no Resume requirements.
+  {% endfor %}
+
+  <h2>Manual Requirements</h2>
+  {% for entry in req_types.manual %}
+  {% include 'candidates/individual_progress.html' with entry=entry%}
+  <div>
+    Comments: {{ entry.form.comments }}
+  </div>
+  {% empty %}
+  There are no Manual requirements.
+  {% endfor %}
+
+  <div>
+    <input type="submit" value="Update">
+  </div>
 </form>
+
+<div>
+  <a href="{% url 'candidates:term' candidate.term.get_url_name %}"><strong>Back to {{ candidate.term.verbose_name }} Candidates</strong></a>
+</div>
 {% endblock content %}

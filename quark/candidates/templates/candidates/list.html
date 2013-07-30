@@ -1,0 +1,68 @@
+{% extends 'candidates/base.html' %}
+
+{% block title %}{{ display_term.verbose_name }} Candidates | {{ block.super }}{% endblock title %}
+
+{% block intro %}
+<h1>{{ display_term.verbose_name }} Candidates</h1>
+{% endblock intro %}
+
+{% block content %}
+{# TODO(ericdwang): Add selector for term #}
+<div>
+  <a href="{% url 'candidates:edit-requirements' %}">Edit Requirements</a>
+  | <a href=" {% url 'candidates:challenges' %}">Candidate Challenges</a>
+</div>
+
+<div>
+  {% if candidates %}
+  <p><strong>Number of candidates</strong>: {{ candidates|length }}</p>
+  <i class="icon-ok"></i> = receives texts
+  <table>
+    <thead>
+      <tr>
+        <th>Picture</th>
+        <th>Name</th>
+        <th>Major</th>
+        <th>Phone</th>
+        <th>Email</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for candidate in candidates %}
+    <tr>
+      <td>
+        {% if candidate.photo %}
+        <a href="{{ candidate.photo.url }}"><img src="{{ candidate.photo.url }}" alt="{{ candidate.user.get_full_name }}" height="64"></a>
+        {% else %}
+        No photo
+        {% endif %}
+      </td>
+      <td><a href="{% url 'candidates:edit' candidate.pk %}">{{ candidate.user.get_full_name }}</a></td>
+      <td>
+        {% with student_info=candidate.get_college_student_info %}
+        {% with contact_info=candidate.get_user_contact_info %}
+        {% if student_info.major %}
+        {{ student_info.major }}
+        {% else %}
+        Not specified
+        {% endif %}
+      </td>
+      <td>
+        {{ contact_info.cell_phone }}
+        {% if contact_info.receive_text %}
+        <i class="icon-ok"></i>
+        {% endif %}
+        {% endwith %}
+        {% endwith %}
+      </td>
+      <td><a href="mailto:{{ candidate.user.email }}">{{ candidate.user.email }}</a></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>There are no candidates for {{ display_term }}.</p>
+  {% endif %}
+</div>
+
+{% endblock content %}

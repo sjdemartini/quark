@@ -1,24 +1,30 @@
 {% extends 'candidates/base.html' %}
-{% block sidebar %}
-{% endblock %}
 
 {% block title %}Edit Candidate Requirements | {{ block.super }}{% endblock title %}
 
-{% block intro %}<h1>Edit Candidate Requirements</h1>{% endblock intro %}
+{% block intro %}
+<h1>Edit Candidate Requirements for {{ term.verbose_name }}</h1>
+{% endblock intro %}
 
 {% block content %}
 {# TODO(ericdwang): add the rest of editing requirements #}
 
-<form action="" method="post">
+<form method="post">
   {% csrf_token %}
   {{ form.management_form }}
 
-  {% include 'candidates/individual_requirement.html' with req_type='Event' entries=requirement_types.event %}
-  {% include 'candidates/individual_requirement.html' with req_type='Challenge' entries=requirement_types.challenge %}
-  {% include 'candidates/individual_requirement.html' with req_type='Exam File' entries=requirement_types.exam %}
-  {% include 'candidates/individual_requirement.html' with req_type='Resume' entries=requirement_types.resume %}
-  {% include 'candidates/individual_requirement.html' with req_type='Manual' entries=requirement_types.manual %}
+  {% include 'candidates/individual_requirement.html' with display_req_type='Event' forms=req_forms.event req_type='event' %}
+  {% include 'candidates/individual_requirement.html' with display_req_type='Challenge' forms=req_forms.challenge req_type='challenge' %}
+  {% include 'candidates/individual_requirement.html' with display_req_type='Exam File' forms=req_forms.exam req_type='exam' %}
+  {% include 'candidates/individual_requirement.html' with display_req_type='Resume' forms=req_forms.resume req_type='resume' %}
+  {% include 'candidates/individual_requirement.html' with display_req_type='Manual' forms=req_forms.manual req_type='manual' %}
 
-  <div><input type="submit" value="Update"></div>
+  <div>
+    <input type="submit" value="Update">
+  </div>
 </form>
+
+<div>
+  <a href="{% url 'candidates:term' term.get_url_name %}"><strong>Back to {{ term.verbose_name }} Candidates</strong></a>
+</div>
 {% endblock content %}

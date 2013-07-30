@@ -1,13 +1,14 @@
 from chosen import forms as chosen_forms
 from django import forms
-from django.forms.formsets import BaseFormSet
-from django.forms.formsets import formset_factory
+from django.contrib.auth import get_user_model
 
+from quark.accounts.fields import UserCommonNameChoiceField
 from quark.base.models import Term
 from quark.candidates.models import Candidate
 from quark.candidates.models import CandidateRequirement
 from quark.candidates.models import Challenge
 from quark.candidates.models import ChallengeCandidateRequirement
+from quark.candidates.models import ChallengeType
 from quark.candidates.models import EventCandidateRequirement
 from quark.candidates.models import ExamFileCandidateRequirement
 from quark.candidates.models import ManualCandidateRequirement
@@ -15,7 +16,9 @@ from quark.events.models import EventType
 
 
 class CandidatePhotoForm(forms.ModelForm):
-    photo = forms.ImageField()
+    # Remove default hyperlink to image for the ImageField since the template
+    # already shows the actual image
+    photo = forms.ImageField(widget=forms.FileInput)
 
     class Meta:
         model = Candidate
@@ -42,10 +45,14 @@ class CandidateRequirementForm(forms.ModelForm):
 
 class EventCandidateRequirementForm(CandidateRequirementForm):
     event_type = chosen_forms.ChosenModelChoiceField(
-        label='Event type', queryset=EventType.objects.all())
+        queryset=EventType.objects.all())
 
     class Meta(CandidateRequirementForm.Meta):
         model = EventCandidateRequirement
+
+    def __init__(self, *args, **kwargs):
+        super(EventCandidateRequirementForm, self).__init__(*args, **kwargs)
+        self.fields['credits_needed'].label = 'Credits needed'
 
     def clean(self):
         """Check for duplicate event requirements in the current term."""
@@ -56,17 +63,21 @@ class EventCandidateRequirementForm(CandidateRequirementForm):
             event_type=event_type)
         if duplicates.exists():
             raise forms.ValidationError(
-                'A candidate requirement for {type} events already'
+                'A candidate requirement for {type} events already '
                 'exists.'.format(type=event_type))
         return cleaned_data
 
 
 class ChallengeCandidateRequirementForm(CandidateRequirementForm):
-    challenge_type = chosen_forms.ChosenChoiceField(
-        label='Challenge type', choices=Challenge.CHALLENGE_TYPE_CHOICES)
+    challenge_type = chosen_forms.ChosenModelChoiceField(
+        queryset=ChallengeType.objects.all())
 
     class Meta(CandidateRequirementForm.Meta):
         model = ChallengeCandidateRequirement
+
+    def __init__(self, *args, **kwargs):
+        super(ChallengeCandidateRequirementForm, self).__init__(*args, **kwargs)
+        self.fields['credits_needed'].label = 'Credits needed'
 
     def clean(self):
         """Check for duplicate challenge requirements in the current term."""
@@ -77,7 +88,7 @@ class ChallengeCandidateRequirementForm(CandidateRequirementForm):
             challenge_type=challenge_type)
         if duplicates.exists():
             raise forms.ValidationError(
-                'A candidate requirement for {type} challenges already'
+                'A candidate requirement for {type} challenges already '
                 'exists.'.format(type=challenge_type))
         return cleaned_data
 
@@ -85,6 +96,10 @@ class ChallengeCandidateRequirementForm(CandidateRequirementForm):
 class ExamFileCandidateRequirementForm(CandidateRequirementForm):
     class Meta(CandidateRequirementForm.Meta):
         model = ExamFileCandidateRequirement
+
+    def __init__(self, *args, **kwargs):
+        super(ExamFileCandidateRequirementForm, self).__init__(*args, **kwargs)
+        self.fields['credits_needed'].label = 'Credits needed'
 
     def clean(self):
         """Check for duplicate exam file requirements in the current term."""
@@ -98,10 +113,12 @@ class ExamFileCandidateRequirementForm(CandidateRequirementForm):
 
 
 class ManualCandidateRequirementForm(CandidateRequirementForm):
-    name = forms.CharField(label='Name')
-
     class Meta(CandidateRequirementForm.Meta):
         model = ManualCandidateRequirement
+
+    def __init__(self, *args, **kwargs):
+        super(ManualCandidateRequirementForm, self).__init__(*args, **kwargs)
+        self.fields['credits_needed'].label = 'Credits needed'
 
 
 class CandidateRequirementProgressForm(forms.Form):
@@ -116,7 +133,10 @@ class CandidateRequirementProgressForm(forms.Form):
         widget=forms.Textarea(attrs={'rows': 4}), required=False)
 
 
-class BaseCandidateRequirementFormset(BaseFormSet):
+class BaseCandidateRequirementFormset(forms.formsets.BaseFormSet):
+    """Base formset used to create the formset for editing candidate
+    requirements and the progresses for a candidate.
+    """
     def total_form_count(self):
         """Sets the number of forms equal to the number of candidate
         requirements for the current term.
@@ -125,13 +145,50 @@ class BaseCandidateRequirementFormset(BaseFormSet):
             term=Term.objects.get_current_term()).count()
 
 
-# pylint: disable=C0103
-CandidateRequirementFormSet = formset_factory(
-    CandidateRequirementForm,
-    formset=BaseCandidateRequirementFormset)
+class BaseChallengeVerifyFormset(forms.formsets.BaseFormSet):
+    """Base formset used to create the formset for verifying challenges."""
+    user = None
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super(BaseChallengeVerifyFormset, self).__init__(*args, **kwargs)
+
+    def total_form_count(self):
+        """Sets the number of forms equal to the number of challenges
+        requested from the user for the current term.
+        """
+        return Challenge.objects.filter(
+            verifying_user=self.user,
+            candidate__term=Term.objects.get_current_term()).count()
 
 
 # pylint: disable=C0103
-CandidateRequirementProgressFormSet = formset_factory(
-    CandidateRequirementProgressForm,
-    formset=BaseCandidateRequirementFormset)
+# Formset for editing candidate requirements for the current semester
+CandidateRequirementFormSet = forms.formsets.formset_factory(
+    CandidateRequirementForm, formset=BaseCandidateRequirementFormset)
+
+
+# pylint: disable=C0103
+# Formset for editing the progresses for a candidate
+CandidateRequirementProgressFormSet = forms.formsets.formset_factory(
+    CandidateRequirementProgressForm, formset=BaseCandidateRequirementFormset)
+
+
+# pylint: disable=C0103
+# Formset for verifying challenges
+ChallengeVerifyFormSet = forms.formsets.formset_factory(
+    ChallengeVerifyForm, formset=BaseChallengeVerifyFormset)
+
+
+class ChallengeForm(forms.ModelForm):
+    class Meta:
+        model = Challenge
+        fields = ('challenge_type', 'description', 'verifying_user')
+
+    def __init__(self, *args, **kwargs):
+        super(ChallengeForm, self).__init__(*args, **kwargs)
+        current_term = Term.objects.get_current_term()
+        self.fields['verifying_user'] = UserCommonNameChoiceField(
+            label='Verifying Officer',
+            queryset=get_user_model().objects.filter(
+                officer__term=current_term).distinct())
