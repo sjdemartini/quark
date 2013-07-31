@@ -124,6 +124,8 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    # django-compressor file finder
+    'compressor.finders.CompressorFinder',
 )
 
 # Make this unique, and don't share it with anybody.
@@ -153,6 +155,11 @@ THUMBNAIL_PROCESSORS = (
     'easy_thumbnails.processors.autocrop',
     'filer.thumbnail_processors.scale_and_crop_with_subject_location',
     'easy_thumbnails.processors.filters',
+)
+
+# This is for the django-compressor plugin
+COMPRESS_PRECOMPILERS = (
+    ('text/x-scss', 'sass {infile}:{outfile}'),
 )
 
 MIDDLEWARE_CLASSES = [
@@ -220,6 +227,7 @@ THIRD_PARTY_APPS = [
     #'cmsplugin_filer_folder',
     #'cmsplugin_filer_image',
     #'cmsplugin_filer_video',
+    'compressor',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

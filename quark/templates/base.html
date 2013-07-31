@@ -2,6 +2,7 @@
 <html>
   <head>
     {% load static %}
+    {% load compress %}
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <title>{% block title %}Tau Beta Pi, California Alpha Chapter{% endblock %}</title>
@@ -13,7 +14,9 @@
     <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
     <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,300,400,600,700" rel="stylesheet" type="text/css">
     <link rel="stylesheet" href="{% static 'css/normalize.css' %}">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% compress css %}
+    <link type="text/x-scss" rel="stylesheet" href="{% static 'css/style.scss' %}">
+    {% endcompress %}
     {% block jquery %}{% include 'jquery.html' %}{% endblock jquery %}
     <script src="{% static 'js/main.js' %}"></script>
     {{ form.media.css }}
