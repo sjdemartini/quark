@@ -13,6 +13,10 @@
 // _home.scss - css for the main page
 @import "home";
 
+///// Feature Specific Setup /////
+// _achievements.scss - css for the achievement app
+@import "achievements";
+
 // _leaderboard.scss - css for the leaderboard (e.g., achievements leaderboard)
 @import "leaderboard";
 
