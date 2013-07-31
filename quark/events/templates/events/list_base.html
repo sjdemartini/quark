@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block intro %}
+<h1>{% firstof term.verbose_name "Upcoming" %} Events</h1>
+
+{# TODO(sjdemartini): add Google Calendar and iCal Links #}
+
+{% if user.is_tbp_officer %}
+<div>
+  <a href="{% url 'events:add' %}">Add Event</a>
+  {# TODO(sjdemartini): add links for event admin and leaderboard #}
+</div>
+{% endif %}
+
+{% comment %}
+TODO(sjdemartini): Create and include a pluggable term selector to be used in
+multiple apps/templates
+{% endcomment %}
+{% endblock intro %}

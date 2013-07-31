@@ -123,9 +123,11 @@
 
       <div id="container">
         <div id="content" style="{% block content_style %}{% endblock content_style %}">
-        {% block intro %}{% endblock intro %}
+        {% block intro %}{# Used for page headers/titles, etc. #}{% endblock intro %}
+
         {% block messages %}{% include 'messages.html' %}{% endblock messages %}
-        {% block content %}{% endblock content %}
+
+        {% block content %}{# Used for the rest of the page content #}{% endblock content %}
         </div>
       </div>
 

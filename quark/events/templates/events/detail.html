@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ event.name }} | {{ block.super }}{% endblock %}
+
+{% block intro %}
+<h1>
+  Details for {{ event.name }}{% if perms.event.change_event %} (<a href="{% url 'events:edit' event.id %}">Edit</a>){% endif %}
+</h1>
+{% endblock intro %}
+
+{% block content %}
+{% if not event.is_upcoming %}
+<h2>
+{% if event.cancelled %}
+Event was cancelled
+{% else %}
+Event has ended
+{% endif %}
+</h2>
+{% endif %}
+
+(<em><a href="{# TODO: {% url 'events:attendance' event.id %} #}">Attendance</a>
+{% if event.attendance_submitted %}
+was submitted
+{% else %}
+not yet submitted
+{% endif %}
+</em>)
+
+{# TODO: Add Google Calendar link once GCal string output method created #}
+
+<div>
+<dl>
+  <dt>When</dt>
+    <dd>
+      {{ event.view_datetime }} (<a href="{# TODO: {% url 'event:ical' event.id %} #}">iCal</a>)
+    </dd>
+
+  <dt>Where</dt>
+    <dd>{{ event.location }}</dd>
+
+  {% if event.tagline %}
+  <dt>Tagline</dt>
+    <dd>{{ event.tagline }}</dd>
+  {% endif %}
+
+  {% if event.description %}
+  <dt>Description</dt>
+    <dd>{{ event.description }}</dd>
+    {% comment %}
+    TODO(sjdemartini): Enable markdown for event description like:
+    {{ event.description|markdown:"safe" }}
+    {% endcomment %}
+  {% endif %}
+
+  {% if event.requirements_credit > 0 %}
+  <dt>Candidate Requirements</dt>
+    <dd>
+      This event satisfies <strong>{{ event.requirements_credit }} {{ event.event_type|lower }}</strong> event requirement{{ event.requirements_credit|pluralize }}.
+    </dd>
+  {% endif %}
+
+  {% ifnotequal event.signup_limit 0 %}
+  <dt>Signup Limit</dt>
+    <dd>{{ event.signup_limit }}</dd>
+  {% endifnotequal %}
+</dl>
+</div>
+
+{# TODO(sjdemartini): Conditionally include signup template depending on event restrictions #}
+{% if form %}
+{% include 'events/signup.html' %}
+{% endif %}
+
+<h3>
+  Who's signed up?
+  {% if perms.events.change_eventsignup %}
+  (<a href="{# TODO: {% url 'events:attendance' event.id %} #}">Submit Attendance</a>)
+  {% endif %}
+</h3>
+
+{% if signup_list %}
+<ul>
+  {% for signup in signup_list %}
+  <li>
+    {{ signup.name }}
+    {# TODO(sjdemartini): Improve styles and readability of event signups #}
+    {% if perms.events.view_signups %}
+    (<em>{% if signup.person %}{{ signup.person.get_full_name }}{% else %}anonymous signup - {{ signup.email }}{% endif %}</em>)
+
+    {% if event.needs_drivers and signup.driving != 0 %}
+    - [+{{ signup.driving}} Ride{{ signup.driving|pluralize }}]
+    {% endif %}
+
+    {% if signup.num_guests %}
+    - [{{ signup.num_guests }} guest{{ signup.num_guests|pluralize }}]
+    {% endif %}
+
+    {% if perms.events.view_comments and signup.comments %}
+    - <em>{{ signup.comments }}</em>
+    {% endif %}
+    {% endif %}
+  </li>
+  {% endfor %}
+</ul>
+
+{% else %}
+<div>No one has signed up.{% if form %} Be the first!{% endif %}</div>
+{% endif %}
+
+<div>
+  <p>Participants: {{ num_signups|add:num_guests }}
+    {% if num_guests > 0 %}({{ num_signups }} signups + {{ num_guests }} guest{{ num_guests|pluralize }}){% endif %}
+  </p>
+  {% if event.needs_drivers and perms.events.view_driving_numbers %}
+  <p>Total Seats With Drivers: {{ total_seats }}</p>
+  <p>Remaining Available Seats: {{ available_seats }}</p>
+  {% endif %}
+</div>
+
+{% if num_signups and perms.event.contact_participants %}
+<h3>Email Participants</h3>
+{# TODO(sjdemartini): email people from within browser #}
+
+{% spaceless %}
+{% for signup in signup_list %}
+<span>&quot;{% if signup.person %}{{ signup.person.get_full_name }}{% else %}{{ signup.name }}{% endif %}&quot;
+  &lt;{% if signup.person %}{{ signup.person.email }}{% else %}{{ signup.email }}{% endif %}&gt;{% if not forloop.last %}, {% endif %}
+</span>
+{% endfor %}
+{% endspaceless %}
+
+{# TODO(sjdemartini): text participants information #}
+{% endif %}
+
+{% comment %}
+TODO(sjdemartini): Handle scenario when event is open and has no signups. Will
+need to implement event restriction levels.
+{% endcomment %}
+
+{% endblock content %}

@@ -1,0 +1,57 @@
+{% extends 'events/list_base.html' %}
+
+{% load static %}
+
+{% block content %}
+<p>
+  <strong>
+  {% if show_all %}
+  <a href="{% url 'events:list' %}">List Only Upcoming Events</a>
+  {% else %}
+  <a href="{% url 'events:list-all' %}">List All Events</a>
+  {% endif %}
+  </strong>
+</p>
+
+{% if events %}
+<div>
+  <table class="border" id="events">
+    <thead>
+      <tr>
+        <th style="width:15%">Date</th>
+        <th style="width:30%">Event Name</th>
+        <th style="width:20%">Time</th>
+        <th style="width:15%">Location</th>
+        <th style="width:10%">Type</th>
+        <th style="width:10%">Contact</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for event in events %}
+      <tr>
+        <td>{{ event.list_date|safe }}</td>
+        <td><div><a href="{% url 'events:detail' event.id %}"><strong>{{ event.name }}</strong></a></div><div>{{ event.tagline }}</div></td>
+        <td>{{ event.list_time|safe }}</td>
+        <td>{{ event.location }}</td>
+        <td class="event-type {% if event.is_upcoming %}{{ event.event_type }}{% else %}past-event{% endif %}">
+          {# TODO(sjdemartini): add link to filter by event type #}
+          {{ event.event_type.name }}
+        </td>
+        <td>
+          {% comment %}
+          TODO(sjdemartini): remove the hard-coded @tbp.berkeley.edu.
+          Maybe include '@domain.com' in mailing list officer position objects?
+          {% endcomment %}
+          {% if event.committee.mailing_list %}<a href="mailto:{{ event.committee.mailing_list }}@tbp.berkeley.edu">{% endif %}{{ event.committee.short_name }}{% if event.committee.mailing_list %}</a>{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% else %}
+<p>No events are available.</p>
+{% endif %}
+
+{% endblock content %}

@@ -30,7 +30,7 @@ body, div {
 }
 
 table {
-  margin: 10px 5%;
+  margin: 10px 0;
   width: 90%;
 }
 
@@ -62,11 +62,18 @@ form {
   }
 }
 
+.border,
+.border th,
+.border td {
+  border: 1px solid #000;
+}
+
 #pagination {
   text-align: center;
   font-size: 0.9em;
 }
 
+.error,
 .errorlist {
   color: #f00;
   font-weight: 400;

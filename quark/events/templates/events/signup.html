@@ -1,0 +1,39 @@
+{% comment %}
+This template is embedded into the events detail page to show the sign-up
+form. It works for both standard signups and anonymous (not-logged-in) signups.
+{% endcomment %}
+<h2>Sign Up</h2>
+
+{% if not user.is_authenticated %}
+<strong>If you have a user account, PLEASE use that. Otherwise, sign up anonymously here.</strong>
+{% endif %}
+
+{% comment %}
+TODO(sjdemartini): Exclude driving field when drivers not needed and guests
+field when not allowed to bring guests.
+
+Figure out a good way to conditionally exclude fields from a form (i.e., put
+logic in the form or view to change which are included).
+{% endcomment %}
+
+<form action="{% url 'events:signup' event.id %}" method="post">
+  {% csrf_token %}
+  <table>
+    {{ form.as_table }}
+  </table>
+  <div>
+    <input type="submit" value="{% if user_signed_up %}Update {% endif %}Sign Up" />
+  </div>
+</form>
+
+{% comment %}
+TODO(sjdemartini): Include this code once the unsignup endpoint is created.
+
+{% if user_signed_up %}
+<div>or</div>
+<form action="{% url 'events:unsignup' event.id %}" method="post">
+  {% csrf_token %}
+  <div><input type="submit" value="Unsign Up" /></div>
+</form>
+{% endif %}
+{% endcomment %}

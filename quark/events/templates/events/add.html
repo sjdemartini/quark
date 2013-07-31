@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}Add | {{ block.super }}{% endblock title %}
+
+{% block intro %}
+<h1>Add Event</h1>
+{% endblock intro %}
+
+{% block content %}
+<form action="{% url 'events:add' %}" method="post">
+{% csrf_token %}
+  <table>
+    {{ form.as_table }}
+  </table>
+  <div>
+    <input type="submit" value="Submit">
+  </div>
+</form>
+{% endblock content %}

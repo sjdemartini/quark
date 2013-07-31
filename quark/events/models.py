@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.db.models import Sum
 from django.utils import timezone
 
 from quark.base.models import Term
@@ -27,6 +28,20 @@ class EventType(models.Model):
         return (self.name,)
 
 
+class EventManager(models.Manager):
+    def get_upcoming(self, current_term_only=True):
+        """Return events that haven't been cancelled and haven't yet ended.
+
+        If current_term_only is True, the method returns only upcoming events
+        in the current term. Otherwise, the method returns upcoming events from
+        all terms.
+        """
+        self = self.filter(cancelled=False, end_datetime__gt=timezone.now())
+        if current_term_only:
+            self = self.filter(term=Term.objects.get_current_term())
+        return self
+
+
 class Event(models.Model):
     name = models.CharField(max_length=80)
     event_type = models.ForeignKey(EventType)
@@ -38,7 +53,8 @@ class Event(models.Model):
     location = models.CharField(max_length=80)
     contact = models.ForeignKey(settings.AUTH_USER_MODEL)
     committee = models.ForeignKey(OfficerPosition)
-    signup_limit = models.PositiveSmallIntegerField(default=0)
+    signup_limit = models.PositiveSmallIntegerField(
+        default=0, help_text='Set as 0 to allow unlimited signups.')
     max_guests_per_person = models.PositiveSmallIntegerField(
         default=0,
         help_text='Maximum number of guests each person is allowed to bring.')
@@ -65,8 +81,13 @@ class Event(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
+    objects = EventManager()
+
     class Meta:
         ordering = ('start_datetime',)
+        permissions = (
+            ('contact_participants', 'Can send email to those signed up'),
+        )
         verbose_name = 'event'
         verbose_name_plural = 'events'
 
@@ -77,17 +98,37 @@ class Event(models.Model):
     # URL of an event object
 
     def is_upcoming(self):
-        """Returns True if the event is not canceled and has not yet ended."""
-        return (not self.cancelled) and (
-            self.end_datetime > timezone.now())
+        """Return True if the event is not canceled and has not yet ended."""
+        return (not self.cancelled) and (self.end_datetime > timezone.now())
 
     def is_multiday(self):
-        """Returns True if the event starts on a different date than it ends.
+        """Return True if the event starts on a different date than it ends.
         """
         return self.start_datetime.date() != self.end_datetime.date()
 
+    def get_num_guests(self):
+        """Return the number of guests signed-up users are bringing along.
+
+        This number does not include the signed-up users, themselves; only
+        their guests are counted here.
+        """
+        return (self.eventsignup_set.filter(unsignup=False).aggregate(
+                Sum('num_guests'))['num_guests__sum'] or 0)
+
+    def get_num_rsvps(self, include_guests=True):
+        """Return the expected number of attendees based on signups.
+
+        This value includes the total number of signed up users. If
+        include_guests is True (as default), this count also includes the
+        number of guests for each signup.
+        """
+        count = self.eventsignup_set.filter(unsignup=False).count()
+        if include_guests:
+            count += self.get_num_guests()
+        return count
+
     def list_date(self):
-        """Returns a succinct string representation of the event date.
+        """Return a succinct string representation of the event date.
 
         An example is 'Sat, Nov 3'. For a multiday event, an example is
         'Mon, Mar 5 - Tue, Mar 6'.
@@ -99,7 +140,7 @@ class Event(models.Model):
         return date
 
     def list_time(self):
-        """Returns a succinct string representation of the event time.
+        """Return a succinct string representation of the event time.
 
         An example is '5:30 PM - 7:00 PM'. For a multiday event, the dates are
         included, as well. For instance, '(6/13) 11:15 PM - (6/14) 5:00 AM'.
@@ -121,7 +162,7 @@ class Event(models.Model):
             return '{} - {}'.format(start_time, end_time)
 
     def view_datetime(self):
-        """Returns a succinct string representation of the event date and time.
+        """Return a succinct string representation of the event date and time.
 
         An example is 'Sat, Nov 3 5:15 PM to 6:45 PM'. For a multiday event,
         an example is 'Mon, Mar 5 11:00 AM to Tue, Mar 6 11:00 AM'.
@@ -144,7 +185,7 @@ class Event(models.Model):
 
     @staticmethod
     def __get_abbrev_date_string(datetime_object):
-        """Returns a 'weekday, month day#' abbreviated string representation of
+        """Return a 'weekday, month day#' abbreviated string representation of
         the datetime object.
 
         An example output could be 'Sat, Nov 3'.
@@ -154,7 +195,7 @@ class Event(models.Model):
 
     @staticmethod
     def __get_time_string(datetime_object):
-        """Returns the current time in 12-hour AM/PM format.
+        """Return the current time in 12-hour AM/PM format.
 
         An example output could be '10:42 PM'.
         """
@@ -167,22 +208,27 @@ class EventSignUp(models.Model):
     name = models.CharField(max_length=255)  # Person's name used for signup
     num_guests = models.PositiveSmallIntegerField(
         default=0,
-        verbose_name='Number of guests (in addition to you)')
+        verbose_name='number of guests you are bringing')
     driving = models.PositiveSmallIntegerField(
         default=0,
-        verbose_name=('How many people fit in your car, including yourself '
+        verbose_name=('how many people fit in your car, including yourself '
                       '(0 if not driving)'))
     comments = models.TextField(
-        blank=True, verbose_name='Comments (optional)')
+        blank=True, verbose_name='comments (optional)')
+
+    # Necessary for anonymous signups (when person is null):
     email = models.EmailField(
-        blank=True, verbose_name='Enter your email',
+        blank=True, verbose_name='email address',
         help_text='Your email address will act as your password to unsign up.')
+
     timestamp = models.DateTimeField(auto_now=True)
+
     unsignup = models.BooleanField(default=False)
 
     class Meta:
         ordering = ('timestamp',)
         permissions = (
+            ('view_signups', 'Can view who has signed up for events'),
             ('view_comments', 'Can view sign-up comments'),
         )
 

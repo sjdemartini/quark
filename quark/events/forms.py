@@ -102,8 +102,25 @@ class EventSignUpForm(forms.ModelForm):
         model = EventSignUp
         fields = ('name', 'comments', 'driving', 'num_guests')
 
+    def __init__(self, *args, **kwargs):
+        max_guests = kwargs.pop('max_guests', None)
+        super(EventSignUpForm, self).__init__(*args, **kwargs)
+        if max_guests is not None:
+            self.fields['num_guests'] = forms.IntegerField(
+                min_value=0, max_value=max_guests,
+                label='Number of guests you are bringing (up to {})'.format(
+                    max_guests))
 
-class EventSignUpAnonymousForm(forms.ModelForm):
+    # TODO(sjdemartini): Perform separate validation to ensure that the event
+    # has enough space for the user and his guests, considering whether the
+    # user is editing an existing signup or creating a new signup.
+
+
+class EventSignUpAnonymousForm(EventSignUpForm):
     class Meta:
         model = EventSignUp
-        fields = ('name', 'comments', 'driving', 'num_guests', 'email')
+        fields = ('name', 'email', 'comments', 'driving', 'num_guests')
+
+    def __init__(self, *args, **kwargs):
+        super(EventSignUpAnonymousForm, self).__init__(*args, **kwargs)
+        self.fields['email'].required = True

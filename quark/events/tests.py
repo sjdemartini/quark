@@ -65,6 +65,26 @@ class EventTest(EventTesting, TestCase):
             'New Test Event Type')
         self.assertIsNone(event_type)
 
+    def test_get_upcoming(self):
+        # Create an event that hasn't started yet:
+        start_time = timezone.now() + datetime.timedelta(hours=2)
+        end_time = start_time + datetime.timedelta(hours=3)
+        event = self.create_tbp_event(start_time, end_time)
+        event.save()
+        upcoming_events = Event.objects.get_upcoming()
+        self.assertIn(event, upcoming_events)
+
+        # Make the event be set to occur in a future term
+        future_term = Term(term=self.term.term, year=(self.term.year + 1),
+                           current=False)
+        future_term.save()
+        event.term = future_term
+        event.save()
+        self.assertIn(
+            event, Event.objects.get_upcoming(current_term_only=False))
+        self.assertNotIn(
+            event, Event.objects.get_upcoming(current_term_only=True))
+
     def test_is_upcoming(self):
         # Create an event that hasn't started yet:
         start_time = timezone.now() + datetime.timedelta(hours=2)
@@ -72,9 +92,15 @@ class EventTest(EventTesting, TestCase):
         event = self.create_tbp_event(start_time, end_time)
         event.save()
         self.assertTrue(event.is_upcoming())
+        upcoming_events = Event.objects.get_upcoming()
+        self.assertIn(event, upcoming_events)
+        self.assertEqual(1, upcoming_events.count())
+
         event.cancelled = True
         event.save()
         self.assertFalse(event.is_upcoming())
+        upcoming_events = Event.objects.get_upcoming()
+        self.assertEqual(0, upcoming_events.count())
 
         # Create an event that has already started but hasn't ended yet:
         start_time = timezone.now() - datetime.timedelta(hours=2)
