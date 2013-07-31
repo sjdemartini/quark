@@ -1,7 +1,13 @@
 // _style.scss
 
+// normalize.css - css to reduce browser-specific quirks
+@import "normalize";
+
 // _common.scss - css that is common to every page (e.g. the navigation bar)
 @import "common";
+
+// _fontawesome.scss -- css that produces icons
+@import "fontawesome/fontawesome";
 
 ///// Page Specific Setup /////
 // _home.scss - css for the main page

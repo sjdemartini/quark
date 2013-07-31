@@ -214,6 +214,11 @@ blockquote {
       margin-right: 10px;
       @include respond-to(medium) { display: none; }
     }
+    @include respond-to(small) {
+      span {
+        display: none;
+      }
+    }
   }
 
   #login-clear {
@@ -242,8 +247,8 @@ blockquote {
   .dropdown-title {
     background: url(/static/images/arrow.png) no-repeat right center;
     background-size: 10px 6px;
-    margin-right: 5px;
-    padding-right: 15px;
+    margin-right: 15px;
+    padding-right: 8px;
     cursor: pointer;
   }
 
@@ -267,6 +272,11 @@ blockquote {
     border-width: 9px;
     @include absolute-position($top: -17px, $right: 30px, $width: 0,
       $height: 0);
+    @include respond-to(small) {
+      right: 15px + 8px;
+      // this is the sum of the margin-right and padding-right of
+      // .dropdown-title
+    }
   }
 
   .dropdown-arrow-border {
@@ -276,6 +286,11 @@ blockquote {
     border-width: 9px;
     @include absolute-position($top: -18px, $right: 30px, $width: 0,
       $height: 0);
+    @include respond-to(small) {
+      right: 15px + 8px;
+      // this is the sum of the margin-right and padding-right of
+      // .dropdown-title
+    }
   }
 
   ul.dropdown li {
@@ -590,6 +605,14 @@ blockquote {
   float: right;
   margin: 15px 15px 0;
   z-index: 100;
+}
+
+.sm-facebook {
+  font-size: 29px;
+  color: #4c66a4;
+  &:link {
+    text-decoration: none;
+  }
 }
 
 #copyright {
