@@ -28,6 +28,9 @@ class CollegeStudentInfo(IDCodeMixin):
 
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
 
+    class Meta:
+        verbose_name_plural = 'college student info'
+
     def __unicode__(self):
         return '%s - %s (%s - %s) id: %s' % (
             self.user.username, self.major, self.start_term, self.grad_term,
@@ -65,6 +68,9 @@ class UserContactInfo(models.Model):
         max_length=10, blank=True, verbose_name='Permanent Zip Code')
 
     international_address = models.TextField(blank=True)
+
+    class Meta:
+        verbose_name_plural = 'user contact info'
 
     def __unicode__(self):
         return self.user.get_common_name()
