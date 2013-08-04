@@ -1,6 +1,4 @@
 {% extends 'exams/base.html' %}
-{% block sidebar %}
-{% endblock %}
 
 {% block title %}Resolve Flag | {{ block.super }}{% endblock title %}
 
@@ -9,6 +7,7 @@
 {% endblock intro %}
 
 {% block content %}
+{% include 'exams/header.html' with exam=flag.exam %}
 <h3>Reason: <strong>{{ flag.reason }}</strong> - {{ flag.created }}</h3>
 
 <form action="{% url 'exams:flag-resolve' exam_pk=flag.exam.pk flag_pk=flag.pk %}" method="post">
@@ -16,8 +15,10 @@
   <table>
     {{ form.as_table }}
   </table>
-  <div><input type="submit" value="Submit"></div>
+  <div>
+    <input type="submit" value="Submit">
+  </div>
 </form>
 
 {% include 'exams/footer.html' %}
-{% endblock %}
+{% endblock content %}

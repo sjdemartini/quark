@@ -1,6 +1,4 @@
 {% extends 'exams/base.html' %}
-{% block sidebar %}
-{% endblock %}
 
 {% block title %}Flag Exam | {{ block.super }}{% endblock title %}
 
@@ -12,16 +10,21 @@
 {% include 'exams/header.html' %}
 <div>Is there a problem with this exam? Let us know how we can fix it!</div>
 
-<form action="{% url 'exams:flag' exam_pk=exam.pk %}" method="post">
+<form method="post">
   {% csrf_token %}
   <table>
     {{ form.as_table }}
   </table>
-  <div><input type="submit" value="Submit"></div>
+  <div>
+    <input type="submit" value="Submit">
+  </div>
 </form>
 
 {% if perms.exams.change_exam %}
-  <div><a href="{% url 'exams:edit' exam_pk=exam.pk %}"><strong>Edit exam</strong></a></div>
-  {% include 'exams/footer.html' %}
+<div>
+  <a href="{% url 'exams:edit' exam_pk=exam.pk %}"><strong>Edit exam</strong></a>
+</div>
+{% include 'exams/footer.html' %}
 {% endif %}
-{% endblock %}
+
+{% endblock content %}

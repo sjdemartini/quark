@@ -58,11 +58,17 @@ class ExamTest(TestCase):
         self.assertEquals(self.test_exam1.file_ext, '.txt')
         self.assertNotEqual(self.test_exam1.unique_id, '')
         self.assertEquals(
-            unicode(self.test_exam1),
+            self.test_exam1.get_download_file_name(),
             '{course}-{term}-{number}-{instructors}-{type}{ext}'.format(
                 course='test100', term=Term.SPRING + '2013',
                 number=Exam.MT1, instructors='Beta_Tau',
                 type=Exam.EXAM, ext='.txt'))
+        self.assertEquals(
+            unicode(self.test_exam1),
+            ('{term} {number} {type} for {course}, taught by '
+             '{instructors}').format(
+                 term='Spring 2013', number='Midterm 1', type='Exam',
+                 course='Test 100', instructors='Beta, Tau'))
 
     def test_flag_properites(self):
         exam_flag = ExamFlag(exam=self.test_exam1)
@@ -99,7 +105,7 @@ class ExamTest(TestCase):
         """
         # pylint: disable=R0915
         resp = self.client.get('/courses/Test/100/')
-        permission1 = list(self.test_exam1.permissions)[0]
+        permission1 = list(self.test_exam1.permissions)[1]
         permission2 = list(self.test_exam2.permissions)[0]
         permission3 = list(self.test_exam3.permissions)[0]
         # All exams with 0 blacklists
@@ -269,7 +275,7 @@ class ExamTest(TestCase):
         # Under flag limit, blacklisted, verified
         exam_flag_list[0].resolved = True
         exam_flag_list[0].save()
-        permission1 = list(self.test_exam1.permissions)[0]
+        permission1 = list(self.test_exam1.permissions)[1]
         permission1.permission_allowed = False
         permission1.save()
         self.test_exam1 = Exam.objects.get(pk=self.test_exam1.pk)

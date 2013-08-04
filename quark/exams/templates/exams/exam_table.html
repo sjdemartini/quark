@@ -1,0 +1,39 @@
+{# This template is included in review.html to display a table for exams. #}
+<table>
+  <thead>
+    <tr>
+      <th>Course</th>
+      <th>Instructors</th>
+      <th>Exam</th>
+      <th>Type</th>
+      <th>Term</th>
+      <th>Year</th>
+      <th>Verified</th>
+      <th>Flags</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for exam in exams %}
+    <tr>
+      <td><a href="{% url 'courses:detail' dept_slug=exam.department.short_name course_num=exam.number %}">{{ exam.course_instance.course }}</a></td>
+      <td>
+        {% for instructor in exam.instructors %}
+        <a href="{% url 'courses:instructor' inst_pk=instructor.pk %}">{{ instructor.last_name }}</a>{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+      </td>
+      <td>{{ exam.get_exam_number_display }}</td>
+      <td>{{ exam.get_exam_type_display }}</td>
+      <td>{{ exam.term.get_term_display }}</td>
+      <td>{{ exam.term.year }}</td>
+      <td>{{ exam.verified }}</td>
+      <td>{{ exam.flags }} <a href="{% url 'exams:flag' exam_pk=exam.pk %}"><i class="icon-flag" title="Add Flag"></i></a></td>
+      <td>
+        <a href="{% url 'exams:download' exam_pk=exam.pk %}"><i class="icon-download-alt" title="Download"></i></a>
+        | <a href="{% url 'exams:edit' exam_pk=exam.pk %}"><i class="icon-edit" title="Edit"></i></a>
+        | <a href="{% url 'exams:delete' exam_pk=exam.pk %}"><i class="icon-trash" title="Delete"></i></a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>

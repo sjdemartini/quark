@@ -75,7 +75,8 @@ class Exam(models.Model):
     exam_type = models.CharField(max_length=4, choices=EXAM_TYPE_CHOICES)
     unique_id = models.CharField(max_length=32, unique=True)
     file_ext = models.CharField(max_length=5)  # includes the period
-    verified = models.BooleanField(default=False)  # must be verified by officer
+    # must be verified manually be an officer
+    verified = models.BooleanField(default=False, blank=True)
     flags = models.PositiveSmallIntegerField(default=0)
     blacklisted = models.BooleanField(default=False)
     exam_file = models.FileField(upload_to=rename_file)
@@ -132,17 +133,26 @@ class Exam(models.Model):
             self.unique_id = uuid.uuid4().hex
         super(Exam, self).save(*args, **kwargs)
 
-    def __unicode__(self):
-        """Return a human-readable representation of the exam file.
-        Also the file name that is used when the exam is downloaded.
-        """
+    def get_download_file_name(self):
+        """Return the file name of the exam file when it is downloaded."""
         return '{course}-{term}-{number}-{instructors}-{type}{ext}'.format(
             course=self.course_instance.course.get_url_name(),
             term=self.course_instance.term.get_url_name(),
             number=self.exam_number,
-            instructors='_'.join(
-                [i.last_name for i in self.instructors]),
-            type=self.exam_type, ext=self.file_ext)
+            instructors='_'.join([i.last_name for i in self.instructors]),
+            type=self.exam_type,
+            ext=self.file_ext)
+
+    def __unicode__(self):
+        """Return a human-readable representation of the exam file."""
+        return ('{term} {number} {type} for {course}, taught by '
+                '{instructors}').format(
+                    term=self.course_instance.term.verbose_name(),
+                    number=self.get_exam_number_display(),
+                    type=self.get_exam_type_display(),
+                    course=self.course_instance.course,
+                    instructors=', '.join(
+                        [i.last_name for i in self.instructors]))
 
 
 class ExamFlag(models.Model):
@@ -179,6 +189,9 @@ class InstructorPermission(models.Model):
 
     def __unicode__(self):
         return unicode(self.instructor) + ' Permission'
+
+    class Meta:
+        ordering = ('instructor',)
 
 
 def create_new_permissions(sender, instance, **kwargs):

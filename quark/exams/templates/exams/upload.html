@@ -1,6 +1,4 @@
 {% extends 'exams/base.html' %}
-{% block sidebar %}
-{% endblock %}
 
 {% block title %}Upload Exam | {{ block.super }}{% endblock title %}
 
@@ -9,15 +7,18 @@
 {% endblock intro %}
 
 {% block content %}
-<form action="{% url 'exams:upload' %}" method="post" enctype="multipart/form-data">
+<form method="post" enctype="multipart/form-data">
   {% csrf_token %}
   <table>
     {{ form.as_table }}
   </table>
-  <div><input type="submit" value="Submit"></div>
+  <div>
+    <input type="submit" value="Submit">
+  </div>
 </form>
 
 {% if perms.exams.change_exam %}
-  {% include 'exams/footer.html' %}
+{% include 'exams/footer.html' %}
 {% endif %}
-{% endblock %}
+
+{% endblock content %}

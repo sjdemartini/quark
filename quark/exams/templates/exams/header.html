@@ -1,9 +1,9 @@
 <h2>
   {{ exam.term.verbose_name }}
   {{ exam.get_exam_number_display }}
-  {{ exam.get_exam_type_display }}
+  {{ exam.get_exam_type_display }} for
   <a href="{% url 'courses:detail' dept_slug=exam.department.short_name course_num=exam.number %}">{{ exam.course_instance.course }}</a>, taught by
   {% for instructor in exam.instructors %}
-    <a href="{% url 'courses:instructor' inst_pk=instructor.pk %}">{{ instructor.last_name }}</a>{% if not forloop.last %}, {% endif %}
+  <a href="{% url 'courses:instructor' inst_pk=instructor.pk %}">{{ instructor.last_name }}</a>{% if not forloop.last %}, {% endif %}
   {% endfor %}
 </h2>

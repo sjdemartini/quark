@@ -12,11 +12,12 @@ from django.utils.encoding import smart_bytes
 from django.views.generic import CreateView
 from django.views.generic import DeleteView
 from django.views.generic import DetailView
+from django.views.generic import FormView
 from django.views.generic import ListView
 from django.views.generic import UpdateView
 
 from quark.exams.forms import EditForm
-from quark.exams.forms import EditPermissionForm
+from quark.exams.forms import EditPermissionFormSet
 from quark.exams.forms import FlagForm
 from quark.exams.forms import FlagResolveForm
 from quark.exams.forms import UploadForm
@@ -36,6 +37,7 @@ class ExamUploadView(CreateView):
     def form_valid(self, form):
         """Assign submitter to the exam."""
         form.instance.submitter = self.request.user
+        messages.success(self.request, 'Exam uploaded!')
         return super(ExamUploadView, self).form_valid(form)
 
     def form_invalid(self, form):
@@ -44,7 +46,6 @@ class ExamUploadView(CreateView):
 
     def get_success_url(self):
         """Go to the course page corresponding to the uploaded exam."""
-        messages.success(self.request, 'Exam uploaded!')
         return reverse('courses:detail',
                        kwargs={'dept_slug': self.object.department.slug,
                                'course_num': self.object.number})
@@ -62,7 +63,8 @@ class ExamDownloadView(DetailView):
             FileWrapper(self.object.exam_file),
             content_type='application/pdf')
         response['Content-Disposition'] = 'inline;filename="{exam}"'.format(
-            exam=smart_bytes(self.object, encoding='ascii'))
+            exam=smart_bytes(
+                self.object.get_download_file_name(), encoding='ascii'))
         return response
 
 
@@ -112,12 +114,15 @@ class ExamEditView(UpdateView):
             instructor__in=self.exam.instructors)
         return context
 
+    def form_valid(self, form):
+        messages.success(self.request, 'Changes saved!')
+        return super(ExamEditView, self).form_valid(form)
+
     def form_invalid(self, form):
         messages.error(self.request, 'Please correct your input fields.')
         return super(ExamEditView, self).form_invalid(form)
 
     def get_success_url(self):
-        messages.success(self.request, 'Changes saved!')
         return reverse('exams:edit', kwargs={'exam_pk': self.exam.pk})
 
 
@@ -133,8 +138,11 @@ class ExamDeleteView(DeleteView):
     def dispatch(self, *args, **kwargs):
         return super(ExamDeleteView, self).dispatch(*args, **kwargs)
 
-    def get_success_url(self):
+    def form_valid(self, form):
         messages.success(self.request, 'Exam deleted!')
+        return super(ExamDeleteView, self).form_valid(form)
+
+    def get_success_url(self):
         return reverse('exams:review')
 
 
@@ -150,6 +158,7 @@ class ExamFlagCreateView(CreateView):
     def form_valid(self, form):
         """Flag exam if valid data is posted."""
         form.instance.exam = self.exam
+        messages.success(self.request, 'Exam flag created!')
         return super(ExamFlagCreateView, self).form_valid(form)
 
     def form_invalid(self, form):
@@ -163,7 +172,6 @@ class ExamFlagCreateView(CreateView):
 
     def get_success_url(self):
         """Go to the course page corresponding to the flagged exam."""
-        messages.success(self.request, 'Exam flag created!')
         return reverse('courses:detail',
                        kwargs={'dept_slug': self.exam.department.slug,
                                'course_num': self.exam.number})
@@ -197,6 +205,7 @@ class ExamFlagResolveView(UpdateView):
     def form_valid(self, form):
         """Resolve flag if valid data is posted."""
         form.instance.resolved = True
+        messages.success(self.request, 'Exam flag resolved!')
         return super(ExamFlagResolveView, self).form_valid(form)
 
     def form_invalid(self, form):
@@ -204,24 +213,37 @@ class ExamFlagResolveView(UpdateView):
         return super(ExamFlagResolveView, self).form_invalid(form)
 
     def get_success_url(self):
-        messages.success(self.request, 'Exam flag resolved!')
         return reverse('exams:edit', kwargs={'exam_pk': self.kwargs['exam_pk']})
 
 
-class PermissionEditView(UpdateView):
-    context_object_name = 'permission'
-    form_class = EditPermissionForm
-    model = InstructorPermission
-    pk_url_kwarg = 'permission_pk'
-    template_name = 'exams/permission.html'
+class PermissionListView(FormView):
+    form_class = EditPermissionFormSet
+    template_name = 'exams/permissions.html'
 
     @method_decorator(login_required)
     @method_decorator(
         permission_required('exams.change_instructorpermission',
                             raise_exception=True))
     def dispatch(self, *args, **kwargs):
-        return super(PermissionEditView, self).dispatch(*args, **kwargs)
+        return super(PermissionListView, self).dispatch(*args, **kwargs)
+
+    def get_form(self, form_class):
+        """Initialize each form in the formset with an instructor permission."""
+        formset = super(PermissionListView, self).get_form(form_class)
+        permissions = InstructorPermission.objects.all()
+        for i in range(permissions.count()):
+            permission = permissions[i]
+            formset[i].instance = permission
+            formset[i].initial = {
+                'permission_allowed': permission.permission_allowed,
+                'correspondence': permission.correspondence}
+        return formset
+
+    def form_valid(self, form):
+        for permission_form in form:
+            permission_form.save()
+        messages.success(self.request, 'Changes saved!')
+        return super(PermissionListView, self).form_valid(form)
 
     def get_success_url(self):
-        messages.success(self.request, 'Changes saved!')
-        return reverse('exams:review')
+        return reverse('exams:permissions')

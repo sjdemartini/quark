@@ -61,6 +61,11 @@ $FontAwesomeVersion: '3.2.1' !default;
 [class^="icon-"],
 [class*=" icon-"] {
   @include icon-FontAwesome();
+
+  // Prevent icons used as links from being underlined
+  a & {
+    text-decoration: none;
+  }
 }
 
 [class^="icon-"]:before,

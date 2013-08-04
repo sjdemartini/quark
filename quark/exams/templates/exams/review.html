@@ -1,6 +1,4 @@
 {% extends 'exams/base.html' %}
-{% block sidebar %}
-{% endblock %}
 
 {% block title %}Exam Review | {{ block.super }}{% endblock title %}
 
@@ -9,99 +7,39 @@
 {% endblock intro %}
 
 {% block content %}
-<div>There {{ unverified_exams|pluralize:'is,are' }} <strong>{{ unverified_exams|length }}</strong> exam{{ unverified_exams|pluralize }} awaiting verification.</div>
-<div>There {{ flagged_exams|pluralize:'is,are' }} <strong>{{ flagged_exams|length }}</strong> flagged exam{{ flagged_exams|pluralize }} needing attention.</div>
-<div>There {{ blacklisted_exams|pluralize:'is,are' }} <strong>{{ blacklisted_exams|length }}</strong> blacklisted exam{{ blacklisted_exams|pluralize }}.</div>
-
 <div>
-<h2>Non-Blacklisted Exams</h2>
-{% if exams %}
-  <table id="exam-table">
-    <tr>
-      <th>Course</th>
-      <th>Instructors</th>
-      <th>Exam</th>
-      <th>Type</th>
-      <th>Term</th>
-      <th>Year</th>
-      <th>Verified</th>
-      <th>Flags</th>
-      <th>Download</th>
-      <th>Edit</th>
-      <th>Delete</th>
-    </tr>
-    {% for exam in exams %}
-    <tr>
-      <td><a href="{% url 'courses:detail' dept_slug=exam.department.short_name course_num=exam.number %}">{{ exam.course_instance.course }}</a></td>
-      <td>
-        {% for instructor in exam.instructors %}
-          <a href="{% url 'courses:instructor' inst_pk=instructor.pk %}">{{ instructor.last_name }}</a>{% if not forloop.last %}, {% endif %}
-        {% endfor %}
-      </td>
-      <td>{{ exam.get_exam_number_display }}</td>
-      <td>{{ exam.get_exam_type_display }}</td>
-      <td>{{ exam.term.get_term_display }}</td>
-      <td>{{ exam.term.year }}</td>
-      <td>{{ exam.verified }}</td>
-      {# TODO(ericdwang): use a flag icon for flagging exams #}
-      <td>{{ exam.flags }} (<a href="{% url 'exams:flag' exam_pk=exam.pk %}">Add flag</a>)</td>
-      <td><a href="{% url 'exams:download' exam_pk=exam.pk %}">Download</a></td>
-      <td><a href="{% url 'exams:edit' exam_pk=exam.pk %}">Edit</a></td>
-      {# TODO(ericdwang): use an X icon for deleting exams #}
-      <td><a href="{% url 'exams:delete' exam_pk=exam.pk %}">Delete</a></td>
-    </tr>
-    {% endfor %}
-  </table>
-{% else %}
-  <p>There are currently no non-blacklisted exams that need to be reviewed.</p>
-{% endif %}
+  There {{ unverified_exams|pluralize:'is,are' }} <strong>{{ unverified_exams|length }}</strong> exam{{ unverified_exams|pluralize }} awaiting verification.
+</div>
+<div>
+  There {{ flagged_exams|pluralize:'is,are' }} <strong>{{ flagged_exams|length }}</strong> flagged exam{{ flagged_exams|pluralize }} needing attention.
+</div>
+<div>
+  There {{ blacklisted_exams|pluralize:'is,are' }} <strong>{{ blacklisted_exams|length }}</strong> blacklisted exam{{ blacklisted_exams|pluralize }}.
 </div>
 
 <div>
-<h2>Blacklisted Exams</h2>
-{% if blacklisted_exams %}
-  <table id="blacklisted-exam-table">
-    <tr>
-      <th>Course</th>
-      <th>Instructors</th>
-      <th>Exam</th>
-      <th>Type</th>
-      <th>Term</th>
-      <th>Year</th>
-      <th>Verified</th>
-      <th>Flags</th>
-      <th>Download</th>
-      <th>Edit</th>
-      <th>Delete</th>
-    </tr>
-    {% for exam in blacklisted_exams %}
-    <tr>
-      <td><a href="{% url 'courses:detail' dept_slug=exam.department.short_name course_num=exam.number %}">{{ exam.course_instance.course }}</a></td>
-      <td>
-        {% for instructor in exam.instructors %}
-          <a href="{% url 'courses:instructor' inst_pk=instructor.pk %}">{{ instructor.last_name }}</a>{% if not forloop.last %}, {% endif %}
-        {% endfor %}
-      </td>
-      <td>{{ exam.get_exam_number_display }}</td>
-      <td>{{ exam.get_exam_type_display }}</td>
-      <td>{{ exam.term.get_term_display }}</td>
-      <td>{{ exam.term.year }}</td>
-      <td>{{ exam.verified }}</td>
-      {# TODO(ericdwang): use a flag icon for flagging exams #}
-      <td>{{ exam.flags }} (<a href="{% url 'exams:flag' exam_pk=exam.pk %}">Add flag</a>)</td>
-      <td><a href="{% url 'exams:download' exam_pk=exam.pk %}">Download</a></td>
-      <td><a href="{% url 'exams:edit' exam_pk=exam.pk %}">Edit</a></td>
-      {# TODO(ericdwang): use an X icon for deleting exams #}
-      <td><a href="{% url 'exams:delete' exam_pk=exam.pk %}">Delete</a></td>
-    </tr>
-    {% endfor %}
-  </table>
-{% else %}
+  <h2>Non-Blacklisted Exams</h2>
+  {% if exams %}
+  {% include 'exams/exam_table.html' with exams=exams %}
+  {% else %}
+  <p>There are currently no non-blacklisted exams that need to be reviewed.</p>
+  {% endif %}
+</div>
+
+<div>
+  <h2>Blacklisted Exams</h2>
+  {% if blacklisted_exams %}
+  {% include 'exams/exam_table.html' with exams=blacklisted_exams %}
+  {% else %}
   <p>There are currently no blacklisted exams.</p>
-{% endif %}
+  {% endif %}
 </div>
 
 <div>
   <p>Can't get enough reviewing? <a href="{% url 'exams:upload' %}"><strong>Upload an exam</strong></a>!</p>
 </div>
-{% endblock %}
+
+<div>
+  <p><a href="{% url 'exams:permissions' %}"><strong>Instructor Permissions</strong></a></p>
+</div>
+{% endblock content %}
