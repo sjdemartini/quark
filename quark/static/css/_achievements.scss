@@ -4,6 +4,12 @@
 /* User Achievement List Page */
 .achievements-list.locked {
   color: #888;
+  .points {
+    display: none;
+  }
+  .type {
+    display: none;
+  }
 }
 
 .achievement {
@@ -23,6 +29,9 @@
     display: inline-block;
     vertical-align: top;
     width: 40%;
+    a {
+      color: inherit;
+    }
     .name {
       font-weight: bold;
       font-size: 1.1em;
@@ -51,6 +60,10 @@
       }
     }
   }
+}
+
+.designer-credit {
+  font-size: 0.9em;
 }
 
 /* Achievement Progress Bars */

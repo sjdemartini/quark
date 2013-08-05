@@ -3,10 +3,48 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
+from django.views.generic import DetailView
 from django.views.generic import ListView
 
 from quark.achievements.models import Achievement
 from quark.achievements.models import UserAchievement
+
+
+class AchievementDetailView(DetailView):
+    context_object_name = 'achievement'
+    model = Achievement
+    pk_url_kwarg = 'achievement_id'
+    template_name = 'achievements/achievement_detail.html'
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(AchievementDetailView, self).dispatch(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(AchievementDetailView, self).get_context_data(**kwargs)
+
+        # Select the viewer's secret and private achievements so that they
+        # can only see the ones they've unlocked.
+        viewer_achievements = self.request.user.userachievement_set
+        context['viewable_hidden_achievements'] = Achievement.objects.filter(
+            userachievement__in=viewer_achievements.values_list('id')).exclude(
+                privacy='public')
+
+        # Find all users that have unlocked the achievement
+        user_achievements = UserAchievement.objects.filter(
+            achievement__id=context['achievement'].id).exclude(
+                acquired=False)
+        users_with_achievement = get_user_model().objects.filter(
+            userachievement__in=user_achievements.values_list('id'))
+        context['users_with_achievement'] = users_with_achievement.order_by(
+            'last_name')
+
+        # Find other achievements in same sequence to display related.
+        context['related_achievements'] = Achievement.objects.filter(
+            sequence=context['achievement'].sequence).exclude(
+                id=context['achievement'].id)
+
+        return context
 
 
 class LeaderboardListView(ListView):

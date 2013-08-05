@@ -1,0 +1,70 @@
+{% extends 'achievements/base.html' %}
+
+{% load static %}
+
+{% block title %}
+{% if achievement.privacy != 'public' and achievement not in viewable_hidden_achievements %}
+Locked Achievement
+{% else %}
+{{ achievement.name }}
+{% endif %}
+| {{ block.super }}
+{% endblock title %}
+
+{% block intro %}
+<h1>
+{% if achievement.privacy != 'public' and achievement not in viewable_hidden_achievements %}
+Locked Achievement
+{% else %}
+{{ achievement.name }} Details
+{% endif %}
+</h1>
+{% endblock intro %}
+
+{% block content %}
+
+{# If the achievement is locked, show no further information about users or related achievements. #}
+{% if achievement.privacy != 'public' and achievement not in viewable_hidden_achievements %}
+{% include 'achievements/display_achievement.html' with hidden_from_viewer=True %}
+
+{% else %}
+{% include 'achievements/display_achievement.html' with hidden_from_viewer=False display_user=user  %}
+
+{% if achievement.icon_creator %}
+<div class="designer-credit">
+  Icon Created by
+  <a href="{% url 'achievements:user' achievement.icon_creator.id %}">{{ achievement.icon_creator.get_full_name }}</a>
+</div>
+{% endif %}
+
+{% if achievement.sequence and related_achievements %}
+<h2>Related Achievements</h2>
+<ul class="related-achievements">
+  {% for entry in related_achievements %}
+    {% if entry.privacy != 'public' and entry not in viewable_hidden_achievements %}
+      {% include 'achievements/display_achievement.html' with hidden_from_viewer=True %}
+    {% else %}
+      {% include 'achievements/display_achievement.html' with hidden_from_viewer=False achievement=entry display_user=user %}
+    {% endif %}
+  {% endfor %}
+</ul>
+{% endif %}
+
+{% if achievement.privacy != 'private' %}
+<h2>Users with this Achievement ({{ users_with_achievement|length }})</h2>
+<ul class="users-with-achievement">
+  {% for entry in users_with_achievement %}
+  <li>
+    <div>
+      <a href="{% url 'achievements:user' entry.id %}">{{ entry.get_full_name }}</a>
+    </div>
+  </li>
+  {% empty %}
+  <p>No users have this achievement yet! Maybe you can be the first to unlock it.
+  </p>
+  {% endfor %}
+{% endif %}
+
+{% endif %}
+
+{% endblock content %}

@@ -8,37 +8,45 @@ is secret and not also unlocked by the page viewer.
 
 <li class="achievement{% if hidden_from_viewer %} hidden{% endif %}">
   <div class="icon">
-    <img src="{% get_static_prefix %}{% if hidden_from_viewer %}images/achievements/hidden.jpg{% else %}{% firstof entry.icon "images/missing.jpg" %}{% endif %}"/>
+    {% if hidden_from_viewer %}
+    <img src="{% get_static_prefix %}images/achievements/hidden.jpg"/>
+    {% else %}
+    <a href="{% url 'achievements:detail' achievement.id %}">
+      <img src="{% get_static_prefix %}{% firstof achievement.icon "images/missing.jpg" %}"/>
+    </a>
+    {% endif %}
   </div>
   <div class="info">
     {% if hidden_from_viewer %}
     <div class="name">&lt;Secret Achievement&gt;</div>
     <div class="description">This achievement is hidden until unlocked.</div>
-    {% elif entry.achievement.privacy != 'private' or user == display_user %}
-    <div class="name">{{ entry.achievement.name }}</div>
-    <div class="description">{{ entry.achievement.description }}</div>
+    {% elif achievement.privacy != 'private' or user == display_user %}
+    <div class="name">
+      <a href="{% url 'achievements:detail' achievement.id %}">{{ achievement.name }}</a>
+    </div>
+    <div class="description">{{ achievement.description }}</div>
     {% endif %}
   </div>
   <div class="metadata">
-    {% if not hidden_from_viewer and entry not in locked_list %}
-    {% if entry.achievement.privacy != 'private' or user == display_user %}
+    {% if not hidden_from_viewer %}
+    {% if achievement.privacy != 'private' or user == display_user %}
     <div class="type">
-      {% if entry.achievement.privacy == 'secret' %}Secret Achievement!
-      {% elif entry.achievement.privacy == 'private' %}Private Achievement!
+      {% if achievement.privacy == 'secret' %}Secret Achievement!
+      {% elif achievement.privacy == 'private' %}Private Achievement!
       {% endif %}
     </div>
     <div class="points">
-      {{ entry.achievement.points }}
-      point{{ entry.achievement.points|pluralize }}
+      {{ achievement.points }}
+      point{{ achievement.points|pluralize }}
     </div>
     {% endif %}
     {% endif %}
-    {% if entry.progress < entry.goal  %}
+    {% if progress < goal  %}
     <span class="progress-bar-container">
       <span class="progress-bar"
-        style="width: {% widthratio entry.progress entry.goal 100 %}%;">
+        style="width: {% widthratio progress goal 100 %}%;">
         <span class="progress">
-          {{ entry.progress }}/{{ entry.goal }}
+          {{ progress }}/{{ goal }}
         </span>
       </span>
     </span>
