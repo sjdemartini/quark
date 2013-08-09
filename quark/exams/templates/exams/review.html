@@ -6,6 +6,10 @@
 <h1>Exam Review</h1>
 {% endblock intro %}
 
+{% block head %}
+{% include 'footable.html' %}
+{% endblock head %}
+
 {% block content %}
 <div>
   There {{ unverified_exams|pluralize:'is,are' }} <strong>{{ unverified_exams|length }}</strong> exam{{ unverified_exams|pluralize }} awaiting verification.

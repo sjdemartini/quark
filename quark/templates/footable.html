@@ -1,0 +1,21 @@
+{% load static %}
+<script src="{% static 'footable/js/footable.js' %}" type="text/javascript"></script>
+<link href="{% static 'footable/css/footable.core.css' %}" rel="stylesheet" type="text/css"/>
+<script type="text/javascript">
+$(function() {
+    $('.footable').footable({
+        // These breakpoints override the default FooTable breakpoints
+        // to match the small and medium breakpoints of our css
+        breakpoints: {
+            tablet: 820,
+            phone: 480
+        },
+        calculateWidthAndHeightOverride: function(table, info) {
+            info.width = info.viewportWidth;
+            info.height = info.viewportHeight;
+
+            return info;
+        }
+    });
+});
+</script>

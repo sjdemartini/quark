@@ -1,16 +1,16 @@
 {# This template is included in review.html to display a table for exams. #}
-<table>
+<table class="footable">
   <thead>
     <tr>
-      <th>Course</th>
-      <th>Instructors</th>
+      <th data-class="expand">Course</th>
+      <th data-hide="phone,tablet">Instructors</th>
       <th>Exam</th>
-      <th>Type</th>
-      <th>Term</th>
-      <th>Year</th>
+      <th data-hide="phone,tablet">Type</th>
+      <th data-hide="phone,tablet">Term</th>
+      <th data-hide="phone,tablet">Year</th>
       <th>Verified</th>
-      <th>Flags</th>
-      <th>Actions</th>
+      <th data-hide="phone,tablet">Flags</th>
+      <th data-hide="phone">Actions</th>
     </tr>
   </thead>
   <tbody>
