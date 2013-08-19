@@ -10,7 +10,7 @@
 <div>
   <p>Current photo:</p>
   {% if candidate.photo %}
-  <img src="{{ candidate.photo.url }}" alt="{{ candidate.user.get_full_name }}">
+  <img src="{{ candidate.photo.url }}" alt="{{ candidate.user.get_full_name }}" class="candidate-photo">
   {% else %}
   No photo uploaded yet.
   {% endif %}

@@ -1,15 +1,10 @@
 {# This template is included in edit_requirements.html to edit an individual candidate requirement. #}
-{# TODO(ericdwang): editing requirements and adding comments should only be done via an edit button which reveals those options #}
 <h2>{{ display_req_type }}</h2>
-<div>
-  <a href="{% url 'candidates:add-requirement' req_type=req_type %}">Add new {{ display_req_type }} requirement</a>
-</div>
 
-{% for form in forms %}
-{{ form.errors.credits_needed }}
+{% for entry in entries %}
+{{ entry.form.errors.credits_needed }}
 <div>
-  {{ form.instance.get_name }} {{ form.credits_needed }}
-  | <a href="{% url 'candidates:delete-requirement' form.instance.pk %}"><i class="icon-trash" title="Delete"></i></a>
+  {{ entry.requirement }} {{ entry.form.credits_needed }}
 </div>
 {% empty %}
 There are no {{ display_req_type }} requirements.

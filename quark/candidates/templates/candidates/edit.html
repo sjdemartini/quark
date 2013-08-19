@@ -11,7 +11,7 @@
 <h2>Photo</h2>
 {% if candidate.photo %}
 <div>
-  <img src="{{ candidate.photo.url }}" alt="{{ candidate.user.get_full_name }}">
+  <img src="{{ candidate.photo.url }}" alt="{{ candidate.user.get_full_name }}" class="candidate-photo">
 </div>
 {% else %}
 No photo uploaded yet.
@@ -56,9 +56,6 @@ No photo uploaded yet.
     {% endfor %}
     {% endwith %}
   </ul>
-  <div>
-    Comments: {{ entry.form.comments }}
-  </div>
   {% empty %}
   There are no Event requirements.
   {% endfor %}
@@ -90,9 +87,6 @@ No photo uploaded yet.
   No {{ challenge_type }} challenges submitted.
   {% endif %}
   {% endwith %}
-  <div>
-    Comments: {{ entry.form.comments }}
-  </div>
   {% empty %}
   There are no Challenge requirements.
   {% endfor %}
@@ -129,9 +123,6 @@ No photo uploaded yet.
   </ul>
   <p>Note: uploaded exams from blacklisted professors DO NOT count towards candidate requirements.</p>
 
-  <div>
-    Comments: {{ entry.form.comments }}
-  </div>
   {% empty %}
   There are no Exam File requirements.
   {% endfor %}
@@ -139,9 +130,6 @@ No photo uploaded yet.
   <h2>Resume Requirements</h2>
   {% for entry in req_types.resume %}
   {% include 'candidates/individual_progress.html' with entry=entry%}
-  <div>
-    Comments: {{ entry.form.comments }}
-  </div>
   {% empty %}
   There are no Resume requirements.
   {% endfor %}
@@ -149,9 +137,6 @@ No photo uploaded yet.
   <h2>Manual Requirements</h2>
   {% for entry in req_types.manual %}
   {% include 'candidates/individual_progress.html' with entry=entry%}
-  <div>
-    Comments: {{ entry.form.comments }}
-  </div>
   {% empty %}
   There are no Manual requirements.
   {% endfor %}

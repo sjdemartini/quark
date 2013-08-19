@@ -8,16 +8,18 @@
 
 {% block content %}
 {# TODO(ericdwang): add the rest of editing requirements #}
+NOTE: Only requirements that require more than zero credits will be displayed in candidate admin/portal!
 
 <form method="post">
   {% csrf_token %}
   {{ form.management_form }}
 
-  {% include 'candidates/individual_requirement.html' with display_req_type='Event' forms=req_forms.event req_type='event' %}
-  {% include 'candidates/individual_requirement.html' with display_req_type='Challenge' forms=req_forms.challenge req_type='challenge' %}
-  {% include 'candidates/individual_requirement.html' with display_req_type='Exam File' forms=req_forms.exam req_type='exam' %}
-  {% include 'candidates/individual_requirement.html' with display_req_type='Resume' forms=req_forms.resume req_type='resume' %}
-  {% include 'candidates/individual_requirement.html' with display_req_type='Manual' forms=req_forms.manual req_type='manual' %}
+  {% include 'candidates/individual_requirement.html' with display_req_type='Event' entries=req_types.event %}
+  {% include 'candidates/individual_requirement.html' with display_req_type='Challenge' entries=req_types.challenge %}
+  {% include 'candidates/individual_requirement.html' with display_req_type='Exam File' entries=req_types.exam %}
+  {% include 'candidates/individual_requirement.html' with display_req_type='Resume' entries=req_types.resume %}
+  {% include 'candidates/individual_requirement.html' with display_req_type='Manual' entries=req_types.manual %}
+  <a href="{% url 'candidates:add-requirement' %}">Add manual requirement</a>
 
   <div>
     <input type="submit" value="Update">

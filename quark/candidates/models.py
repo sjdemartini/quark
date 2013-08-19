@@ -209,9 +209,9 @@ class CandidateRequirement(models.Model):
         elif (self.requirement_type == CandidateRequirement.CHALLENGE):
             return (self.challengecandidaterequirement.challenge_type.name)
         elif (self.requirement_type == CandidateRequirement.EXAM_FILE):
-            return ''
+            return 'Uploaded Exam Files'
         elif (self.requirement_type == CandidateRequirement.RESUME):
-            return ''
+            return 'Uploaded Resume'
         elif (self.requirement_type == CandidateRequirement.MANUAL):
             return self.manualcandidaterequirement.name
         else:
@@ -249,6 +249,9 @@ class EventCandidateRequirement(CandidateRequirement):
             event_type=self.event_type.name,
             req=super(EventCandidateRequirement, self).__unicode__())
 
+    class Meta(object):
+        ordering = ('-term', 'requirement_type', 'event_type__name')
+
 
 class ChallengeCandidateRequirement(CandidateRequirement):
     """Requirement for completing challenges issued by officers."""
@@ -270,6 +273,9 @@ class ChallengeCandidateRequirement(CandidateRequirement):
         return '{challenge_type} {req}'.format(
             challenge_type=self.challenge_type.name,
             req=super(ChallengeCandidateRequirement, self).__unicode__())
+
+    class Meta(object):
+        ordering = ('-term', 'requirement_type', 'challenge_type__name')
 
 
 class ExamFileCandidateRequirement(CandidateRequirement):

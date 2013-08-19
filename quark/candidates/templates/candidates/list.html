@@ -6,6 +6,10 @@
 <h1>{{ display_term.verbose_name }} Candidates</h1>
 {% endblock intro %}
 
+{% block head %}
+{% include 'footable.html' %}
+{% endblock head %}
+
 {% block content %}
 {# TODO(ericdwang): Add selector for term #}
 <div>
@@ -17,12 +21,12 @@
   {% if candidates %}
   <p><strong>Number of candidates</strong>: {{ candidates|length }}</p>
   <i class="icon-ok"></i> = receives texts
-  <table>
+  <table class="footable">
     <thead>
       <tr>
-        <th>Picture</th>
-        <th>Name</th>
-        <th>Major</th>
+        <th data-class="expand">Name</th>
+        <th data-hide="phone">Picture</th>
+        <th data-hide="phone,tablet">Major</th>
         <th>Phone</th>
         <th>Email</th>
       </tr>
@@ -30,14 +34,14 @@
     <tbody>
     {% for candidate in candidates %}
     <tr>
+      <td><a href="{% url 'candidates:edit' candidate.pk %}">{{ candidate.user.get_full_name }}</a></td>
       <td>
         {% if candidate.photo %}
-        <a href="{{ candidate.photo.url }}"><img src="{{ candidate.photo.url }}" alt="{{ candidate.user.get_full_name }}" height="64"></a>
+        <a href="{{ candidate.photo.url }}"><img src="{{ candidate.photo.url }}" alt="{{ candidate.user.get_full_name }}" class="candidate-thumbnail"></a>
         {% else %}
         No photo
         {% endif %}
       </td>
-      <td><a href="{% url 'candidates:edit' candidate.pk %}">{{ candidate.user.get_full_name }}</a></td>
       <td>
         {% with student_info=candidate.get_college_student_info %}
         {% with contact_info=candidate.get_user_contact_info %}

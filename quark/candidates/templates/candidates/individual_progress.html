@@ -4,11 +4,22 @@
 
 <h3>{{ entry.requirement.get_name }}</h3>
 <div>
-  {% if entry.requirement.requirement_type == entry.requirement.MANUAL %}
-  <strong>[{{ entry.form.manually_recorded_credits }} / {{entry.form.credits_needed}}] ({{ entry.requirement.credits_needed }})</strong>
-  {% else %}
-  <strong>[{{ entry.completed }} / {{entry.form.credits_needed}}] ({{ entry.requirement.credits_needed }})</strong>
-  {# Hide the manually_recorded_credits field because non manual requirements don't need it. #}
-  {{ entry.form.manually_recorded_credits.as_hidden }}
-  {% endif %}
+  <strong>[{{ entry.completed }} / {{ entry.credits_needed }}]</strong> (regular: {{ entry.requirement.credits_needed }})
+  <a href="javaScript:void(0);" onclick="$('#{{ entry.requirement.pk }}').slideToggle(200);">[edit]</a>
+</div>
+
+<div id="{{ entry.requirement.pk }}" style="display:none">
+  <strong>
+    {% if entry.requirement.requirement_type == entry.requirement.MANUAL %}
+    [{{ entry.form.manually_recorded_credits }}
+    {% else %}
+    [{{ entry.completed }}
+    {# Hide the manually_recorded_credits field because non manual requirements don't need it. #}
+    {{ entry.form.manually_recorded_credits.as_hidden }}
+    {% endif %}
+    / {{ entry.form.alternate_credits_needed }}]
+  </strong>
+  <div>
+    Comments: {{ entry.form.comments }}
+  </div>
 </div>
