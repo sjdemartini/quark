@@ -13,9 +13,11 @@ class PartOrderStatusTest(TestCase):
         self.user = get_user_model().objects.create_user(
             username='testuser',
             email='pit@pioneers.berkeley.edu',
-            password='testpw',
-            first_name='Testy',
-            last_name='User')
+            password='testpw')
+
+        self.user.first_name = 'Testy'
+        self.user.last_name = 'User'
+        self.user.save()
 
         self.vendor = Vendor(
             name='McMaster',

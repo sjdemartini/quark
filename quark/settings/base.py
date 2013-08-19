@@ -44,8 +44,7 @@ DATABASES = {
 
 # Use 'app_label.model_name'
 # Currently use django.contrib.auth.User.
-# After Django 1.5, use custom user: quark.accounts.QuarkUser
-AUTH_USER_MODEL = 'accounts.QuarkUser'
+AUTH_USER_MODEL = 'auth.User'
 
 AUTHENTICATION_BACKENDS = (
     'quark.qldap.backends.LDAPBackend',

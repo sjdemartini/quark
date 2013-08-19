@@ -32,11 +32,15 @@
             <div id="login-inner">
               {% block login_dropdown %}
               {% if user.is_authenticated %}
-              {% with is_officer=user.is_tbp_officer %}
-              {% with is_member=user.is_tbp_member %}
-              {% with is_candidate=user.is_tbp_candidate %}
+              {% with user_profile=user.userprofile %}
+              {% with is_officer=user_profile.is_officer %}
+              {% with is_member=user_profile.is_member %}
+              {% with is_candidate=user_profile.is_candidate %}
+              {% with short_name=user_profile.get_short_name %}
               <ul>
-                <li id="login-welcome">Welcome, {{ user.preferred_name }}!</li>
+                {% if short_name %}
+                <li id="login-welcome">Welcome, {{ short_name }}!</li>
+                {% endif %}
                 <li>
                   <a href="javascript:void(0)" class="dropdown-title">
                     <i class="icon-user"></i>
@@ -84,7 +88,8 @@
 
                     <li><a href="{#TODO#}">Procrastination</a></li>
 
-                    {% if user.is_IT %}
+                    {% if user_profile.is_IT %}
+                    {# TODO: create is_IT method somewhere or enforce user permissions another way here #}
                     <li><a href="{#TODO#}">IT Tools</a></li>
                     {% endif %}
                   </ul>
@@ -96,9 +101,11 @@
                   </a>
                 </li>
               </ul>
+              {% endwith short_name %}
+              {% endwith is_candidate %}
               {% endwith is_member %}
               {% endwith is_officer %}
-              {% endwith is_candidate %}
+              {% endwith user_profile %}
               {% else %} {# if not authenticated #}
               <a href="{% url 'accounts:login' %}?next={{ request.path }}">
                 <i class="icon-signin"></i>

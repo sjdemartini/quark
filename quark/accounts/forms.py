@@ -1,59 +1,24 @@
 from django import forms
 from django.conf import settings
-from django.contrib.auth.forms import ReadOnlyPasswordHashField
-
-from quark.accounts.models import LDAPQuarkUser
-from quark.accounts.models import QuarkUser
+from django.contrib.auth.forms import UserChangeForm as AuthUserChangeForm
+from django.contrib.auth.forms import UserCreationForm as AuthUserCreationForm
 
 
-class UserCreationForm(forms.ModelForm):
-    username = forms.RegexField(
-        regex=settings.VALID_USERNAME,
-        help_text=settings.USERNAME_HELPTEXT)
-    password1 = forms.CharField(
-        label='Password', widget=forms.PasswordInput)
-    password2 = forms.CharField(
-        label='Password confirmation', widget=forms.PasswordInput)
-
-    class Meta(object):
-        model = QuarkUser
-
-    def clean_password2(self):
-        password1 = self.cleaned_data.get('password1')
-        password2 = self.cleaned_data.get('password2')
-        if not password1 or not password2 or password1 != password2:
-            raise forms.ValidationError('Passwords must match')
-        return password2
-
-    def save(self, commit=True, **kwargs):
-        user = super(UserCreationForm, self).save(commit=False)
-        user.set_password(self.cleaned_data['password1'])
-        if commit:
-            user.save(**kwargs)
-        return user
+class UserFormMixin(object):
+    """Change the username regex and require user fields."""
+    def __init__(self, *args, **kwargs):
+        super(UserFormMixin, self).__init__(*args, **kwargs)
+        self.fields['email'].required = True
+        self.fields['first_name'].required = True
+        self.fields['last_name'].required = True
+        self.fields['username'] = forms.RegexField(
+            regex=settings.VALID_USERNAME,
+            help_text=settings.USERNAME_HELPTEXT)
 
 
-class UserAdminChangeForm(forms.ModelForm):
-    username = forms.RegexField(
-        regex=settings.VALID_USERNAME,
-        help_text=settings.USERNAME_HELPTEXT)
-    password = ReadOnlyPasswordHashField()
-
-    class Meta(object):
-        model = QuarkUser
-
-    def clean_password(self):
-        # Regardless of what the user provides, return the initial value.
-        # This is done here, rather than on the field, because the
-        # field does not have access to the initial value
-        return self.initial['password']
+class UserCreationForm(UserFormMixin, AuthUserCreationForm):
+    pass
 
 
-class LDAPUserCreationForm(UserCreationForm):
-    class Meta(object):
-        model = LDAPQuarkUser
-
-
-class LDAPUserAdminChangeForm(UserAdminChangeForm):
-    class Meta(object):
-        model = LDAPQuarkUser
+class UserChangeForm(UserFormMixin, AuthUserChangeForm):
+    pass

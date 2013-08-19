@@ -1,48 +1,46 @@
-from django.conf import settings
 from django.contrib import admin
+from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
 
-from quark.accounts.forms import LDAPUserAdminChangeForm
-from quark.accounts.forms import LDAPUserCreationForm
-from quark.accounts.forms import UserAdminChangeForm
+from quark.accounts.forms import UserChangeForm
 from quark.accounts.forms import UserCreationForm
-from quark.accounts.models import LDAPQuarkUser
-from quark.accounts.models import QuarkUser
+from quark.user_profiles.models import UserProfile
 
 
-class QuarkUserAdmin(UserAdmin):
-    form = UserAdminChangeForm
+# Define an inline admin descriptor for the UserProfile model so that the
+# UserProfile of a user can be edited on the same page.
+class UserProfileInline(admin.StackedInline):
+    model = UserProfile
+    can_delete = False
+    verbose_name_plural = 'user profile'
+
+
+# Define a new User admin, extending the default UserAdmin
+class UserAdminWithProfile(UserAdmin):
     add_form = UserCreationForm
-
-    list_display = ('username', 'preferred_name', 'last_name', 'is_superuser',)
-    list_display_links = ('username', 'preferred_name', 'last_name',)
-    list_filter = ('is_superuser', 'groups')
-    fieldsets = (
-        (None, {'fields': ('username', 'password',)}),
-        ('Personal info', {'fields': ('first_name', 'middle_name', 'last_name',
-                                      'preferred_name', 'email',)}),
-        ('Permissions', {'fields': ('is_superuser',
-                                    'groups', 'user_permissions',)}),
-        ('Timestamps', {'classes': ('collapse',),
-                        'fields': ('created',)}),
-    )
+    form = UserChangeForm
+    inlines = (UserProfileInline, )
+    list_display_links = ('username', 'first_name', 'last_name',)
+    list_filter = ('is_staff', 'is_superuser', 'groups')
     add_fieldsets = (
         (None, {'classes': ('wide',),
                 'fields': ('username', 'password1', 'password2',
-                           'email', 'first_name', 'middle_name', 'last_name',
-                           'preferred_name',)}),
+                           'email', 'first_name', 'last_name')}),
     )
-    search_fields = ('username', 'email',
-                     'first_name', 'last_name', 'preferred_name',)
-    filter_horizontal = ()
+
+    def get_formsets(self, request, obj=None):
+        """Prevent the inlines from being shown with the add form."""
+        if obj is not None:
+            # If the object exists already (i.e., this is the change form),
+            # just perform the normal behavior
+            for formset in super(UserAdminWithProfile, self).get_formsets(
+                    request, obj):
+                yield formset
+
+        # Return nothing for the add form (i.e., if obj is None)
 
 
-class LDAPQuarkUserAdmin(QuarkUserAdmin):
-    form = LDAPUserAdminChangeForm
-    add_form = LDAPUserCreationForm
-
-
-if settings.AUTH_USER_MODEL == 'accounts.QuarkUser':
-    admin.site.register(QuarkUser, QuarkUserAdmin)
-elif settings.AUTH_USER_MODEL == 'accounts.LDAPQuarkUser':
-    admin.site.register(LDAPQuarkUser, LDAPQuarkUserAdmin)
+# Re-register UserAdmin
+user_model = get_user_model()
+admin.site.unregister(user_model)
+admin.site.register(user_model, UserAdminWithProfile)

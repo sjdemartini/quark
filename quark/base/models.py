@@ -12,7 +12,7 @@ class IDCodeMixin(models.Model):
     for a person. This can be a student ID or the RFID code for a campus ID
     card.
     """
-    id_code = models.CharField(max_length=20, db_index=True, blank=True)
+    id_code = models.CharField(max_length=20, blank=True)
 
     class Meta(object):
         abstract = True

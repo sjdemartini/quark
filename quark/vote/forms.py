@@ -2,9 +2,9 @@ from chosen import forms as chosen_forms
 from django import forms
 from django.contrib.auth import get_user_model
 
-from quark.accounts.fields import UserCommonNameMultipleChoiceField
 from quark.base.fields import VisualSplitDateTimeField
 from quark.base.models import Term
+from quark.user_profiles.fields import UserCommonNameMultipleChoiceField
 # TODO(jerrycheng): import Vote and VoteReceipt once forms are made
 from quark.vote.models import Poll
 

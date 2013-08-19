@@ -237,7 +237,7 @@ class EventSignUp(models.Model):
         if self.person is None:
             name = self.name
         else:
-            name = self.person.get_common_name()
+            name = self.person.get_full_name()
         guest_string = (
             ' (+{})'.format(self.num_guests) if self.num_guests > 0 else '')
         return '{person}{guests} has {action} up for {event_name}'.format(
@@ -256,7 +256,7 @@ class EventAttendance(models.Model):
     # imports, as well as ImportedAttendance objects
 
     def __unicode__(self):
-        return '{} attended {}'.format(self.person.get_common_name(),
+        return '{} attended {}'.format(self.person.get_full_name(),
                                        self.event.name)
 
     class Meta(object):

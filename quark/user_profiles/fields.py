@@ -1,13 +1,15 @@
 from chosen import forms
 
-from quark.accounts.models import QuarkUser
-from quark.accounts.models import LDAPQuarkUser
-
 
 def user_common_name_label(obj):
-    """Returns common name label for a given object."""
-    if isinstance(obj, QuarkUser) or isinstance(obj, LDAPQuarkUser):
-        return obj.get_common_name()
+    """Return the common name label for a given object."""
+    try:
+        # Try getting the UserProfile as a reverse one-to-one relation, and
+        # call its get_common_name method if available
+        return obj.userprofile.get_common_name()
+    except AttributeError:  # If no user profile available
+        pass
+
     try:
         return obj.get_full_name()  # A default User model method
     except AttributeError:  # If no get_full_name method available

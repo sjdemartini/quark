@@ -150,4 +150,5 @@ class UserAchievement(models.Model):
         )
 
     def __unicode__(self):
-        return '%s - %s' % (self.user.get_common_name(), self.achievement.name)
+        return '{} - {}'.format(self.user.get_full_name(),
+                                self.achievement.name)

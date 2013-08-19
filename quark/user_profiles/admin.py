@@ -6,9 +6,10 @@ from quark.user_profiles.models import UserContactInfo
 
 
 class CollegeStudentInfoAdmin(admin.ModelAdmin):
-    list_display = ('user', 'major', 'start_term', 'grad_term', 'gender')
-    list_filter = ('major', 'start_term', 'grad_term', 'gender')
-    search_fields = ('user__username', 'user__first_name', 'user__last_name')
+    list_display = ('user', 'major', 'start_term', 'grad_term')
+    list_filter = ('major', 'start_term', 'grad_term')
+    search_fields = ('user__username', 'user__first_name', 'user__last_name',
+                     'major')
 
 
 class TBPProfileAdmin(admin.ModelAdmin):

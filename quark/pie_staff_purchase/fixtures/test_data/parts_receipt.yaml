@@ -141,32 +141,26 @@
   model: pie_staff_purchase.Vendor
   pk: 2
 - fields:
-    created: '2013-01-05T00:00:00+00:00'
     email: pit@pioneers.berkeley.edu
     first_name: Staff
     groups: []
     is_superuser: false
     last_login: '2013-01-05T00:00:00+00:00'
     last_name: User
-    middle_name: ''
     password: pbkdf2_sha256$10000$cxquPe9DsPYA$Xbg40A98QLneow5b/PXvEA4dYvZP2LSbeI9ju9P22eM=
-    preferred_name: Staff
     user_permissions: []
     username: staffuser
-  model: accounts.quarkuser
+  model: auth.user
   pk: 10
 - fields:
-    created: '2013-01-05T00:00:00+00:00'
     email: test@pioneers.berkeley.edu
     first_name: Coord
     groups: []
     is_superuser: false
     last_login: '2013-01-05T00:00:00+00:00'
     last_name: User
-    middle_name: ''
     password: pbkdf2_sha256$10000$euChjEJcgXPJ$kupJQA+aEQGc45vMJo/42DFkY//Iz94SPyIyqRRARoY=
-    preferred_name: Coord
     user_permissions: []
     username: coorduser
-  model: accounts.quarkuser
+  model: auth.User
   pk: 11

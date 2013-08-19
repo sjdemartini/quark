@@ -247,25 +247,25 @@ class EventTest(EventTesting, TestCase):
         signup.person = self.user
         signup.save()
         expected_str = u'{name} has signed up for {event_name}'.format(
-            name=self.user.get_common_name(), event_name=event.name)
+            name=self.user.get_full_name(), event_name=event.name)
         self.assertEqual(expected_str, unicode(signup))
 
         signup.num_guests = 1
         signup.save()
         expected_str = u'{name} (+1) has signed up for {event_name}'.format(
-            name=self.user.get_common_name(), event_name=event.name)
+            name=self.user.get_full_name(), event_name=event.name)
         self.assertEqual(expected_str, unicode(signup))
 
         signup.num_guests = 2
         signup.save()
         expected_str = u'{name} (+2) has signed up for {event_name}'.format(
-            name=self.user.get_common_name(), event_name=event.name)
+            name=self.user.get_full_name(), event_name=event.name)
         self.assertEqual(expected_str, unicode(signup))
 
         signup.unsignup = True
         signup.save()
         expected_str = u'{name} (+2) has unsigned up for {event_name}'.format(
-            name=self.user.get_common_name(), event_name=event.name)
+            name=self.user.get_full_name(), event_name=event.name)
         self.assertEqual(expected_str, unicode(signup))
 
 

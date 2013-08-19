@@ -11,7 +11,7 @@ ADMINS = (
 MANAGERS = ADMINS
 
 # Only use LDAP user in production
-AUTH_USER_MODEL = 'accounts.LDAPQuarkUser'
+AUTH_USER_MODEL = 'auth.User'
 
 DATABASES = {
     'default': {

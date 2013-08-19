@@ -2,7 +2,6 @@ from chosen import forms as chosen_forms
 from django import forms
 from django.contrib.auth import get_user_model
 
-from quark.accounts.fields import UserCommonNameChoiceField
 from quark.base.fields import VisualSplitDateTimeField
 from quark.base.models import Term
 from quark.base_tbp.models import OfficerPosition
@@ -10,6 +9,7 @@ from quark.events.models import Event
 from quark.events.models import EventType
 from quark.events.models import EventSignUp
 from quark.project_reports.models import ProjectReport
+from quark.user_profiles.fields import UserCommonNameChoiceField
 
 
 class EventForm(forms.ModelForm):

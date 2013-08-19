@@ -1,7 +1,6 @@
 from django import forms
 from django.contrib.auth import get_user_model
 
-from quark.accounts.fields import UserCommonNameChoiceField
 from quark.base.models import Term
 from quark.candidates.models import Candidate
 from quark.candidates.models import CandidateRequirement
@@ -10,6 +9,7 @@ from quark.candidates.models import Challenge
 from quark.candidates.models import ChallengeType
 from quark.candidates.models import ManualCandidateRequirement
 from quark.events.models import EventType
+from quark.user_profiles.fields import UserCommonNameChoiceField
 
 
 class CandidatePhotoForm(forms.ModelForm):

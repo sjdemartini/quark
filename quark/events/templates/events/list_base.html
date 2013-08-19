@@ -5,7 +5,7 @@
 
 {# TODO(sjdemartini): add Google Calendar and iCal Links #}
 
-{% if user.is_tbp_officer %}
+{% if perms.events.add_event %}
 <div>
   <a href="{% url 'events:add' %}">Add Event</a>
   {# TODO(sjdemartini): add links for event admin and leaderboard #}

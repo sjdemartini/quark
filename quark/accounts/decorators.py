@@ -45,13 +45,13 @@ def officer_types_required(officer_types=None, exclude=False, current=False):
     def new_officer_decorator(orig_view):
         def new_view(request, *args, **kwargs):
             if request.user.is_authenticated():
-                if request.user.is_tbp_officer(current=current):
+                if request.user.userprofile.is_officer(current=current):
                     if not officer_types:
                         return orig_view(request, *args, **kwargs)
 
                     term = (Term.objects.get_current_term() if current
                             else None)
-                    positions = request.user.get_tbp_officer_positions(
+                    positions = request.user.userprofile.get_officer_positions(
                         term=term)
                     positions = [pos.short_name.lower() for pos in positions]
 
@@ -74,7 +74,7 @@ def officer_types_required(officer_types=None, exclude=False, current=False):
 def candidate_required(orig_view):
     def new_view(request, *args, **kwargs):
         if request.user.is_authenticated():
-            if request.user.is_tbp_candidate():
+            if request.user.userprofile.is_candidate():
                 return orig_view(request, *args, **kwargs)
             else:
                 raise PermissionDenied

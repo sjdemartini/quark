@@ -282,7 +282,7 @@ class HelpdeskEmailerView(EmailerView):
                 'knowledge about this question, but you are responsible for '
                 'sending the final answer. The body of the question is '
                 'below for reference.\n\n'.format(
-                    officer=assignee.user.get_common_name(),
+                    officer=assignee.user.get_full_name(),
                     subject=form.cleaned_data['subject']))
         else:
             assigning_to = [settings.IT_ADDRESS, settings.STARS_ADDRESS]
