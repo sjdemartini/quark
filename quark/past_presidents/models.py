@@ -34,5 +34,5 @@ class PastPresident(models.Model):
     def __unicode__(self):
         return '%s (%s)' % (self.name, self.term)
 
-    class Meta:
+    class Meta(object):
         ordering = ('-ordering_number',)

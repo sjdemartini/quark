@@ -28,7 +28,7 @@ class CollegeStudentInfo(IDCodeMixin):
 
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
 
-    class Meta:
+    class Meta(object):
         verbose_name_plural = 'college student info'
 
     def __unicode__(self):
@@ -69,7 +69,7 @@ class UserContactInfo(models.Model):
 
     international_address = models.TextField(blank=True)
 
-    class Meta:
+    class Meta(object):
         verbose_name_plural = 'user contact info'
 
     def __unicode__(self):
@@ -90,7 +90,7 @@ class TBPProfile(models.Model):
                               null=True, blank=True,
                               help_text='Picture is optional for candidates')
 
-    class Meta:
+    class Meta(object):
         ordering = ('user',)
 
     def __unicode__(self):

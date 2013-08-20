@@ -15,7 +15,7 @@ class UserCreationForm(forms.ModelForm):
     password2 = forms.CharField(
         label='Password confirmation', widget=forms.PasswordInput)
 
-    class Meta:
+    class Meta(object):
         model = QuarkUser
 
     def clean_password2(self):
@@ -39,7 +39,7 @@ class UserAdminChangeForm(forms.ModelForm):
         help_text=settings.USERNAME_HELPTEXT)
     password = ReadOnlyPasswordHashField()
 
-    class Meta:
+    class Meta(object):
         model = QuarkUser
 
     def clean_password(self):
@@ -50,10 +50,10 @@ class UserAdminChangeForm(forms.ModelForm):
 
 
 class LDAPUserCreationForm(UserCreationForm):
-    class Meta:
+    class Meta(object):
         model = LDAPQuarkUser
 
 
 class LDAPUserAdminChangeForm(UserAdminChangeForm):
-    class Meta:
+    class Meta(object):
         model = LDAPQuarkUser

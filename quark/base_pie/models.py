@@ -90,9 +90,9 @@ class Season(models.Model):
         # By making the Season begin on 6/1 and ending on 5/31 we can
         # just check that the year to find which part of the Season and
         # the month to make sure it is within the bounds.
-        return ((today.year == self.year and today.month < Season.START_MONTH)
-                or (
-                today.year + 1 == self.year and today.month > Season.END_MONTH))
+        return (
+            (today.year == self.year and today.month < Season.START_MONTH)
+            or (today.year + 1 == self.year and today.month > Season.END_MONTH))
 
     def verbose_name(self):
         return 'PiE Season %d' % self.year
@@ -179,7 +179,7 @@ class School(models.Model):
     def __unicode__(self):
         return self.name
 
-    class Meta:
+    class Meta(object):
         ordering = ('name',)
 
 
@@ -210,7 +210,7 @@ class Team(models.Model):
     def friendly_name(self):
         return 'Team %d: %s' % (self.number, self.school)
 
-    class Meta:
+    class Meta(object):
         unique_together = ('number', 'season')
         ordering = ('number',)
 

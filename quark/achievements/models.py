@@ -92,7 +92,7 @@ class Achievement(models.Model):
         settings.AUTH_USER_MODEL, blank=True, null=True,
         help_text='The creator of the icon used for this achievement.')
 
-    class Meta:
+    class Meta(object):
         ordering = ('rank',)
 
     def __unicode__(self):
@@ -143,7 +143,7 @@ class UserAchievement(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
-    class Meta:
+    class Meta(object):
         permissions = (
             ('add_user_achievement', 'Can add user achievements'),
             ('delete_user_achievement', 'Can delete user achievements '),

@@ -25,7 +25,7 @@ class ProjectReportForm(forms.ModelForm):
         queryset=get_user_model().objects.all(), required=False)
     date = forms.DateField(widget=widgets.AdminDateWidget)
 
-    class Meta:
+    class Meta(object):
         model = ProjectReport
         exclude = ('first_completed_at',)
         widges = {

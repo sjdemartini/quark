@@ -31,9 +31,9 @@ include-ids=yes
 [BASIC]
 no-docstring-rgx=__.*__|_.*
 class-rgx=[A-Z_][a-zA-Z0-9_]+$
+const-rgx=(([A-Z_][A-Z0-9_]*)|([a-z_][a-z0-9_]*)|(__.*__)|register|urlpatterns)$
 function-rgx=[a-zA_][a-zA-Z0-9_]{2,70}$
 method-rgx=[a-z_][a-zA-Z0-9_]{2,70}$
-const-rgx=(([A-Z_][A-Z0-9_]*)|([a-z_][a-z0-9_]*)|(__.*__)|register|urlpatterns)$
 good-names=_,i,j,k,e,qs,pk,setUp,tearDown,db,id,tz
 
 [TYPECHECK]

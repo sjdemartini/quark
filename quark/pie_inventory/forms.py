@@ -8,6 +8,6 @@ class ItemForm(forms.ModelForm):
     """
     Basic form for an Item.
     """
-    class Meta:
+    class Meta(object):
         model = Item
         fields = ('name', 'picture', 'wiki', 'description')

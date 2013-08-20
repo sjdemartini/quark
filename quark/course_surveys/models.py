@@ -23,5 +23,5 @@ class Survey(models.Model):
     def __unicode__(self):
         return '%s (%s)' % (self.course, self.submitter)
 
-    class Meta:
+    class Meta(object):
         ordering = ('course', 'instructor', '-term')

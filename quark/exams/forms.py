@@ -23,7 +23,7 @@ class ExamForm(forms.ModelForm):
 
     course_instance = None  # set by check_course_instance
 
-    class Meta:
+    class Meta(object):
         model = Exam
         fields = ('exam_number', 'exam_type')
 
@@ -148,7 +148,7 @@ class EditForm(ExamForm):
             course_instance=self.course_instance,
             exam_number=cleaned_data.get('exam_number'),
             exam_type=cleaned_data.get('exam_type')).exclude(
-                pk=self.instance.pk)
+            pk=self.instance.pk)
         if duplicates.exists():
             raise forms.ValidationError(
                 'This exam already exists in the database. '
@@ -157,13 +157,13 @@ class EditForm(ExamForm):
 
 
 class FlagForm(forms.ModelForm):
-    class Meta:
+    class Meta(object):
         model = ExamFlag
         fields = ('reason',)
 
 
 class FlagResolveForm(forms.ModelForm):
-    class Meta:
+    class Meta(object):
         model = ExamFlag
         fields = ('resolution',)
 
@@ -171,7 +171,7 @@ class FlagResolveForm(forms.ModelForm):
 class EditPermissionForm(forms.ModelForm):
     permission_allowed = forms.NullBooleanField()
 
-    class Meta:
+    class Meta(object):
         model = InstructorPermission
         fields = ('permission_allowed', 'correspondence')
 

@@ -20,7 +20,7 @@ class CandidatePhotoForm(forms.ModelForm):
     # already shows the actual image
     photo = forms.ImageField(widget=forms.FileInput)
 
-    class Meta:
+    class Meta(object):
         model = Candidate
         fields = ('photo',)
 
@@ -28,7 +28,7 @@ class CandidatePhotoForm(forms.ModelForm):
 class ChallengeVerifyForm(forms.ModelForm):
     verified = forms.NullBooleanField()
 
-    class Meta:
+    class Meta(object):
         model = Challenge
         fields = ('verified',)
 
@@ -38,7 +38,7 @@ class CandidateRequirementForm(forms.ModelForm):
         label='', min_value=0,
         widget=forms.TextInput(attrs={'size': 2, 'maxlength': 2}))
 
-    class Meta:
+    class Meta(object):
         model = CandidateRequirement
         exclude = ('requirement_type', 'term', 'created', 'updated')
 
@@ -181,7 +181,7 @@ ChallengeVerifyFormSet = forms.formsets.formset_factory(
 
 
 class ChallengeForm(forms.ModelForm):
-    class Meta:
+    class Meta(object):
         model = Challenge
         fields = ('challenge_type', 'description', 'verifying_user')
 

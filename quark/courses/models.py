@@ -31,7 +31,7 @@ class Department(models.Model):
         self.abbreviation = self.abbreviation.upper().strip()
         super(Department, self).save(*args, **kwargs)
 
-    class Meta:
+    class Meta(object):
         ordering = ('long_name',)
 
 
@@ -106,7 +106,7 @@ class Course(models.Model):
         self.number = self.number.upper().strip()
         super(Course, self).save(*args, **kwargs)
 
-    class Meta:
+    class Meta(object):
         unique_together = ('department', 'number')
 
 
@@ -123,7 +123,7 @@ class Instructor(models.Model):
     def full_name(self):
         return '%s %s' % (self.first_name, self.last_name)
 
-    class Meta:
+    class Meta(object):
         ordering = ('last_name', 'first_name', 'middle_initial')
         unique_together = (
             'first_name', 'middle_initial', 'last_name', 'department')

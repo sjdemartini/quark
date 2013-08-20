@@ -35,7 +35,7 @@ def courses_as_optgroups():
 
 
 class SurveyForm(forms.ModelForm):
-    class Meta:
+    class Meta(object):
         model = Survey
         exclude = ('submitter', 'published', 'created')
         widgets = {

@@ -67,8 +67,8 @@ class ExamTest(TestCase):
             unicode(self.test_exam1),
             ('{term} {number} {type} for {course}, taught by '
              '{instructors}').format(
-                 term='Spring 2013', number='Midterm 1', type='Exam',
-                 course='Test 100', instructors='Beta, Tau'))
+                term='Spring 2013', number='Midterm 1', type='Exam',
+                course='Test 100', instructors='Beta, Tau'))
 
     def test_flag_properites(self):
         exam_flag = ExamFlag(exam=self.test_exam1)

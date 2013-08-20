@@ -9,14 +9,16 @@ from quark.base.models import Term
 class Minutes(models.Model):
     """Provides a way to store notes for meetings."""
     # constants
-    OM = 0
-    EM = 1
+    OFFICER = 0
+    EXEC = 1
     OTHER = 2
+
     MEETING_TYPES = (
-        (OM, 'Officer Meeting'),
-        (EM, 'Executive Meeting'),
+        (OFFICER, 'Officer Meeting'),
+        (EXEC, 'Executive Meeting'),
         (OTHER, 'Other'),
     )
+
     name = models.CharField(max_length=60)
     date = models.DateTimeField(default=datetime.now)
     term = models.ForeignKey(Term)
@@ -27,7 +29,7 @@ class Minutes(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
-    class Meta:
+    class Meta(object):
         ordering = ('-date',)
         permissions = (
             ('view_minutes', 'Can view all minutes'),

@@ -14,7 +14,7 @@ class IDCodeMixin(models.Model):
     """
     id_code = models.CharField(max_length=20, db_index=True, blank=True)
 
-    class Meta:
+    class Meta(object):
         abstract = True
 
 
@@ -62,7 +62,7 @@ class University(models.Model):
     def __unicode__(self):
         return self.long_name
 
-    class Meta:
+    class Meta(object):
         ordering = ('long_name',)
         verbose_name_plural = 'universities'
 
@@ -76,7 +76,7 @@ class Major(models.Model):
     def __unicode__(self):
         return self.long_name
 
-    class Meta:
+    class Meta(object):
         ordering = ('long_name',)
         unique_together = ('university', 'short_name')
 
@@ -257,6 +257,6 @@ class Term(models.Model):
                          term=Term.UNKNOWN)
         return not self.__lt__(other)
 
-    class Meta:
+    class Meta(object):
         ordering = ('id',)
         unique_together = ('term', 'year')

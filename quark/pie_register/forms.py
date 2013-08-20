@@ -33,7 +33,7 @@ class TeamForm(forms.ModelForm):
                         ('Invalid line %d: %s.\nPlease make sure each '
                          'student is on his/her own line and each line '
                          'has a first name, last name, and grade') % (
-                             lines.line_num, line))
+                            lines.line_num, line))
 
                 # Grab the variables from the csv
                 first_name, last_name, grade = [s.strip() for s in line]
@@ -49,24 +49,24 @@ class TeamForm(forms.ModelForm):
                         ('Invalid line %d: %s.\n'
                          'Name may only contain alphabet characters, '
                          'spaces, apostrophes and hyphens.') % (
-                             lines.line_num, line))
+                            lines.line_num, line))
                 try:
                     grade = int(grade)
                 except ValueError:
                     raise forms.ValidationError(
                         ('Invalid line %d: %s.\n'
                          'Grade must be a value between %d-%d') % (
-                             lines.line_num, line,
-                             TeamForm.MIN_STUDENT_GRADE_LEVEL,
-                             TeamForm.MAX_STUDENT_GRADE_LEVEL))
+                            lines.line_num, line,
+                            TeamForm.MIN_STUDENT_GRADE_LEVEL,
+                            TeamForm.MAX_STUDENT_GRADE_LEVEL))
                 if ((grade < TeamForm.MIN_STUDENT_GRADE_LEVEL or
                      grade > TeamForm.MAX_STUDENT_GRADE_LEVEL)):
                     raise forms.ValidationError(
                         ('Invalid line %d: %s.\n'
                          'Grade must be a value between %d-%d') % (
-                             lines.line_num, line,
-                             TeamForm.MIN_STUDENT_GRADE_LEVEL,
-                             TeamForm.MAX_STUDENT_GRADE_LEVEL))
+                            lines.line_num, line,
+                            TeamForm.MIN_STUDENT_GRADE_LEVEL,
+                            TeamForm.MAX_STUDENT_GRADE_LEVEL))
                 # We have a valid line
         except csv.Error:
             raise forms.ValidationError('Invalid line %d' % (lines.line_num))
@@ -86,7 +86,7 @@ class TeamForm(forms.ModelForm):
                         ('Invalid line %d: %s.\nPlease make sure each '
                          'day is on its own line and each line '
                          'has a day of the week and at least one time') % (
-                             lines.line_num, line))
+                            lines.line_num, line))
 
                 # Grab the variables from the csv
                 entries = [s.strip() for s in line]
@@ -103,7 +103,7 @@ class TeamForm(forms.ModelForm):
                         ('Invalid line %d: %s.\n'
                          'Please make sure to use a properly formatted '
                          'day of the week.') % (
-                             lines.line_num, line))
+                            lines.line_num, line))
 
                 for time_slot in times:
                     try:
@@ -134,7 +134,7 @@ class TeamForm(forms.ModelForm):
             raise forms.ValidationError('Invalid line %d' % (lines.line_num))
         return possible_times
 
-    class Meta:
+    class Meta(object):
         model = TeamRegistration
         # Want the fields in particular order
         fields = ('school_name', 'team_name', 'teacher_name',

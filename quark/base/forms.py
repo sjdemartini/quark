@@ -9,6 +9,6 @@ class RandomTokenForm(forms.ModelForm):
     Basic form that asks for an email.
     Auto-generates a random token.
     """
-    class Meta:
+    class Meta(object):
         model = RandomToken
         fields = ('email',)

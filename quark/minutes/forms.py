@@ -4,7 +4,7 @@ from quark.minutes.models import Minutes
 
 
 class MinutesForm(forms.ModelForm):
-    class Meta:
+    class Meta(object):
         model = Minutes
         exclude = ('author',)
 

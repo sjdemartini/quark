@@ -61,7 +61,7 @@ class Candidate(models.Model):
     def __unicode__(self):
         return '{user} ({term})'.format(user=self.user, term=self.term)
 
-    class Meta:
+    class Meta(object):
         ordering = ('-term', 'user')
         unique_together = ('user', 'term')
 
@@ -139,7 +139,7 @@ class Challenge(models.Model):
         return '{candidate}: Challenge given by {user}'.format(
             candidate=self.candidate, user=self.verifying_user)
 
-    class Meta:
+    class Meta(object):
         ordering = ('candidate', 'created')
 
 
@@ -223,7 +223,7 @@ class CandidateRequirement(models.Model):
             req_type=self.get_requirement_type_display(),
             credits=self.credits_needed, term=self.term)
 
-    class Meta:
+    class Meta(object):
         ordering = ('-term', 'requirement_type')
 
 
@@ -297,7 +297,7 @@ class ManualCandidateRequirement(CandidateRequirement):
         return '{name}, {credits} required ({term})'.format(
             name=self.name, credits=self.credits_needed, term=self.term)
 
-    class Meta:
+    class Meta(object):
         ordering = ('-term', 'requirement_type', 'name')
 
 
@@ -326,5 +326,5 @@ class CandidateRequirementProgress(models.Model):
         return '{candidate}: {req}'.format(
             candidate=self.candidate, req=self.requirement)
 
-    class Meta:
+    class Meta(object):
         ordering = ('requirement', 'candidate')

@@ -6,7 +6,8 @@ class VisualSplitDateTimeWidget(forms.SplitDateTimeWidget):
 
     To be used by the VisualSplitDateTimeField below.
     """
-    class Media:
+    class Media(object):
+        # pylint: disable=C0103
         css = {'all': ('css/jquery.timepicker.css',)}
         js = ('js/visual_datetime.js', 'js/jquery.timepicker.min.js',)
 

@@ -83,7 +83,7 @@ class Event(models.Model):
 
     objects = EventManager()
 
-    class Meta:
+    class Meta(object):
         ordering = ('start_datetime',)
         permissions = (
             ('contact_participants', 'Can send email to those signed up'),
@@ -225,7 +225,7 @@ class EventSignUp(models.Model):
 
     unsignup = models.BooleanField(default=False)
 
-    class Meta:
+    class Meta(object):
         ordering = ('timestamp',)
         permissions = (
             ('view_signups', 'Can view who has signed up for events'),
@@ -259,5 +259,5 @@ class EventAttendance(models.Model):
         return '{} attended {}'.format(self.person.get_common_name(),
                                        self.event.name)
 
-    class Meta:
+    class Meta(object):
         unique_together = ('event', 'person')

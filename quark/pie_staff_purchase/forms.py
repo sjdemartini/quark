@@ -9,7 +9,7 @@ from quark.pie_staff_purchase.models import Vendor
 
 
 class PartOrderForm(forms.ModelForm):
-    class Meta:
+    class Meta(object):
         model = PartOrder
         exclude = ('order', 'submitted_by',)
         widgets = {
@@ -22,7 +22,7 @@ class PartOrderStatusForm(forms.ModelForm):
     This for is intended to be used with the part and user fields pre-populated
     upon instantiation.
     """
-    class Meta:
+    class Meta(object):
         model = PartOrderStatus
         exclude = ('part', 'user',)
 
@@ -61,7 +61,7 @@ class PartsReceiptForm(forms.ModelForm):
             del(kwargs['purchaser'])
         return super(PartsReceiptForm, self).save(*args, **kwargs)
 
-    class Meta:
+    class Meta(object):
         model = PartsReceipt
         exclude = ('purchaser',)
         widgets = {
@@ -69,5 +69,5 @@ class PartsReceiptForm(forms.ModelForm):
 
 
 class VendorForm(forms.ModelForm):
-    class Meta:
+    class Meta(object):
         model = Vendor

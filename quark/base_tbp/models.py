@@ -30,7 +30,7 @@ class OfficerPosition(models.Model):
     rank = models.DecimalField(max_digits=5, decimal_places=2)
     mailing_list = models.CharField(max_length=16, blank=True)
 
-    class Meta:
+    class Meta(object):
         ordering = ('rank',)
 
     def __unicode__(self):
@@ -58,5 +58,5 @@ class Officer(models.Model):
             name += ' Chair'
         return name
 
-    class Meta:
+    class Meta(object):
         unique_together = ('user', 'position', 'term')

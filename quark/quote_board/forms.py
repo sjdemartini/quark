@@ -9,6 +9,6 @@ class QuoteForm(forms.ModelForm):
     speakers = UserCommonNameMultipleChoiceField(
         queryset=get_user_model().objects.all())
 
-    class Meta:
+    class Meta(object):
         model = Quote
         exclude = ('submitter',)

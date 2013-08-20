@@ -147,12 +147,12 @@ class Exam(models.Model):
         """Return a human-readable representation of the exam file."""
         return ('{term} {number} {type} for {course}, taught by '
                 '{instructors}').format(
-                    term=self.course_instance.term.verbose_name(),
-                    number=self.get_exam_number_display(),
-                    type=self.get_exam_type_display(),
-                    course=self.course_instance.course,
-                    instructors=', '.join(
-                        [i.last_name for i in self.instructors]))
+            term=self.course_instance.term.verbose_name(),
+            number=self.get_exam_number_display(),
+            type=self.get_exam_type_display(),
+            course=self.course_instance.course,
+            instructors=', '.join(
+                [i.last_name for i in self.instructors]))
 
 
 class ExamFlag(models.Model):
@@ -190,7 +190,7 @@ class InstructorPermission(models.Model):
     def __unicode__(self):
         return unicode(self.instructor) + ' Permission'
 
-    class Meta:
+    class Meta(object):
         ordering = ('instructor',)
 
 

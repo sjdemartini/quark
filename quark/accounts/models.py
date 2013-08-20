@@ -63,7 +63,7 @@ class QuarkUser(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email', 'first_name', 'last_name']
 
-    class Meta:
+    class Meta(object):
         verbose_name = 'Quark User'
         ordering = ('last_name', 'preferred_name',)
 
@@ -154,7 +154,7 @@ class QuarkUser(AbstractBaseUser, PermissionsMixin):
         from quark.base_tbp.models import OfficerPosition
         officers = self.officer_set.filter(
             position__position_type=OfficerPosition.TBP_OFFICER).order_by(
-                'term', 'position')
+            'term', 'position')
         if term:
             officers = officers.filter(term=term)
         return [officer.position for officer in officers]
@@ -230,7 +230,7 @@ class LDAPQuarkUser(QuarkUser):
     """
     objects = LDAPQuarkUserManager()
 
-    class Meta:
+    class Meta(object):
         proxy = True
         verbose_name = 'LDAP Quark User'
 
@@ -292,7 +292,7 @@ class CompanyQuarkUser(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email', 'company_name']
 
-    class Meta:
+    class Meta(object):
         verbose_name = 'Company User'
         ordering = ('company_name',)
 

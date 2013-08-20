@@ -28,12 +28,12 @@ class AchievementDetailView(DetailView):
         viewer_achievements = self.request.user.userachievement_set
         context['viewable_hidden_achievements'] = Achievement.objects.filter(
             userachievement__in=viewer_achievements.values_list('id')).exclude(
-                privacy='public')
+            privacy='public')
 
         # Find all users that have unlocked the achievement
         user_achievements = UserAchievement.objects.filter(
             achievement__id=context['achievement'].id).exclude(
-                acquired=False)
+            acquired=False)
         users_with_achievement = get_user_model().objects.filter(
             userachievement__in=user_achievements.values_list('id'))
         context['users_with_achievement'] = users_with_achievement.order_by(
@@ -42,7 +42,7 @@ class AchievementDetailView(DetailView):
         # Find other achievements in same sequence to display related.
         context['related_achievements'] = Achievement.objects.filter(
             sequence=context['achievement'].sequence).exclude(
-                id=context['achievement'].id)
+            id=context['achievement'].id)
 
         return context
 
@@ -61,8 +61,8 @@ class LeaderboardListView(ListView):
     def get_queryset(self):
         leaders = get_user_model().objects.select_related('user').filter(
             userachievement__acquired=True).annotate(score=Sum(
-                'userachievement__achievement__points')).filter(
-                    score__gte=0).order_by('-score')
+            'userachievement__achievement__points')).filter(
+            score__gte=0).order_by('-score')
 
         if len(leaders) > 0:
             max_score = leaders[0].score or 0
@@ -141,7 +141,7 @@ class UserAchievementListView(ListView):
         # exist), and obtain goals and progresses.
         locked_achievements = Achievement.objects.exclude(
             userachievement__in=self.user_achievements).exclude(
-                privacy='private').order_by('rank')
+            privacy='private').order_by('rank')
         progresses = []
         goals = []
         for achievement in locked_achievements:
@@ -162,6 +162,6 @@ class UserAchievementListView(ListView):
         viewer_achievements = self.request.user.userachievement_set
         context['viewer_secret_achievements'] = Achievement.objects.filter(
             userachievement__in=viewer_achievements.values_list('id')).filter(
-                privacy='secret')
+            privacy='secret')
 
         return context

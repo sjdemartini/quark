@@ -50,7 +50,7 @@ class PollForm(forms.ModelForm):
     end_datetime = VisualSplitDateTimeField(
         label='Date and time poll closes')
 
-    class Meta:
+    class Meta(object):
         model = Poll
         fields = ('name', 'description', 'instructions', 'max_votes_per_user',
                   'vote_reason_required', 'eligible_group', 'eligible_users',
@@ -80,12 +80,12 @@ class PollForm(forms.ModelForm):
         if eligible_group == self.NON_OFFICER_MEMBERS:
             return get_user_model().objects.exclude(
                 tbpprofile__initiation_term__isnull=True).exclude(
-                    officer__term=term)
+                officer__term=term)
         if eligible_group == self.OFFICERS:
             return get_user_model().objects.filter(
                 officer__term=term).exclude(
-                    officer__position__short_name__in=[
-                        'advisor', 'faculty'])
+                officer__position__short_name__in=[
+                    'advisor', 'faculty'])
 
     def clean(self):
         cleaned_data = super(PollForm, self).clean()
@@ -117,5 +117,5 @@ class PollForm(forms.ModelForm):
 # TODO(jerrycheng): implement form for users to use when voting
 # class VoteForm(forms.ModelForm):
 #
-#     class Meta:
+#     class Meta(object):
 #         model = Vote

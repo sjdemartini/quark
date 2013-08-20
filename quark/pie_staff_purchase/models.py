@@ -61,7 +61,7 @@ class PartOrderManager(models.Manager):
             partorderstatus__status=PartOrderStatus.PURCHASED).values('id')
         return self.filter(
             partorderstatus__status=PartOrderStatus.APPROVED).exclude(
-                id__in=purchased)
+            id__in=purchased)
 
 
 class PartOrder(models.Model):
@@ -77,7 +77,7 @@ class PartOrder(models.Model):
     ELECTRICAL = 'ele'
     EXTERNAL = 'ext'
     INTERNAL = 'int'
-    IT = 'pit'
+    PIE_IT = 'pit'
     KITDEV = 'kit'
     MECHANICAL = 'mec'
     MENTORSHIP = 'mnt'
@@ -86,7 +86,7 @@ class PartOrder(models.Model):
         (ELECTRICAL, 'Kitdev - Electrical'),
         (EXTERNAL, 'External'),
         (INTERNAL, 'Internal'),
-        (IT, 'IT'),
+        (PIE_IT, 'IT'),
         (KITDEV, 'Kitdev'),
         (MECHANICAL, 'Kitdev - Mechanical'),
         (SOFTWARE, 'Kitdev - Software'))

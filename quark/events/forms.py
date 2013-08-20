@@ -28,7 +28,7 @@ class EventForm(forms.ModelForm):
     contact = UserCommonNameChoiceField(
         queryset=get_user_model().objects.all())
 
-    class Meta:
+    class Meta(object):
         model = Event
         exclude = ('cancelled', 'project_report')
         widgets = {
@@ -98,7 +98,7 @@ class EventForm(forms.ModelForm):
 
 
 class EventSignUpForm(forms.ModelForm):
-    class Meta:
+    class Meta(object):
         model = EventSignUp
         fields = ('name', 'comments', 'driving', 'num_guests')
 
@@ -117,7 +117,7 @@ class EventSignUpForm(forms.ModelForm):
 
 
 class EventSignUpAnonymousForm(EventSignUpForm):
-    class Meta:
+    class Meta(object):
         model = EventSignUp
         fields = ('name', 'email', 'comments', 'driving', 'num_guests')
 
