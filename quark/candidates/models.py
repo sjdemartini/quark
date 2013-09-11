@@ -7,6 +7,7 @@ from quark.base.models import Term
 from quark.events.models import EventAttendance
 from quark.events.models import EventType
 from quark.exams.models import Exam
+from quark.resumes.models import Resume
 
 
 class Candidate(models.Model):
@@ -182,8 +183,8 @@ class CandidateRequirement(models.Model):
             completed = self.examfilecandidaterequirement.get_completed(
                 candidate)
         elif (self.requirement_type == CandidateRequirement.RESUME):
-            # TODO(wangj): requires resumes, this is just a placeholder
-            completed = 0
+            completed = Resume.objects.filter(
+                user=candidate.user, verified=True).count()
         elif (self.requirement_type == CandidateRequirement.MANUAL):
             # Actual credits earned is read from CandidateProgress below
             completed = 0
@@ -289,6 +290,14 @@ class ExamFileCandidateRequirement(CandidateRequirement):
         """Returns the number of credits completed by candidate"""
         return Exam.objects.get_approved().filter(
             submitter=candidate.user).count()
+
+
+class ResumeCandidateRequirement(CandidateRequirement):
+    """Requirement for uploading a resume to the site."""
+    def save(self, *args, **kwargs):
+        """Override save handler to ensure that requirement_type is correct."""
+        self.requirement_type = CandidateRequirement.RESUME
+        super(ResumeCandidateRequirement, self).save(*args, **kwargs)
 
 
 class ManualCandidateRequirement(CandidateRequirement):

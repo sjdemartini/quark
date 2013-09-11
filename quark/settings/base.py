@@ -210,6 +210,7 @@ PROJECT_APPS = [
     'quark.project_reports',
     'quark.qldap',
     'quark.quote_board',
+    'quark.resumes',
     'quark.user_profiles',
     'quark.utils',
     'quark.vote',

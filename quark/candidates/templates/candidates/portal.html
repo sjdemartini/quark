@@ -4,7 +4,7 @@
 {% block title %}Candidate Portal | {{ block.super }}{% endblock title %}
 
 {% block intro %}
-<h1>Candidate Portal </h1>
+<h1>Candidate Portal</h1>
 {% endblock intro %}
 
 {% block content %}
@@ -108,6 +108,7 @@ There are no Exam File requirements.
 {% empty %}
 There are no Resume requirements.
 {% endfor %}
+<p>You can upload your resume <a href="{% url 'resumes:edit' %}"><strong>here</strong></a>.</p>
 
 <h2>Manual Requirements</h2>
 {% for entry in req_types.manual %}

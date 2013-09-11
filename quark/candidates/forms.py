@@ -78,7 +78,8 @@ class BaseCandidateRequirementFormset(forms.formsets.BaseFormSet):
         challenges = ChallengeType.objects.count()
         manual = ManualCandidateRequirement.objects.filter(
             term=Term.objects.get_current_term()).count()
-        return events + challenges + 1 + manual
+        # extra 2 forms are for exam files and resume
+        return events + challenges + 2 + manual
 
 
 class BaseCandidateProgressFormset(forms.formsets.BaseFormSet):

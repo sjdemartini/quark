@@ -1,0 +1,30 @@
+{% extends 'resumes/base.html' %}
+
+{% block title %}Edit Resume | {{ block.super }}{% endblock title %}
+
+{% block intro %}
+<h1>Edit Resume</h1>
+{% endblock intro %}
+
+{% block content %}
+{% if resume %}
+<p><a href="{% url 'resumes:download' %}">Download current resume</a> (last modified {{ resume.updated|timesince }} ago)</p>
+{% else %}
+<p>Resume has never been uploaded.</p>
+{% endif %}
+
+{% if info %}
+<p>Graduation term: {{ info.grad_term.verbose_name }}</p>
+<p>Major: {{ info.major }}</p>
+{% else %}
+<p>Graduation term and major not specified. You can edit your info <a href="{#TODO#}"><strong>here</strong></a>.</p>
+{% endif %}
+
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <div>
+    <input type="submit" value="Submit">
+  </div>
+</form>
+{% endblock content %}

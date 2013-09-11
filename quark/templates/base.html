@@ -51,7 +51,7 @@
                     <li><a href="{#TODO#}">Forwarding Email</a></li>
 
                     {# Only candidates and members may submit resumes. #}
-                    {% if is_member or is_candidate %}<li><a href="{#TODO#}">Edit Resume</a></li>{% endif %}
+                    {% if perms.resumes.add_resume %}<li><a href="{% url 'resumes:edit' %}">Edit Resume</a></li>{% endif %}
 
                     <li><a href="{#TODO#}">Change Password</a></li>
 

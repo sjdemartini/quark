@@ -21,6 +21,7 @@ from quark.candidates.models import ChallengeCandidateRequirement
 from quark.candidates.models import EventCandidateRequirement
 from quark.candidates.models import ExamFileCandidateRequirement
 from quark.candidates.models import ManualCandidateRequirement
+from quark.candidates.models import ResumeCandidateRequirement
 from quark.candidates.forms import CandidatePhotoForm
 from quark.candidates.forms import CandidateRequirementProgressFormSet
 from quark.candidates.forms import CandidateRequirementFormSet
@@ -30,6 +31,7 @@ from quark.candidates.forms import ManualCandidateRequirementForm
 from quark.events.models import EventAttendance
 from quark.events.models import EventType
 from quark.exams.models import Exam
+from quark.shortcuts import get_object_or_none
 
 
 class CandidateContextMixin(ContextMixin):
@@ -311,13 +313,6 @@ class CandidateRequirementsEditView(FormView):
 
         event_reqs = EventCandidateRequirement.objects.filter(
             term=self.current_term)
-        challenge_reqs = ChallengeCandidateRequirement.objects.filter(
-            term=self.current_term)
-        exam_req = ExamFileCandidateRequirement.objects.get(
-            term=self.current_term)
-        manual_reqs = ManualCandidateRequirement.objects.filter(
-            term=self.current_term)
-
         # Create a list of requirements that at each index contains either a
         # requirement corresponding to an event type or None if there is no
         # requirement for the corresponding event type
@@ -331,6 +326,8 @@ class CandidateRequirementsEditView(FormView):
                     continue
             self.req_lists[CandidateRequirement.EVENT].append(None)
 
+        challenge_reqs = ChallengeCandidateRequirement.objects.filter(
+            term=self.current_term)
         # Create a list of requirements that at each index contains either a
         # requirement corresponding to an challenge type or None if there is no
         # requirement for the corresponding challenge type
@@ -344,8 +341,16 @@ class CandidateRequirementsEditView(FormView):
                     continue
             self.req_lists[CandidateRequirement.CHALLENGE].append(None)
 
+        exam_req = get_object_or_none(
+            ExamFileCandidateRequirement, term=self.current_term)
         self.req_lists[CandidateRequirement.EXAM_FILE].append(exam_req)
 
+        resume_req = get_object_or_none(
+            ResumeCandidateRequirement, term=self.current_term)
+        self.req_lists[CandidateRequirement.RESUME].append(resume_req)
+
+        manual_reqs = ManualCandidateRequirement.objects.filter(
+            term=self.current_term)
         for manual_req in manual_reqs:
             self.req_lists[CandidateRequirement.MANUAL].append(manual_req)
 
@@ -354,6 +359,17 @@ class CandidateRequirementsEditView(FormView):
 
     def get_context_data(self, **kwargs):
         # pylint: disable=E1103,R0914
+        def get_entry(name, req, form):
+            """Helper method that returns a dictionary containing a requirement
+            name and a form, to be used for each requirement in the template.
+            """
+            entry = {'requirement': name, 'form': form}
+            form.initial['credits_needed'] = 0
+            if req:
+                form.instance = req
+                form.initial['credits_needed'] = req.credits_needed
+            return entry
+
         context = super(CandidateRequirementsEditView, self).get_context_data(
             **kwargs)
         context['term'] = self.current_term
@@ -369,12 +385,7 @@ class CandidateRequirementsEditView(FormView):
             event_type = self.event_types[i]
             req = self.req_lists[CandidateRequirement.EVENT][i]
             form = formset[form_index]
-
-            entry = {'requirement': event_type.name, 'form': form}
-            form.initial['credits_needed'] = 0
-            if req:
-                form.instance = req
-                form.initial['credits_needed'] = req.credits_needed
+            entry = get_entry(event_type.name, req, form)
             req_types[CandidateRequirement.EVENT].append(entry)
             form_index += 1
 
@@ -382,30 +393,25 @@ class CandidateRequirementsEditView(FormView):
             challenge_type = self.challenge_types[i]
             req = self.req_lists[CandidateRequirement.CHALLENGE][i]
             form = formset[form_index]
-
-            entry = {'requirement': challenge_type.name, 'form': form}
-            form.initial['credits_needed'] = 0
-            if req:
-                form.instance = req
-                form.initial['credits_needed'] = req.credits_needed
+            entry = get_entry(challenge_type.name, req, form)
             req_types[CandidateRequirement.CHALLENGE].append(entry)
             form_index += 1
 
         req = self.req_lists[CandidateRequirement.EXAM_FILE][0]
         form = formset[form_index]
-        form.initial['credits_needed'] = 0
-        entry = {'requirement': '', 'form': form}
-        if req:
-            form.instance = req
-            form.initial['credits_needed'] = req.credits_needed
+        entry = get_entry('', req, form)
         req_types[CandidateRequirement.EXAM_FILE].append(entry)
+        form_index += 1
+
+        req = self.req_lists[CandidateRequirement.RESUME][0]
+        form = formset[form_index]
+        entry = get_entry('', req, form)
+        req_types[CandidateRequirement.RESUME].append(entry)
         form_index += 1
 
         for req in self.req_lists[CandidateRequirement.MANUAL]:
             form = formset[form_index]
-            form.instance = req
-            form.initial['credits_needed'] = req.credits_needed
-            entry = {'requirement': req.name, 'form': form}
+            entry = get_entry(req.name, req, form)
             req_types[CandidateRequirement.MANUAL].append(entry)
             form_index += 1
 
@@ -471,6 +477,22 @@ class CandidateRequirementsEditView(FormView):
             else:
                 ExamFileCandidateRequirement.objects.get_or_create(
                     requirement_type=CandidateRequirement.EXAM_FILE,
+                    credits_needed=credits_needed, term=self.current_term)
+        else:
+            if req:
+                req.delete()
+        form_index += 1
+
+        req = self.req_lists[CandidateRequirement.RESUME][0]
+        current_form = form[form_index]
+        credits_needed = current_form.cleaned_data.get('credits_needed')
+        if credits_needed != 0:
+            if req:
+                req.credits_needed = credits_needed
+                req.save()
+            else:
+                ResumeCandidateRequirement.objects.get_or_create(
+                    requirement_type=CandidateRequirement.RESUME,
                     credits_needed=credits_needed, term=self.current_term)
         else:
             if req:
@@ -560,7 +582,8 @@ class CandidatePortalView(CreateView, CandidateContextMixin):
             completed, required = req.get_progress(self.candidate)
             entry = {
                 'completed': completed,
-                'credits_needed': required}
+                'credits_needed': required,
+                'requirement': req}
             req_type = req.requirement_type
             req_types[req_type].append(entry)
 
