@@ -4,9 +4,11 @@ from django.contrib.auth import get_user_model
 
 from quark.base.fields import VisualSplitDateTimeField
 from quark.base.models import Term
+from quark.user_profiles.fields import UserCommonNameChoiceField
 from quark.user_profiles.fields import UserCommonNameMultipleChoiceField
-# TODO(jerrycheng): import Vote and VoteReceipt once forms are made
 from quark.vote.models import Poll
+from quark.vote.models import Vote
+from quark.vote.models import VoteReceipt
 
 
 class PollForm(forms.ModelForm):
@@ -18,7 +20,7 @@ class PollForm(forms.ModelForm):
     ALL_MEMBERS: All currently initiated members (officers included).
     NON_OFFICER_MEMBERS: All members who are not currently officers.
     OFFICERS: All current officers, excluding advisors and faculty.
-    OTHER: Defaults to all users.
+    CUSTOM: Creator manually selects users that are eligible.
     """
 
     # Group Constants
@@ -26,7 +28,7 @@ class PollForm(forms.ModelForm):
     ALL_MEMBERS = 'All Members'
     NON_OFFICER_MEMBERS = 'Members'
     OFFICERS = 'Officers'
-    OTHER = 'Other'
+    CUSTOM = 'Custom'
 
     # Group Choices
     GROUPS = (
@@ -34,7 +36,7 @@ class PollForm(forms.ModelForm):
         (ALL_MEMBERS, 'All Members'),
         (NON_OFFICER_MEMBERS, 'Members'),
         (OFFICERS, 'Officers'),
-        (OTHER, 'Other'),
+        (CUSTOM, 'Custom'),
     )
 
     eligible_group = forms.ChoiceField(
@@ -98,9 +100,9 @@ class PollForm(forms.ModelForm):
             raise forms.ValidationError(
                 'Polls must close after they open for voting.')
 
-        if eligible_group == self.OTHER and not eligible_users:
+        if eligible_group == self.CUSTOM and not eligible_users:
             raise forms.ValidationError(
-                'You must select eligible users if eligible group is Other.')
+                'You must select eligible users if eligible group is Custom.')
 
         return cleaned_data
 
@@ -108,14 +110,39 @@ class PollForm(forms.ModelForm):
         eligible_group = self.cleaned_data.get('eligible_group')
         instance = super(PollForm, self).save(*args, **kwargs)
 
-        if eligible_group != self.OTHER:
+        if eligible_group != self.CUSTOM:
             eligible_users = list(self.get_eligible_users())
             self.instance.eligible_users.add(*eligible_users)
 
         return instance
 
-# TODO(jerrycheng): implement form for users to use when voting
-# class VoteForm(forms.ModelForm):
-#
-#     class Meta(object):
-#         model = Vote
+
+class VoteForm(forms.ModelForm):
+
+    class Meta(object):
+        model = Vote
+        fields = ('nominee', 'reason')
+
+    def __init__(self, *args, **kwargs):
+        self.poll = kwargs.pop('poll', None)
+        self.user = kwargs.pop('user', None)
+        super(VoteForm, self).__init__(*args, **kwargs)
+        self.fields['nominee'] = UserCommonNameChoiceField(
+            label='Nominee',
+            queryset=get_user_model().objects.filter(
+                pk__in=self.poll.eligible_users.values('pk')))
+
+    def clean(self):
+        cleaned_data = super(VoteForm, self).clean()
+        num_votes = VoteReceipt.objects.filter(
+            poll=self.poll).filter(
+            voter=self.user).count()
+        if num_votes >= self.poll.max_votes_per_user:
+            raise forms.ValidationError(
+                'You have already voted the maximum number of times')
+        VoteReceipt(poll=self.poll, voter=self.user).save()
+        return cleaned_data
+
+    def save(self, *args, **kwargs):
+        self.instance.poll = self.poll
+        return super(VoteForm, self).save(*args, **kwargs)

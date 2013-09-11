@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}Vote for {{ poll.name }}{% endblock title %}
+
+{% block intro %}<h1>Vote for {{poll.name}}</h1>{% endblock intro %}
+
+{% block content %}
+
+{% if poll.description %}
+<p>Description: {{ poll.description }}</p>
+{% endif %}
+
+{% if poll.instructions %}
+<p>Instructions: {{ poll.instructions }}</p>
+{% endif %}
+
+<form method="post">
+  {% csrf_token %}
+  {% include 'form.html' %}
+  <div>
+    <input type="submit" value="Submit">
+  </div>
+</form>
+{% endblock content %}

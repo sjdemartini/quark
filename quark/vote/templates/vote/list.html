@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Current Polls{% endblock title %}
+
+{% block intro %}<h1>Current Polls</h1>{% endblock intro %}
+
+{% block content %}
+
+<p>Select the poll you wish to vote for by clicking on the poll name.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Poll</th>
+      <th>Start Date and Time</th>
+      <th>End Date and Time</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for poll in polls %}
+    <tr>
+      <td>
+        <a href="{% url 'vote:vote' poll.pk %}">{{ poll.name }}</a>
+      </td>
+      <td>{{ poll.start_datetime }}</td>
+      <td>{{ poll.end_datetime }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock content %}
