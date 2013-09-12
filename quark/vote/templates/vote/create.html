@@ -10,9 +10,7 @@
   {% if form.errors %}
     <strong><div class="error-message">Please correct your input fields.</div></strong>
   {% endif %}
-  <table>
-    {{ form.as_table }}
-  </table>
+  {{ form.as_p }}
   <div><input type="submit" value="Submit"></div>
 </form>
 {% endblock content %}

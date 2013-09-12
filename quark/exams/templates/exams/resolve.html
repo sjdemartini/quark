@@ -12,9 +12,7 @@
 
 <form action="{% url 'exams:flag-resolve' exam_pk=flag.exam.pk flag_pk=flag.pk %}" method="post">
   {% csrf_token %}
-  <table>
-    {{ form.as_table }}
-  </table>
+  {{ form.as_p }}
   <div>
     <input type="submit" value="Submit">
   </div>

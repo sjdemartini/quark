@@ -53,12 +53,58 @@ td {
 
 // Make tables used to render forms use ordinary width and borders
 form {
-  table {
-    margin: 10px 0;
-    width: auto;
+  width: 90%;
+  margin-left: 5%;
+
+  p {
+    label {
+      width: 30%;
+      margin-right: 2%;
+      text-align: right;
+      display: inline-block;
+
+      @include respond-to(medium) {
+        text-align: left;
+      }
+      @include respond-to(small) {
+        display: block;
+        width: 100%;
+      }
+    }
+    input[type=file] {
+      width: 65%;
+      @include respond-to(small) {
+        width: auto;
+      }
+    }
+    textarea {
+      width: 65%;
+      @include respond-to(small) {
+        width: 100%;
+      }
+      resize: vertical;
+    }
+    select {
+      @include respond-to(small) {
+        width: 100%;
+      }
+    }
+    > span {
+      display: block;
+      margin-left: 32%;
+      margin-top: 2px;
+      font-size: 0.9em;
+      @include respond-to(small) {
+        margin-left: auto;
+      }
+    }
   }
-  td, th {
-    border: 0;
+  input[type=submit] {
+    margin-left: 32%;
+    @include respond-to(small) {
+      width: auto;
+      margin-left: 0;
+    }
   }
 }
 

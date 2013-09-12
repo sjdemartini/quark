@@ -18,9 +18,7 @@ logic in the form or view to change which are included).
 
 <form action="{% url 'events:signup' event.id %}" method="post">
   {% csrf_token %}
-  <table>
-    {{ form.as_table }}
-  </table>
+  {{ form.as_p }}
   <div>
     <input type="submit" value="{% if user_signed_up %}Update {% endif %}Sign Up" />
   </div>

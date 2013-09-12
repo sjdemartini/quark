@@ -5,9 +5,7 @@
 {% block content %}
 <form action="{% url 'project-reports:add' %}" method="post" enctype="multipart/form-data">
   {% csrf_token %}
-  <table>
-  {{ form.as_table }}
-  </table>
+  {{ form.as_p }}
 <div><input type="submit" value="Submit"></div>
 </form>
 {% endblock content %}

@@ -58,9 +58,7 @@ There are no Challenge requirements.
 <h3>Request Challenges</h3>
 <form method="post">
   {% csrf_token %}
-  <table>
-    {{ form.as_table }}
-  </table>
+  {{ form.as_p }}
   <div>
     <input type="submit" value="Submit">
   </div>
