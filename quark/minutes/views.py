@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.core.urlresolvers import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView
 from django.views.generic import DetailView
@@ -17,7 +18,7 @@ class MinutesListView(ListView):
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
-        self.term = self.kwargs['term']
+        self.term = Term.objects.get_current_term()
         return super(MinutesListView, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
@@ -25,13 +26,14 @@ class MinutesListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(MinutesListView, self).get_context_data(**kwargs)
-        context['terms'] = Term.objects.all()
+        context['terms'] = Term.objects.get_terms()
         context['term_selected'] = self.term
         return context
 
 
 class MinutesCreateView(CreateView):
     form_class = InputForm
+    model = Minutes
     template_name = 'minutes/add.html'
 
     @method_decorator(login_required)
@@ -39,15 +41,17 @@ class MinutesCreateView(CreateView):
         return super(MinutesCreateView, self).dispatch(*args, **kwargs)
 
     def form_valid(self, form):
-        obj = form.save(commit=False)
-        obj.author = self.request.user
-        obj.save()
+        form.instance.author = self.request.user
         return super(MinutesCreateView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('minutes:detail', kwargs={'minute_id': self.object.id})
 
 
 class MinutesDetailView(DetailView):
     context_object_name = 'minutes'
     model = Minutes
+
     pk_url_kwarg = 'minute_id'
     template_name = 'minutes/detail.html'
 
@@ -58,6 +62,7 @@ class MinutesDetailView(DetailView):
 
 class MinutesEditView(UpdateView):
     form_class = InputForm
+    model = Minutes
     pk_url_kwarg = 'minute_id'
     template_name = 'minutes/edit.html'
 
@@ -65,11 +70,16 @@ class MinutesEditView(UpdateView):
     def dispatch(self, *args, **kwargs):
         return super(MinutesEditView, self).dispatch(*args, **kwargs)
 
+    def get_success_url(self):
+        return reverse('minutes:detail', kwargs={'minute_id': self.object.id})
 
-class MinutesUploadView(CreateView):
+
+class MinutesUploadView(MinutesCreateView):
     form_class = UploadForm
     template_name = 'minutes/upload.html'
 
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(MinutesUploadView, self).dispatch(*args, **kwargs)
+    def form_valid(self, form):
+        # Read in the uploaded text file
+        notes_file = self.request.FILES['notes']
+        form.instance.notes = notes_file.read()
+        return super(MinutesUploadView, self).form_valid(form)

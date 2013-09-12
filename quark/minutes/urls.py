@@ -10,14 +10,9 @@ from quark.minutes.views import MinutesUploadView
 
 urlpatterns = patterns(
     '',
-    url(r'^$', MinutesListView.as_view(),
-        name='index'),
-    url(r'^(?P<minutes_id>\d+)/$', MinutesDetailView.as_view(),
-        name='detail'),
-    url(r'^edit/(?P<minutes_id>\d+)/$', MinutesEditView.as_view(),
-        name='edit'),
-    url(r'^add/$', MinutesCreateView.as_view(),
-        name='add'),
-    url(r'^upload/$', MinutesUploadView.as_view(),
-        name='upload')
+    url(r'^$', MinutesListView.as_view(), name='index'),
+    url(r'^(?P<minute_id>\d+)/$', MinutesDetailView.as_view(), name='detail'),
+    url(r'^edit/(?P<minute_id>\d+)/$', MinutesEditView.as_view(), name='edit'),
+    url(r'^add/$', MinutesCreateView.as_view(), name='add'),
+    url(r'^upload/$', MinutesUploadView.as_view(), name='upload')
 )
