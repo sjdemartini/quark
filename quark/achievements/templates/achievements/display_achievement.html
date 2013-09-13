@@ -11,8 +11,12 @@ is secret and not also unlocked by the page viewer.
     {% if hidden_from_viewer %}
     <img src="{% get_static_prefix %}images/achievements/hidden.jpg"/>
     {% else %}
-    <a href="{% url 'achievements:detail' achievement.id %}">
-      <img src="{% get_static_prefix %}{% firstof achievement.icon "images/missing.jpg" %}"/>
+    <a href="{% url 'achievements:detail' achievement.short_name %}">
+      {% if unacquired %}
+      <img src="{% get_static_prefix %}{% firstof achievement.unacquired_icon 'images/missing.jpg' %}"/>
+      {% else %}
+      <img src="{% get_static_prefix %}{% firstof achievement.acquired_icon 'images/missing.jpg' %}"/>
+      {% endif %}
     </a>
     {% endif %}
   </div>
@@ -22,7 +26,7 @@ is secret and not also unlocked by the page viewer.
     <div class="description">This achievement is hidden until unlocked.</div>
     {% elif achievement.privacy != 'private' or user == display_user %}
     <div class="name">
-      <a href="{% url 'achievements:detail' achievement.id %}">{{ achievement.name }}</a>
+      <a href="{% url 'achievements:detail' achievement.short_name %}">{{ achievement.name }}</a>
     </div>
     <div class="description">{{ achievement.description }}</div>
     {% endif %}
@@ -41,12 +45,12 @@ is secret and not also unlocked by the page viewer.
     </div>
     {% endif %}
     {% endif %}
-    {% if progress < goal  %}
+    {% if achievement.goal > 0 and progress > 0 %}
     <span class="progress-bar-container">
       <span class="progress-bar"
-        style="width: {% widthratio progress goal 100 %}%;">
+        style="width: {% widthratio progress achievement.goal 100 %}%;">
         <span class="progress">
-          {{ progress }}/{{ goal }}
+          {{ progress }}/{{ achievement.goal }}
         </span>
       </span>
     </span>

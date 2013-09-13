@@ -21,7 +21,7 @@ User {{ display_user.get_full_name }} | {{ block.super }}
     {% if entry.achievement.privacy == 'secret' and entry.achievement not in viewer_secret_achievements %}
       {% include 'achievements/display_achievement.html' with hidden_from_viewer=True %}
     {% else %}
-      {% include 'achievements/display_achievement.html' with hidden_from_viewer=False achievement=entry.achievement progress=entry.progress goal=entry.goal %}
+      {% include 'achievements/display_achievement.html' with hidden_from_viewer=False achievement=entry.achievement progress=entry.progress %}
     {% endif %}
   {% empty %}
   <p>No achievements found for this user!</p>
@@ -34,7 +34,7 @@ User {{ display_user.get_full_name }} | {{ block.super }}
     {% if entry.achievement.privacy == 'secret' and entry.achievement not in viewer_secret_achievements %}
       {% include 'achievements/display_achievement.html' with hidden_from_viewer=True %}
     {% else %}
-      {% include 'achievements/display_achievement.html' with hidden_from_viewer=False achievement=entry.achievement progress=entry.progress goal=entry.goal %}
+      {% include 'achievements/display_achievement.html' with hidden_from_viewer=False achievement=entry.achievement progress=entry.progress unacquired=True %}
     {% endif %}
   {% empty %}
   <p>This user has every achievement!</p>

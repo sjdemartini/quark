@@ -13,7 +13,7 @@ from quark.achievements.models import UserAchievement
 class AchievementDetailView(DetailView):
     context_object_name = 'achievement'
     model = Achievement
-    pk_url_kwarg = 'achievement_id'
+    pk_url_kwarg = 'achievement_short_name'
     template_name = 'achievements/achievement_detail.html'
 
     @method_decorator(login_required)
@@ -32,7 +32,7 @@ class AchievementDetailView(DetailView):
 
         # Find all users that have unlocked the achievement
         user_achievements = UserAchievement.objects.filter(
-            achievement__id=context['achievement'].id).exclude(
+            achievement__short_name=context['achievement'].short_name).exclude(
             acquired=False)
         users_with_achievement = get_user_model().objects.filter(
             userachievement__in=user_achievements.values_list('id'))
@@ -42,7 +42,7 @@ class AchievementDetailView(DetailView):
         # Find other achievements in same sequence to display related.
         context['related_achievements'] = Achievement.objects.filter(
             sequence=context['achievement'].sequence).exclude(
-            id=context['achievement'].id)
+            short_name=context['achievement'].short_name)
 
         return context
 
@@ -143,18 +143,15 @@ class UserAchievementListView(ListView):
             userachievement__in=self.user_achievements).exclude(
             privacy='private').order_by('rank')
         progresses = []
-        goals = []
         for achievement in locked_achievements:
             try:
                 user_achievement = UserAchievement.objects.get(
                     user=self.display_user, achievement=achievement)
                 progresses.append(user_achievement.progress)
-                goals.append(user_achievement.goal)
             except UserAchievement.DoesNotExist:
                 progresses.append(0)
-                goals.append(0)
-        locked_list = [{'achievement': t[0], 'progress': t[1], 'goal': t[2]}
-                       for t in zip(locked_achievements, progresses, goals)]
+        locked_list = [{'achievement': t[0], 'progress': t[1]}
+                       for t in zip(locked_achievements, progresses)]
         context['locked_list'] = locked_list
 
         # Select hidden achievements the viewer has unlocked so that they are

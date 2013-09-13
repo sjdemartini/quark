@@ -1,0 +1,118 @@
+- pk: officersemester01
+  model: achievements.Achievement
+  fields:
+    name: I'll Make a Man Out of You
+    description: Be an officer for one semester.
+    category: elections
+    sequence: Tenure
+    points: 10
+    goal: 1
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 1.1
+    acquired_icon: images/achievements/officersemester01.png
+    unacquired_icon: images/achievements/officersemester01_g.png
+- pk: officersemester02
+  model: achievements.Achievement
+  fields:
+    name: Welcome Back
+    description: Be an officer for two semesters.
+    category: elections
+    sequence: Tenure
+    points: 15
+    goal: 2
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 1.2
+    acquired_icon: images/achievements/officersemester02.png
+    unacquired_icon: images/achievements/officersemester02_g.png
+- pk: officersemester03
+  model: achievements.Achievement
+  fields:
+    name: Try, Try, Try
+    description: Be an officer for three semesters.
+    category: elections
+    sequence: Tenure
+    points: 20
+    goal: 3
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 1.3
+    acquired_icon: images/achievements/officersemester03.png
+    unacquired_icon: images/achievements/officersemester03_g.png
+- pk: officersemester04
+  model: achievements.Achievement
+  fields:
+    name: Back In My Day
+    description: Be an officer for four semesters.
+    category: elections
+    sequence: Tenure
+    points: 25
+    goal: 4
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 1.4
+    acquired_icon: images/achievements/officersemester04.png
+    unacquired_icon: images/achievements/officersemester04_g.png
+- pk: officersemester05
+  model: achievements.Achievement
+  fields:
+    name: God Walking Amongst Mere Mortals
+    description: Be an officer for five semesters.
+    category: elections
+    sequence: Tenure
+    points: 30
+    goal: 5
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 1.5
+    acquired_icon: images/achievements/officersemester05.png
+    unacquired_icon: images/achievements/officersemester05_g.png
+- pk: officersemester06
+  model: achievements.Achievement
+  fields:
+    name: Flawless Victory
+    description: Be an officer for six semesters.
+    category: elections
+    sequence: Tenure
+    points: 35
+    goal: 6
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 1.6
+    acquired_icon: images/achievements/officersemester06.png
+    unacquired_icon: images/achievements/officersemester06_g.png
+- pk: officersemester07
+  model: achievements.Achievement
+  fields:
+    name: Unfrigginbelievable
+    description: Be an officer for seven semesters.
+    category: elections
+    sequence: Tenure
+    points: 40
+    goal: 7
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 1.7
+    acquired_icon: images/achievements/officersemester07.png
+    unacquired_icon: images/achievements/officersemester07_g.png
+- pk: officersemester08
+  model: achievements.Achievement
+  fields:
+    name: I'm Too Old For This Stuff
+    description: Be an officer for eight semesters.
+    category: elections
+    sequence: Tenure
+    points: 50
+    goal: 8
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 1.8

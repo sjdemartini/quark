@@ -8,9 +8,9 @@ from quark.achievements.views import UserAchievementListView
 
 urlpatterns = patterns(
     '',
-    url(r'^(?P<achievement_id>\d+)/$',
-        AchievementDetailView.as_view(), name='detail'),
     url(r'^leaderboard/$', LeaderboardListView.as_view(), name='leaderboard'),
+    url(r'^(?P<achievement_short_name>\w+)/$',
+        AchievementDetailView.as_view(), name='detail'),
     url(r'^user/(?P<user_id>\d+)/$',
         UserAchievementListView.as_view(), name='user'),
 )

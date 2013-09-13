@@ -1,0 +1,192 @@
+- fields:
+    current: false
+    term: sp
+    year: 1999
+  model: base.Term
+  pk: 19992
+- fields:
+    current: false
+    term: fa
+    year: 1999
+  model: base.Term
+  pk: 19994
+- fields:
+    current: false
+    term: sp
+    year: 2000
+  model: base.Term
+  pk: 20002
+- fields:
+    current: false
+    term: fa
+    year: 2000
+  model: base.Term
+  pk: 20004
+- fields:
+    current: false
+    term: sp
+    year: 2001
+  model: base.Term
+  pk: 20012
+- fields:
+    current: false
+    term: fa
+    year: 2001
+  model: base.Term
+  pk: 20014
+- fields:
+    current: false
+    term: sp
+    year: 2002
+  model: base.Term
+  pk: 20022
+- fields:
+    current: false
+    term: fa
+    year: 2002
+  model: base.Term
+  pk: 20024
+- fields:
+    current: false
+    term: sp
+    year: 2003
+  model: base.Term
+  pk: 20032
+- fields:
+    current: false
+    term: fa
+    year: 2003
+  model: base.Term
+  pk: 20034
+- fields:
+    current: false
+    term: sp
+    year: 2004
+  model: base.Term
+  pk: 20042
+- fields:
+    current: false
+    term: fa
+    year: 2004
+  model: base.Term
+  pk: 20044
+- fields:
+    current: false
+    term: sp
+    year: 2005
+  model: base.Term
+  pk: 20052
+- fields:
+    current: false
+    term: fa
+    year: 2005
+  model: base.Term
+  pk: 20054
+- fields:
+    current: false
+    term: sp
+    year: 2006
+  model: base.Term
+  pk: 20062
+- fields:
+    current: false
+    term: fa
+    year: 2006
+  model: base.Term
+  pk: 20064
+- fields:
+    current: false
+    term: sp
+    year: 2007
+  model: base.Term
+  pk: 20072
+- fields:
+    current: false
+    term: fa
+    year: 2007
+  model: base.Term
+  pk: 20074
+- fields:
+    current: false
+    term: sp
+    year: 2008
+  model: base.Term
+  pk: 20082
+- fields:
+    current: false
+    term: fa
+    year: 2008
+  model: base.Term
+  pk: 20084
+- fields:
+    current: false
+    term: sp
+    year: 2009
+  model: base.Term
+  pk: 20092
+- fields:
+    current: false
+    term: fa
+    year: 2009
+  model: base.Term
+  pk: 20094
+- fields:
+    current: false
+    term: sp
+    year: 2010
+  model: base.Term
+  pk: 20102
+- fields:
+    current: false
+    term: fa
+    year: 2010
+  model: base.Term
+  pk: 20104
+- fields:
+    current: false
+    term: sp
+    year: 2011
+  model: base.Term
+  pk: 20112
+- fields:
+    current: false
+    term: fa
+    year: 2011
+  model: base.Term
+  pk: 20114
+- fields:
+    current: false
+    term: sp
+    year: 2012
+  model: base.Term
+  pk: 20122
+- fields:
+    current: false
+    term: fa
+    year: 2012
+  model: base.Term
+  pk: 20124
+- fields:
+    current: false
+    term: sp
+    year: 2013
+  model: base.Term
+  pk: 20132
+- fields:
+    current: true
+    term: fa
+    year: 2013
+  model: base.Term
+  pk: 20134
+- fields:
+    current: false
+    term: sp
+    year: 2014
+  model: base.Term
+  pk: 20142
+- fields:
+    current: false
+    term: fa
+    year: 2014
+  model: base.Term
+  pk: 20144

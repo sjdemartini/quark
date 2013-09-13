@@ -5,6 +5,7 @@ from quark.base.models import Term
 
 
 class Achievement(models.Model):
+    """An achievement shows significant user accomplishment in some way."""
     # These are strings because they're easier to deal with in fixtures.
     CATEGORIES = (
         ('general', 'General'),
@@ -16,15 +17,6 @@ class Achievement(models.Model):
         ('feats', 'Feats of Strength'),  # Cross-bridge banquet shuttling.
     )
 
-    ORGANIZATION_TBP = 'tbp'
-    ORGANIZATION_PIE = 'pie'
-    ORGANIZATION_ALL = 'all'
-    ORGANIZATIONS = (
-        (ORGANIZATION_TBP, 'TBP'),
-        (ORGANIZATION_PIE, 'PiE'),
-        (ORGANIZATION_ALL, 'All'),
-    )
-
     PRIVACY_PUBLIC = 'public'
     PRIVACY_PRIVATE = 'private'
     PRIVACY_SECRET = 'secret'
@@ -34,16 +26,17 @@ class Achievement(models.Model):
         (PRIVACY_SECRET, 'Secret'),
     )
 
+    short_name = models.CharField(
+        max_length=32, db_index=True, primary_key=True,
+        help_text='A short name to be used to search for the achievement in '
+                  'the database.')
+
     name = models.CharField(
-        max_length=64, help_text='The short name of the achievement.')
+        max_length=64, help_text='The name of the achievement to be displayed '
+                                 'on the page.')
 
     description = models.CharField(
         max_length=128, help_text='The full description of the achievement.')
-
-    organization = models.CharField(
-        choices=ORGANIZATIONS, max_length=4, db_index=True,
-        default=ORGANIZATION_ALL,
-        help_text='Each achievement can be live on TBP, PiE, or all.')
 
     category = models.CharField(
         choices=CATEGORIES, max_length=64, db_index=True,
@@ -62,6 +55,11 @@ class Achievement(models.Model):
     points = models.IntegerField(
         help_text=('The number of points this achievement is worth. Can be '
                    'positive or negative.'))
+
+    goal = models.IntegerField(
+        default=0,
+        help_text=('Integer goal for this achievement. 0 means that the '
+                   'progress bar should be hidden.'))
 
     privacy = models.CharField(
         choices=PRIVACY_SETTINGS, max_length=8, db_index=True,
@@ -86,8 +84,14 @@ class Achievement(models.Model):
         help_text=('The rank of the achievement, for the display order. The '
                    'higher the number, the lower down on the page it shows.'))
 
-    icon = models.ImageField(
-        upload_to='images/achievements/', blank=True, null=True)
+    acquired_icon = models.ImageField(
+        blank=True, upload_to='images/achievements',
+        help_text='Icon filepaths are defined through the fixtures, and icons '
+                  'should never be uploaded through admin.')
+    unacquired_icon = models.ImageField(
+        blank=True, upload_to='images/achievements',
+        help_text='Icon filepaths are defined through the fixtures, and icons '
+                  'should never be uploaded through admin.')
     icon_creator = models.ForeignKey(
         settings.AUTH_USER_MODEL, blank=True, null=True,
         help_text='The creator of the icon used for this achievement.')
@@ -97,6 +101,33 @@ class Achievement(models.Model):
 
     def __unicode__(self):
         return self.name
+
+    def assign(self, user, acquired=True, progress=0, term=None):
+        """Assign this achievements to a user."""
+        if term is None:
+            term = Term.objects.get_current_term()
+
+        # get or create a new user achievement for this achievement given to
+        # the specified user. if no previous achievement exists, the default
+        # is to set acquired to false so that it is updated below
+        user_achievement, _ = UserAchievement.objects.get_or_create(
+            achievement=self, user=user)
+
+        if user_achievement.acquired is False:
+            # if the achievement has not already been acquired by this user, set
+            # the user achievement's progress, term, and acquisition state
+            user_achievement.acquired = acquired
+            user_achievement.progress = progress
+            user_achievement.term = term
+            user_achievement.save()
+        elif acquired is False and user_achievement.term == term:
+            # if the achievement has already been acquired but is being set
+            # to unacquired in the same term, it gets overridden
+            user_achievement.acquired = acquired
+            user_achievement.progress = progress
+            user_achievement.save()
+
+        return True
 
 
 class UserAchievement(models.Model):
@@ -111,15 +142,16 @@ class UserAchievement(models.Model):
     achievement = models.ForeignKey(Achievement)
 
     acquired = models.BooleanField(
-        default=True, db_index=True,
-        help_text=('Defaults to True. This is only false when we want to '
-                   'store the progress and goal amounts.'))
+        default=False, db_index=True,
+        help_text=('True if the user has done everything needed to receive '
+                   'the achievement. False if there is only progress towards '
+                   'the goal.'))
 
     progress = models.IntegerField(
-        help_text='Integer progress for this achievement (17 events).')
-    goal = models.IntegerField(
-        help_text=('Integer goal for this achievement. 0 means that the '
-                   'progress bar should be hidden.'))
+        default=0,
+        help_text=('For unacquired achievements, this field gives the user\'s '
+                   'progress towards the achievement\'s goal. (e.g. 17 events '
+                   'out of 25 required for the achievement.)'))
 
     assigner = models.ForeignKey(
         settings.AUTH_USER_MODEL, related_name='assigner', null=True,
