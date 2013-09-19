@@ -297,12 +297,14 @@ blockquote {
     position: relative;
   }
 
+  .login-arrow {
+    font-size: 15px;
+    position: relative;
+    top: -3px;
+  }
+
   .dropdown-title {
-    background: url(/static/images/arrow.png) no-repeat right center;
-    background-size: 10px 6px;
-    margin-right: 15px;
-    padding-right: 8px;
-    cursor: pointer;
+    margin-right: 13px;
   }
 
   ul.dropdown {
