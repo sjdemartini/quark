@@ -17,7 +17,7 @@ from quark.user_profiles.models import CollegeStudentInfo
 
 class ResumeEditView(FormView):
     form_class = ResumeForm
-    template_name = 'resumes/resume.html'
+    template_name = 'resumes/edit.html'
     resume = None
 
     @method_decorator(login_required)
