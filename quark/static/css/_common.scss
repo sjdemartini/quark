@@ -51,8 +51,7 @@ td {
   border-bottom: 1px dashed #666;
 }
 
-// Make tables used to render forms use ordinary width and borders
-form {
+#content form {
   .form-entry {
     margin: 1em 0;
     padding: 0 0.5em;

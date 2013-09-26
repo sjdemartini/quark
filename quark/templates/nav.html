@@ -1,3 +1,4 @@
+{% load menu_tags %}
       <div id="navigation-container">
         <div id="nav-menubar">
           <a id="nav-menubar-open">
@@ -12,24 +13,7 @@
 
         <div id="nav">
           <ul>
-            <li><a href="">About</a>
-              <ul>
-                <li><a href="">Officers</a></li>
-                <li><a href="">Gallery</a></li>
-              </ul>
-            </li>
-
-            <li><a href="">People</a>
-            </li>
-
-            <li><a href="{% url 'events:list' %}">Events</a>
-            </li>
-
-            <li><a href="">Student Resources</a>
-            </li>
-
-            <li><a href="">Industrial Relations</a>
-            </li>
+            {% show_menu 0 100 100 100 %}
           </ul>
         </div>
       </div>

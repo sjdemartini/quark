@@ -49,8 +49,7 @@ urlpatterns = patterns('',
     url(r'^vote/', include('quark.vote.urls',
                            app_name='vote',
                            namespace='vote')),
-    # TODO(mattchang): Get django-cms working for django-1.5
-    #url(r'^', include('cms.urls')),
+    url(r'^', include('cms.urls')),  # Catch-all for CMS-managed pages
 )
 
 if settings.DEBUG:

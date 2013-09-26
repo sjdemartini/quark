@@ -93,7 +93,6 @@ class ContactFormTest(unittest.TestCase):
 @override_settings(HELPDESK_ADDRESS='test_hd@tbp.berkeley.edu')
 class HelpdeskEmailerTest(TestCase):
     def setUp(self):
-        self.client = Client()
         self.url = reverse('emailer:helpdesk')
         self.mox = mox.Mox()
         self.default_entry = {'name': 'Test User',
@@ -204,7 +203,6 @@ class HelpdeskEmailerTest(TestCase):
 
 class EventEmailerTest(TestCase):
     def setUp(self):
-        self.client = Client()
         self.url = reverse('emailer:event', kwargs={'event_id': '1'})
         # TODO(nitishp) make an officer after permissions decorators are done
         self.user = get_user_model().objects.create_user(

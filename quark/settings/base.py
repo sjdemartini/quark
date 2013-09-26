@@ -64,7 +64,7 @@ TIME_ZONE = 'America/Los_Angeles'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'en'
 
 LANGUAGES = [
     ('en', 'English'),
@@ -136,15 +136,15 @@ TEMPLATE_LOADERS = (
     'django.template.loaders.app_directories.Loader',
 )
 
-# This is for django-cms
+# Some context processors are added for CMS
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.auth.context_processors.auth',
     'django.contrib.messages.context_processors.messages',
+    #'django.core.context_processors.i18n',
     'django.core.context_processors.request',
     'django.core.context_processors.media',
     'django.core.context_processors.static',
-    # TODO(mattchang): get django-cms working with django-1.5
-    #'cms.context_processors.media',
+    'cms.context_processors.media',
     'sekizai.context_processors.sekizai',
 )
 
@@ -162,18 +162,20 @@ COMPRESS_PRECOMPILERS = (
 )
 
 MIDDLEWARE_CLASSES = [
-    'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.transaction.TransactionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
+    'django.middleware.doc.XViewMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.transaction.TransactionMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
-    # TODO(mattchang): get django-cms working with django-1.5
-    #'cms.middleware.page.CurrentPageMiddleware',
-    #'cms.middleware.user.CurrentUserMiddleware',
-    #'cms.middleware.toolbar.ToolbarMiddleware',
+    'cms.middleware.page.CurrentPageMiddleware',
+    'cms.middleware.user.CurrentUserMiddleware',
+    'cms.middleware.toolbar.ToolbarMiddleware',
+    'cms.middleware.language.LanguageCookieMiddleware',
+    #'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 ]
 
 ROOT_URLCONF = 'quark.urls'
@@ -218,20 +220,20 @@ PROJECT_APPS = [
 # Third-party apps belong here, since we won't use them for testing.
 THIRD_PARTY_APPS = [
     'chosen',
-    # TODO(mattchang): get django-cms working with django-1.5
-    #'cms',
+    'cms',
     #'cms.plugins.link',
     #'cms.plugins.snippet',
-    #'cms.plugins.text',
-    #'cmsplugin_filer_file',
-    #'cmsplugin_filer_folder',
-    #'cmsplugin_filer_image',
-    #'cmsplugin_filer_video',
+    'cms.plugins.text',
+    'cmsplugin_filer_file',
+    'cmsplugin_filer_folder',
+    'cmsplugin_filer_image',
+    'cmsplugin_filer_teaser',
+    'cmsplugin_filer_video',
     'compressor',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
-    'django.contrib.flatpages',
+    #'django.contrib.flatpages',
     # TODO(davidbliu): Handle deprecation of markup
     'django.contrib.markup',
     'django.contrib.messages',
@@ -240,13 +242,12 @@ THIRD_PARTY_APPS = [
     'django.contrib.staticfiles',
     'django_jenkins',
     'easy_thumbnails',
-    # TODO(mattchang): verify django-filer works with django-1.5
-    'filer',
-    'menus',
-    'mptt',
-    'reversion',
-    'sekizai',
-    'south',
+    'filer',  # Used by CMS
+    'menus',  # Required by CMS
+    'mptt',  # Required by CMS
+    'reversion',  # For versioning of content with CMS
+    'sekizai',  # Required by CMS
+    'south',  # For data migration. Also required by CMS
 ]
 
 # This is the actual variable that django looks at.

@@ -19,80 +19,82 @@ def make_test_department():
     return test_department
 
 
-def make_test_db(testcase):
-    testcase.dept_cs = Department(
-        long_name='Computer Science',
-        short_name='CS',
-        abbreviation='COMPSCI')
-    testcase.dept_cs.save()
-    testcase.dept_ee = Department(
-        long_name='Electrical Engineering',
-        short_name='EE',
-        abbreviation='EL ENG')
-    testcase.dept_ee.save()
-    testcase.course_cs_1 = Course(department=testcase.dept_cs, number='1')
-    testcase.course_cs_1.save()
-    testcase.course_ee_1 = Course(department=testcase.dept_ee, number='1')
-    testcase.course_ee_1.save()
-    testcase.instructor_cs = Instructor(first_name='Tau', last_name='Bate',
-                                        department=testcase.dept_cs)
-    testcase.instructor_cs.save()
-    testcase.instructor_ee = Instructor(first_name='Pi', last_name='Bent',
-                                        department=testcase.dept_ee)
-    testcase.instructor_ee.save()
-    testcase.term = Term(term='sp', year=2013, current=True)
-    testcase.term.save()
-    testcase.courseInstance_cs_1 = CourseInstance(
-        term=testcase.term,
-        course=testcase.course_cs_1)
-    testcase.courseInstance_cs_1.save()
-    testcase.courseInstance_cs_1.instructors.add(testcase.instructor_cs)
-    testcase.courseInstance_cs_1.save()
-    testcase.courseInstance_ee_1 = CourseInstance(
-        term=testcase.term,
-        course=testcase.course_ee_1)
-    testcase.courseInstance_ee_1.save()
-    testcase.courseInstance_ee_1.instructors.add(testcase.instructor_ee)
-    testcase.courseInstance_ee_1.save()
-    testcase.user = get_user_model().objects.create_user(
-        username='tbpUser',
-        email='tbp.berkeley.edu',
-        password='testpassword',
-        first_name='tbp',
-        last_name='user')
-    testcase.user.save()
-    testcase.survey_cs_1 = Survey(
-        course=testcase.course_cs_1,
-        term=testcase.term,
-        instructor=testcase.instructor_cs,
-        prof_rating=5,
-        course_rating=5,
-        time_commitment=5,
-        comments='Test comments',
-        submitter=testcase.user,
-        published=True)
-    testcase.survey_cs_1.save()
-    testcase.survey_cs_1_b = Survey(
-        course=testcase.course_cs_1,
-        term=testcase.term,
-        instructor=testcase.instructor_cs,
-        prof_rating=0,
-        course_rating=5,
-        time_commitment=0,
-        comments='Test comments',
-        submitter=testcase.user,
-        published=True)
-    testcase.survey_cs_1_b.save()
-    testcase.exam_ee_1 = Exam(
-        course_instance=testcase.courseInstance_ee_1,
-        submitter=testcase.user,
-        exam_number=Exam.FINAL,
-        exam_type=Exam.EXAM,
-        unique_id='abcdefg',
-        file_ext='.pdf',
-        verified=True)
-    testcase.exam_ee_1.save()
-    return
+class CoursesTestCase(TestCase):
+    fixtures = ['site']
+
+    def setUp(self):
+        self.dept_cs = Department(
+            long_name='Computer Science',
+            short_name='CS',
+            abbreviation='COMPSCI')
+        self.dept_cs.save()
+        self.dept_ee = Department(
+            long_name='Electrical Engineering',
+            short_name='EE',
+            abbreviation='EL ENG')
+        self.dept_ee.save()
+        self.course_cs_1 = Course(department=self.dept_cs, number='1')
+        self.course_cs_1.save()
+        self.course_ee_1 = Course(department=self.dept_ee, number='1')
+        self.course_ee_1.save()
+        self.instructor_cs = Instructor(first_name='Tau', last_name='Bate',
+                                        department=self.dept_cs)
+        self.instructor_cs.save()
+        self.instructor_ee = Instructor(first_name='Pi', last_name='Bent',
+                                        department=self.dept_ee)
+        self.instructor_ee.save()
+        self.term = Term(term='sp', year=2013, current=True)
+        self.term.save()
+        self.course_instance_cs_1 = CourseInstance(
+            term=self.term,
+            course=self.course_cs_1)
+        self.course_instance_cs_1.save()
+        self.course_instance_cs_1.instructors.add(self.instructor_cs)
+        self.course_instance_cs_1.save()
+        self.course_instance_ee_1 = CourseInstance(
+            term=self.term,
+            course=self.course_ee_1)
+        self.course_instance_ee_1.save()
+        self.course_instance_ee_1.instructors.add(self.instructor_ee)
+        self.course_instance_ee_1.save()
+        self.user = get_user_model().objects.create_user(
+            username='tbpUser',
+            email='tbp.berkeley.edu',
+            password='testpassword',
+            first_name='tbp',
+            last_name='user')
+        self.user.save()
+        self.survey_cs_1 = Survey(
+            course=self.course_cs_1,
+            term=self.term,
+            instructor=self.instructor_cs,
+            prof_rating=5,
+            course_rating=5,
+            time_commitment=5,
+            comments='Test comments',
+            submitter=self.user,
+            published=True)
+        self.survey_cs_1.save()
+        self.survey_cs_1_b = Survey(
+            course=self.course_cs_1,
+            term=self.term,
+            instructor=self.instructor_cs,
+            prof_rating=0,
+            course_rating=5,
+            time_commitment=0,
+            comments='Test comments',
+            submitter=self.user,
+            published=True)
+        self.survey_cs_1_b.save()
+        self.exam_ee_1 = Exam(
+            course_instance=self.course_instance_ee_1,
+            submitter=self.user,
+            exam_number=Exam.FINAL,
+            exam_type=Exam.EXAM,
+            unique_id='abcdefg',
+            file_ext='.pdf',
+            verified=True)
+        self.exam_ee_1.save()
 
 
 class DepartmentTest(TestCase):
@@ -247,10 +249,7 @@ class InstructorTest(TestCase):
         self.assertEquals(self.test_instructor.full_name(), 'Tau Betapi')
 
 
-class DepartmentListViewTest(TestCase):
-    def setUp(self):
-        make_test_db(self)
-
+class DepartmentListViewTest(CoursesTestCase):
     def test_response(self):
         resp = self.client.get('/courses/')
         # A successful HTTP GET request has status code 200
@@ -270,10 +269,7 @@ class DepartmentListViewTest(TestCase):
         self.assertEqual(resp.context['department_list'].count(), 0)
 
 
-class CourseListViewTest(TestCase):
-    def setUp(self):
-        make_test_db(self)
-
+class CourseListViewTest(CoursesTestCase):
     def test_response(self):
         resp = self.client.get('/courses/Cs/')
         self.assertEqual(resp.status_code, 200)
@@ -298,10 +294,7 @@ class CourseListViewTest(TestCase):
         self.assertEqual(resp.status_code, 404)
 
 
-class CourseDetailViewTest(TestCase):
-    def setUp(self):
-        make_test_db(self)
-
+class CourseDetailViewTest(CoursesTestCase):
     def test_response(self):
         resp = self.client.get('/courses/cs/1/')
         self.assertEqual(resp.status_code, 200)
@@ -331,10 +324,7 @@ class CourseDetailViewTest(TestCase):
                 self.instructor_cs.full_name()], 5)
 
 
-class InstructorDetailViewTest(TestCase):
-    def setUp(self):
-        make_test_db(self)
-
+class InstructorDetailViewTest(CoursesTestCase):
     def test_response(self):
         resp = self.client.get('/courses/instructors/99999999/')
         self.assertEqual(resp.status_code, 404)

@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html>
   <head>
-    {% load static %}
-    {% load compress %}
+    {% load static compress sekizai_tags %}
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>{% block title %}Tau Beta Pi, California Alpha Chapter{% endblock %}</title>
+    <title>
+    {% block title %}
+      {% if request.current_page.get_title %}{{ request.current_page.get_title }} - {% endif %}Tau Beta Pi, California Alpha Chapter
+    {% endblock %}
+    </title>
     <meta name="description" content="Tau Beta Pi Engineering Honor Society, California Alpha Chapter">
     <meta name="keywords" content="tau beta pi engineering honor society california alpha chapter ca-a ucb berkeley {% block metakeywords %}{% endblock metakeywords %}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,6 +19,7 @@
     {% compress css %}
     <link type="text/x-scss" rel="stylesheet" href="{% static 'css/style.scss' %}">
     {% endcompress %}
+    {% render_block 'css' %}{# CSS for Django-CMS #}
     {% block jquery %}{% include 'jquery.html' %}{% endblock jquery %}
     <script src="{% static 'js/main.js' %}"></script>
     {{ form.media.css }}
@@ -23,7 +27,8 @@
     {% block head %}{% endblock head %}
   </head>
   <body>
-  {# TODO(sjdemartini): fill in all URLs for links as they are created #}
+    {% block cms_block %}{% endblock cms_block %}
+    {# TODO(sjdemartini): fill in all URLs for links as they are created #}
     <div id="wrapper" style="{% block wrapper_style %}{% endblock wrapper_style %}">
       {% block header %}
       <div id="header">
@@ -161,7 +166,9 @@
     </div>
 
   {# TODO(sjdemartini): add in js for user notifications #}
-  {# TODO(sjdemartini): Google analytics? #}
+  {# TODO(sjdemartini): Google analytics #}
+
+  {% render_block 'js' %}{# JS for Django-CMS #}
   <!--Page finished rendering {% now 'r' %}-->
   </body>
 </html>

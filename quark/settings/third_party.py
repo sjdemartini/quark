@@ -10,8 +10,8 @@ from quark.settings.base import WORKSPACE_ROOT
 CMS_SHOW_START_DATE = True
 CMS_SHOW_END_DATE = True
 
-# Disables CMS permissions to be given on a per page basis
-CMS_PERMISSION = False
+# Enable CMS permissions to be given on a per page basis
+CMS_PERMISSION = True
 
 # URL base for CMS's media files
 CMS_MEDIA_URL = '/cms/'
@@ -19,7 +19,9 @@ CMS_MEDIA_URL = '/cms/'
 # List of templates you can select for a page
 CMS_TEMPLATES = (
     ('base.html', 'Base'),
+    ('base_cms.html', 'CMS Content'),
 )
+
 
 # Jenkins integration.
 JENKINS_TASKS = (
