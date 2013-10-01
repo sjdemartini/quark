@@ -13,7 +13,7 @@ source /home/tbp/virtualenv/django15/bin/activate
 find . -type f -name "*.py[co]" -delete
 
 # Go to directory of the script
-pushd $(dirname $0)
+pushd $(dirname $0) > /dev/null
 
 # The following conditions must be true for jenkins to return true:
 #   1. The tests must pass.
@@ -61,5 +61,5 @@ else
     echo -e "\nPlease fix all errors before doing git review!"
 fi
 
-popd
+popd > /dev/null
 exit $success
