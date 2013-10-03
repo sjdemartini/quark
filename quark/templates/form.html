@@ -1,0 +1,7 @@
+{% for field in form %}
+  <div class="form-entry{% if field.errors %} form-entry-error{% endif %}">
+    {{ field.label_tag }} {{ field }}
+    <span>{{ field.help_text }}</span>
+    <span>{{ field.errors }}</span>
+  </div>
+{% endfor %}

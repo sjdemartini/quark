@@ -40,7 +40,7 @@
 
 <form method="post">
   {% csrf_token %}
-  {{ form.as_p }}
+  {% include 'form.html' %}
   <div>
     <a href="{% url 'exams:download' exam_pk=exam.pk %}"><strong>Download Exam</strong></a>
   </div>

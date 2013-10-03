@@ -18,7 +18,7 @@ logic in the form or view to change which are included).
 
 <form action="{% url 'events:signup' event.id %}" method="post">
   {% csrf_token %}
-  {{ form.as_p }}
+  {% include 'form.html' %}
   <div>
     <input type="submit" value="{% if user_signed_up %}Update {% endif %}Sign Up" />
   </div>

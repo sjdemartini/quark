@@ -11,7 +11,7 @@
 
 <form method="post">
   {% csrf_token %}
-  {{ form.as_p }}
+  {% include 'form.html' %}
   <div>
     <input type="submit" value="Delete">
   </div>

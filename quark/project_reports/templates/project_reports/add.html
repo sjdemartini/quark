@@ -5,7 +5,7 @@
 {% block content %}
 <form action="{% url 'project-reports:add' %}" method="post" enctype="multipart/form-data">
   {% csrf_token %}
-  {{ form.as_p }}
-<div><input type="submit" value="Submit"></div>
+  {% include 'form.html' %}
+  <div><input type="submit" value="Submit"></div>
 </form>
 {% endblock content %}

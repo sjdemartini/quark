@@ -15,8 +15,8 @@ Edit <a href="{% url 'events:detail' event.id %}">{{ event.name }}</a>
 
 {% block content %}
 <form action="{% url 'events:edit' event.id %}" method="post">
-{% csrf_token %}
-  {{ form.as_p }}
+  {% csrf_token %}
+  {% include 'form.html' %}
   <div>
     <input type="submit" value="Submit">
   </div>

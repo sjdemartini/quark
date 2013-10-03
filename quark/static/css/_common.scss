@@ -53,10 +53,10 @@ td {
 
 // Make tables used to render forms use ordinary width and borders
 form {
-  width: 90%;
-  margin-left: 5%;
+  .form-entry {
+    margin: 1em 0;
+    padding: 0 0.5em;
 
-  p {
     label {
       width: 30%;
       margin-right: 2%;
@@ -98,6 +98,11 @@ form {
         margin-left: auto;
       }
     }
+  }
+  .form-entry-error {
+    padding: 0.5em;
+    background: #fcc;
+    @include border-radius(0.3em);
   }
   input[type=submit] {
     margin-left: 32%;

@@ -8,8 +8,8 @@
 
 {% block content %}
 <form action="{% url 'events:add' %}" method="post">
-{% csrf_token %}
-  {{ form.as_p }}
+  {% csrf_token %}
+  {% include 'form.html' %}
   <div>
     <input type="submit" value="Submit">
   </div>

@@ -9,7 +9,7 @@
 {% block content %}
 <form method="post" enctype="multipart/form-data">
   {% csrf_token %}
-  {{ form.as_p }}
+  {% include 'form.html' %}
   <div>
     <input type="submit" value="Submit">
   </div>
