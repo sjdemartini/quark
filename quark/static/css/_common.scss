@@ -621,30 +621,37 @@ blockquote {
   }
 }
 
-// wrapper and push used to make footer stick to bottom of window
+// wrapper with :after element used to make footer stick to bottom of window.
+// See http://css-tricks.com/snippets/css/sticky-footer/
+
+$footer-height: 5em;
+$footer-vertical-pad: 1.667em;
+$footer-border-size: 0.08em;
+$footer-font-size: 0.8em;
+// Calculate the footer total height in ems, considering that a relative font
+// size proportionally affects the total height
+$footer-total-height: ($footer-font-size / 1em) * (
+    $footer-height + 2*$footer-vertical-pad + $footer-border-size);
 
 #wrapper {
   min-height: 100%;
-  height: auto !important;
-  height: 100%;
-  margin: 0 auto -131px;
-  // negative indent footer by its height
+  margin-bottom: -$footer-total-height;
 }
 
-#push {
-  // This is NOT the sum of the below because
-  // the below has a font size of .75em
-  height: 8.188em;
+#wrapper:after {
+  content: '';
+  display: block;
+  height: $footer-total-height;
 }
 
 #footer {
   background-color: #eee;
-  border-top: 0.083em solid #999;
+  border-top: $footer-border-size solid #999;
   color: #666;
-  font-size: .75em;
-  height: 5em;
+  font-size: $footer-font-size;
+  height: $footer-height;
   margin-top: 2.5em;
-  padding: 1.667em 0;
+  padding: $footer-vertical-pad 0;
   @include box-shadow(inset 0 30px 30px -30px #999);
   a {
     color: #33c;
