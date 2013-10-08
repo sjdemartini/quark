@@ -115,13 +115,13 @@
   }
   width: 60%;
   margin: 15px 1.667%;
-  @include respond-to(small) {
-    width: 90%;
-    margin: 15px 5% 0 5%;
-  }
   @include respond-to(medium) {
     width: 80%;
     margin: 15px 10% 0 10%;
+  }
+  @include respond-to(small) {
+    width: 90%;
+    margin: 15px 5% 0 5%;
   }
 }
 
