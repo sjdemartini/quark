@@ -14,9 +14,6 @@ DATABASES = {
     },
 }
 
-# Use nonLDAP model
-AUTH_USER_MODEL = 'auth.User'
-
 # We don't need to test these apps.
 BLACKLISTED_APPS = ['django_evolution', 'django.contrib.flatpages', 'south']
 for app in BLACKLISTED_APPS:
