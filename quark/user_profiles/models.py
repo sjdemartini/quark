@@ -61,19 +61,19 @@ class UserProfile(models.Model):
     def get_contact_info(self):
         return get_object_or_none(UserContactInfo, user=self.user)
 
-    def get_tbp_profile(self):
-        return get_object_or_none(TBPProfile, user=self.user)
+    def get_student_org_user_profile(self):
+        return get_object_or_none(StudentOrgUserProfile, user=self.user)
 
     def get_preferred_email(self):
         """Return the preferred email address of this user.
 
         The order of preference is as follows:
-        1. Officer @tbp email (if user is a TBP officer)
+        1. Officer email (if user is an officer of their organization)
         2. User email
         3. UserContactInfo alt email address
         """
-        if self.is_officer():
-            return '{}@tbp.berkeley.edu'.format(self.user.username)
+        if self.is_officer() and hasattr(settings, 'HOSTNAME'):
+            return '{}@{}'.format(self.user.username, settings.HOSTNAME)
 
         if self.user.email:
             return self.user.email
@@ -83,15 +83,16 @@ class UserProfile(models.Model):
 
     # The following methods pertain to the user's student organization, and
     # they are included as methods of the UserProfile for performance reasons,
-    # since UserProfile is OneToOne with the user model.
+    # as they can be accessed easily, given that UserProfile is OneToOne with
+    # the user model.
 
     def is_candidate(self, current=True):
         """Return True if this person is a candidate, False if initiated.
 
-        This method simply calls the TBPProfile method is_candidate, or returns
-        False if no TBPProfile exists for this user.
+        This method simply calls the StudentOrgUserProfile method is_candidate,
+        or returns False if no StudentOrgUserProfile exists for this user.
         """
-        profile = self.get_tbp_profile()
+        profile = self.get_student_org_user_profile()
         return profile.is_candidate() if profile else False
 
     def is_member(self):
@@ -172,7 +173,8 @@ class CollegeStudentInfo(IDCodeMixin):
 
     start_term = models.ForeignKey(Term, related_name='+', null=True,
                                    verbose_name='First term at this school')
-    grad_term = models.ForeignKey(Term, related_name='+', null=True)
+    grad_term = models.ForeignKey(Term, related_name='+', null=True,
+                                  verbose_name='Graduation term')
 
     class Meta(object):
         verbose_name_plural = 'college student info'
@@ -198,11 +200,11 @@ class UserContactInfo(models.Model):
         default=False,
         help_text='Can you send and receive text messages on your cell phone?')
 
-    local_address1 = models.CharField(max_length=256)
+    local_address1 = models.CharField(max_length=256, blank=True)
     local_address2 = models.CharField(max_length=256, blank=True)
-    local_city = models.CharField(max_length=128)
-    local_state = USStateField()
-    local_zip = models.CharField(max_length=10)
+    local_city = models.CharField(max_length=128, blank=True)
+    local_state = USStateField(blank=True)
+    local_zip = models.CharField(max_length=10, blank=True)
 
     # Require either permanent address or international address
     perm_address1 = models.CharField(
@@ -225,7 +227,7 @@ class UserContactInfo(models.Model):
         return self.user.get_full_name()
 
 
-class TBPProfile(models.Model):
+class StudentOrgUserProfile(models.Model):
     """A user's information specific to the student organization."""
     user = models.ForeignKey(settings.AUTH_USER_MODEL, unique=True)
 
@@ -238,6 +240,7 @@ class TBPProfile(models.Model):
 
     class Meta(object):
         ordering = ('user',)
+        verbose_name = 'Student Organization User Profile'
 
     def __unicode__(self):
         return self.user.get_full_name()
@@ -259,10 +262,10 @@ class TBPProfile(models.Model):
             return False
 
         # Note that when Candidate objects are marked as initiated, this is
-        # recorded into the TBPProfile with a post_save in the candidates app,
-        # so if they are not recorded as initiated in their profile
-        # (i.e., initiation_term not None) and a Candidate object exists, they
-        # are considered a candidate:
+        # recorded into the StudentOrgUserProfile with a post_save in the
+        # candidates app, so if they are not recorded as initiated in their
+        # profile (i.e., initiation_term not None) and a Candidate object
+        # exists, they are considered a candidate:
         if current:
             return Candidate.objects.filter(
                 user=self.user, term=current_term).exists()
@@ -292,13 +295,13 @@ def user_profile_post_save(sender, instance, created, **kwargs):
         UserProfile.objects.get_or_create(user=instance)
 
 
-def tbp_profile_post_save(sender, instance, created, **kwargs):
+def student_org_user_profile_post_save(sender, instance, created, **kwargs):
     """Ensures that UserContactInfo and CollegeStudentInfo objects exist for
-    every user with a TBPProfile.
+    every user with a StudentOrgUserProfile.
 
-    Whenever a TBPProfile is created, this callback performs a get_or_create()
-    to ensure that there is a UserContactInfo and a CollegeStudentInfo for the
-    saved User.
+    Whenever a StudentOrgUserProfile is created, this callback performs a
+    get_or_create() to ensure that there is a UserContactInfo and a
+    CollegeStudentInfo for the saved User.
     """
     if created:
         UserContactInfo.objects.get_or_create(user=instance.user)
@@ -309,4 +312,4 @@ models.signals.post_save.connect(
     user_profile_post_save, sender=get_user_model())
 
 models.signals.post_save.connect(
-    tbp_profile_post_save, sender=TBPProfile)
+    student_org_user_profile_post_save, sender=StudentOrgUserProfile)

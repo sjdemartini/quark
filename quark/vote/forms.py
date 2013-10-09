@@ -76,10 +76,10 @@ class PollForm(forms.ModelForm):
                 candidate__term=term)
         if eligible_group == self.ALL_MEMBERS:
             return get_user_model().objects.filter(
-                tbpprofile__initiation_term__isnull=False)
+                studentorguserprofile__initiation_term__isnull=False)
         if eligible_group == self.NON_OFFICER_MEMBERS:
             return get_user_model().objects.exclude(
-                tbpprofile__initiation_term__isnull=True).exclude(
+                studentorguserprofile__initiation_term__isnull=True).exclude(
                 officer__term=term)
         if eligible_group == self.OFFICERS:
             return get_user_model().objects.filter(

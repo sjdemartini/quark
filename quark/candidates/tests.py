@@ -26,7 +26,7 @@ from quark.events.models import EventAttendance
 from quark.events.models import EventType
 from quark.exams.models import Exam
 from quark.shortcuts import get_object_or_none
-from quark.user_profiles.models import TBPProfile
+from quark.user_profiles.models import StudentOrgUserProfile
 
 
 @override_settings(
@@ -157,26 +157,26 @@ class CandidateTest(TestCase):
                       ignore_errors=True)
 
     def test_candidate_post_save(self):
-        tbp_profile = get_object_or_none(TBPProfile, user=self.user)
+        student_org_profile = get_object_or_none(
+            StudentOrgUserProfile, user=self.user)
 
         # Candidate has already been saved for this user created above, so
-        # TBPProfile should exist:
-        self.assertIsNotNone(tbp_profile)
+        # StudentOrgUserProfile should exist:
+        self.assertIsNotNone(student_org_profile)
 
         # Candidate has not been marked as initiated, so initiation_term should
         # be None in their profile:
-        self.assertIsNone(tbp_profile.initiation_term)
+        self.assertIsNone(student_org_profile.initiation_term)
 
         # Mark candidate as initiated, and profile should update to match:
         self.candidate.initiated = True
         self.candidate.save()
-        tbp_profile = get_object_or_none(TBPProfile, user=self.user)
-        self.assertEqual(tbp_profile.initiation_term, self.term)
+        student_org_profile = get_object_or_none(
+            StudentOrgUserProfile, user=self.user)
+        self.assertEqual(student_org_profile.initiation_term, self.term)
 
     def test_manual_requirements(self):
-        """
-        Test that credits for manual requirements are counted correctly.
-        """
+        """Test that credits for manual requirements are counted correctly."""
         # Create some candidate progress
         CandidateRequirementProgress(
             candidate=self.candidate,
@@ -209,9 +209,7 @@ class CandidateTest(TestCase):
         self.assertEqual(needed, 6)
 
     def test_challenge_requirements(self):
-        """
-        Test that credits for challenges are counted correctly.
-        """
+        """Test that credits for challenges are counted correctly."""
         # Make sure unverified challenges don't count
         challenge = Challenge(
             candidate=self.candidate,
@@ -240,8 +238,8 @@ class CandidateTest(TestCase):
         self.assertEqual(needed, 2)
 
     def test_event_requirements(self):
-        """
-        Test that credits for events are counted correctly based on attendance.
+        """Test that credits for events are counted correctly based on
+        attendance.
         """
         # Attend Fun Event
         EventAttendance(event=self.fun_event1,
@@ -262,9 +260,7 @@ class CandidateTest(TestCase):
         self.assertEqual(complete, 3)
 
     def test_exams_requirements(self):
-        """
-        Test that credits for exam files are counted correctly.
-        """
+        """Test that credits for exam files are counted correctly."""
         # Upload 1 verified exam
         self.test_exam1.submitter = self.user
         self.test_exam1.save()

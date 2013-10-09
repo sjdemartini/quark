@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
+from django.test.utils import override_settings
 
 from quark.base.models import Term
 from quark.base_tbp.models import Officer
@@ -9,7 +10,7 @@ from quark.shortcuts import get_object_or_none
 from quark.user_profiles.fields import UserCommonNameChoiceField
 from quark.user_profiles.fields import UserCommonNameMultipleChoiceField
 from quark.user_profiles.models import CollegeStudentInfo
-from quark.user_profiles.models import TBPProfile
+from quark.user_profiles.models import StudentOrgUserProfile
 from quark.user_profiles.models import UserContactInfo
 from quark.user_profiles.models import UserProfile
 
@@ -44,6 +45,7 @@ class UserProfilesTest(TestCase):
     def test_user_post_save_profile_creation(self):
         self.assertEqual(self.profile, UserProfile.objects.get(user=self.user))
 
+    @override_settings(HOSTNAME='example.com')
     def test_get_preferred_email(self):
         # When the user is not an officer:
         self.assertEqual(self.profile.get_preferred_email(), self.user.email)
@@ -53,7 +55,7 @@ class UserProfilesTest(TestCase):
         contact_info = UserContactInfo(user=self.user, alt_email=test_email)
         contact_info.save()
 
-        # QuarkUser email (if not empty) is still preferred over alt_email:
+        # user email (if not empty) is still preferred over alt_email:
         self.assertEqual(self.profile.get_preferred_email(), self.user.email)
 
         # Remove user email, keeping alternate email:
@@ -61,11 +63,12 @@ class UserProfilesTest(TestCase):
         self.user.save()
         self.assertEqual(self.profile.get_preferred_email(), test_email)
 
-        # When the user is an officer:
+        # When the user is an officer (using the settings-defined hostname as
+        # the email address domain):
         Officer(user=self.user, position=self.committee, term=self.term,
                 is_chair=True).save()
         self.assertEqual(self.profile.get_preferred_email(),
-                         '%s@tbp.berkeley.edu' % self.user.username)
+                         '{}@example.com'.format(self.user.username))
 
     def test_name_methods(self):
         # Name methods with only first and last name
@@ -94,9 +97,9 @@ class UserProfilesTest(TestCase):
         self.assertEqual(self.profile.get_short_name(), preferred_name)
 
 
-class TBPProfilesTest(TestCase):
+class StudentOrgUserProfilesTest(TestCase):
     def setUp(self):
-        self.model = TBPProfile
+        self.model = StudentOrgUserProfile
 
         self.user = get_user_model().objects.create_user(
             'test_user', 'it@tbp.berkeley.edu', 'testpw')
@@ -126,7 +129,7 @@ class TBPProfilesTest(TestCase):
         # Mark that candidate as initiated:
         candidate.initiated = True
         candidate.save()
-        # Re-fetch profile since candidate save affects TBPProfile
+        # Re-fetch profile since candidate save affects StudentOrgUserProfile
         # initiation_term field:
         self.profile = get_object_or_none(self.model, user=self.user)
         self.assertFalse(self.profile.is_candidate(current=False))
@@ -203,9 +206,9 @@ class TBPProfilesTest(TestCase):
                          self.term)
 
     def test_tbp_profile_post_save(self):
-        """Tests whether creating and saving a TBPProfile properly ensures that
-        CollegeStudentInfo and UserContactInfo objects exist for the user in
-        the post_save callback.
+        """Tests whether creating and saving a StudentOrgUserProfile properly
+        ensures that CollegeStudentInfo and UserContactInfo objects exist for
+        the user in the post_save callback.
         """
         self.assertIsNotNone(get_object_or_none(CollegeStudentInfo,
                                                 user=self.user))
@@ -261,7 +264,8 @@ class UserTypeMethodTesting(TestCase):
     def test_is_candidate(self):
         """Ensure that calling is_candidate works as expected.
 
-        See tests for TBPProfile.is_candidate for more extensive testing.
+        See tests for StudentOrgUserProfile.is_candidate for more extensive
+        testing.
         """
         # No Candidate objects created yet:
         self.assertFalse(self.profile.is_candidate())
