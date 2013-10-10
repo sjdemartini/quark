@@ -16,6 +16,9 @@ $color-focus: #009;
   @else if $media == medium {
     @media only screen and (max-width: $break-medium) { @content; }
   }
+  @else if $media == large-only {
+    @media only screen and (min-width: $break-medium + 1) { @content; }
+  }
 }
 
 @mixin background-light {

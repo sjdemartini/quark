@@ -419,16 +419,9 @@ blockquote {
 #nav, #subnav {
   max-width: none;
   text-align: center;
-}
-
-#subnav ul {
-  list-style-type: none;
-  margin: 0;
-  padding: 10px 0;
-}
-
-#nav li, #subnav li {
-  display: inline;
+  li {
+    display: inline;
+  }
 }
 
 #nav {
@@ -538,18 +531,14 @@ blockquote {
     color: #fff;
     font-size: 1.175em;
     font-weight: 400;
+    text-decoration: none;
     transition: all 125ms ease-in;
-    &:active, &:hover {
+    &:active, &:hover, .selected {
       color: #000;
-      text-decoration: none;
       background-color: rgba(255,255,255, 0.2);
       // white transparent overlay
     }
     &.selected {
-      color: #000;
-      text-decoration: none;
-      background-color: rgba(255, 255, 255, 0.2);
-      // white transparent overlay
       font-weight: 600;
     }
 
@@ -563,6 +552,20 @@ blockquote {
   ul ul a {
     display: block;
     transition: all 125ms;
+  }
+  @include respond-to(large-only) {
+    .selected > a,
+    .ancestor > a {
+      color: #000;
+      text-decoration: none;
+      background-color: rgba(255, 255, 255, 0.2);
+      // white transparent overlay
+      font-weight: 600;
+    }
+    .selected > ul,
+    .ancestor > ul {
+      display: none;
+    }
   }
 }
 
@@ -580,19 +583,34 @@ blockquote {
     color: #333;
     font-size: 1em;
     padding: 5px 15px;
-    &:hover {
+    &:hover,
+    &.selected {
       background-color: #fff;
       color: #000;
       text-decoration: none;
       @include border-radius(.3em);
     }
     &.selected {
-      background-color: #fff;
-      color: #000;
-      text-decoration: none;
-      @include border-radius(.3em);
       font-weight: 600;
     }
+  }
+  @include respond-to(large-only) {
+    .selected > a,
+    .ancestor > a {
+       background-color: #fff;
+       color: #000;
+       text-decoration: none;
+       @include border-radius(.3em);
+       font-weight: 600;
+    }
+  }
+  @include respond-to(medium) {
+    display: none;
+  }
+  ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 10px 0;
   }
 }
 

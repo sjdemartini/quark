@@ -13,7 +13,17 @@
 
         <div id="nav">
           <ul>
-            {% show_menu 0 100 100 100 %}
+            {% show_menu 0 1 100 100 %}
           </ul>
         </div>
+        {% with c_page=request.current_page %}
+        {% if c_page.level == 0 and not c_page.is_leaf_node or c_page.level == 1 %}
+        {# if (a root node and has children) or (is a child of level 1) #}
+          <div id="subnav">
+            <ul>
+              {% show_sub_menu 1 1 %}
+            </ul>
+          </div>
+        {% endif %}
+        {% endwith c_page %}
       </div>
