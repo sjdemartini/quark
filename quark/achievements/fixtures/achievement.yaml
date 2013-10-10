@@ -116,3 +116,31 @@
     manual: False
     repeatable: False
     rank: 1.8
+- pk: chair1committee
+  model: achievements.Achievement
+  fields:
+    name: Don't Sit On Me
+    description: Be the chair of a committee.
+    category: elections
+    sequence: Chairdom
+    points: 5
+    goal: 0
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 10.1
+    acquired_icon: images/achievements/chair1committee.png
+    unacquired_icon: images/achievements/chair1committee_g.png
+- pk: chair2committees
+  model: achievements.Achievement
+  fields:
+    name: Loveseat
+    description: Chair two different committees.
+    category: elections
+    sequence: Chairdom
+    points: 15
+    goal: 2
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 10.2

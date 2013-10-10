@@ -188,3 +188,30 @@ class OfficerAchievementsTest(TestCase):
         fiveachievement = UserAchievement.objects.get(
             achievement__pk='officersemester05', user=self.sample_user)
         self.assertEqual(fiveachievement.progress, 1)
+
+    def test_chair_semester(self):
+        # being chair gives chair1committee
+        self.create_officer(self.sample_user, self.historian, self.sp2009)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='chair1committee', acquired=True).count(), 0)
+
+        self.create_officer(self.sample_user, self.infotech, self.sp2009, True)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='chair1committee', acquired=True).count(), 1)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='chair2committees', acquired=False).count(), 1)
+
+    def test_2_different_chair_semesters(self):
+        # being chair of 2 different cmmitteees gives chair2committees
+        self.create_officer(self.sample_user, self.historian, self.sp2009,
+                            True)
+        self.create_officer(self.sample_user, self.infotech, self.fa2009, True)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='chair2committees', acquired=True).count(), 1)
+
+    def test_twice_chair_of_same_committee(self):
+        # being chair of the same committee twice doesn't give chair2committees
+        self.create_officer(self.sample_user, self.infotech, self.fa2009, True)
+        self.create_officer(self.sample_user, self.infotech, self.sp2010, True)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='chair2committees', acquired=True).count(), 0)

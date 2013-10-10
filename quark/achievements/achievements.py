@@ -2,6 +2,7 @@ from django.db import models
 
 from quark.achievements.models import Achievement
 from quark.base_tbp.models import Officer
+from quark.shortcuts import get_object_or_none
 
 
 # officership-related achievements
@@ -14,32 +15,51 @@ def officership_achievements(sender, instance, created, **kwargs):
     # unique officer semesters in case someone is multiple positions in
     # same semesters
     unique_terms = []
+    unique_chair_committees = {'committees': [], 'terms': []}
     for officership in officerships:
         if officership.term not in unique_terms:
             unique_terms.append(officership.term)
+        if (officership.is_chair and officership.position not in
+                unique_chair_committees['committees']):
+            unique_chair_committees['committees'].append(officership.position)
+            unique_chair_committees['terms'].append(officership.term)
 
-    # assign the achievements and progressess for 1-8 officer semesters
-    achievements_assigned = {'achievements': [], 'assigned': []}
+    # assign the achievements and progresses
+    assign_tenure_achievements(instance, unique_terms)
+    assign_chair_achievements(instance, unique_chair_committees)
+
+
+def assign_tenure_achievements(instance, unique_terms):
+    # 1 to 8 officer semesters
     num_unique_terms = len(unique_terms)
     for i in range(1, 9):
         short_name = 'officersemester{:02d}'.format(i)
-        if num_unique_terms < i:
-            try:
-                Achievement.objects.get(short_name=short_name).assign(
+        achievement = get_object_or_none(Achievement, short_name=short_name)
+        if achievement:
+            if num_unique_terms < i:
+                achievement.assign(
                     instance.user, acquired=False, progress=num_unique_terms)
-                achievements_assigned['achievements'].append(short_name)
-                achievements_assigned['assigned'].append(True)
-            except Achievement.DoesNotExist:
-                achievements_assigned['achievements'].append(short_name)
-                achievements_assigned['assigned'].append(False)
-        else:
-            try:
-                Achievement.objects.get(short_name=short_name).assign(
-                    instance.user, short_name, term=unique_terms[i-1])
-                achievements_assigned['achievements'].append(short_name)
-                achievements_assigned['assigned'].append(True)
-            except Achievement.DoesNotExist:
-                achievements_assigned['achievements'].append(short_name)
-                achievements_assigned['assigned'].append(False)
+            else:
+                achievement.assign(instance.user, term=unique_terms[i-1])
+
+
+def assign_chair_achievements(instance, unique_chair_committees):
+    num_committees_chaired = len(unique_chair_committees['committees'])
+    chair1achievement = get_object_or_none(
+        Achievement, short_name='chair1committee')
+    chair2achievement = get_object_or_none(
+        Achievement, short_name='chair2committees')
+    if num_committees_chaired >= 1:
+        if chair1achievement:
+            chair1achievement.assign(
+                instance.user, term=unique_chair_committees['terms'][0])
+
+        if chair2achievement:
+            if num_committees_chaired >= 2:
+                chair2achievement.assign(
+                    instance.user, term=unique_chair_committees['terms'][1])
+            else:
+                chair2achievement.assign(
+                    instance.user, acquired=False, progress=1)
 
 models.signals.post_save.connect(officership_achievements, sender=Officer)
