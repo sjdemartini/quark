@@ -659,7 +659,11 @@ $footer-total-height: ($footer-font-size / 1em) * (
 #wrapper:after {
   content: '';
   display: block;
-  height: $footer-total-height;
+  // Leave 2em of extra space just as a spacial buffer above footer. Note that
+  // this is done instead of giving the footer a margin-top, since a margin-top
+  // on the footer would push the footer below the screen even if the content
+  // would otherwise fit within the window.
+  height: $footer-total-height + 2em;
 }
 
 #footer {
@@ -668,7 +672,6 @@ $footer-total-height: ($footer-font-size / 1em) * (
   color: #666;
   font-size: $footer-font-size;
   height: $footer-height;
-  margin-top: 2.5em;
   padding: $footer-vertical-pad 0;
   @include box-shadow(inset 0 30px 30px -30px #999);
   a {
