@@ -795,3 +795,7 @@ $footer-total-height: ($footer-font-size / 1em) * (
   text-align: left;
   margin: 0 15px;
 }
+
+#calendar div {
+  position: static;
+}

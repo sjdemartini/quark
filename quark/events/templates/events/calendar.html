@@ -1,0 +1,52 @@
+{% extends "events/list_base.html" %}
+
+{% load static %}
+
+{% block head %}
+    <link rel='stylesheet' href="{% static "css/fullcalendar.css" %}" />
+    <script type='text/javascript' src="{% static "js/fullcalendar.min.js" %}"></script>
+     <script type="text/javascript">
+    $(document).ready(function() {
+      $('#calendar').fullCalendar({
+        header: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'month,agendaWeek,agendaDay'
+        },
+        allDayText: 'multi-day',
+        firstHour: 10, // default view position for agendaWeek and agendaDay is 10am
+        aspectRatio: 1.5, // higher aspect ratio decreases calendar height
+        editable: false{% if events %},
+        events: [
+          {% for event in events %}
+            {
+              title    : '{{ event.name|escapejs }}',
+              start    : '{{ event.start_datetime.isoformat|escapejs }}',
+              end      : '{{ event.end_datetime.isoformat|escapejs }}',
+              allDay   : {% if event.is_multiday %}true{% else %}false{% endif %},
+              url      : {% url 'events:detail' event_id=event.id as event_url %}'{{ event_url|escapejs }}',
+              editable : false,
+              textColor: '#009',
+              {% if not event.is_upcoming %}
+                backgroundColor: 'gray'
+              {% endif %}
+            }{% if not forloop.last %},{% endif %}
+          {% endfor %}
+        ]
+        {% endif %}
+      });
+    });
+  </script>
+{% endblock head %}
+
+{% block content %}
+<p>
+  <strong><a href="{% url 'events:list' %}">List Upcoming Events</a></strong>
+</p>
+
+{% if events %}
+<div id="calendar"></div>
+{% else %}
+<p>No events are available.</p>
+{% endif %}
+{% endblock content %}

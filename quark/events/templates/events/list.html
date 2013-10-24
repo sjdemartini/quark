@@ -13,6 +13,7 @@
     {# Show all events (from the current term) #}
     <a href="{{ events_list_url }}?show_all=true">List All {{ display_term_name }} Events</a>
   {% endif %}
+  | <a href="{% url 'events:calendar' %}">View a Calendar of Events</a>
   </strong>
 </p>
 

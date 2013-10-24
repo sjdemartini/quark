@@ -20,4 +20,6 @@ urlpatterns = patterns(
         name='signup'),
     url(r'^user/(?P<username>[a-zA-Z0-9._-]+)/$',
         IndividualAttendanceListView.as_view(), name='individual-attendance'),
+    url(r'^calendar/$', EventListView.as_view(show_all=True,
+        template_name='events/calendar.html'), name='calendar'),
 )

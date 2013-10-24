@@ -7,8 +7,6 @@
 {% endblock title %}
 </h1>
 
-{# TODO(sjdemartini): add Google Calendar and iCal Links #}
-
 {% if perms.events.add_event %}
 <p>
   <a href="{% url 'events:add' %}" class="btn">
