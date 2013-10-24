@@ -54,11 +54,6 @@ class Candidate(models.Model):
         from quark.user_profiles.models import CollegeStudentInfo
         return CollegeStudentInfo.objects.get(user=self.user)
 
-    def get_user_contact_info(self):
-        # Avoid circular dependency by importing here:
-        from quark.user_profiles.models import UserContactInfo
-        return UserContactInfo.objects.get(user=self.user)
-
     def __unicode__(self):
         return '{user} ({term})'.format(user=self.user, term=self.term)
 

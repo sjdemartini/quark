@@ -11,7 +11,6 @@ from quark.user_profiles.fields import UserCommonNameChoiceField
 from quark.user_profiles.fields import UserCommonNameMultipleChoiceField
 from quark.user_profiles.models import CollegeStudentInfo
 from quark.user_profiles.models import StudentOrgUserProfile
-from quark.user_profiles.models import UserContactInfo
 from quark.user_profiles.models import UserProfile
 
 
@@ -50,10 +49,10 @@ class UserProfilesTest(TestCase):
         # When the user is not an officer:
         self.assertEqual(self.profile.get_preferred_email(), self.user.email)
 
-        # With an alternate email address in the contact info profile:
+        # With an alternate email address specified:
         test_email = 'test_' + self.user.email
-        contact_info = UserContactInfo(user=self.user, alt_email=test_email)
-        contact_info.save()
+        self.profile.alt_email = test_email
+        self.profile.save()
 
         # user email (if not empty) is still preferred over alt_email:
         self.assertEqual(self.profile.get_preferred_email(), self.user.email)
@@ -207,12 +206,10 @@ class StudentOrgUserProfilesTest(TestCase):
 
     def test_tbp_profile_post_save(self):
         """Tests whether creating and saving a StudentOrgUserProfile properly
-        ensures that CollegeStudentInfo and UserContactInfo objects exist for
-        the user in the post_save callback.
+        ensures that a CollegeStudentInfo object exists for the user in the
+        post_save callback.
         """
         self.assertIsNotNone(get_object_or_none(CollegeStudentInfo,
-                                                user=self.user))
-        self.assertIsNotNone(get_object_or_none(UserContactInfo,
                                                 user=self.user))
 
 

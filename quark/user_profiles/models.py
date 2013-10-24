@@ -36,6 +36,40 @@ class UserProfile(models.Model):
                               blank=True, null=True,
                               help_text='Optional')
 
+    alt_email = models.EmailField(
+        blank=True,
+        verbose_name='Alternate email address',
+        help_text=('Preferably a non-edu email address '
+                   '(e.g., @gmail.com, @yahoo.com)'))
+
+    cell_phone = PhoneNumberField(blank=True)
+    home_phone = PhoneNumberField(blank=True)
+    receive_text = models.BooleanField(
+        default=False,
+        help_text='Can you send and receive text messages on your cell phone?')
+
+    local_address1 = models.CharField(
+        max_length=256, blank=True, verbose_name='Local Address Line 1')
+    local_address2 = models.CharField(
+        max_length=256, blank=True, verbose_name='Local Address Line 2')
+    local_city = models.CharField(max_length=128, blank=True)
+    local_state = USStateField(blank=True)
+    local_zip = models.CharField(
+        max_length=10, blank=True, verbose_name='Local ZIP')
+
+    perm_address1 = models.CharField(
+        max_length=256, blank=True, verbose_name='Permanent Address Line 1')
+    perm_address2 = models.CharField(
+        max_length=256, blank=True, verbose_name='Permanent Address Line 2')
+    perm_city = models.CharField(
+        max_length=128, blank=True, verbose_name='Permanent City')
+    perm_state = USStateField(
+        default='CA', blank=True, verbose_name='Permanent State')
+    perm_zip = models.CharField(
+        max_length=10, blank=True, verbose_name='Permanent ZIP')
+
+    international_address = models.TextField(blank=True)
+
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -58,9 +92,6 @@ class UserProfile(models.Model):
     def get_college_student_info(self):
         return get_object_or_none(CollegeStudentInfo, user=self.user)
 
-    def get_contact_info(self):
-        return get_object_or_none(UserContactInfo, user=self.user)
-
     def get_student_org_user_profile(self):
         return get_object_or_none(StudentOrgUserProfile, user=self.user)
 
@@ -70,16 +101,12 @@ class UserProfile(models.Model):
         The order of preference is as follows:
         1. Officer email (if user is an officer of their organization)
         2. User email
-        3. UserContactInfo alt email address
+        3. UserProfile alt email address
         """
         if self.is_officer() and hasattr(settings, 'HOSTNAME'):
             return '{}@{}'.format(self.user.username, settings.HOSTNAME)
 
-        if self.user.email:
-            return self.user.email
-
-        contact_info = self.get_contact_info()
-        return contact_info.alt_email if contact_info else None
+        return self.user.email or self.alt_email or None
 
     # The following methods pertain to the user's student organization, and
     # they are included as methods of the UserProfile for performance reasons,
@@ -185,48 +212,6 @@ class CollegeStudentInfo(IDCodeMixin):
             self.id_code)
 
 
-class UserContactInfo(models.Model):
-    """Contact information for a user."""
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, unique=True)
-
-    alt_email = models.EmailField(
-        blank=True,
-        help_text=('Preferably a non-edu email address '
-                   '(e.g., @gmail.com, @yahoo.com)'))
-
-    cell_phone = PhoneNumberField(blank=True)
-    home_phone = PhoneNumberField(blank=True)
-    receive_text = models.BooleanField(
-        default=False,
-        help_text='Can you send and receive text messages on your cell phone?')
-
-    local_address1 = models.CharField(max_length=256, blank=True)
-    local_address2 = models.CharField(max_length=256, blank=True)
-    local_city = models.CharField(max_length=128, blank=True)
-    local_state = USStateField(blank=True)
-    local_zip = models.CharField(max_length=10, blank=True)
-
-    # Require either permanent address or international address
-    perm_address1 = models.CharField(
-        max_length=256, blank=True, verbose_name='Permanent Address 1')
-    perm_address2 = models.CharField(
-        max_length=256, blank=True, verbose_name='Permanent Address 2')
-    perm_city = models.CharField(
-        max_length=128, blank=True, verbose_name='Permanent City')
-    perm_state = USStateField(
-        blank=True, default='CA', verbose_name='Permanent State')
-    perm_zip = models.CharField(
-        max_length=10, blank=True, verbose_name='Permanent Zip Code')
-
-    international_address = models.TextField(blank=True)
-
-    class Meta(object):
-        verbose_name_plural = 'user contact info'
-
-    def __unicode__(self):
-        return self.user.get_full_name()
-
-
 class StudentOrgUserProfile(models.Model):
     """A user's information specific to the student organization."""
     user = models.ForeignKey(settings.AUTH_USER_MODEL, unique=True)
@@ -296,15 +281,14 @@ def user_profile_post_save(sender, instance, created, **kwargs):
 
 
 def student_org_user_profile_post_save(sender, instance, created, **kwargs):
-    """Ensures that UserContactInfo and CollegeStudentInfo objects exist for
-    every user with a StudentOrgUserProfile.
+    """Ensure that CollegeStudentInfo objects exist for every user with a
+    StudentOrgUserProfile.
 
     Whenever a StudentOrgUserProfile is created, this callback performs a
-    get_or_create() to ensure that there is a UserContactInfo and a
-    CollegeStudentInfo for the saved User.
+    get_or_create() to ensure that there is a CollegeStudentInfo object for the
+    user.
     """
     if created:
-        UserContactInfo.objects.get_or_create(user=instance.user)
         CollegeStudentInfo.objects.get_or_create(user=instance.user)
 
 

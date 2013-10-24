@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from quark.user_profiles.models import CollegeStudentInfo
 from quark.user_profiles.models import StudentOrgUserProfile
-from quark.user_profiles.models import UserContactInfo
+from quark.user_profiles.models import UserProfile
 
 
 class CollegeStudentInfoAdmin(admin.ModelAdmin):
@@ -18,11 +18,13 @@ class StudentOrgUserProfileAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'user__first_name', 'user__last_name')
 
 
-class UserContactInfoAdmin(admin.ModelAdmin):
-    list_display = ('user', 'alt_email', 'cell_phone', 'receive_text')
-    search_fields = ('user__username', 'user__first_name', 'user__last_name')
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ('user', 'preferred_name', 'alt_email', 'cell_phone',
+                    'receive_text')
+    search_fields = ('user__username', 'user__first_name', 'user__last_name',
+                     'preferred_name')
 
 
 admin.site.register(CollegeStudentInfo, CollegeStudentInfoAdmin)
 admin.site.register(StudentOrgUserProfile, StudentOrgUserProfileAdmin)
-admin.site.register(UserContactInfo, UserContactInfoAdmin)
+admin.site.register(UserProfile, UserProfileAdmin)

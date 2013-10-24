@@ -32,8 +32,10 @@ No photo uploaded yet.
     {% endif %}
   </li>
   <li>
-    Phone: {{ candidate.get_user_contact_info.cell_phone }}
-    ({% if candidate.get_user_contact_info.receive_text %}does not receive{% else %}receives{% endif %} texts)
+    {% with cand_user_profile=candidate.user.userprofile %}
+    Phone: {{ cand_user_profile.cell_phone }}
+    ({% if cand_user_profile.receive_text %}does not receive{% else %}receives{% endif %} texts)
+    {% endwith cand_user_profile %}
   </li>
   <li>Email: <a href="mailto:{{ candidate.user.email }}">{{ candidate.user.email }}</a></li>
   <li>University start term: {{ student_info.start_term.verbose_name }}</li>
