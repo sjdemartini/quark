@@ -5,6 +5,9 @@ from scripts.import_courses_models import import_courses
 from scripts.import_courses_models import import_course_instances
 from scripts.import_courses_models import import_departments
 from scripts.import_courses_models import import_instructors
+from scripts.import_user_models import delete_users
+from scripts.import_user_models import import_user_profiles
+from scripts.import_user_models import import_users
 
 
 # All functions will look for files with names like:
@@ -30,6 +33,8 @@ from scripts.import_courses_models import import_instructors
 # courses.course.json
 # courses.instructor.json
 # courses.section.json
+# auth.user.json
+# user_profiles.userprofile.json
 
 print('Backing up all current data to scripts/data/backup.json')
 backup = open('scripts/data/backup.json', 'w')
@@ -49,5 +54,12 @@ print('Importing instructors.')
 import_instructors()
 print('Importing course instances.')
 import_course_instances()
+
+print('Deleting current users.')
+delete_users()
+print('Importing users.')
+import_users()
+print('Importing user profiles.')
+import_user_profiles()
 
 print('All models successfully imported.')

@@ -1,9 +1,7 @@
-import json
-import os
-
-from django.conf import settings
-
 from quark.base.models import Term
+
+from scripts import get_json_data
+
 
 # Dictionary mapping the pk's of noiro Semesters to the pk's of quark Terms.
 # This is necessary for other models that have a foreign key to Term/Semester.
@@ -14,14 +12,11 @@ SEMESTER_TO_TERM = {}
 
 
 def import_terms():
-    data_path = os.path.join(
-        settings.WORKSPACE_ROOT, 'scripts', 'data', 'noiro_main.semester.json')
-    terms = json.load(open(data_path, 'r'))
-    for term in terms:
-        fields = term['fields']
-        Term.objects.get_or_create(
+    models = get_json_data('noiro_main.semester.json')
+    for model in models:
+        fields = model['fields']
+        term, _ = Term.objects.get_or_create(
             term=fields['semester'],
             year=fields['year'],
             current=fields['current'])
-        SEMESTER_TO_TERM[term['pk']] = (
-            fields['year'] * 10 + Term.TERM_MAPPING[fields['semester']])
+        SEMESTER_TO_TERM[model['pk']] = term.pk
