@@ -6,6 +6,7 @@ from quark.events.views import EventDetailView
 from quark.events.views import EventListView
 from quark.events.views import EventSignUpView
 from quark.events.views import EventUpdateView
+from quark.events.views import IndividualAttendanceListView
 
 
 urlpatterns = patterns(
@@ -18,4 +19,6 @@ urlpatterns = patterns(
     url(r'^(?P<event_id>\d+)/edit/$', EventUpdateView.as_view(), name='edit'),
     url(r'^(?P<event_id>\d+)/signup/$', EventSignUpView.as_view(),
         name='signup'),
+    url(r'^user/(?P<username>[a-zA-Z0-9._-]+)/$',
+        IndividualAttendanceListView.as_view(), name='individual-attendance'),
 )

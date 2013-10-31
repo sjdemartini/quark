@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ user.first_name }}'s Attendance ({{ display_term.verbose_name }}){% endblock title %}
+
+{% block intro %}
+<h1>{{ user.first_name }}'s Attendance ({{ display_term.verbose_name }})</h1>
+{% endblock intro %}
+
+{% block content %}
+{% with display_term_name=display_term.verbose_name %}
+<div id="user-event-attendance">
+  <h2>Events Attended ({{ attendances|length }} [+{{ signups|length }}])</h2>
+  <p>
+    {% for attendance in attendances %}
+    <a class="{{ attendance.event_type }}" href={% url 'events:detail' attendance.event.pk %}>{{ attendance.event.name }}</a>
+    {% empty %}
+    <span>You didn't attend an event in {{ display_term_name }}.</span>
+    {% endfor %}
+
+    {% for signup in signups %}
+    <a href="{% url 'events:detail' signup.event.pk %}">{{ signup.event.name }}</a>
+    {% endfor %}
+  </p>
+</div>
+{% endwith display_term_name %}
+{% endblock content %}

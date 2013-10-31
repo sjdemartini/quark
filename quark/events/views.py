@@ -20,6 +20,7 @@ from quark.events.forms import EventForm
 from quark.events.forms import EventSignUpAnonymousForm
 from quark.events.forms import EventSignUpForm
 from quark.events.models import Event
+from quark.events.models import EventAttendance
 from quark.events.models import EventSignUp
 
 
@@ -234,3 +235,30 @@ class EventSignUpView(FormView):
 
     def get_success_url(self):
         return reverse('events:detail', args=(self.event.id,))
+
+
+class IndividualAttendanceListView(ListView):
+    context_object_name = 'attendances'
+    model = EventAttendance
+    template_name = 'events/individual_attendance.html'
+    term = None
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        self.term = Term.objects.get_current_term()
+        return super(IndividualAttendanceListView, self).dispatch(
+            *args, **kwargs)
+
+    def get_queryset(self):
+        return EventAttendance.objects.filter(
+            event__term=self.term,
+            person=self.request.user).order_by(
+            'event__end_datetime')
+
+    def get_context_data(self, **kwargs):
+        context = super(
+            IndividualAttendanceListView, self).get_context_data(**kwargs)
+        context['signups'] = EventSignUp.objects.filter(
+            person=self.request.user, unsignup=False)
+        context['display_term'] = self.term
+        return context
