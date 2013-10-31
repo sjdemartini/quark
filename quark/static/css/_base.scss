@@ -8,6 +8,8 @@ $break-medium: 820px;
 
 $color-focus: #009;
 
+$form-middle: 30%;
+
 // Mixins
 @mixin respond-to($media) {
   @if $media == small {

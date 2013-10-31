@@ -10,7 +10,7 @@
 <div class="error">Invalid username and/or password</div>
 {% endif %}
 
-<form method="post" action="{% url 'accounts:login' %}">
+<form method="post" action="{% url 'accounts:login' %}" class="form-narrow">
   {% csrf_token %}
   {% include 'form.html' %}
 
