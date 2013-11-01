@@ -7,11 +7,6 @@ from quark.courses.models import Department
 from quark.courses.models import Instructor
 from quark.course_surveys.models import Survey
 
-RATING_CHOICES = [
-    (1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5'), (6, '6'), (7, '7')
-]
-RATING_CHOICES_NULL = RATING_CHOICES + [(None, 'N/A')]
-
 
 def courses_as_optgroups():
     """
@@ -41,12 +36,7 @@ class SurveyForm(forms.ModelForm):
         widgets = {
             'course': ChosenWidgets.ChosenGroupSelect(),
             'term': ChosenWidgets.ChosenSelect(),
-            'instructor': ChosenWidgets.ChosenSelect(),
-            'prof_rating': forms.RadioSelect(choices=RATING_CHOICES),
-            'course_rating': forms.RadioSelect(choices=RATING_CHOICES),
-            'time_commitment': forms.RadioSelect(choices=RATING_CHOICES),
-            'exam_difficulty': forms.RadioSelect(choices=RATING_CHOICES_NULL),
-            'hw_difficulty': forms.RadioSelect(choices=RATING_CHOICES_NULL)
+            'instructor': ChosenWidgets.ChosenSelect()
         }
 
     def __init__(self, *args, **kwargs):
