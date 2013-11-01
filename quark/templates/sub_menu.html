@@ -1,0 +1,33 @@
+{% comment %}
+Custom sub_menu template which outputs content iff the menu has nodes to show.
+
+This template (unlike the default) includes the subnav div and ul elements.
+That way, the nav call to show_sub_menu can use this template, and if no
+sub_menu is available (i.e., there are no children for the requested sub_menu),
+there will be no output. This saves us from creating the div and ul elements
+even when the sub_menu itself would be empty.
+
+Note that this code is directly copied from the menu.html file for django-cms
+(which is likewise used by sub_menu by default), except for the div and ul
+element additions and "if children" check. Because the recursive call uses
+show_menu (and not show_sub_menu), it is not an issue that we include the div
+and ul in this template.
+{% endcomment %}
+
+{% if children %}
+{% load menu_tags %}
+<div id="subnav">
+  <ul>
+  {% for child in children %}
+    <li class="{% if child.selected %}selected{% endif %}{% if child.ancestor %}ancestor{% endif %}{% if child.sibling %}sibling{% endif %}{% if child.descendant %}descendant{% endif %}">
+            <a href="{{ child.attr.redirect_url|default:child.get_absolute_url }}">{{ child.get_menu_title }}</a>
+            {% if child.children %}
+        <ul>
+            {% show_menu from_level to_level extra_inactive extra_active template "" "" child %}
+        </ul>
+        {% endif %}
+    </li>
+  {% endfor %}
+  </ul>
+</div>
+{% endif %}
