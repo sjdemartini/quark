@@ -84,6 +84,13 @@ class EventForm(ChosenTermMixin, forms.ModelForm):
 
 
 class EventSignUpForm(forms.ModelForm):
+    # Override the driving field to prevent users from using integer values
+    # that are too large:
+    driving = forms.IntegerField(
+        min_value=0, max_value=100, initial=0,
+        label='How many people fit in your car, including yourself '
+              '(0 if not driving)')
+
     class Meta(object):
         model = EventSignUp
         fields = ('name', 'comments', 'driving', 'num_guests')

@@ -9,15 +9,14 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
-from django.shortcuts import redirect
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView
 from django.views.generic import DetailView
 from django.views.generic import FormView
 from django.views.generic import ListView
-from django.views.generic import UpdateView
 from django.views.generic import TemplateView
+from django.views.generic import UpdateView
 
 from quark.base.models import Term
 from quark.base.views import TermParameterMixin
@@ -26,6 +25,7 @@ from quark.events.forms import EventSignUpAnonymousForm
 from quark.events.forms import EventSignUpForm
 from quark.events.models import Event
 from quark.events.models import EventSignUp
+from quark.shortcuts import AjaxResponseMixin
 
 
 class EventListView(TermParameterMixin, ListView):
@@ -181,7 +181,7 @@ class EventDetailView(DetailView):
         return context
 
 
-class EventSignUpView(FormView):
+class EventSignUpView(AjaxResponseMixin, FormView):
     """Handles the form action for signing up for events."""
     # TODO(sjdemartini): Handle various scenarios for failed signups. For
     # instance, no more spots left, not allowed to bring x number of guests,
@@ -189,14 +189,11 @@ class EventSignUpView(FormView):
     event = None  # The event that this sign-up corresponds to
 
     def dispatch(self, *args, **kwargs):
-        self.event = get_object_or_404(Event, id=self.kwargs['event_pk'])
+        self.event = get_object_or_404(Event, pk=self.kwargs['event_pk'])
         # A user cannot sign up unless they have permission to view the event
         if not self.event.can_user_sign_up(self.request.user):
             raise PermissionDenied
         return super(EventSignUpView, self).dispatch(*args, **kwargs)
-
-    def get(self, *args, **kwargs):
-        return redirect(self.get_success_url())
 
     def get_form_class(self):
         if self.request.user.is_authenticated():
@@ -246,11 +243,6 @@ class EventSignUpView(FormView):
 
         messages.success(self.request, msg)
         return super(EventSignUpView, self).form_valid(form)
-
-    def form_invalid(self, form):
-        messages.error(self.request, 'Signup unsuccessful.')
-        view = EventDetailView.as_view(form=form)
-        return view(self.request, **self.kwargs)
 
     def get_success_url(self):
         return self.event.get_absolute_url()

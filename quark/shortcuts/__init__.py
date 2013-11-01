@@ -87,6 +87,11 @@ class AjaxResponseMixin(JSONResponseMixin):
     docs.djangoproject.com/en/dev/topics/class-based-views/generic-editing/
     #ajax-example
     """
+    # A template is not needed for views using this mixin since only JSON
+    # responses are returned, so add a default empty string for the template
+    # name (which is a required field for FormViews):
+    template_name = ''
+
     def form_invalid(self, form):
         super(AjaxResponseMixin, self).form_invalid(form)
         return self.render_to_json_response(form.errors, status=400)
