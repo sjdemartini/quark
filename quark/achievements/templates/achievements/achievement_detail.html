@@ -1,4 +1,4 @@
-{% extends 'achievements/base.html' %}
+{% extends 'base.html' %}
 
 {% load static %}
 
@@ -8,7 +8,6 @@ Locked Achievement
 {% else %}
 {{ achievement.name }}
 {% endif %}
-| {{ block.super }}
 {% endblock title %}
 
 {% block intro %}

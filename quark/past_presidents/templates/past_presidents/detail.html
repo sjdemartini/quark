@@ -1,9 +1,8 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-{% load markup %}
-{% load static %}
+{% load markup static %}
 
-{% block title %}{{ president }} | {{ block.super }}{% endblock %}
+{% block title %}{{ president }}{% endblock %}
 
 {% block content %}
 <p><a href="{% url 'past-presidents:list' %}">&laquo; Back to List</a></p>

@@ -1,6 +1,6 @@
-{% extends 'project_reports/base.html' %}
+{% extends 'base.html' %}
 
-{% block title %}Add New Project Report | {{ block.super }}{% endblock title %}
+{% block title %}Add New Project Report{% endblock title %}
 
 {% block content %}
 <form action="{% url 'project-reports:add' %}" method="post" enctype="multipart/form-data">

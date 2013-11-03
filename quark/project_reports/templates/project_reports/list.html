@@ -1,6 +1,6 @@
-{% extends 'project_reports/base.html' %}
+{% extends 'base.html' %}
 
-{% block title %}{{ display_term.verbose_name }} | {{ block.super }}{% endblock title %}
+{% block title %}Project Reports{% if display_term %} ({{ display_term.verbose_name }}){% endif %}{% endblock title %}
 
 {% block intro %}
 <h1>Project Reports</h1>
@@ -8,7 +8,7 @@
 
 {% block content %}
 {% with display_term_url_name=display_term.get_url_name %}
-{% if terms  %}
+{% if terms %}
 {# TODO(giovanni): add functionality to change term with drop down #}
 <select id="terms">
   {% for term in terms %}
@@ -34,7 +34,7 @@
     <span class="warning">(Incomplete)</span>
     {% endif %}
     <div class="subtext">
-      {{ project_report.date|date:"M d, Y" }}
+      {{ project_report.date|date:'M d, Y' }}
       {# TODO(giovanni): have permissions checks here #}
       | <a href="{% url 'project-reports:edit' project_report.pk %}">Edit</a>
       | <a href="{% url 'project-reports:delete' project_report.pk %}">Delete</a>

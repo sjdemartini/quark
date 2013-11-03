@@ -1,6 +1,6 @@
-{% extends 'vote/base.html' %}
+{% extends 'base.html' %}
 
-{% block title %}Create A Poll | {{ block.super }}{% endblock title %}
+{% block title %}Create A Poll{% endblock title %}
 
 {% block intro %}<h1>Create A Poll</h1>{% endblock intro %}
 
@@ -8,6 +8,8 @@
 <form method="post">
   {% csrf_token %}
   {% include 'form.html' %}
-  <div><input type="submit" value="Submit"></div>
+  <div>
+    <input type="submit" value="Submit">
+  </div>
 </form>
 {% endblock content %}

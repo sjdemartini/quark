@@ -32,18 +32,21 @@ class EventListView(ListView):
     true, the queryset includes all events from the current term.
     """
     context_object_name = 'events'
-    show_all = False
     template_name = 'events/list.html'
+    show_all = False
+    term = None
 
     def get_queryset(self):
+        self.term = Term.objects.get_current_term()
         if self.show_all:
-            return Event.objects.filter(term=Term.objects.get_current_term())
+            return Event.objects.filter(term=self.term)
         else:
             return Event.objects.get_upcoming()
 
     def get_context_data(self, **kwargs):
         context = super(EventListView, self).get_context_data(**kwargs)
         context['show_all'] = self.show_all
+        context['term'] = self.term
         return context
 
 

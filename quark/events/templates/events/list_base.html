@@ -1,7 +1,11 @@
 {% extends 'base.html' %}
 
+{% block title %}
+{% firstof term.verbose_name 'Upcoming' %} Events
+{% endblock title %}
+
 {% block intro %}
-<h1>{% firstof term.verbose_name "Upcoming" %} Events</h1>
+<h1>{% firstof term.verbose_name 'Upcoming' %} Events</h1>
 
 {# TODO(sjdemartini): add Google Calendar and iCal Links #}
 

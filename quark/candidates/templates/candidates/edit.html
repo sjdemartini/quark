@@ -1,7 +1,7 @@
-{% extends 'candidates/base.html' %}
+{% extends 'base.html' %}
 {% load template_utils %}
 
-{% block title %}Candidate Management | {{ block.super }}{% endblock title %}
+{% block title %}Candidate Management{% endblock title %}
 
 {% block intro %}
 <h1>Candidate Management for {{ candidate.user.get_full_name }}</h1>

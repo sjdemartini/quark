@@ -1,9 +1,9 @@
-{% extends 'project_reports/base.html' %}
+{% extends 'base.html' %}
 
-{% block title %}{{ project_report.title }} | {{ block.super }}{% endblock title %}
+{% block title %}{{ project_report.title }}{% endblock title %}
 
 {% block intro %}
-<h1>{{ project_report.title }} {% if not project_report.complete %}(Incomplete){% endif %}</h1>
+<h1>{{ project_report.title }}{% if not project_report.complete %} (Incomplete){% endif %}</h1>
 {% endblock intro %}
 
 {% block content %}
