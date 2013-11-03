@@ -177,6 +177,10 @@ class CourseTest(TestCase):
     def test_abbreviation(self):
         self.assertEquals(self.test_course_2.abbreviation(), 'Tst Dep 1 H61A')
 
+    def test_get_display_name(self):
+        self.assertEquals(self.test_course_2.get_display_name(),
+                          'Test Department 1 H61A')
+
     def test_lessthan(self):
         self.assertFalse(self.test_course_1 < self.test_course_1)
         self.assertTrue(self.test_course_1 < self.test_course_2)

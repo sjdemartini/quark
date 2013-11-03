@@ -1,13 +1,13 @@
-{% extends 'courses/base.html' %}
+{% extends 'base.html' %}
 
-{% block title %}{{ department.abbreviation }} | {{ block.super }}{% endblock title %}
+{% block title %}{{ department.long_name }}{% endblock title %}
 
 {% block intro %}
-{{ block.super }}
-<h2>{{ department.long_name }}</h2>
+<h1>{{ department.long_name }}</h1>
 {% endblock %}
 
 {% block content %}
+<h2>Courses</h2>
 <ul>
   {% for course in course_list %}
   <li><a href="{% url 'courses:detail' department.slug course.number %}">{{ course.abbreviation }}</a></li>

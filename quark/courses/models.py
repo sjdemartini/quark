@@ -97,9 +97,24 @@ class Course(models.Model):
         return self.abbreviation()
 
     def abbreviation(self):
-        return '%s %s' % (self.department.short_name, self.number)
+        """Return an abbreviated name for the course.
+
+        For instance, "CS 61A".
+        """
+        return '{} {}'.format(self.department.short_name, self.number)
+
+    def get_display_name(self):
+        """Return the standard display name for the course.
+
+        For instance, "Computer Science 61A".
+        """
+        return '{} {}'.format(self.department.long_name, self.number)
 
     def get_url_name(self):
+        """Return the URL name for the course.
+
+        For example, "cs61A".
+        """
         return '%s%s' % (self.department.slug, self.number)
 
     def save(self, *args, **kwargs):

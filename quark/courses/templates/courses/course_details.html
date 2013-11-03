@@ -1,22 +1,16 @@
-{% extends 'courses/base.html' %}
+{% extends 'base.html' %}
 
 {% load template_utils %}
 
-{% block title %}{{ course.abbreviation }} | {{ block.super }}{% endblock title %}
+{% block title %}{{ course.get_display_name }}{% endblock title %}
 
 {% block intro %}
-{{ block.super }}
-<h1>{{ course.abbreviation }}</h1>
+<h1>{{ course.get_display_name }}</h1>
+{% if course.title %}<div>{{ course.title }}</div>{% endif %}
+{% if course.description %}<div>{{ course.description }}</div>{% endif %}
 {% endblock %}
 
 {% block content %}
-<form action method="get">
-  <div>
-    <input type="text" id="search-dept" name="search-dept" value="Department">
-    <input type="text" id="search-course" name="search-course" value="Course">
-  </div>
-</form>
-
 <h2>Average Course Rating: {{ total_course_ratings_avg }}</h2>
 {% for inst in instructors %}
 {% with name=inst.full_name %}
@@ -31,15 +25,18 @@
 <h2>Exams</h2>
 {% if exams %}
   <table id="exam-table">
-    <tr>
-      <th>Instructors</th>
-      <th>Exam</th>
-      <th>Type</th>
-      <th>Term</th>
-      <th>Year</th>
-      <th>Download</th>
-    </tr>
-    {% for exam in exams %}
+    <thead>
+      <tr>
+        <th>Instructors</th>
+        <th>Exam</th>
+        <th>Type</th>
+        <th>Term</th>
+        <th>Year</th>
+        <th>Download</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for exam in exams %}
       <tr>
         <td>
           {% for instructor in exam.instructors %}
@@ -52,7 +49,8 @@
         <td>{{ exam.term.year }}</td>
         <td><a href="{% url 'exams:download' exam_pk=exam.pk %}">Download</a></td>
       </tr>
-    {% endfor %}
+      {% endfor %}
+    </tbody>
   </table>
 {% else %}
   There are currently no exams for this course.
