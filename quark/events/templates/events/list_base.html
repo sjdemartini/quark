@@ -1,23 +1,20 @@
 {% extends 'base.html' %}
 
-{% block title %}
-{% firstof term.verbose_name 'Upcoming' %} Events
-{% endblock title %}
-
 {% block intro %}
-<h1>{% firstof term.verbose_name 'Upcoming' %} Events</h1>
+<h1>
+{% block title %}
+{% if not show_all %}Upcoming {% endif %}{{ display_term_name }} Events
+{% endblock title %}
+</h1>
 
 {# TODO(sjdemartini): add Google Calendar and iCal Links #}
 
 {% if perms.events.add_event %}
-<div>
+<p>
   <a href="{% url 'events:add' %}">Add Event</a>
   {# TODO(sjdemartini): add links for event admin and leaderboard #}
-</div>
+</p>
 {% endif %}
 
-{% comment %}
-TODO(sjdemartini): Create and include a pluggable term selector to be used in
-multiple apps/templates
-{% endcomment %}
+{% include 'term_selection.html' %}
 {% endblock intro %}

@@ -22,32 +22,38 @@ from quark.events.forms import EventSignUpForm
 from quark.events.models import Event
 from quark.events.models import EventAttendance
 from quark.events.models import EventSignUp
+from quark.base.views import TermParameterMixin
 
 
-class EventListView(ListView):
-    """List all events.
+class EventListView(TermParameterMixin, ListView):
+    """List events in a particular term (display_term from TermParameterMixin).
 
-    The show_all boolean parameter (default false) can be provided to the
-    as_view() method call. When false, the queryset includes events from the
-    current term that have not yet ended and have not been cancelled. When
-    true, the queryset includes all events from the current term.
+    The show_all boolean parameter (default false) is taken from a show_all URL
+    get request parameter. When true, the queryset includes all events from the
+    display_term. Note that the show_all paramater can be passed as a keyword
+    argument to the view in the as_view() method.
     """
     context_object_name = 'events'
     template_name = 'events/list.html'
     show_all = False
-    term = None
 
     def get_queryset(self):
-        self.term = Term.objects.get_current_term()
-        if self.show_all:
-            return Event.objects.filter(term=self.term)
+        show_all_val = self.request.GET.get('show_all', '')
+        if (not self.is_current or self.show_all or
+                show_all_val.lower() == 'true'):
+            # Show all events in the display_term if the term is not the
+            # current term, or if the show_all parameter is "true"
+            self.show_all = True
+            events = Event.objects.filter(term=self.display_term)
         else:
-            return Event.objects.get_upcoming()
+            # Events from the current term that have not yet ended and have not
+            # been cancelled
+            events = Event.objects.get_upcoming()
+        return events
 
     def get_context_data(self, **kwargs):
         context = super(EventListView, self).get_context_data(**kwargs)
         context['show_all'] = self.show_all
-        context['term'] = self.term
         return context
 
 

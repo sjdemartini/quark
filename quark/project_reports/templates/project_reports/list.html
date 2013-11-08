@@ -1,29 +1,33 @@
 {% extends 'base.html' %}
 
-{% block title %}Project Reports{% if display_term %} ({{ display_term.verbose_name }}){% endif %}{% endblock title %}
-
 {% block intro %}
-<h1>Project Reports</h1>
+<h1>
+{% block title %}
+Project Reports ({% if display_term %}{{ display_term_name }}{% else %}All{% endif %})
+{% endblock title %}
+</h1>
 {% endblock intro %}
 
 {% block content %}
-{% with display_term_url_name=display_term.get_url_name %}
-{% if terms %}
-{# TODO(giovanni): add functionality to change term with drop down #}
-<select id="terms">
-  {% for term in terms %}
-  {% with term_url_name=term.get_url_name %}
-  <option value="{{ term_url_name }}"{% ifequal term_url_name display_term_url_name  %} selected="selected"{% endifequal %}>{{ term.verbose_name}}</option>
-  {% endwith term_url_name %}
-  {% endfor %}
-</select>
+<p>
+{% if not display_term %}
+  {# If listing all PRs (no "display_term") #}
+  <a href="{% url 'project-reports:list' %}">List Current Project Reports</a>
+{% else %}
+  {# If showing PRs for a specific term, show term-selector and link to view all #}
+  {% url 'project-reports:list' as list_prs %}
+  {% include 'term_selection.html' with url_base=list_prs %}
+  <a href="{% url 'project-reports:list-all' %}">List All</a>
 {% endif %}
-{% endwith display_term_url_name %}
-<a href="{% url 'project-reports:list-all' %}">List All</a>
-{% if user.is_authenticated %}
-| <a href="{% url 'project-reports:add' %}">Add New</a>
+</p>
+
+{% if perms.project_reports.add_projectreport %}
+<p>
+  <a href="{% url 'project-reports:add' %}">Add New</a>
+</p>
 {% endif %}
 
+<div>
 <ul>
 {% for project_report in project_reports %}
   <li>
@@ -36,8 +40,12 @@
     <div class="subtext">
       {{ project_report.date|date:'M d, Y' }}
       {# TODO(giovanni): have permissions checks here #}
-      | <a href="{% url 'project-reports:edit' project_report.pk %}">Edit</a>
-      | <a href="{% url 'project-reports:delete' project_report.pk %}">Delete</a>
+      {% if perms.project_reports.change_projectreport %}
+        | <a href="{% url 'project-reports:edit' project_report.pk %}">Edit</a>
+      {% endif %}
+      {% if perms.project_reports.delete_projectreport %}
+        | <a href="{% url 'project-reports:delete' project_report.pk %}">Delete</a>
+      {% endif %}
       | {{ project_report.word_count }} Words
     </div>
   </li>
@@ -45,4 +53,5 @@
 <p>No project reports are available.</p>
 {% endfor %}
 </ul>
+</div>
 {% endblock content %}

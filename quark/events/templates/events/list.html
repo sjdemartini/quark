@@ -3,12 +3,15 @@
 {% load static %}
 
 {% block content %}
+{% url 'events:list' as events_list_url %}
 <p>
   <strong>
-  {% if show_all %}
-  <a href="{% url 'events:list' %}">List Only Upcoming Events</a>
+  {% if not is_current or show_all %}
+    {# Go to the default events list, which is for the current term #}
+    <a href="{{ events_list_url }}">List Current Upcoming Events</a>
   {% else %}
-  <a href="{% url 'events:list-all' %}">List All Events</a>
+    {# Show all events (from the current term) #}
+    <a href="{{ events_list_url }}?show_all=true">List All {{ display_term_name }} Events</a>
   {% endif %}
   </strong>
 </p>

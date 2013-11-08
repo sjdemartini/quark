@@ -1,0 +1,25 @@
+{% comment %}
+This template is to be included in pages that need term-selection (via a
+dropdown menu).
+
+Note that when a user selects a term from the dropdown, a "term" get request
+parameter will be appended to the URL with a URL-name representation for that
+term (e.g., term=sp2012 for the Spring 2012 semester).
+
+Variables for this template:
+terms - iterable of Term objects
+display_term - the term currently being featured/shown on the page
+url_base - If selecting a term should bring the user to a certain base URL
+           (rather than just the current page)
+{% endcomment %}
+{% if terms %}
+<div>
+  Select a term:
+  <select class="term-select"
+    onchange="window.location.href={% if url_base %}{{ url_base }}+{% endif %}'?term='+$(this).val();">
+  {% for term in terms %}
+    <option value="{{ term.get_url_name }}"{% ifequal term.pk display_term.pk %} selected="selected"{% endifequal %}>{{ term.verbose_name }}</option>
+  {% endfor %}
+  </select>
+</div>
+{% endif %}

@@ -1,7 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import permission_required
 from django.core.urlresolvers import reverse
-from django.http import Http404
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView
 from django.views.generic import DeleteView
@@ -10,6 +9,7 @@ from django.views.generic import ListView
 from django.views.generic import UpdateView
 
 from quark.base.models import Term
+from quark.base.views import TermParameterMixin
 from quark.project_reports.forms import ProjectReportForm
 from quark.project_reports.models import ProjectReport
 
@@ -26,8 +26,13 @@ class ProjectReportCreateView(CreateView):
         return super(ProjectReportCreateView, self).dispatch(
             *args, **kwargs)
 
+    def get_initial(self):
+        current_term = Term.objects.get_current_term()
+        return {'author': self.request.user,  # usable since login_required
+                'term': current_term.id if current_term else None}
+
     def get_success_url(self):
-        return reverse('project-reports:list-current')
+        return reverse('project-reports:list')
 
 
 class ProjectReportDeleteView(DeleteView):
@@ -45,7 +50,7 @@ class ProjectReportDeleteView(DeleteView):
             *args, **kwargs)
 
     def get_success_url(self):
-        return reverse('project-reports:list-current')
+        return reverse('project-reports:list')
 
 
 class ProjectReportDetailView(DetailView):
@@ -56,6 +61,7 @@ class ProjectReportDetailView(DetailView):
 
 
 class ProjectReportEditView(UpdateView):
+    context_object_name = 'project_report'
     form_class = ProjectReportForm
     model = ProjectReport
     pk_url_kwarg = 'pr_pk'
@@ -74,40 +80,20 @@ class ProjectReportEditView(UpdateView):
                        kwargs={'pr_pk': self.object.pk})
 
 
-class ProjectReportListView(ListView):
+class ProjectReportListView(TermParameterMixin, ListView):
+    """View for showing all project reports from a given term.
+
+    Term is specified via URL parameter, using the TermParameterMixin.
+    """
     context_object_name = 'project_reports'
     template_name = 'project_reports/list.html'
-    display_term = None
-
-    def dispatch(self, *args, **kwargs):
-        term = kwargs.get('term', '')
-        if not term:
-            self.display_term = Term.objects.get_current_term()
-        else:
-            self.display_term = Term.objects.get_by_url_name(term)
-            if self.display_term is None:
-                raise Http404
-        return super(ProjectReportListView, self).dispatch(
-            *args, **kwargs)
 
     def get_queryset(self):
         return ProjectReport.objects.filter(term=self.display_term)
 
-    def get_context_data(self, **kwargs):
-        context = super(ProjectReportListView, self).get_context_data(
-            **kwargs)
-        context['terms'] = Term.objects.all()
-        context['display_term'] = self.display_term
-        return context
-
 
 class ProjectReportListAllView(ListView):
+    """View for showing all project reports from all terms."""
     context_object_name = 'project_reports'
     model = ProjectReport
     template_name = 'project_reports/list.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(ProjectReportListAllView, self).get_context_data(
-            **kwargs)
-        context['terms'] = Term.objects.all()
-        return context

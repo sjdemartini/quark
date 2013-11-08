@@ -11,9 +11,7 @@ from quark.project_reports.views import ProjectReportListView
 
 urlpatterns = patterns(
     '',
-    url(r'^$', ProjectReportListView.as_view(), name='list-current'),
-    url(r'^(?P<term>\w{2}\d{4})/$', ProjectReportListView.as_view(),
-        name='term'),
+    url(r'^$', ProjectReportListView.as_view(), name='list'),
     url(r'^(?P<pr_pk>\d+)/$', ProjectReportDetailView.as_view(),
         name='detail'),
     url(r'^(?P<pr_pk>\d+)/edit/$', ProjectReportEditView.as_view(),
