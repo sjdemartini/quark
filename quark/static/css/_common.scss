@@ -652,6 +652,9 @@ blockquote {
   margin: 0 15px;
 }
 
+// Add an :after element that ensures internal floated elements are contained
+// in the height of the content div. The clear:both prevents the height from
+// not including floated elements.
 #content:after {
   content: '';
   display: block;
