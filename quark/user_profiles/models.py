@@ -1,9 +1,10 @@
+import os
+
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
-from django_localflavor_us.models import PhoneNumberField
-from django_localflavor_us.models import USStateField
-from filer.fields.image import FilerImageField
+from localflavor.us.models import PhoneNumberField
+from localflavor.us.models import USStateField
 
 from quark.base.models import IDCodeMixin
 from quark.base.models import Major
@@ -20,6 +21,22 @@ class UserProfile(models.Model):
         ('M', 'Male'),
     )
 
+    PICTURES_LOCATION = 'user_profiles'
+
+    def rename_file(instance, filename):
+        """Rename the file to the user's username, and update the file
+        if it already exists."""
+        # pylint: disable=E0213
+        file_ext = os.path.splitext(filename)[1]
+        filename = os.path.join(UserProfile.PICTURES_LOCATION,
+                                str(instance.user.username) + file_ext)
+        full_path = os.path.join(settings.MEDIA_ROOT, filename)
+        # if the file already exists, delete it so the new file can
+        # use the same name
+        if os.path.exists(full_path):
+            os.remove(full_path)
+        return filename
+
     user = models.OneToOneField(settings.AUTH_USER_MODEL)
 
     preferred_name = models.CharField(
@@ -32,9 +49,8 @@ class UserProfile(models.Model):
     birthday = models.DateField(blank=True, null=True)
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True)
 
-    picture = FilerImageField(related_name='profile_picture',
-                              blank=True, null=True,
-                              help_text='Optional')
+    picture = models.ImageField(
+        upload_to=rename_file, blank=True, null=True, help_text='Optional')
 
     alt_email = models.EmailField(
         blank=True,
@@ -196,7 +212,7 @@ class CollegeStudentInfo(IDCodeMixin):
     """Information about a college student user."""
     user = models.ForeignKey(settings.AUTH_USER_MODEL, unique=True)
     # Note that the student's University is encapsulated in the "major" field
-    major = models.ForeignKey(Major, null=True)
+    major = models.ManyToManyField(Major, null=True)
 
     start_term = models.ForeignKey(Term, related_name='+', null=True,
                                    verbose_name='First term at this school')

@@ -75,7 +75,7 @@ class MajorTest(TestCase):
 
     def test_initial_number(self):
         num = Major.objects.count()
-        self.assertEqual(num, 14)
+        self.assertEqual(num, 15)
 
     def test_uniqueness(self):
         ucb = University.objects.get(short_name='UCB')

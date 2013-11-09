@@ -243,6 +243,7 @@ THIRD_PARTY_APPS = [
     'django_jenkins',
     'easy_thumbnails',
     'filer',  # Used by CMS
+    'localflavor',
     'menus',  # Required by CMS
     'mptt',  # Required by CMS
     'reversion',  # For versioning of content with CMS

@@ -96,3 +96,10 @@
     website: http://math.berkeley.edu
   model: base.Major
   pk: 1013
+- fields:
+    short_name: ene
+    long_name: Energy Engineering
+    university: 1
+    website: http://coe.berkeley.edu/departments/engineering-science/energy-engineering.html
+  model: base.Major
+  pk: 1014
