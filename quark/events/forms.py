@@ -1,4 +1,5 @@
 from chosen import forms as chosen_forms
+from chosen import widgets as chosen_widgets
 from django import forms
 from django.contrib.auth import get_user_model
 
@@ -18,7 +19,7 @@ class EventForm(ChosenTermMixin, forms.ModelForm):
 
     committee = chosen_forms.ChosenModelChoiceField(
         queryset=OfficerPosition.objects.filter(
-            position_type=OfficerPosition.TBP_OFFICER))
+            position_type=OfficerPosition.TBP_OFFICER), required=True)
 
     start_datetime = VisualSplitDateTimeField(label='Start date and time')
     end_datetime = VisualSplitDateTimeField(label='End date and time')
@@ -31,6 +32,9 @@ class EventForm(ChosenTermMixin, forms.ModelForm):
     class Meta(object):
         model = Event
         exclude = ('cancelled', 'project_report')
+        widgets = {
+            'restriction': chosen_widgets.ChosenSelect()
+        }
 
     def clean(self):
         cleaned_data = super(EventForm, self).clean()

@@ -49,7 +49,8 @@ class EventTesting(TestCase):
                      term=self.term,
                      location='A test location',
                      contact=self.user,
-                     committee=self.committee)
+                     committee=self.committee,
+                     restriction=Event.OFFICER)
 
 
 class EventTest(EventTesting):
@@ -302,6 +303,7 @@ class EventFormsTest(EventTesting):
                   'term': self.event.term.pk,
                   'contact': self.user.pk,
                   'committee': self.event.committee.pk,
+                  'restriction': Event.OFFICER,
                   'location': self.event.location,
                   'requirements_credit': self.event.requirements_credit,
                   'max_guests_per_person': self.event.max_guests_per_person,
@@ -383,6 +385,7 @@ class EventFormsTest(EventTesting):
                   'term': self.event.term.pk,
                   'contact': self.user.pk,
                   'committee': self.event.committee.pk,
+                  'restriction': Event.OFFICER,
                   'location': self.event.location,
                   'requirements_credit': self.event.requirements_credit,
                   'max_guests_per_person': self.event.max_guests_per_person,

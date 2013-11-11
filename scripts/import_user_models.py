@@ -24,9 +24,11 @@ user_model = get_user_model()
 
 
 def delete_users():
-    users = user_model.objects.all()
-    for user in users:
-        user.delete()
+    user_model.objects.all().delete()
+
+
+def delete_user_profiles():
+    UserProfile.objects.all().delete()
 
 
 def import_users():

@@ -43,6 +43,21 @@ class EventManager(models.Manager):
 
 
 class Event(models.Model):
+    # Restriction constants
+    PUBLIC = 0
+    CANDIDATE = 1
+    MEMBER = 2
+    OFFICER = 3
+    OPEN = 4
+
+    RESTRICTION_CHOICES = (
+        (PUBLIC, 'Public'),
+        (CANDIDATE, 'Candidate'),
+        (MEMBER, 'Member'),
+        (OFFICER, 'Officer'),
+        (OPEN, 'Open (No Signups)'),
+    )
+
     name = models.CharField(max_length=80)
     event_type = models.ForeignKey(EventType)
     start_datetime = models.DateTimeField()
@@ -52,7 +67,15 @@ class Event(models.Model):
     description = models.TextField(blank=True)
     location = models.CharField(max_length=80)
     contact = models.ForeignKey(settings.AUTH_USER_MODEL)
-    committee = models.ForeignKey(OfficerPosition)
+    committee = models.ForeignKey(OfficerPosition, null=True)
+    restriction = models.PositiveSmallIntegerField(
+        choices=RESTRICTION_CHOICES,
+        default=CANDIDATE,
+        help_text=(
+            'Each restriction level allows users in that category and '
+            'users with more permissions (e.g., setting the restriction as '
+            '"Candidate" allows candidates, members, and officers to sign '
+            'up).'))
     signup_limit = models.PositiveSmallIntegerField(
         default=0, help_text='Set as 0 to allow unlimited signups.')
     max_guests_per_person = models.PositiveSmallIntegerField(

@@ -3,7 +3,9 @@ from django.db import connection
 
 TABLES = [
     'user_profiles_studentorguserprofile',
-    'project_reports_projectreport']
+    'project_reports_projectreport',
+    'events_event',
+    'events_eventsignup']
 
 
 def alter_tables():
