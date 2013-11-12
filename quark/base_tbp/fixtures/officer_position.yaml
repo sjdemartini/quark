@@ -166,4 +166,11 @@
     short_name: np
   model: base_tbp.OfficerPosition
   pk: 21
-
+- fields:
+    long_name: Pioneers in Engineering Liaison
+    mailing_list: pie-liaison
+    position_type: 0
+    rank: 14.5
+    short_name: PiE Liaison
+  model: base_tbp.OfficerPosition
+  pk: 22

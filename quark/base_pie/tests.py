@@ -344,4 +344,4 @@ class PiEOfficerPositionTest(TestCase):
 
     def test_total_init_data(self):
         num = OfficerPosition.objects.count()
-        self.assertEquals(num, 47)
+        self.assertEquals(num, 48)

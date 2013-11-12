@@ -1,10 +1,12 @@
 from django.core.management import call_command
 
+from scripts.alter_tables import alter_tables
 from scripts.import_base_models import import_terms
 from scripts.import_courses_models import import_courses
 from scripts.import_courses_models import import_course_instances
 from scripts.import_courses_models import import_departments
 from scripts.import_courses_models import import_instructors
+from scripts.import_project_reports_models import import_project_reports
 from scripts.import_user_models import delete_users
 from scripts.import_user_models import import_user_profiles
 from scripts.import_user_models import import_users
@@ -27,6 +29,9 @@ from scripts.import_user_models import import_users
 # A backup of all current data before importing will also be saved to
 # scripts/data/backup.json in case something goes wrong with importing.
 #
+# Certain tables will also be altered before any importing so that no errors
+# will occur while importing fields encoded in UTF-8.
+#
 # The json files needed in the scripts/data/ directory are:
 # noiro_main.semester.json
 # courses.department.json
@@ -35,11 +40,15 @@ from scripts.import_user_models import import_users
 # courses.section.json
 # auth.user.json
 # user_profiles.userprofile.json
+# projects.projectreport.json
 
 print('Backing up all current data to scripts/data/backup.json')
 backup = open('scripts/data/backup.json', 'w')
 call_command('dumpdata', stdout=backup)
 backup.close()
+
+print('Altering certain tables so that they can handle UFT-8 fields.')
+alter_tables()
 
 print('Importing all models from noiro.')
 
@@ -61,5 +70,8 @@ print('Importing users.')
 import_users()
 print('Importing user profiles.')
 import_user_profiles()
+
+print('Importing project reports.')
+import_project_reports()
 
 print('All models successfully imported.')

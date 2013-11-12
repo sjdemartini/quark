@@ -45,7 +45,7 @@ class OfficerPositionTest(TestCase):
         """
         num = len(OfficerPosition.objects.filter(
             position_type=OfficerPosition.TBP_OFFICER))
-        self.assertEquals(num, 21)
+        self.assertEquals(num, 22)
 
 
 class OfficerTest(TestCase):

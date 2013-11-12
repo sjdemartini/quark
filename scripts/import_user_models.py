@@ -11,10 +11,10 @@ from quark.user_profiles.models import StudentOrgUserProfile
 from quark.user_profiles.models import UserProfile
 
 from scripts import get_json_data
+from scripts import NOIRO_MEDIA_LOCATION
 from scripts.import_base_models import SEMESTER_TO_TERM
 
 
-PICTURES_LOCATION = '/var/noiro/media/'
 # The pk's for Major start at 1 in noiro and 1000 in quark. The ordering of
 # the majors is the same, so 999 needs to be added to a noiro pk to convert it
 # to a quark pk.
@@ -80,7 +80,7 @@ def import_user_profiles():
             perm_zip=fields['perm_zip'],
             international_address=fields['international_address'])
         if fields['picture']:
-            with open(PICTURES_LOCATION + fields['picture'], 'r') as picture:
+            with open(NOIRO_MEDIA_LOCATION + fields['picture'], 'r') as picture:
                 user_profile.picture = File(picture)
                 user_profile.save()
 
@@ -100,18 +100,8 @@ def import_user_profiles():
 
         user = user_model.objects.get(pk=fields['user'])
         student_profile, _ = StudentOrgUserProfile.objects.get_or_create(
-            pk=model['pk'], user=user)
+            pk=model['pk'], user=user, bio=fields['bio'])
         if fields['initiation_semester']:
             student_profile.initiation_term = Term.objects.get(
                 pk=SEMESTER_TO_TERM[fields['initiation_semester']])
         student_profile.save()
-        try:
-            # Some bios contain characters which are not in UTF-8 (the
-            # encoding for strings in the database), so try decoding the bio to
-            # check if it is formatted properly. If it's not, then decode()
-            # should raise a UnicodeDecodeError.
-            fields['bio'].decode('utf_8')
-            student_profile.bio = fields['bio']
-            student_profile.save()
-        except UnicodeEncodeError:
-            print('ERROR: Could not import {user}\'s bio.'.format(user=user))

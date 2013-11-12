@@ -4,6 +4,9 @@ import os
 from django.conf import settings
 
 
+NOIRO_MEDIA_LOCATION = '/var/noiro/media/'
+
+
 def get_json_data(filename):
     """Return a list of json data for a model, given a filename."""
     data_path = os.path.join(
