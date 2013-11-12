@@ -2,12 +2,11 @@
 
 {% load template_utils %}
 
-{% block title %}{{ instructor.full_name }}{% endblock title %}
-
 {% block intro %}
-{{ block.super }}
-<h1>{{ instructor.full_name }}</h1>
-{% endblock %}
+<h1>
+  {% block title %}{{ instructor.full_name }}{% endblock title %}
+</h1>
+{% endblock intro %}
 
 {% block content %}
 <h2>Average Rating: {{ total_prof_ratings_avg }}</h2>

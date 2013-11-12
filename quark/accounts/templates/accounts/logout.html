@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 
-{% block title %}Logout | {{ block.super }}{% endblock title %}
-
 {% block content %}
-<h1>Logged Out</h1>
+<h1>
+  {% block title %}Log Out{% endblock title %}
+</h1>
 
 <p>You have been successfully logged out.</p>
-{% endblock %}
+{% endblock content %}

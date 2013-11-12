@@ -1,11 +1,13 @@
 {% extends 'base.html' %}
 {% load settings_values %}
 
-{% block title %}Internal Server Error | {{ block.super }}{% endblock %}
+{% block title %}Internal Server Error{% endblock title %}
 
 {% block content %}
 <h1>Error: Internal Server Error</h1>
+
 <p>An internal server error has occurred, so your request could not be processed.</p>
+
 {% settings_assign 'IT_ADDRESS' as it_addr %}
 <p>Our IT team has been notified of this error and will resolve the problem shortly.
 Feel free to contact IT if this problem persists: <a href="mailto:{{ it_addr }}">{{ it_addr }}</a>
