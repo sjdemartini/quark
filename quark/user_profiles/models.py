@@ -292,6 +292,9 @@ def user_profile_post_save(sender, instance, created, **kwargs):
     Whenever a user is created, this callback performs a get_or_create()
     to ensure that there is a UserProfile for the saved User.
     """
+    if kwargs['raw']:
+        # Disable the handler during fixture loading
+        return
     if created:
         UserProfile.objects.get_or_create(user=instance)
 
