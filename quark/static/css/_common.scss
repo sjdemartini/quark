@@ -631,11 +631,16 @@ blockquote {
 #container {
   margin: 0 auto;
   max-width: 1000px;
-  overflow: hidden;
 }
 
 #content {
   margin: 0 15px;
+}
+
+#content:after {
+  content: '';
+  display: block;
+  clear: both;
 }
 
 #bubble {
