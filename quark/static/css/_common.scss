@@ -58,7 +58,7 @@ td {
 
     label {
       width: $form-middle;
-      margin-right: 2%;
+      margin-right: $form-sep;
       text-align: right;
       display: inline-block;
 
@@ -90,7 +90,7 @@ td {
     }
     > span {
       display: block;
-      margin-left: $form-middle;
+      margin-left: $form-middle + $form-sep;
       margin-top: 2px;
       font-size: 0.9em;
       @include respond-to(small) {
@@ -104,7 +104,7 @@ td {
     @include border-radius(0.3em);
   }
   input[type=submit] {
-    margin-left: $form-middle;
+    margin-left: $form-middle + $form-sep;
     @include respond-to(small) {
       width: auto;
       margin-left: 0;
@@ -114,10 +114,12 @@ td {
 
 #content form.form-narrow {
   .form-entry {
-    padding: 0 0;
     label {
       width: $form-middle / 2;
       text-align: left;
+    }
+    > span {
+      margin-left: $form-middle / 2 + $form-sep;
     }
   }
   input[type="submit"] {
