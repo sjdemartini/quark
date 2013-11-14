@@ -23,6 +23,12 @@ li {
   padding: 0;
 }
 
+ul.bulleted,
+ul.bulleted li {
+  list-style-type: disc;
+  margin-left: 15px;
+}
+
 body,
 div {
   margin: 0;

@@ -128,7 +128,7 @@ class VoteForm(forms.ModelForm):
         if num_votes >= self.poll.max_votes_per_user:
             raise forms.ValidationError(
                 'You have already voted the maximum number of times')
-        VoteReceipt(poll=self.poll, voter=self.user).save()
+        VoteReceipt.objects.get_or_create(poll=self.poll, voter=self.user)
         return cleaned_data
 
     def save(self, *args, **kwargs):

@@ -21,6 +21,7 @@
     <tr>
       <td>
         <a href="{% url 'vote:vote' poll.pk %}">{{ poll.name }}</a>
+        (<a href="{% url 'vote:result' poll.pk %}">Results</a>)
       </td>
       <td>{{ poll.start_datetime }}</td>
       <td>{{ poll.end_datetime }}</td>

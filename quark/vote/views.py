@@ -1,3 +1,5 @@
+import collections
+
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -5,12 +7,14 @@ from django.contrib.auth.decorators import permission_required
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
 from django.views.generic.list import ListView
 
 from quark.vote.forms import PollForm
 from quark.vote.forms import VoteForm
 from quark.vote.models import Poll
+from quark.vote.models import Vote
 
 
 class PollCreateView(CreateView):
@@ -54,6 +58,7 @@ class VoteCreateView(CreateView):
     def get_form_kwargs(self, **kwargs):
         kwargs = super(VoteCreateView, self).get_form_kwargs(**kwargs)
         kwargs['poll'] = self.poll
+        kwargs['user'] = self.request.user
         return kwargs
 
     def get_context_data(self, **kwargs):
@@ -67,3 +72,39 @@ class VoteCreateView(CreateView):
 
     def get_success_url(self):
         return reverse('vote:list')
+
+
+class ResultsView(DetailView):
+    context_object_name = 'poll'
+    model = Poll
+    pk_url_kwarg = 'poll_pk'
+    template_name = 'vote/results.html'
+
+    @method_decorator(login_required)
+    @method_decorator(
+        permission_required('vote.view_results', raise_exception=True))
+    def dispatch(self, *args, **kwargs):
+        return super(ResultsView, self).dispatch(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(ResultsView, self).get_context_data(**kwargs)
+        votes = Vote.objects.filter(poll=self.object)
+        # Create a dictionary mapping nominee to the reasons for the votes for
+        # that person.
+        nominee_reasons = collections.defaultdict(list)
+        for vote in votes:
+            nominee_reasons[vote.nominee].append(vote.reason)
+        # Create a list of dictionaries, where each dictionary contains nominee,
+        # the reasons for each vote that nominee received, and the percentage of
+        # votes a user has received.
+        results = []
+        total = votes.count()
+        for key in nominee_reasons:
+            results.append(
+                {'nominee': key, 'reasons': nominee_reasons[key],
+                 'percentage': float(len(nominee_reasons[key]))/total*100})
+        context['results'] = sorted(results,
+                                    key=lambda entry: len(entry['reasons']),
+                                    reverse=True)
+        context['total'] = votes.count()
+        return context
