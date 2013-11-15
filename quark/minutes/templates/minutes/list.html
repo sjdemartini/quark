@@ -1,0 +1,20 @@
+{% extends 'minutes/base.html' %}
+
+{% block title %}Meeting Minutes ({{ display_term_name }}){% endblock title %}
+
+{% block content %}
+{% include 'term_selection.html' %}
+<h2>{{ display_term }}</h2>
+{% if minutes %}
+  <ul class='minutes'>
+    {% for minute in minutes %}
+      <li>
+        <a href="{% url 'minutes:detail' minute.id %}">{{ minute.name }}</a> - {{ minute.date }}
+        {% if perms.minute.change_minutes %}- (<a href="{% url 'minutes:edit' minute.id %}">edit</a>){% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+    <p>No meeting minutes are available.</p>
+{% endif %}
+{% endblock content %}

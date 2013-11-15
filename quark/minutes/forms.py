@@ -1,12 +1,17 @@
 from django import forms
 
+from quark.base.fields import VisualDateWidget
+from quark.base.forms import ChosenTermMixin
 from quark.minutes.models import Minutes
 
 
-class MinutesForm(forms.ModelForm):
+class MinutesForm(ChosenTermMixin, forms.ModelForm):
     class Meta(object):
         model = Minutes
         exclude = ('author',)
+        widgets = {
+            'date': VisualDateWidget(),
+        }
 
 
 class InputForm(MinutesForm):
@@ -14,4 +19,4 @@ class InputForm(MinutesForm):
 
 
 class UploadForm(MinutesForm):
-    notes = forms.FileField(label='Upload Minutes')
+    notes = forms.FileField(label='Upload Minutes (Text File)')

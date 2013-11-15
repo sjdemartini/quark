@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block intro %}
+<h1>Meeting Minutes</h1>
+<p>
+  <a href="{% url 'minutes:list' %}">List Current</a>
+  {% if perms.minutes.add_minutes %}
+  | <a href="{% url 'minutes:add' %}">Add Minutes</a>
+  | <a href="{% url 'minutes:upload' %}">Upload Minutes</a>
+  {% endif %}
+</p>
+{% endblock intro %}

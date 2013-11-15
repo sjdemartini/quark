@@ -6,29 +6,22 @@ from django.views.generic import DetailView
 from django.views.generic import ListView
 from django.views.generic import UpdateView
 
-from quark.base.models import Term
+from quark.base.views import TermParameterMixin
 from quark.minutes.forms import InputForm, UploadForm
 from quark.minutes.models import Minutes
 
 
-class MinutesListView(ListView):
+class MinutesListView(TermParameterMixin, ListView):
     context_object_name = 'minutes'
-    template_name = 'minutes/index.html'
+    template_name = 'minutes/list.html'
     term = None
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
-        self.term = Term.objects.get_current_term()
         return super(MinutesListView, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
-        return Minutes.objects.filter(term=self.term)
-
-    def get_context_data(self, **kwargs):
-        context = super(MinutesListView, self).get_context_data(**kwargs)
-        context['terms'] = Term.objects.get_terms()
-        context['term_selected'] = self.term
-        return context
+        return Minutes.objects.filter(term=self.display_term)
 
 
 class MinutesCreateView(CreateView):

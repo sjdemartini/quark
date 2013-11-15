@@ -1,4 +1,4 @@
-from datetime import datetime
+import datetime
 
 from django.conf import settings
 from django.db import models
@@ -19,13 +19,17 @@ class Minutes(models.Model):
         (OTHER, 'Other'),
     )
 
-    name = models.CharField(max_length=60)
-    date = models.DateTimeField(default=datetime.now)
+    name = models.CharField(
+        max_length=60, help_text='The name of the meeting.')
+    date = models.DateField(
+        default=datetime.date.today, help_text='Date the meeting was held.')
     term = models.ForeignKey(Term)
     meeting_type = models.PositiveSmallIntegerField(choices=MEETING_TYPES)
     notes = models.TextField()
-    public = models.BooleanField(default=False)
+    public = models.BooleanField(
+        default=False, help_text='Should these be publicly visible?')
     author = models.ForeignKey(settings.AUTH_USER_MODEL)
+
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
