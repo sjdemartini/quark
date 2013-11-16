@@ -1,9 +1,8 @@
-from chosen import forms as chosen_forms
 from django import forms
 from django.contrib.auth import get_user_model
 
 from quark.base.fields import VisualSplitDateTimeField
-from quark.base.models import Term
+from quark.base.forms import ChosenTermMixin
 from quark.user_profiles.fields import UserCommonNameChoiceField
 from quark.user_profiles.fields import UserCommonNameMultipleChoiceField
 from quark.vote.models import Poll
@@ -11,7 +10,7 @@ from quark.vote.models import Vote
 from quark.vote.models import VoteReceipt
 
 
-class PollForm(forms.ModelForm):
+class PollForm(ChosenTermMixin, forms.ModelForm):
     """A form that is used to create polls.
 
     Description of Groups:
@@ -57,17 +56,6 @@ class PollForm(forms.ModelForm):
         fields = ('name', 'description', 'instructions', 'max_votes_per_user',
                   'vote_reason_required', 'eligible_group', 'eligible_users',
                   'start_datetime', 'end_datetime', 'term')
-
-    def __init__(self, *args, **kwargs):
-        super(PollForm, self).__init__(*args, **kwargs)
-        # For fields which reference a QuerySet that must be evaluated (i.e.,
-        # hits the database and isn't "lazy"), create fields in the __init__ to
-        # avoid database errors in Django's test runner
-        self.fields['term'] = chosen_forms.ChosenModelChoiceField(
-            label='Term',
-            queryset=Term.objects.get_terms(
-                include_future=False, include_summer=True, reverse=False),
-            initial=Term.objects.get_current_term())
 
     def get_eligible_users(self):
         eligible_group = self.cleaned_data.get('eligible_group')
@@ -118,7 +106,7 @@ class PollForm(forms.ModelForm):
 
 
 class VoteForm(forms.ModelForm):
-
+    """Form for voting on a poll."""
     class Meta(object):
         model = Vote
         fields = ('nominee', 'reason')

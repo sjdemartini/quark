@@ -1,7 +1,7 @@
 from chosen import widgets as ChosenWidgets
 from django import forms
 
-from quark.base.models import Term
+from quark.base.forms import ChosenTermMixin
 from quark.courses.models import Course
 from quark.courses.models import Department
 from quark.courses.models import Instructor
@@ -29,13 +29,12 @@ def courses_as_optgroups():
     return course_choices
 
 
-class SurveyForm(forms.ModelForm):
+class SurveyForm(ChosenTermMixin, forms.ModelForm):
     class Meta(object):
         model = Survey
         exclude = ('submitter', 'published', 'created')
         widgets = {
             'course': ChosenWidgets.ChosenGroupSelect(),
-            'term': ChosenWidgets.ChosenSelect(),
             'instructor': ChosenWidgets.ChosenSelect()
         }
 
@@ -46,9 +45,6 @@ class SurveyForm(forms.ModelForm):
         # access the database
         self.fields['course'].label = 'Course Number'
         self.fields['course'].choices = courses_as_optgroups()
-        self.fields['term'].label = 'Term'
-        self.fields['term'].queryset = Term.objects.get_terms(
-            include_summer=True)
         self.fields['instructor'].label = 'Instructor'
         self.fields['instructor'].queryset = Instructor.objects.order_by(
             'name')

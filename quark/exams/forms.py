@@ -4,7 +4,7 @@ from chosen import forms as chosen_forms
 from django import forms
 from django.utils.safestring import mark_safe
 
-from quark.base.models import Term
+from quark.base.forms import ChosenTermMixin
 from quark.courses.models import CourseInstance
 from quark.courses.models import Department
 from quark.courses.models import Instructor
@@ -13,7 +13,7 @@ from quark.exams.models import ExamFlag
 from quark.exams.models import InstructorPermission
 
 
-class ExamForm(forms.ModelForm):
+class ExamForm(ChosenTermMixin, forms.ModelForm):
     """Used as a base for UploadForm and EditForm."""
     department = chosen_forms.ChosenModelChoiceField(
         queryset=Department.objects.all())
@@ -29,8 +29,6 @@ class ExamForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ExamForm, self).__init__(*args, **kwargs)
-        self.fields['term'] = chosen_forms.ChosenModelChoiceField(
-            queryset=Term.objects.get_terms(include_summer=True))
         self.fields['exam_type'].label = 'Exam or solution file?'
         self.fields.keyOrder = [
             'department', 'course_number', 'instructors', 'term', 'exam_number',

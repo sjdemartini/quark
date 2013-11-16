@@ -3,7 +3,7 @@ from django import forms
 from django.contrib.auth import get_user_model
 
 from quark.base.fields import VisualSplitDateTimeField
-from quark.base.models import Term
+from quark.base.forms import ChosenTermMixin
 from quark.base_tbp.models import OfficerPosition
 from quark.events.models import Event
 from quark.events.models import EventType
@@ -12,7 +12,7 @@ from quark.project_reports.models import ProjectReport
 from quark.user_profiles.fields import UserCommonNameChoiceField
 
 
-class EventForm(forms.ModelForm):
+class EventForm(ChosenTermMixin, forms.ModelForm):
     event_type = chosen_forms.ChosenModelChoiceField(
         label='Event Type', queryset=EventType.objects.all())
 
@@ -31,18 +31,6 @@ class EventForm(forms.ModelForm):
     class Meta(object):
         model = Event
         exclude = ('cancelled', 'project_report')
-        widgets = {
-            'term': chosen_forms.ChosenSelect(),
-        }
-
-    def __init__(self, *args, **kwargs):
-        super(EventForm, self).__init__(*args, **kwargs)
-        # For fields which reference a QuerySet that must be evaluated (i.e.,
-        # hits the database and isn't "lazy"), create fields in the __init__ to
-        # avoid database errors in Django's test runner
-        self.fields['term'].label = 'Term'
-        self.fields['term'].queryset = Term.objects.get_terms(
-            include_future=False, include_summer=True, reverse=False)
 
     def clean(self):
         cleaned_data = super(EventForm, self).clean()

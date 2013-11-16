@@ -411,12 +411,20 @@ class SettingsTest(TestCase):
 
 
 class FieldsTest(TestCase):
-    def setUp(self):
-        self.visual_dt_field = fields.VisualSplitDateTimeField()
+    def test_visual_date_field(self):
+        visual_date_field = fields.VisualDateField()
+
+        # Ensure that the proper widget is used:
+        widget = visual_date_field.widget
+        self.assertTrue(isinstance(widget, fields.VisualDateWidget))
+
+        # Test that the appropriate HTML class is set for the input field:
+        self.assertEqual(widget.attrs['class'], 'vDateField')
 
     def test_visual_split_datetime(self):
+        visual_dt_field = fields.VisualSplitDateTimeField()
         # Ensure that the proper widget is used:
-        widget = self.visual_dt_field.widget
+        widget = visual_dt_field.widget
         self.assertTrue(isinstance(widget, fields.VisualSplitDateTimeWidget))
 
         # Test that the appropriate HTML classes are set for the input fields:
@@ -425,7 +433,7 @@ class FieldsTest(TestCase):
 
         # Get the time field (since SplitDatetimeField has a DateField and a
         # TimeField):
-        time_field = self.visual_dt_field.fields[1]
+        time_field = visual_dt_field.fields[1]
 
         # Check that the proper time formats are allowed by performing
         # to_python() on inputs, which raises a Violation if an improper format
