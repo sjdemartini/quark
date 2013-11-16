@@ -13,7 +13,7 @@ class Resume(models.Model):
         # pylint: disable=E0213
         file_ext = os.path.splitext(filename)[1]
         filename = os.path.join(Resume.RESUMES_LOCATION,
-                                str(instance.user.username) + file_ext)
+                                str(instance.user.get_username()) + file_ext)
         full_path = os.path.join(settings.MEDIA_ROOT, filename)
         # if resume file already exists, delete it so the new resume file can
         # use the same name

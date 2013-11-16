@@ -9,6 +9,10 @@ class LDAPUserManager(BaseUserManager):
 
     Unlike the Django auth User, creating an LDAPUser requires a first and last
     name, which allows the method to create a corresponding LDAP entry.
+
+    Note: This LDAPUserManager assumes that the AUTH_USER_MODEL has username,
+    email, password, first name, and last name as fields on the model. This
+    Manager should be adjusted for specific User implementations as needed.
     """
     def create_user(self, username, email, password,
                     first_name, last_name, **extra_fields):
@@ -59,17 +63,17 @@ class LDAPUser(User):
 
     def save(self, *args, **kwargs):
         """Only save the instance if user exists in LDAP."""
-        if ldap_utils.username_exists(self.username):
+        if ldap_utils.username_exists(self.get_username()):
             super(LDAPUser, self).save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
         """Delete the instance only if LDAP user deletion was successfull."""
-        if ldap_utils.delete_user(self.username):
+        if ldap_utils.delete_user(self.get_username()):
             super(LDAPUser, self).delete(*args, **kwargs)
 
     def check_password(self, raw_password):
-        return ldap_utils.check_password(self.username, raw_password)
+        return ldap_utils.check_password(self.get_username(), raw_password)
 
     def set_password(self, raw_password):
         self.set_unusable_password()
-        ldap_utils.set_password(self.username, raw_password)
+        ldap_utils.set_password(self.get_username(), raw_password)

@@ -95,7 +95,7 @@ class CreateLDAPUserTestCase(TestCase):
         user = query[0]
 
         # Attributes
-        self.assertEqual(user.username, self.username)
+        self.assertEqual(user.get_username(), self.username)
         self.assertEqual(user.email, self.email)
         self.assertEqual(user.is_superuser, is_superuser)
         self.assertEqual(user.first_name, self.first_name)

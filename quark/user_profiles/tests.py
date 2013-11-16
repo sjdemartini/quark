@@ -67,7 +67,7 @@ class UserProfilesTest(TestCase):
         Officer(user=self.user, position=self.committee, term=self.term,
                 is_chair=True).save()
         self.assertEqual(self.profile.get_preferred_email(),
-                         '{}@example.com'.format(self.user.username))
+                         '{}@example.com'.format(self.user.get_username()))
 
     def test_name_methods(self):
         # Name methods with only first and last name

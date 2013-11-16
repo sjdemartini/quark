@@ -1,5 +1,7 @@
 from chosen import forms
 
+from quark.user_profiles.models import UserProfile
+
 
 def user_common_name_label(obj):
     """Return the common name label for a given object."""
@@ -7,7 +9,7 @@ def user_common_name_label(obj):
         # Try getting the UserProfile as a reverse one-to-one relation, and
         # call its get_common_name method if available
         return obj.userprofile.get_common_name()
-    except AttributeError:  # If no user profile available
+    except UserProfile.DoesNotExist:
         pass
 
     try:

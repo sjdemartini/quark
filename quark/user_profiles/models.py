@@ -24,12 +24,13 @@ class UserProfile(models.Model):
     PICTURES_LOCATION = 'user_profiles'
 
     def rename_file(instance, filename):
-        """Rename the file to the user's username, and update the file
-        if it already exists."""
+        """Rename the file to the user's username, and update the file if it
+        already exists.
+        """
         # pylint: disable=E0213
         file_ext = os.path.splitext(filename)[1]
         filename = os.path.join(UserProfile.PICTURES_LOCATION,
-                                str(instance.user.username) + file_ext)
+                                str(instance.user.get_username()) + file_ext)
         full_path = os.path.join(settings.MEDIA_ROOT, filename)
         # if the file already exists, delete it so the new file can
         # use the same name
@@ -120,7 +121,7 @@ class UserProfile(models.Model):
         3. UserProfile alt email address
         """
         if self.is_officer() and hasattr(settings, 'HOSTNAME'):
-            return '{}@{}'.format(self.user.username, settings.HOSTNAME)
+            return '{}@{}'.format(self.user.get_username(), settings.HOSTNAME)
 
         return self.user.email or self.alt_email or None
 
@@ -143,7 +144,7 @@ class UserProfile(models.Model):
         # TODO(sjdemartini): Gate all LDAP operations behind a setting, so
         # that LDAP is only used if settings have LDAP enabled.
         return (self.is_officer() or
-                ldap_utils.is_in_tbp_group(self.username, 'members'))
+                ldap_utils.is_in_tbp_group(self.user.get_username(), 'members'))
 
     def is_officer(self, current=False, exclude_aux=False):
         """Return True if this person is an officer in the organization.
@@ -163,7 +164,7 @@ class UserProfile(models.Model):
             # that LDAP is only used if settings have LDAP enabled.
             if (not exclude_aux and
                     ldap_utils.is_in_tbp_group(
-                    self.user.username, 'officers')):
+                    self.user.get_username(), 'officers')):
                 return True
             term = None
         officer_positions = self.get_officer_positions(term)
@@ -224,8 +225,8 @@ class CollegeStudentInfo(IDCodeMixin):
 
     def __unicode__(self):
         return '%s - %s (%s - %s) id: %s' % (
-            self.user.username, self.major, self.start_term, self.grad_term,
-            self.id_code)
+            self.user.get_username(), self.major, self.start_term,
+            self.grad_term, self.id_code)
 
 
 class StudentOrgUserProfile(models.Model):

@@ -272,7 +272,7 @@ class HelpdeskEmailerView(EmailerView):
             # shouldn't happen very often.
             assignee = random.choice(officers)
             assigning_to = ['{}@tbp.berkeley.edu'.format(
-                assignee.user.username)]
+                assignee.user.get_username())]
             assigning_body = (
                 'HelpdeskQ has automatically assigned {officer} as the point '
                 'person for the helpdesk question with subject \"{subject}\". '
