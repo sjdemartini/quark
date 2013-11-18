@@ -3,6 +3,7 @@ from test.test_support import import_fresh_module
 import datetime
 import uuid
 
+from django import forms
 from django.db import IntegrityError
 from django.core.exceptions import ValidationError
 from django.template import Context
@@ -411,15 +412,12 @@ class SettingsTest(TestCase):
 
 
 class FieldsTest(TestCase):
-    def test_visual_date_field(self):
-        visual_date_field = fields.VisualDateField()
-
-        # Ensure that the proper widget is used:
-        widget = visual_date_field.widget
-        self.assertTrue(isinstance(widget, fields.VisualDateWidget))
+    def test_visual_date_widget(self):
+        # Create a test DateField
+        visual_date_field = forms.DateField(widget=fields.VisualDateWidget())
 
         # Test that the appropriate HTML class is set for the input field:
-        self.assertEqual(widget.attrs['class'], 'vDateField')
+        self.assertEqual(visual_date_field.widget.attrs['class'], 'vDateField')
 
     def test_visual_split_datetime(self):
         visual_dt_field = fields.VisualSplitDateTimeField()

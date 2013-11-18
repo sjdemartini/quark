@@ -2,7 +2,7 @@ from chosen import forms as chosen_forms
 from django import forms
 from django.contrib.auth import get_user_model
 
-from quark.base.fields import VisualDateField
+from quark.base.fields import VisualDateWidget
 from quark.base.forms import ChosenTermMixin
 from quark.base_tbp.models import OfficerPosition
 from quark.project_reports.models import ProjectReport
@@ -24,8 +24,10 @@ class ProjectReportForm(ChosenTermMixin, forms.ModelForm):
         queryset=get_user_model().objects.all(), required=False)
     member_list = UserCommonNameMultipleChoiceField(
         queryset=get_user_model().objects.all(), required=False)
-    date = VisualDateField(label='Date (YYYY-MM-DD)')
 
     class Meta(object):
         model = ProjectReport
         exclude = ('first_completed_at',)
+        widgets = {
+            'date': VisualDateWidget(),
+        }

@@ -2,30 +2,22 @@ from django import forms
 
 
 class VisualDateWidget(forms.DateInput):
-    """Extend the DateInput widget but tie in the appropriate JavaScript.
+    """Extend the DateInput widget but tie in the calendar JQueryUI.
 
-    To be used by the VisualDateField below.
+    It is recommended that this widget be used for any DateFields in forms.
     """
     class Media(object):
         # pylint: disable=C0103
         js = ('js/visual_datetime.js',)
 
-
-class VisualDateField(forms.DateField):
-    """Extend DateField to use the JQueryUI calendar date input."""
-    widget = VisualDateWidget
-
     def __init__(self, *args, **kwargs):
         """Set the HTML class for the date input (as vDateField).
 
-        Note that the JavaScript tied to the widget (see above) uses JQuery
-        selectors this class. The JS sets the date format to match that of
-        Django.
+        Note that the JavaScript tied to the widget uses JQuery selectors with
+        this class name. The JS sets the date format to match that of Django.
         """
-        super(VisualDateField, self).__init__(*args, **kwargs)
-
-        # widget.widgets[0] is the DateInput widget for the date
-        self.widget.attrs['class'] = 'vDateField'
+        super(VisualDateWidget, self).__init__(*args, **kwargs)
+        self.attrs['class'] = 'vDateField'
 
 
 class VisualSplitDateTimeWidget(forms.SplitDateTimeWidget):
@@ -38,25 +30,32 @@ class VisualSplitDateTimeWidget(forms.SplitDateTimeWidget):
         css = {'all': ('css/jquery.timepicker.css',)}
         js = ('js/visual_datetime.js', 'js/jquery.timepicker.min.js')
 
+    def __init__(self, *args, **kwargs):
+        """Set the HTML class for the date input (as vDateField) and for the
+        time input (as vTimeField).
+
+        Note that the JavaScript tied to the widget uses JQuery selectors with
+        these classes.
+        """
+        super(VisualSplitDateTimeWidget, self).__init__(*args, **kwargs)
+
+        # widgets[0] is the DateInput widget for the date
+        self.widgets[0].attrs['class'] = 'vDateField'
+
+        # widgets[1] is the TextInput widget for the time
+        self.widgets[1].attrs['class'] = 'vTimeField'
+
 
 class VisualSplitDateTimeField(forms.SplitDateTimeField):
     """Extend SplitDateTimeField to use JQuery date and time inputs."""
     widget = VisualSplitDateTimeWidget
 
     def __init__(self, *args, **kwargs):
-        """Set the HTML class for the date input (as vDateField) and for the
-        time input (as vTimeField).
+        """Sets the appropriate input_time_formats for the visual widget.
 
-        Note that the JavaScript tied to the widget (see above) uses JQuery
-        selectors with these classes. The call to the superclass constructor
-        specifies the input time formats allowed (matching the timepicker
-        format used, which is 12-hour am/pm). The JS sets the date format to
-        match that of Django.
+        The call to the superclass constructor specifies the input time formats
+        allowed (matching the timepicker format used, which is 12-hour am/pm).
+        The JS sets the date format to match that of Django.
         """
         super(VisualSplitDateTimeField, self).__init__(
             input_time_formats=['%I:%M%p', '%I:%M %p'], *args, **kwargs)
-
-        # widget.widgets[0] is the DateInput widget for the date
-        self.widget.widgets[0].attrs['class'] = 'vDateField'
-        # widget.widgets[1] is the TextInput widget for the time
-        self.widget.widgets[1].attrs['class'] = 'vTimeField'
