@@ -97,11 +97,14 @@ class EventSignUpForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         max_guests = kwargs.pop('max_guests', None)
         super(EventSignUpForm, self).__init__(*args, **kwargs)
-        if max_guests is not None:
+        if max_guests:
             self.fields['num_guests'] = forms.IntegerField(
-                min_value=0, max_value=max_guests,
+                min_value=0, max_value=max_guests, initial=0,
                 label='Number of guests you are bringing (up to {})'.format(
                     max_guests))
+        else:
+            # Remove the num_guests field from the form
+            del self.fields['num_guests']
 
     # TODO(sjdemartini): Perform separate validation to ensure that the event
     # has enough space for the user and his guests, considering whether the
