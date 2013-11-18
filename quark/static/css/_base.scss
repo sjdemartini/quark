@@ -4,17 +4,22 @@
 
 // Variables
 $break-small: 480px;
+$break-small-med: 625px;
 $break-medium: 820px;
 
 $color-focus: #009;
 
-$form-middle: 30%;
+$form-label-width: 29%;
 $form-sep: 2%;
+$form-input-width: 65%;
 
 // Mixins
 @mixin respond-to($media) {
   @if $media == small {
     @media only screen and (max-width: $break-small) { @content; }
+  }
+  @if $media == small-med {
+    @media only screen and (max-width: $break-small-med) { @content; }
   }
   @else if $media == medium {
     @media only screen and (max-width: $break-medium) { @content; }

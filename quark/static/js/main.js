@@ -1,24 +1,15 @@
 $(function() {
-  /***** LOGIN DROPDOWN MENU TOGGLING *****/
-  // Ensure all dropdowns initially hidden on page ready
-  $('.dropdown').hide();
+  setupNav();
+  setupDropdowns();
+  setupForms();
+});
 
-  // Make clicks anywhere in HTML body close the login dropdowns
-  $('html').click(function() {
-    $('.dropdown').hide();
-  });
-  // Make clicks on dropdown-title toggle the appropriate dropdown and close
-  // others
-  $('.dropdown-title').click(function(event){
-    var thisDropdown = $(this).next();
-    $('.dropdown').not(thisDropdown).hide();
-    thisDropdown.toggle();
-    // Prevent the click from propagating to the document body
-    event.stopPropagation();
-  });
-  /***** END LOGIN DROPDOWN MENU TOGGLING *****/
 
-  /***** NAV MENU *****/
+/**
+ * Setup for navigation bar actions (for narrow viewport functionality, such
+ * as showing or hiding the nav elements).
+ */
+function setupNav() {
   // navMenuBarWasVisible refers to whether #nav-menubar was
   //   visible in the last loop
   var navMenuBarWasVisible = false;
@@ -36,7 +27,7 @@ $(function() {
   }
 
   // Controls toggle of main nav bar
-  $('#nav-menubar').click(function(event){
+  $('#nav-menubar').click(function(event) {
     heightToggle('#nav');
     navOpen = !navOpen;
   });
@@ -62,7 +53,7 @@ $(function() {
 
   // Loop to detect window size changes
   var navLoop = function() {
-    if (!$('#nav-menubar').is(':visible')){
+    if (!$('#nav-menubar').is(':visible')) {
       // Wide window -> make sure nav bar is shown
       if (!navOpen) {
         heightToggle('#nav', 0);
@@ -103,5 +94,46 @@ $(function() {
     setTimeout(navLoop, 15);
   };
   navLoop();
-  /***** END NAV MENU *****/
-});
+}
+
+
+/**
+ * Setup for login dropdown menu toggling.
+ */
+function setupDropdowns() {
+  // Ensure all dropdowns initially hidden on page ready
+  $('.dropdown').hide();
+
+  // Make clicks anywhere in HTML body close the login dropdowns
+  $('html').click(function() {
+    $('.dropdown').hide();
+  });
+  // Make clicks on dropdown-title toggle the appropriate dropdown and close
+  // others
+  $('.dropdown-title').click(function(event) {
+    var thisDropdown = $(this).next();
+    $('.dropdown').not(thisDropdown).hide();
+    thisDropdown.toggle();
+    // Prevent the click from propagating to the document body
+    event.stopPropagation();
+  });
+}
+
+
+/**
+ * Setup additional form behavior for required inputs.
+ */
+function setupForms() {
+  var requiredFields = $('.form-entry-required');
+
+  // Use the HTML5 "required" attribute on input elements:
+  requiredFields.children('input').each(function() {
+    this.required = true;
+  });
+
+  // If a form has required fields (and it isn't a "narrow" form, like is used
+  // on the login screen), add a note above the form to explain that an
+  // asterisk denotes a required field:
+  requiredFields.parents('form').not('.form-narrow').before(
+    '<div class="form-required-message">Required *</div>');
+}

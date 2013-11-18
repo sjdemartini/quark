@@ -67,7 +67,7 @@ td {
     padding: 0 0.5em;
 
     label {
-      width: $form-middle;
+      width: $form-label-width;
       margin-right: $form-sep;
       text-align: right;
       display: inline-block;
@@ -75,37 +75,54 @@ td {
       @include respond-to(medium) {
         text-align: left;
       }
-      @include respond-to(small) {
+      @include respond-to(small-med) {
         display: block;
         width: 100%;
       }
     }
+    input[type=text],
+    input[type=email],
+    input[type=url],
+    input[type=password] {
+      @include respond-to(small-med) {
+        width: 100%;
+      }
+    }
     input[type=file] {
-      width: 65%;
-      @include respond-to(small) {
+      width: $form-input-width;
+      @include respond-to(small-med) {
         width: auto;
       }
     }
     textarea {
-      width: 65%;
-      @include respond-to(small) {
+      width: $form-input-width;
+      @include respond-to(small-med) {
         width: 100%;
       }
       resize: vertical;
     }
     select {
-      @include respond-to(small) {
+      @include respond-to(small-med) {
         width: 100%;
       }
     }
     > span {
       display: block;
-      margin-left: $form-middle + $form-sep;
+      margin-left: $form-label-width + $form-sep;
       margin-top: 2px;
       font-size: 0.9em;
-      @include respond-to(small) {
+      @include respond-to(small-med) {
         margin-left: auto;
       }
+    }
+    &.form-entry-required label:after {
+      // Append an asterisk after labels for required fields
+      content: '*';
+      color: #f00;
+      font-size: 75%;
+      vertical-align: top;
+      position: absolute;
+      margin-left: 4px;
     }
   }
   .form-entry-error {
@@ -114,8 +131,8 @@ td {
     @include border-radius(0.3em);
   }
   input[type=submit] {
-    margin-left: $form-middle + $form-sep;
-    @include respond-to(small) {
+    margin-left: $form-label-width + $form-sep;
+    @include respond-to(small-med) {
       width: auto;
       margin-left: 0;
     }
@@ -125,16 +142,31 @@ td {
 #content form.form-narrow {
   .form-entry {
     label {
-      width: $form-middle / 2;
+      width: $form-label-width / 2;
       text-align: left;
+      @include respond-to(small-med) {
+        display: block;
+        width: 100%;
+      }
     }
     > span {
-      margin-left: $form-middle / 2 + $form-sep;
+      margin-left: $form-label-width / 2 + $form-sep;
+      @include respond-to(small-med) {
+        margin-left: auto;
+      }
+    }
+    &.form-entry-required label:after {
+      content: '';
     }
   }
   input[type="submit"] {
     margin-left: 0;
   }
+}
+
+.form-required-message {
+  color: #f00;
+  font-size: 90%;
 }
 
 .border,
