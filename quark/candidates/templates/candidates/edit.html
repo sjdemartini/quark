@@ -23,22 +23,39 @@ No photo uploaded yet.
 <h2>Candidate Information</h2>
 {% with cand_user_profile=candidate.user.userprofile %}
 {% with student_info=candidate.get_college_student_info %}
-<ul>
-  <li>
-    Major:
-    {% if student_info.major %}
-    {{ student_info.major }}
-    {% else %}
-    Not specified
-    {% endif %}
-  </li>
-  <li>
-    Phone: {{ cand_user_profile.cell_phone }}
-    ({% if cand_user_profile.receive_text %}does not receive{% else %}receives{% endif %} texts)
-  </li>
-  <li>Email: <a href="mailto:{{ candidate.user.email }}">{{ candidate.user.email }}</a></li>
-  <li>University start term: {{ student_info.start_term.verbose_name }}</li>
-</ul>
+<table class="simple">
+  <tr>
+    <td><strong>Major</strong></td>
+    <td>
+      <ul>
+      {% for major in student_info.major.all %}
+      <li>{{ major }}</li>
+      {% empty %}
+      <li>Not specified</li>
+      {% endfor %}
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Phone</strong></td>
+    <td>
+      {{ cand_user_profile.cell_phone }}
+      ({% if not cand_user_profile.receive_text %}does not receive{% else %}receives{% endif %} texts)
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Email</strong></td>
+    <td>
+      <a href="mailto:{{ candidate.user.email }}">{{ candidate.user.email }}</a>
+    </td>
+  </tr>
+  <tr>
+    <td><strong>University start term</strong></td>
+    <td>
+      {{ student_info.start_term.verbose_name }}
+    </td>
+  </tr>
+</table>
 {% endwith student_info %}
 
 <form method="post" class="form-narrow">

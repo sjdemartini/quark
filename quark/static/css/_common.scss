@@ -2,7 +2,8 @@
 @import "base";
 
 /* BASIC STYLING */
-html, body {
+html,
+body {
   background-color: #fff;
   height: 100%;
 }
@@ -15,13 +16,15 @@ a img {
   border: none;
 }
 
-ul, li {
+ul,
+li {
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-body, div {
+body,
+div {
   margin: 0;
   padding: 0;
   position: relative;
@@ -31,10 +34,17 @@ body, div {
 
 table {
   margin: 10px 0;
-  width: 90%;
 }
 
-th, td {
+table.simple {
+  th,
+  td {
+    border: 0;
+  }
+}
+
+th,
+td {
   padding: 5px;
   vertical-align: top;
   // fixes images in tables
@@ -43,7 +53,7 @@ th, td {
 th {
   border-bottom: 2px solid #666;
   color: #c7aa36;
-  font-weight: bold;
+  font-weight: 600;
   text-align: left;
 }
 
@@ -195,11 +205,13 @@ pre {
   font-family: monospace;
 }
 
-b, strong {
-  font-weight: bold;
+b,
+strong {
+  font-weight: 600;
 }
 
-label, dt {
+label,
+dt {
   font-weight: 400;
 }
 
@@ -431,7 +443,8 @@ blockquote {
   }
 }
 
-#nav, #subnav {
+#nav,
+#subnav {
   max-width: none;
   text-align: center;
   li {

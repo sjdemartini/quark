@@ -224,9 +224,9 @@ class CollegeStudentInfo(IDCodeMixin):
         verbose_name_plural = 'college student info'
 
     def __unicode__(self):
-        return '%s - %s (%s - %s) id: %s' % (
-            self.user.get_username(), self.major, self.start_term,
-            self.grad_term, self.id_code)
+        return '{username} ({start_term} - {grad_term}) id: {id_code}'.format(
+            username=self.user.get_username(), start_term=self.start_term,
+            grad_term=self.grad_term, id_code=self.id_code or None)
 
 
 class StudentOrgUserProfile(models.Model):

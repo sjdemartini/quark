@@ -34,6 +34,8 @@
     <tbody>
     {% for candidate in candidates %}
     <tr>
+      {% with student_info=candidate.get_college_student_info %}
+      {% with cand_user_profile=candidate.user.userprofile %}
       <td><a href="{% url 'candidates:edit' candidate.pk %}">{{ candidate.user.get_full_name }}</a></td>
       <td>
         {% if candidate.photo %}
@@ -43,23 +45,23 @@
         {% endif %}
       </td>
       <td>
-        {% with student_info=candidate.get_college_student_info %}
-        {% with cand_user_profile=candidate.user.userprofile %}
-        {% if student_info.major %}
-        {{ student_info.major }}
-        {% else %}
-        Not specified
-        {% endif %}
+        <ul>
+        {% for major in student_info.major.all %}
+        <li>{{ major }}</li>
+        {% empty %}
+        <li>Not specified</li>
+        {% endfor %}
+        </ul>
       </td>
       <td>
         {{ cand_user_profile.cell_phone }}
         {% if cand_user_profile.receive_text %}
         <i class="icon-ok"></i>
         {% endif %}
-        {% endwith student_info %}
-        {% endwith cand_user_profile %}
       </td>
       <td><a href="mailto:{{ candidate.user.email }}">{{ candidate.user.email }}</a></td>
+      {% endwith student_info %}
+      {% endwith cand_user_profile %}
     </tr>
     {% endfor %}
     </tbody>
