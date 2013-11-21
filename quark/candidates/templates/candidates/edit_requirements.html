@@ -10,7 +10,7 @@
 {# TODO(ericdwang): add the rest of editing requirements #}
 NOTE: Only requirements that require more than zero credits will be displayed in candidate admin/portal!
 
-<form method="post">
+<form method="post" class="form-narrow">
   {% csrf_token %}
   {{ form.management_form }}
 
@@ -21,12 +21,12 @@ NOTE: Only requirements that require more than zero credits will be displayed in
   {% include 'candidates/individual_requirement.html' with display_req_type='Manual' entries=req_types.manual %}
   <a href="{% url 'candidates:add-requirement' %}">Add manual requirement</a>
 
-  <div>
+  <p>
     <input type="submit" value="Update">
-  </div>
+  </p>
 </form>
 
-<div>
+<p>
   <a href="{% url 'candidates:term' term.get_url_name %}"><strong>Back to {{ term.verbose_name }} Candidates</strong></a>
-</div>
+</p>
 {% endblock content %}

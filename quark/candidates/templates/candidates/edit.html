@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 {% load template_utils %}
 
-{% block title %}Candidate Management{% endblock title %}
-
 {% block intro %}
-<h1>Candidate Management for {{ candidate.user.get_full_name }}</h1>
+<h1>
+{% block title %}Candidate Management for {{ candidate.user.get_full_name }}{% endblock title %}
+</h1>
 {% endblock intro %}
 
 {% block content %}
@@ -21,6 +21,7 @@ No photo uploaded yet.
 </div>
 
 <h2>Candidate Information</h2>
+{% with cand_user_profile=candidate.user.userprofile %}
 {% with student_info=candidate.get_college_student_info %}
 <ul>
   <li>
@@ -32,17 +33,15 @@ No photo uploaded yet.
     {% endif %}
   </li>
   <li>
-    {% with cand_user_profile=candidate.user.userprofile %}
     Phone: {{ cand_user_profile.cell_phone }}
     ({% if cand_user_profile.receive_text %}does not receive{% else %}receives{% endif %} texts)
-    {% endwith cand_user_profile %}
   </li>
   <li>Email: <a href="mailto:{{ candidate.user.email }}">{{ candidate.user.email }}</a></li>
   <li>University start term: {{ student_info.start_term.verbose_name }}</li>
 </ul>
-{% endwith %}
+{% endwith student_info %}
 
-<form method="post">
+<form method="post" class="form-narrow">
   {% csrf_token %}
   {{ form.management_form }}
 
@@ -56,7 +55,7 @@ No photo uploaded yet.
     {% empty %}
     No {{ event_type }} events attended.
     {% endfor %}
-    {% endwith %}
+    {% endwith event_type %}
   </ul>
   {% empty %}
   There are no Event requirements.
@@ -88,7 +87,7 @@ No photo uploaded yet.
   {% else %}
   No {{ challenge_type }} challenges submitted.
   {% endif %}
-  {% endwith %}
+  {% endwith challenge_type %}
   {% empty %}
   There are no Challenge requirements.
   {% endfor %}
@@ -143,12 +142,15 @@ No photo uploaded yet.
   There are no Manual requirements.
   {% endfor %}
 
-  <div>
-    <input type="submit" value="Update">
-  </div>
+  {% if form.total_form_count > 0 %}
+  <p>
+    <input type="submit" value="Save Changes to Requirements for {{ cand_user_profile.get_short_name }}">
+  </p>
+  {% endif %}
 </form>
+{% endwith cand_user_profile %}
 
-<div>
+<p>
   <a href="{% url 'candidates:term' candidate.term.get_url_name %}"><strong>Back to {{ candidate.term.verbose_name }} Candidates</strong></a>
-</div>
+</p>
 {% endblock content %}
