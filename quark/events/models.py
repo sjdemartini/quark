@@ -115,7 +115,7 @@ class Event(models.Model):
         verbose_name_plural = 'events'
 
     def __unicode__(self):
-        return '{} - {}'.format(self.name, unicode(self.term))
+        return u'{} - {}'.format(self.name, unicode(self.term))
 
     # TODO(sjdemartini): implement get_absolute_url(self) for returning the
     # URL of an event object

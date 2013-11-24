@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import permission_required
 from django.core.urlresolvers import reverse
@@ -248,9 +249,12 @@ class IndividualAttendanceListView(ListView):
     model = EventAttendance
     template_name = 'events/individual_attendance.html'
     term = None
+    attendance_user = None
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
+        self.attendance_user = get_object_or_404(
+            get_user_model(), username=self.kwargs['username'])
         self.term = Term.objects.get_current_term()
         return super(IndividualAttendanceListView, self).dispatch(
             *args, **kwargs)
@@ -258,13 +262,16 @@ class IndividualAttendanceListView(ListView):
     def get_queryset(self):
         return EventAttendance.objects.filter(
             event__term=self.term,
-            person=self.request.user).order_by(
+            person=self.attendance_user).order_by(
             'event__end_datetime')
 
     def get_context_data(self, **kwargs):
         context = super(
             IndividualAttendanceListView, self).get_context_data(**kwargs)
+        context['attendance_user'] = self.attendance_user
         context['signups'] = EventSignUp.objects.filter(
-            person=self.request.user, unsignup=False)
+            event__term=self.term,
+            event__start_datetime__gt=timezone.now(),
+            person=self.attendance_user, unsignup=False)
         context['display_term'] = self.term
         return context
