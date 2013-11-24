@@ -13,8 +13,12 @@
 {% block content %}
 {# TODO(ericdwang): Add selector for term #}
 <div>
-  <a href="{% url 'candidates:edit-requirements' %}">Edit Requirements</a>
-  | <a href=" {% url 'candidates:challenges' %}">Candidate Challenges</a>
+  <a href="{% url 'candidates:edit-requirements' %}" class="btn">
+    <i class="icon-wrench"></i> Edit Requirements
+  </a>
+  <a href=" {% url 'candidates:challenges' %}" class="btn">
+    Candidate Challenges
+  </a>
 </div>
 
 <div>

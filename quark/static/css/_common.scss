@@ -61,6 +61,25 @@ td {
   border-bottom: 1px dashed #666;
 }
 
+// Input Styling
+
+.btn {
+  border: solid 1px #adadad;
+  padding: 0.5em;
+  display: inline-block;
+  border-radius: 0.2em;
+  text-decoration: none;
+  &:hover {
+    background-color: #ebebeb;
+    text-decoration: none;
+  }
+  &:active {
+    @include box-shadow(inset 0 3px 5px rgba(0, 0, 0, 0.125));
+  }
+}
+
+// Form
+
 #content form {
   .form-entry {
     margin: 1em 0;
@@ -132,6 +151,8 @@ td {
   }
   input[type=submit] {
     margin-left: $form-label-width + $form-sep;
+    background-color: #fff;
+    @extend .btn;
     @include respond-to(small-med) {
       width: auto;
       margin-left: 0;

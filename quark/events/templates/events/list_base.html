@@ -11,7 +11,9 @@
 
 {% if perms.events.add_event %}
 <p>
-  <a href="{% url 'events:add' %}">Add Event</a>
+  <a href="{% url 'events:add' %}" class="btn">
+    <i class="icon-plus"></i> Event
+  </a>
   {# TODO(sjdemartini): add links for event admin and leaderboard #}
 </p>
 {% endif %}
