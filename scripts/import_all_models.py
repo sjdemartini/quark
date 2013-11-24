@@ -2,6 +2,7 @@ from django.core.management import call_command
 
 from scripts.alter_tables import alter_tables
 from scripts.import_base_models import import_terms
+from scripts.import_base_tbp_models import import_officers
 from scripts.import_courses_models import import_courses
 from scripts.import_courses_models import import_course_instances
 from scripts.import_courses_models import import_departments
@@ -50,6 +51,7 @@ from scripts.import_user_models import import_users
 # events.event.json
 # events.eventsignup.json
 # events.eventattendance.json
+# noiro_main.officer.json
 
 print('Backing up all current data to scripts/data/backup.json')
 backup = open('scripts/data/backup.json', 'w')
@@ -93,5 +95,8 @@ print('Importing event sign ups.')
 import_event_sign_ups()
 print('Importing event attendances.')
 import_event_attendances()
+
+print('Importing officers.')
+import_officers()
 
 print('All models successfully imported.')
