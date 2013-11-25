@@ -21,6 +21,7 @@ from scripts.import_base_models import SEMESTER_TO_TERM
 MAJOR_PK_CONVERSION = 999
 
 user_model = get_user_model()
+timezone = get_current_timezone()
 
 
 def delete_users():
@@ -33,7 +34,6 @@ def delete_user_profiles():
 
 def import_users():
     models = get_json_data('auth.user.json')
-    timezone = get_current_timezone()
     for model in models:
         fields = model['fields']
         user = user_model.objects.create_user(

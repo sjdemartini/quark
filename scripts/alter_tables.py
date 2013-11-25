@@ -5,7 +5,8 @@ TABLES = [
     'user_profiles_studentorguserprofile',
     'project_reports_projectreport',
     'events_event',
-    'events_eventsignup']
+    'events_eventsignup',
+    'resumes_resume']
 
 
 def alter_tables():
