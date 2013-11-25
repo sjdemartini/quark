@@ -1,3 +1,5 @@
+import os
+
 from django.contrib.auth import get_user_model
 from django.core.files import File
 
@@ -47,8 +49,10 @@ def import_project_reports():
         for candidate_pk in fields['candidate_list']:
             project_report.candidate_list.add(user_model.objects.get(
                 pk=candidate_pk))
+
         if fields['attachment']:
-            with open(NOIRO_MEDIA_LOCATION +
-                      fields['attachment'], 'r') as attachment:
+            attachment_location = os.path.join(
+                NOIRO_MEDIA_LOCATION, fields['attachment'])
+            with open(attachment_location, 'r') as attachment:
                 project_report.attachment = File(attachment)
                 project_report.save()

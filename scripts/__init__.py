@@ -4,7 +4,7 @@ import os
 from django.conf import settings
 
 
-NOIRO_MEDIA_LOCATION = '/var/noiro/media/'
+NOIRO_MEDIA_LOCATION = '/var/noiro/media'
 
 
 def get_json_data(filename):

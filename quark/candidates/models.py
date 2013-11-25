@@ -353,3 +353,4 @@ class CandidateRequirementProgress(models.Model):
 
     class Meta(object):
         ordering = ('requirement', 'candidate')
+        verbose_name_plural = 'candidate requirement progresses'

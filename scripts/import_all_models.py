@@ -1,7 +1,13 @@
 from django.core.management import call_command
 
 from scripts.alter_tables import alter_tables
+from scripts.import_base_models import import_officers
 from scripts.import_base_models import import_terms
+from scripts.import_candidates_models import import_candidates
+from scripts.import_candidates_models import import_candidate_progresses
+from scripts.import_candidates_models import import_challenges
+from scripts.import_candidates_models import import_challenge_requirements
+from scripts.import_candidates_models import import_event_requirements
 from scripts.import_courses_models import import_courses
 from scripts.import_courses_models import import_course_instances
 from scripts.import_courses_models import import_departments
@@ -57,6 +63,11 @@ from scripts.import_user_models import import_users
 # user_profiles.resume.json
 # examfiles.exam.json
 # examfiles.examflag.json
+# candidate_portal.candidateprofile.json
+# candidate_portal.challengerequirement.json
+# candidate_portal.challenge.json
+# candidate_portal.eventrequirement.json
+# candidate_portal.eventrequirementexception.json
 
 print('Backing up all current data to scripts/data/backup.json')
 backup = open('scripts/data/backup.json', 'w')
@@ -111,5 +122,16 @@ print('Importing exams.')
 import_exams()
 print('Importing exam flags.')
 import_exam_flags()
+
+print('Importing candidates.')
+import_candidates()
+print('Importing candidate challenge requirements.')
+import_challenge_requirements()
+print('Importing challenges.')
+import_challenges()
+print('Importing candidate event requirements.')
+import_event_requirements()
+print('Importing candidate requirement progresses.')
+import_candidate_progresses()
 
 print('All models successfully imported.')

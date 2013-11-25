@@ -1,3 +1,5 @@
+import os
+
 from dateutil import parser
 from django.contrib.auth import get_user_model
 from django.core.files import File
@@ -5,7 +7,6 @@ from django.utils.timezone import get_current_timezone
 from django.utils.timezone import make_aware
 
 from quark.resumes.models import Resume
-
 from scripts import get_json_data
 from scripts import NOIRO_MEDIA_LOCATION
 
@@ -36,8 +37,9 @@ def import_resumes():
 
         # Try to get the resume file, which may not exist (very rare)
         try:
-            with open(NOIRO_MEDIA_LOCATION +
-                      fields['file'], 'r') as resume_file:
+            resume_location = os.path.join(
+                NOIRO_MEDIA_LOCATION, fields['file'])
+            with open(resume_location, 'r') as resume_file:
                 resume.resume_file = File(resume_file)
                 resume.save()
         except IOError:

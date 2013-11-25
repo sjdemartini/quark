@@ -1,3 +1,5 @@
+import os
+
 from dateutil import parser
 from django.contrib.auth import get_user_model
 from django.core.files import File
@@ -9,7 +11,6 @@ from quark.base.models import Term
 from quark.user_profiles.models import CollegeStudentInfo
 from quark.user_profiles.models import StudentOrgUserProfile
 from quark.user_profiles.models import UserProfile
-
 from scripts import get_json_data
 from scripts import NOIRO_MEDIA_LOCATION
 from scripts.import_base_models import SEMESTER_TO_TERM
@@ -19,6 +20,12 @@ from scripts.import_base_models import SEMESTER_TO_TERM
 # the majors is the same, so 999 needs to be added to a noiro pk to convert it
 # to a quark pk.
 MAJOR_PK_CONVERSION = 999
+# Dictionary mapping the pk's of users to booleans of whether they have
+# initiated. This is necessary when importing candidates because has_initiated
+# was moved from the user profile model to the candidate model, and it's
+# impossible to lookup has_initiated from the json file given a candidate or
+# user pk.
+HAS_INITIATED = {}
 
 user_model = get_user_model()
 timezone = get_current_timezone()
@@ -58,6 +65,7 @@ def import_user_profiles():
     models = get_json_data('user_profiles.userprofile.json')
     for model in models:
         fields = model['fields']
+        HAS_INITIATED[fields['user']] = fields['has_initiated']
 
         user_profile, _ = UserProfile.objects.get_or_create(
             pk=model['pk'],
@@ -81,8 +89,11 @@ def import_user_profiles():
             perm_state=fields['perm_state'],
             perm_zip=fields['perm_zip'],
             international_address=fields['international_address'])
+
         if fields['picture']:
-            with open(NOIRO_MEDIA_LOCATION + fields['picture'], 'r') as picture:
+            picture_location = os.path.join(
+                NOIRO_MEDIA_LOCATION, fields['picture'])
+            with open(picture_location, 'r') as picture:
                 user_profile.picture = File(picture)
                 user_profile.save()
 
