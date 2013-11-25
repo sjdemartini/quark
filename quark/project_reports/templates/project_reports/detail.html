@@ -14,7 +14,7 @@
   {% endif %}
   <dl>
     <dt class="inline">Author</dt>
-      <dd>{{ project_report.author }}</dd>
+      <dd>{{ project_report.author.userprofile.get_common_name }}</dd>
     <dt class="inline">Date of Project</dt>
       <dd>{{ project_report.date }}</dd>
     <dt class="inline">Project Area</dt>
@@ -43,21 +43,21 @@
       <dd>{{ project_report.results }}</dd>
     <dt>Officers ({{ project_report.officer_list.count }})</dt>
       <dd>
-      {% for officer in project_report.officer_list.all %}{{ officer }}{% if not forloop.last %}, {% endif %}
+      {% for officer in project_report.officer_list.all %}{{ officer.userprofile.get_common_name }}{% if not forloop.last %}, {% endif %}
       {% empty %}
       None
       {% endfor %}
       </dd>
     <dt>Members ({{ project_report.member_list.count }})</dt>
       <dd>
-      {% for member in project_report.member_list.all %}{{ member }}{% if not forloop.last %}, {% endif %}
+      {% for member in project_report.member_list.all %}{{ member.userprofile.get_common_name }}{% if not forloop.last %}, {% endif %}
       {% empty %}
       None
       {% endfor %}
       </dd>
     <dt>Candidates ({{ project_report.candidate_list.count }})</dt>
       <dd>
-      {% for candidate in project_report.candidate_list.all %}{{ candidate }}{% if not forloop.last %}, {% endif %}
+      {% for candidate in project_report.candidate_list.all %}{{ candidate.userprofile.get_common_name }}{% if not forloop.last %}, {% endif %}
       {% empty %}
       None
       {% endfor %}
