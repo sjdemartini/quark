@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import models
 from django.db.models import Sum
+from django.template import defaultfilters
 from django.utils import timezone
 
 from quark.base.models import Term
@@ -126,8 +127,12 @@ class Event(models.Model):
 
     def is_multiday(self):
         """Return True if the event starts on a different date than it ends.
+
+        Ensures that the multiday check uses the current timezone.
         """
-        return self.start_datetime.date() != self.end_datetime.date()
+        start_date = timezone.localtime(self.start_datetime).date()
+        end_date = timezone.localtime(self.end_datetime).date()
+        return start_date != end_date
 
     def get_num_guests(self):
         """Return the number of guests signed-up users are bringing along.
@@ -171,13 +176,11 @@ class Event(models.Model):
         start_time = Event.__get_time_string(self.start_datetime)
         end_time = Event.__get_time_string(self.end_datetime)
         if self.is_multiday():
-            start_date = '({}/{})'.format(
-                self.start_datetime.strftime('%m').lstrip('0'),
-                self.start_datetime.strftime('%d').lstrip('0'))
-            end_date = '({}/{})'.format(
-                self.end_datetime.strftime('%m').lstrip('0'),
-                self.end_datetime.strftime('%d').lstrip('0'))
-            return '{} {} - {} {}'.format(
+            start_datetime = timezone.localtime(self.start_datetime)
+            start_date = defaultfilters.date(start_datetime, 'n/j')
+            end_datetime = timezone.localtime(self.end_datetime)
+            end_date = defaultfilters.date(end_datetime, 'n/j')
+            return '({}) {} - ({}) {}'.format(
                 start_date, start_time, end_date, end_time)
         elif start_time == end_time:
             return 'TBA'
@@ -211,18 +214,23 @@ class Event(models.Model):
         """Return a 'weekday, month day#' abbreviated string representation of
         the datetime object.
 
+        Ensures that the time is displayed in the current timezone.
+
         An example output could be 'Sat, Nov 3'.
         """
-        return '{} {}'.format(datetime_object.strftime('%a, %b'),
-                              datetime_object.strftime("%d").lstrip('0'))
+        datetime_object = timezone.localtime(datetime_object)
+        return defaultfilters.date(datetime_object, 'D, M j')
 
     @staticmethod
     def __get_time_string(datetime_object):
         """Return the current time in 12-hour AM/PM format.
 
+        Ensures that the time is displayed in the current timezone.
+
         An example output could be '10:42 PM'.
         """
-        return datetime_object.strftime("%I:%M %p").lstrip('0')
+        datetime_object = timezone.localtime(datetime_object)
+        return defaultfilters.date(datetime_object, 'g:i A')
 
 
 class EventSignUp(models.Model):

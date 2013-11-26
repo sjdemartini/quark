@@ -2,6 +2,7 @@ import datetime
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
+from django.test.utils import override_settings
 from django.utils import timezone
 
 from quark.base.models import Term
@@ -14,6 +15,7 @@ from quark.project_reports.models import ProjectReport
 from quark.shortcuts import get_object_or_none
 
 
+@override_settings(USE_TZ=True)
 class EventTesting(TestCase):
     """Define a common setUp and helper method for event testing.
 
@@ -125,7 +127,9 @@ class EventTest(EventTesting):
         self.assertFalse(event.is_upcoming())
 
     def test_is_multiday(self):
-        start_time = timezone.now()
+        start_time = datetime.datetime(2015, 3, 14, 9, 26, 53, 59)
+        start_time = timezone.make_aware(start_time,
+                                         timezone.get_current_timezone())
         end_time = start_time + datetime.timedelta(days=1)
         event = self.create_event(start_time, end_time,
                                   name='My Multiday Event')
@@ -138,19 +142,18 @@ class EventTest(EventTesting):
         event.save()
         self.assertTrue(event.is_multiday())
 
-        # Ensure that the start hour is not so late in the day that the end
-        # time goes into the following day:
-        start_time = start_time.replace(hour=3, minute=14)
-        end_time = start_time + datetime.timedelta(hours=15)
+        # Create a very long event that does not span more than one day
+        start_time = start_time.replace(hour=0, minute=1)
+        end_time = start_time + datetime.timedelta(hours=23, minutes=50)
         event = self.create_event(start_time, end_time,
                                   name='My Non-multiday Event')
         event.save()
         self.assertFalse(event.is_multiday())
 
     def test_list_date(self):
-        start_time = timezone.now()
-        start_time = start_time.replace(month=3, day=14, year=2015, hour=9,
-                                        minute=26)
+        start_time = datetime.datetime(2015, 3, 14, 9, 26, 53, 59)
+        start_time = timezone.make_aware(start_time,
+                                         timezone.get_current_timezone())
         end_time = start_time + datetime.timedelta(hours=2)
         event = self.create_event(start_time, end_time,
                                   name='My Pi Day Event')
@@ -168,9 +171,9 @@ class EventTest(EventTesting):
         self.assertEqual(event.list_date(), 'Sat, Mar 14 - Tue, Mar 17')
 
     def test_list_time(self):
-        start_time = timezone.now()
-        start_time = start_time.replace(month=3, day=14, year=2015, hour=9,
-                                        minute=26)
+        start_time = datetime.datetime(2015, 3, 14, 9, 26, 53, 59)
+        start_time = timezone.make_aware(start_time,
+                                         timezone.get_current_timezone())
         end_time = start_time + datetime.timedelta(hours=2, minutes=6)
         event = self.create_event(start_time, end_time,
                                   name='My Pi Day Event')
@@ -199,9 +202,9 @@ class EventTest(EventTesting):
         self.assertEqual(event.list_time(), 'TBA')
 
     def test_view_datetime(self):
-        start_time = timezone.now()
-        start_time = start_time.replace(month=3, day=14, year=2015, hour=9,
-                                        minute=26)
+        start_time = datetime.datetime(2015, 3, 14, 9, 26, 53, 59)
+        start_time = timezone.make_aware(start_time,
+                                         timezone.get_current_timezone())
         end_time = start_time + datetime.timedelta(hours=2, minutes=4)
         event = self.create_event(start_time, end_time,
                                   name='My Pi Day Event')
