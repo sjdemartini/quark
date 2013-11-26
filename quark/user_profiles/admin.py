@@ -9,7 +9,7 @@ class CollegeStudentInfoAdmin(admin.ModelAdmin):
     list_display = ('user', 'start_term', 'grad_term')
     list_filter = ('major', 'start_term', 'grad_term')
     search_fields = ('user__username', 'user__first_name', 'user__last_name',
-                     'major')
+                     'major__long_name', 'major__short_name')
 
 
 class StudentOrgUserProfileAdmin(admin.ModelAdmin):

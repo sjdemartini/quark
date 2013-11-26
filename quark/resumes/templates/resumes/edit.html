@@ -15,7 +15,14 @@
 
 {% if info %}
 <p>Graduation term: {{ info.grad_term.verbose_name }}</p>
-<p>Major: {{ info.major }}</p>
+<p>Major:
+  {% for major in info.major.all %}
+  {{ major }}{% if not forloop.last %}, {% endif %}
+  {% empty %}
+  Not specified
+  {% endfor %}
+  </ul>
+</p>
 {% else %}
 <p>Graduation term and major not specified. You can edit your info <a href="{#TODO#}"><strong>here</strong></a>.</p>
 {% endif %}

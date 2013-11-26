@@ -47,6 +47,6 @@ class Resume(models.Model):
             first=self.user.first_name, last=self.user.last_name)
 
     def __unicode__(self):
-        return '{user} - {time}'.format(
+        return '{user} (Updated {time})'.format(
             user=self.user.get_full_name(),
-            time=self.updated.strftime('%Y-%m-%d %H:%M:%S'))
+            time=self.updated.strftime('%Y-%m-%d %H:%M:%S %Z'))
