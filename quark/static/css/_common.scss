@@ -38,10 +38,13 @@ div {
   // in which the inserted div's position is absolute
 }
 
+// Table styling
 table {
   margin: 10px 0;
+  width: 100%;
 }
 
+.simple table,
 table.simple {
   th,
   td {
@@ -67,8 +70,34 @@ td {
   border-bottom: 1px dashed #666;
 }
 
-// Input Styling
+// Bordered table:
+.bordered,
+.bordered th,
+.bordered td {
+  border: 1px solid #000;
+}
 
+// Make the footable's detail cells not use a solid border
+.bordered {
+  .footable-row-detail,
+  .footable-row-detail-cell {
+    border-top: 1px dashed;
+  }
+}
+
+// Hack to make footable sorting use proper up vs. down arrows (per common
+// convention), since footable by default uses up arrow when currently in
+// descending order (and down for ascending). They are reversed below.
+.footable > thead > tr > th.footable-sorted > span.footable-sort-indicator:before {
+  content: "\e012" !important;
+}
+
+.footable > thead > tr > th.footable-sorted-desc > span.footable-sort-indicator:before {
+  content: "\e013" !important;
+}
+
+
+// Input Styling
 .btn {
   border: solid 1px #adadad;
   padding: 0.5em;
@@ -85,7 +114,6 @@ td {
 }
 
 // Form
-
 #content form {
   .form-entry {
     margin: 1em 0;
@@ -194,12 +222,6 @@ td {
 .form-required-message {
   color: #f00;
   font-size: 90%;
-}
-
-.border,
-.border th,
-.border td {
-  border: 1px solid #000;
 }
 
 #pagination {

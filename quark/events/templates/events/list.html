@@ -1,6 +1,19 @@
 {% extends 'events/list_base.html' %}
 
-{% load static %}
+{% load static settings_values %}
+
+{% block head %}
+{% include 'footable.html' %}
+<script src="{% static 'footable/js/footable.filter.js' %}" type="text/javascript"></script>
+<script src="{% static 'footable/js/footable.sort.js' %}" type="text/javascript"></script>
+<script>
+  $(function() {
+    $('.clear-filter').click(function(eventObj) {
+      $('#events').trigger('footable_clear_filter');
+    });
+  });
+</script>
+{% endblock head %}
 
 {% block content %}
 {% url 'events:list' as events_list_url %}
@@ -18,41 +31,41 @@
 </p>
 
 {% if events %}
-<div>
-  <table class="border" id="events">
-    <thead>
-      <tr>
-        <th style="width:15%">Date</th>
-        <th style="width:30%">Event Name</th>
-        <th style="width:20%">Time</th>
-        <th style="width:15%">Location</th>
-        <th style="width:10%">Type</th>
-        <th style="width:10%">Contact</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for event in events %}
-      <tr>
-        <td>{{ event.list_date|safe }}</td>
-        <td><div><a href="{% url 'events:detail' event.id %}"><strong>{{ event.name }}</strong></a></div><div>{{ event.tagline }}</div></td>
-        <td>{{ event.list_time|safe }}</td>
-        <td>{{ event.location }}</td>
-        <td class="event-type {% if event.is_upcoming %}{{ event.event_type }}{% else %}past-event{% endif %}">
-          {# TODO(sjdemartini): add link to filter by event type #}
-          {{ event.event_type.name }}
-        </td>
-        <td>
-          {% comment %}
-          TODO(sjdemartini): remove the hard-coded @tbp.berkeley.edu.
-          Maybe include '@domain.com' in mailing list officer position objects?
-          {% endcomment %}
-          {% if event.committee.mailing_list %}<a href="mailto:{{ event.committee.mailing_list }}@tbp.berkeley.edu">{% endif %}{{ event.committee.short_name }}{% if event.committee.mailing_list %}</a>{% endif %}
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
+{% settings_assign 'HOSTNAME' as hostname %}
+<p>
+  Filter events: <input id="filter-input" type="text">
+  <a href="javascript:void(0)" class="clear-filter">[clear]</a>
+</p>
+
+<table class="footable bordered" data-filter="#filter-input" data-filter-text-only="true" id="events">
+  <thead>
+    <tr>
+      <th style="width:30%">Event Name</th>
+      <th data-type="numeric" data-sort-initial="true" style="width:15%">Date</th>
+      <th data-sort-ignore="true" style="width:20%">Time</th>
+      <th data-hide="phone" data-sort-ignore="true" style="width:15%">Location</th>
+      <th data-hide="phone" style="width:10%">Type</th>
+      <th data-hide="phone,tablet" style="width:10%">Contact</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for event in events %}
+    <tr>
+      <td data-value="{{ event.name|lower }}"><a href="{% url 'events:detail' event.id %}"><strong>{{ event.name }}</strong></a><div>{{ event.tagline }}</div></td>
+      <td data-value="{{ event.start_datetime|date:'U' }}">{{ event.list_date|safe }}</td>
+      <td>{{ event.list_time|safe }}</td>
+      <td>{{ event.location }}</td>
+      <td class="event-type {% if event.is_upcoming %}{{ event.event_type }}{% else %}past-event{% endif %}">
+        {# TODO(sjdemartini): add link to filter by event type #}
+        {{ event.event_type.name }}
+      </td>
+      <td>
+        {% if event.committee.mailing_list %}<a href="mailto:{{ event.committee.mailing_list }}@{{ hostname }}">{% endif %}{{ event.committee.short_name }}{% if event.committee.mailing_list %}</a>{% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
 
 {% else %}
 <p>No events are available.</p>
