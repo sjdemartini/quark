@@ -155,3 +155,43 @@ function setupForms() {
   requiredFields.parents('form').not('.form-narrow').before(
     '<div class="form-required-message">Required *</div>');
 }
+
+var formErrorClass = 'form-entry-error';
+var formErrorMsgClass = 'error';
+
+/**
+ * Apply an error to a form fieldname.
+ */
+function apply_form_field_error(fieldname, error, shouldFocus) {
+  var input = $('#id_' + fieldname);
+  if (shouldFocus) {
+    input.focus();
+  }
+  var container = input.parent();
+  var error_msg = $('<span></span>').addClass(formErrorMsgClass).text(error[0]);
+  container.addClass(formErrorClass);
+  error_msg.insertAfter(input);
+}
+
+/**
+ * Apply a general message above an element on the current page.
+ *
+ * @param message is the error message that should be displayed.
+ * @param form is the form, above which the error message will be added.
+ */
+function add_error_message(message, form) {
+  var msg = $('<div></div>').addClass('message error').text(message);
+  $(form).before(msg);
+}
+
+
+/**
+ * Clear error markup on form fields. Useful for when a form is resubmitted.
+ */
+function clear_form_field_errors(form) {
+  var fieldsWithErrors = $('.' + formErrorClass, $(form));
+  // Remove the error class from the form fields with errors
+  fieldsWithErrors.removeClass(formErrorClass);
+  // Remove the error messages from those fields
+  $('.' + formErrorMsgClass, fieldsWithErrors).remove();
+}
