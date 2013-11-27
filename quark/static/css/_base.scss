@@ -14,6 +14,13 @@ $form-label-width: 29%;
 $form-sep: 2%;
 $form-input-width: 65%;
 
+$error-text-color: #f00;
+$error-bg-color: #fdd;
+$error-border-color: #f99;
+
+$success-bg-color: #dfd;
+$success-border-color: #5c5;
+
 // Mixins
 @mixin respond-to($media) {
   @if $media == small {

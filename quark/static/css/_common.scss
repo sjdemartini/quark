@@ -183,8 +183,8 @@ td {
   }
   .form-entry-error {
     padding: 0.5em;
-    background: #fcc;
     @include border-radius(0.3em);
+    background: $error-bg-color;
   }
   input[type=submit] {
     margin-left: $form-label-width + $form-sep;
@@ -234,8 +234,25 @@ td {
 
 .error,
 .errorlist {
-  color: #f00;
+  color: $error-text-color;
   font-weight: 400;
+}
+
+.message {
+  @include border-radius(0.3em);
+  color: #000;
+  font-weight: 400;
+  padding: 0.5em;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  &.success {
+    background: $success-bg-color;
+    border: 1px solid $success-border-color;
+  }
+  &.error {
+    background: $error-bg-color;
+    border: 1px solid $error-border-color;
+  }
 }
 
 /* TYPOGRAPHY */
