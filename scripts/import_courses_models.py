@@ -27,6 +27,7 @@ def import_courses():
             pk=model['pk'],
             department=Department.objects.get(pk=fields['department']),
             number=fields['number'],
+            title=fields['title'],
             description=fields['description'])
 
 
