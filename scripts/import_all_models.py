@@ -11,6 +11,8 @@ from scripts.import_events_models import import_events
 from scripts.import_events_models import import_event_attendances
 from scripts.import_events_models import import_event_sign_ups
 from scripts.import_events_models import import_event_types
+from scripts.import_exams_models import import_exams
+from scripts.import_exams_models import import_exam_flags
 from scripts.import_project_reports_models import import_project_reports
 from scripts.import_resumes_models import import_resumes
 from scripts.import_user_models import delete_user_profiles
@@ -54,6 +56,8 @@ from scripts.import_user_models import import_users
 # events.eventattendance.json
 # noiro_main.officer.json
 # user_profiles.resume.json
+# examfiles.exam.json
+# examfiles.examflag.json
 
 print('Backing up all current data to scripts/data/backup.json')
 backup = open('scripts/data/backup.json', 'w')
@@ -103,5 +107,10 @@ import_officers()
 
 print('Importing resumes.')
 import_resumes()
+
+print('Importing exams.')
+import_exams()
+print('Importing exam flags.')
+import_exam_flags()
 
 print('All models successfully imported.')

@@ -145,7 +145,8 @@ class Instructor(models.Model):
 
 
 class CourseInstance(models.Model):
-    term = models.ForeignKey(Term)
+    # Allow terms to be null because some exams have unknown years
+    term = models.ForeignKey(Term, null=True)
     course = models.ForeignKey(Course)
     instructors = models.ManyToManyField(Instructor)
 
