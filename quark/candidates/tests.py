@@ -56,7 +56,6 @@ class CandidateTest(TestCase):
             first_name='Joe',
             last_name='Officer')
         committee = OfficerPosition(
-            position_type=OfficerPosition.TBP_OFFICER,
             short_name='IT_test',
             long_name='Information Technology (test)',
             rank=2,

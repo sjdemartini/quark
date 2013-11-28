@@ -1,7 +1,5 @@
 from test.test_support import EnvironmentVarGuard
 from test.test_support import import_fresh_module
-import datetime
-import uuid
 
 from django import forms
 from django.db import IntegrityError
@@ -10,65 +8,14 @@ from django.template import Context
 from django.template import Template
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.utils import timezone
-from django.utils.timezone import make_aware
-import mox
 
 from quark.base import fields
-from quark.base.models import RandomToken
 from quark.base.models import Major
 from quark.base.models import Term
 from quark.base.models import University
 from quark.settings.dev import DATABASES as DEV_DB
 from quark.settings.production import DATABASES as PROD_DB
 from quark.settings.staging import DATABASES as STAGING_DB
-
-
-class RandomTokenManagerTest(TestCase):
-    def setUp(self):
-        self.mox = mox.Mox()
-        self.tz = timezone.get_current_timezone()
-
-    def tearDown(self):
-        self.mox.UnsetStubs()
-
-    def test_random_token_generate(self):
-        date = make_aware(datetime.datetime(2012, 01, 01), self.tz)
-        self.mox.StubOutWithMock(uuid, 'uuid4')
-        uuid.uuid4().AndReturn('abcdefghijklmnopqrstuvwxyz')
-        self.mox.ReplayAll()
-        token = RandomToken.objects.generate(expiration_date=date)
-        self.assertEqual(token.token, 'abcdefghijklmnopqrstuvwxyz')
-        self.mox.VerifyAll()
-
-
-class RandomTokenTest(TestCase):
-    def setUp(self):
-        self.mox = mox.Mox()
-        self.tz = timezone.get_current_timezone()
-
-    def tearDown(self):
-        self.mox.UnsetStubs()
-
-    def test_is_expired_false(self):
-        date = make_aware(datetime.datetime(2012, 01, 01), self.tz)
-        self.mox.StubOutWithMock(timezone, 'now')
-        timezone.now().MultipleTimes().AndReturn(
-            make_aware(datetime.datetime(2011, 01, 01), self.tz))
-        self.mox.ReplayAll()
-        token = RandomToken.objects.generate(expiration_date=date)
-        self.assertFalse(token.is_expired())
-        self.mox.VerifyAll()
-
-    def test_is_expired(self):
-        date = make_aware(datetime.datetime(2012, 01, 01), self.tz)
-        self.mox.StubOutWithMock(timezone, 'now')
-        timezone.now().MultipleTimes().AndReturn(
-            make_aware(datetime.datetime(2013, 01, 01), self.tz))
-        self.mox.ReplayAll()
-        token = RandomToken.objects.generate(expiration_date=date)
-        self.assertTrue(token.is_expired())
-        self.mox.VerifyAll()
 
 
 class MajorTest(TestCase):

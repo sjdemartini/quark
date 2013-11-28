@@ -8,13 +8,3 @@
     domain: https://tbp.berkeley.edu
   model: sites.Site
   pk: 2
-- fields:
-    name: PiE Development
-    domain: http://pioneers.berkeley.edu:9999
-  model: sites.Site
-  pk: 3
-- fields:
-    name: PiE
-    domain: https://pioneers.berkeley.edu
-  model: sites.Site
-  pk: 4

@@ -7,7 +7,7 @@ TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
     ('TBP IT', 'it-notice@tbp.berkeley.edu'),
-    ('PiE IT', 'it-notice@pioneers.berkeley.edu'))
+)
 MANAGERS = ADMINS
 
 DATABASES = {

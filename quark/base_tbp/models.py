@@ -10,25 +10,19 @@ class OfficerPosition(models.Model):
     An Officer object would reference an instance of OfficerPosition to link a
     user to an officer position.
     """
-    # constants
-    TBP_OFFICER = 0
-    PIE_COORD = 1
-    PIE_LEAD = 2
-    PIE_STAFF = 3
-
-    OFFICER_TYPE_CHOICES = (
-        (TBP_OFFICER, 'TBP Officer'),
-        (PIE_COORD, 'PiE Coordinator'),
-        (PIE_LEAD, 'PiE Lead'),
-        (PIE_STAFF, 'PiE Staff'),
-    )
-
-    position_type = models.PositiveSmallIntegerField(
-        choices=OFFICER_TYPE_CHOICES)
     short_name = models.CharField(max_length=16, unique=True)
     long_name = models.CharField(max_length=64, unique=True)
     rank = models.DecimalField(max_digits=5, decimal_places=2)
-    mailing_list = models.CharField(max_length=16, blank=True)
+    mailing_list = models.CharField(
+        max_length=16, blank=True,
+        help_text='The mailing list name, not including the @domain.')
+    executive = models.BooleanField(
+        default=False,
+        help_text='Is this an executive position (like President)?')
+    auxiliary = models.BooleanField(
+        default=False,
+        help_text='Is this position auxiliary (i.e., not a core officer '
+                  'position)?')
 
     class Meta(object):
         ordering = ('rank',)

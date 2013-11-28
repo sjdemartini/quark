@@ -171,7 +171,6 @@ class DecoratorsTest(TestCase):
         self.term = Term(term=Term.FALL, year=2012, current=True)
         self.term.save()
         self.old_position = OfficerPosition(
-            position_type=OfficerPosition.TBP_OFFICER,
             short_name='IT',
             long_name='Information Technology',
             rank=2,
@@ -182,7 +181,6 @@ class DecoratorsTest(TestCase):
         self.it_chair.save()
         if current:
             self.position = OfficerPosition(
-                position_type=OfficerPosition.TBP_OFFICER,
                 short_name='VP',
                 long_name='Vice President',
                 rank=2,

@@ -4,16 +4,12 @@ from django.contrib.auth import get_user_model
 
 from quark.base.fields import VisualDateWidget
 from quark.base.forms import ChosenTermMixin
-from quark.base_tbp.models import OfficerPosition
 from quark.project_reports.models import ProjectReport
 from quark.user_profiles.fields import UserCommonNameChoiceField
 from quark.user_profiles.fields import UserCommonNameMultipleChoiceField
 
 
 class ProjectReportForm(ChosenTermMixin, forms.ModelForm):
-    committee = chosen_forms.ChosenModelChoiceField(
-        queryset=OfficerPosition.objects.filter(
-            position_type=OfficerPosition.TBP_OFFICER))
     area = chosen_forms.ChosenChoiceField(
         choices=ProjectReport.PROJECT_AREA_CHOICES)
     author = UserCommonNameChoiceField(
@@ -30,4 +26,5 @@ class ProjectReportForm(ChosenTermMixin, forms.ModelForm):
         exclude = ('first_completed_at',)
         widgets = {
             'date': VisualDateWidget(),
+            'committee': chosen_forms.ChosenSelectMultiple()
         }

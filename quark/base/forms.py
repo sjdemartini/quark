@@ -1,7 +1,5 @@
 from chosen import forms as chosen_forms
-from django import forms
 
-from quark.base.models import RandomToken
 from quark.base.models import Term
 
 
@@ -22,13 +20,3 @@ class ChosenTermMixin(object):
             queryset=Term.objects.get_terms(
                 include_future=False, include_summer=True, reverse=True),
             initial=Term.objects.get_current_term())
-
-
-class RandomTokenForm(forms.ModelForm):
-    """
-    Basic form that asks for an email.
-    Auto-generates a random token.
-    """
-    class Meta(object):
-        model = RandomToken
-        fields = ('email',)

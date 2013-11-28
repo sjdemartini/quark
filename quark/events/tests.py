@@ -30,7 +30,6 @@ class EventTesting(TestCase):
             last_name='Bent')
 
         self.committee = OfficerPosition(
-            position_type=OfficerPosition.TBP_OFFICER,
             short_name='IT',
             long_name='Information Technology',
             rank=2,

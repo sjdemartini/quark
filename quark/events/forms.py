@@ -1,11 +1,9 @@
 from chosen import forms as chosen_forms
-from chosen import widgets as chosen_widgets
 from django import forms
 from django.contrib.auth import get_user_model
 
 from quark.base.fields import VisualSplitDateTimeField
 from quark.base.forms import ChosenTermMixin
-from quark.base_tbp.models import OfficerPosition
 from quark.events.models import Event
 from quark.events.models import EventType
 from quark.events.models import EventSignUp
@@ -16,10 +14,6 @@ from quark.user_profiles.fields import UserCommonNameChoiceField
 class EventForm(ChosenTermMixin, forms.ModelForm):
     event_type = chosen_forms.ChosenModelChoiceField(
         label='Event Type', queryset=EventType.objects.all())
-
-    committee = chosen_forms.ChosenModelChoiceField(
-        queryset=OfficerPosition.objects.filter(
-            position_type=OfficerPosition.TBP_OFFICER), required=True)
 
     start_datetime = VisualSplitDateTimeField(label='Start date and time')
     end_datetime = VisualSplitDateTimeField(label='End date and time')
@@ -33,8 +27,13 @@ class EventForm(ChosenTermMixin, forms.ModelForm):
         model = Event
         exclude = ('cancelled', 'project_report')
         widgets = {
-            'restriction': chosen_widgets.ChosenSelect()
+            'restriction': chosen_forms.ChosenSelect(),
+            'committee': chosen_forms.ChosenSelectMultiple()
         }
+
+    def __init__(self, *args, **kwargs):
+        super(EventForm, self).__init__(*args, **kwargs)
+        self.fields['committee'].required = True
 
     def clean(self):
         cleaned_data = super(EventForm, self).clean()

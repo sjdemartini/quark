@@ -34,7 +34,6 @@ class UserProfilesTest(TestCase):
         self.term_old.save()
 
         self.committee = OfficerPosition(
-            position_type=OfficerPosition.TBP_OFFICER,
             short_name='it',
             long_name='Information Technology (test)',
             rank=2,
@@ -230,7 +229,6 @@ class UserTypeMethodTesting(TestCase):
         self.profile = self.user.userprofile
 
         self.committee = OfficerPosition(
-            position_type=OfficerPosition.TBP_OFFICER,
             short_name='it',
             long_name='Information Technology (test)',
             rank=2,
@@ -238,7 +236,6 @@ class UserTypeMethodTesting(TestCase):
         self.committee.save()
 
         self.house_leader = OfficerPosition(
-            position_type=OfficerPosition.TBP_OFFICER,
             short_name='house-leader',
             long_name='House Leader (test)',
             rank=3,
@@ -246,7 +243,6 @@ class UserTypeMethodTesting(TestCase):
         self.house_leader.save()
 
         self.advisor_pos = OfficerPosition(
-            position_type=OfficerPosition.TBP_OFFICER,
             short_name='advisor',
             long_name='Advisor (test)',
             rank=4,

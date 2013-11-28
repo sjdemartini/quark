@@ -1,9 +1,9 @@
 """
-Django settings for quark project - TBP and PiE's merged website project.
+Django settings for "quark" student organization website project.
 
-This file lists Django settings constant for both TBP and PiE, in development
-and production environments. Never import this directly unless you are sure you
-do not need the settings in the site- or env-specific settings files.
+This file lists Django settings constant for development and production
+environments. Never import this directly unless you are sure you do not need
+the settings in the site- or env-specific settings files.
 """
 
 import os
@@ -192,7 +192,6 @@ PROJECT_APPS = [
     'quark.accounts',
     'quark.achievements',
     'quark.base',
-    'quark.base_pie',
     'quark.base_tbp',
     'quark.candidates',
     'quark.courses',
@@ -202,12 +201,6 @@ PROJECT_APPS = [
     'quark.exams',
     'quark.minutes',
     'quark.past_presidents',
-    'quark.pie_events',
-    'quark.pie_inventory',
-    'quark.pie_match',
-    'quark.pie_register',
-    'quark.pie_staff_purchase',
-    'quark.pie_tool_checkout',
     'quark.project_reports',
     'quark.qldap',
     'quark.quote_board',

@@ -1,5 +1,3 @@
-import uuid
-
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
@@ -16,42 +14,6 @@ class IDCodeMixin(models.Model):
 
     class Meta(object):
         abstract = True
-
-
-# Models
-class RandomTokenManager(models.Manager):
-    def generate(self, **kwargs):
-        kwargs['token'] = kwargs.get('token', uuid.uuid4())
-        return self.create(**kwargs)
-
-
-class RandomToken(models.Model):
-    """
-    Generates a random string linked to an email or user. It can be used for
-    account registration
-    """
-    email = models.EmailField(unique=True)
-    expiration_date = models.DateTimeField()
-    token = models.CharField(unique=True, max_length=64)
-    used = models.BooleanField(default=False)
-
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True)
-
-    objects = RandomTokenManager()
-
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
-
-    def is_expired(self):
-        current_date = timezone.now()
-        return self.expiration_date < current_date
-
-    def __unicode__(self):
-        return "%s for %s, %s, %s" % (
-            self.token,
-            self.email,
-            self.expiration_date,
-            self.used)
 
 
 class University(models.Model):

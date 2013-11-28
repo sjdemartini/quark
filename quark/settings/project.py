@@ -63,8 +63,6 @@ LDAP_BASE = {
 }
 LDAP_GROUPS = {
     'TBP': ['tbp-officers', 'tbp-members', 'tbp-candidates'],
-    'PIE': ['pie-mentors', 'pie-it', 'pie-staff', 'pie-students',
-            'pie-teachers'],
 }
 LDAP_DEFAULT_USER = 'uid=default,ou=System,' + LDAP['BASE']
 

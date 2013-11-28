@@ -187,11 +187,7 @@ class UserProfile(models.Model):
         """
         # Note that QuerySets are lazy, so there is no database activity until
         # the list comprehension
-        # Import OfficerPosition here to avoid circular dependency
-        from quark.base_tbp.models import OfficerPosition
-        officers = self.user.officer_set.filter(
-            position__position_type=OfficerPosition.TBP_OFFICER).order_by(
-            'term', 'position')
+        officers = self.user.officer_set.order_by('term', 'position')
         if term:
             officers = officers.filter(term=term)
         return [officer.position for officer in officers]

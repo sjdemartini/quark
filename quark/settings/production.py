@@ -7,7 +7,7 @@ TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
     ('TBP IT', 'it-notice@tbp.berkeley.edu'),
-    ('PiE IT', 'it-notice@pioneers.berkeley.edu'))
+)
 MANAGERS = ADMINS
 
 # Only use LDAP user in production
