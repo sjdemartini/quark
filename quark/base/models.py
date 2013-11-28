@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib.auth.models import Group
 from django.db import models
 from django.utils import timezone
 
@@ -261,6 +262,49 @@ class OfficerPosition(models.Model):
     def natural_key(self):
         return (self.short_name,)
 
+    def get_corresponding_groups(self, term=None):
+        """Return a list of Django Auth Group objects corresponding to this
+        officer position and the term provided.
+
+        For every officer position, there will be two directly associated
+        Groups. One Group will have the same name as the officer position
+        (long_name). The other Group will have that name, prefixed with
+        "Current ". The "Current <long_name>" position refers to users who hold
+        the officer position in the current term.
+
+        Each officer position will also correspond to the "Executive" groups
+        if the position has the executive field set to True. Each position will
+        also correspond to the "Officer" groups if the auxiliary field is set
+        to False.
+
+        This method includes the "Current" groups in the result only if the
+        term given is the current term.
+        """
+        is_current_term = term.current if term else False
+
+        # Initialize the list of group names with the current officer position
+        # name:
+        group_names = [self.long_name]
+
+        # This position is part of the Officer group, unless it is an auxiliary
+        # position:
+        if not self.auxiliary:
+            group_names.append('Officer')
+
+        if self.executive:
+            group_names.append('Executive')
+
+        groups = []  # List of Group objects to return
+        for group_name in group_names:
+            group, _ = Group.objects.get_or_create(name=group_name)
+            groups.append(group)
+            if is_current_term:
+                current_group_name = 'Current {}'.format(group_name)
+                group, _ = Group.objects.get_or_create(name=current_group_name)
+                groups.append(group)
+
+        return groups
+
 
 class Officer(models.Model):
     """An officer of a student organization."""
@@ -271,6 +315,9 @@ class Officer(models.Model):
     is_chair = models.BooleanField(
         default=False,
         help_text='Is this person the chair of their committee?')
+
+    class Meta(object):
+        unique_together = ('user', 'position', 'term')
 
     def __unicode__(self):
         return '%s - %s (%s %d)' % (
@@ -283,5 +330,73 @@ class Officer(models.Model):
             name += ' Chair'
         return name
 
-    class Meta(object):
-        unique_together = ('user', 'position', 'term')
+    def _add_user_to_officer_groups(self):
+        """Add this Officer user to the corresponding officer position auth
+        groups.
+        """
+        groups = self.position.get_corresponding_groups(term=self.term)
+        self.user.groups.add(*groups)
+
+    def _remove_user_from_officer_groups(self):
+        """Remove this Officer user from the corresponding officer position auth
+        groups that the user would not be a part of without this Officer object.
+
+        This method, unlike _add_user_to_officer_groups, cannot simply remove
+        all groups corresponding to this officer position. The method must only
+        remove groups which the user would not be a part of without this
+        specific Officer object. Otherwise, this method would remove groups
+        that the user should remain a part of.
+        """
+        stale_groups = set(
+            self.position.get_corresponding_groups(term=self.term))
+
+        # Get a set of the officer groups the user should still be a part of:
+        groups = set()
+        officers = Officer.objects.filter(user=self.user).select_related(
+            'position')
+        for officer in officers:
+            groups.update(officer.position.get_corresponding_groups(
+                term=officer.term))
+
+        # Get the set of officer groups that should be removed but subtracting
+        # out the ones that are still needed:
+        stale_groups = stale_groups.difference(groups)
+
+        # Remove the user from these "stale" groups:
+        self.user.groups.remove(*stale_groups)
+
+
+def term_post_save(sender, instance, *args, **kwargs):
+    """Ensure that if the term being saved is set as the "current" term, all
+    groups that are specific to the current term are updated.
+    """
+    if instance.current:
+        # Clear out all existing "current term" groups, since the new current
+        # term is being saved here.
+        groups = Group.objects.filter(name__contains='Current')
+        for group in groups:
+            group.user_set.clear()
+
+        # Get all officers from this new current term and update their groups
+        officers = Officer.objects.filter(term=instance)
+        for officer in officers:
+            officer._add_user_to_officer_groups()
+
+
+def officer_post_save(sender, instance, *args, **kwargs):
+    """Ensure that the user for a new Officer object is added to the
+    corresponding auth groups.
+    """
+    instance._add_user_to_officer_groups()
+
+
+def officer_post_delete(sender, instance, *args, **kwargs):
+    """Ensure that the user for a new Officer object is removed from the
+    corresponding auth groups.
+    """
+    instance._remove_user_from_officer_groups()
+
+
+models.signals.post_save.connect(term_post_save, sender=Term)
+models.signals.post_save.connect(officer_post_save, sender=Officer)
+models.signals.post_delete.connect(officer_post_delete, sender=Officer)

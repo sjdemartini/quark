@@ -1,0 +1,33 @@
+# Groups that are not specific to the current term (e.g., the "Officer" group
+# is for current and former officers) -- not prefixed with "Current"
+- model: auth.group
+  pk: 1
+  fields:
+    name: Executive
+- model: auth.group
+  pk: 2
+  fields:
+    name: Officer
+- model: auth.group
+  pk: 3
+  fields:
+    name: Member
+
+# Groups that are specific to the current term -- prefixed with "Current"
+- model: auth.group
+  pk: 4
+  fields:
+    name: Current Executive
+- model: auth.group
+  pk: 5
+  fields:
+    name: Current Officer
+- model: auth.group
+  pk: 6
+  fields:
+    name: Current Candidate
+
+# Note that other non-term-specific and term-specific groups will be
+# auto-generated based on Officers added to the database (refer to
+# quark.base.models.py), where the groups correspond to the officer positions
+# for those Officers.

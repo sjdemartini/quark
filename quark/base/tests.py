@@ -4,6 +4,7 @@ from test.test_support import import_fresh_module
 from django import forms
 from django.db import IntegrityError
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
 from django.template import Context
 from django.template import Template
@@ -418,6 +419,275 @@ class OfficerTest(TestCase):
 
         self.assertEquals(len(officers), 1)
         self.assertEquals(officers[0].user, self.user)
+
+
+class OfficerGroupsTest(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username='officer',
+            email='it@tbp.berkeley.edu',
+            password='officerpw',
+            first_name='Off',
+            last_name='Icer')
+
+        self.term = Term(term=Term.SPRING, year=2012, current=True)
+        self.term.save()
+        self.term_old = Term(term=Term.FALL, year=2011)
+        self.term_old.save()
+
+        self.position_exec = OfficerPosition(
+            short_name='vp',
+            long_name='Vice President',
+            rank=1,
+            mailing_list='vp',
+            executive=True)
+        self.position_exec.save()
+        self.position_regular = OfficerPosition(
+            short_name='it',
+            long_name='Information Technology',
+            rank=2,
+            mailing_list='it')
+        self.position_regular.save()
+        self.position_auxiliary = OfficerPosition(
+            short_name='advisor',
+            long_name='Advisor',
+            rank=3,
+            mailing_list='advisor',
+            auxiliary=True)
+        self.position_auxiliary.save()
+
+        # Some standard groups:
+        self.officer_group = Group.objects.create(
+            name='Officer')
+        self.officer_group_curr = Group.objects.create(
+            name='Current Officer')
+        self.exec_group = Group.objects.create(
+            name='Executive')
+        self.exec_group_curr = Group.objects.create(
+            name='Current Executive')
+
+        # Groups from officer positions:
+        self.pos_exec_group = Group.objects.create(
+            name=self.position_exec.long_name)
+        self.pos_exec_group_curr = Group.objects.create(
+            name='Current {}'.format(self.position_exec.long_name))
+        self.pos_reg_group = Group.objects.create(
+            name=self.position_regular.long_name)
+        self.pos_reg_group_curr = Group.objects.create(
+            name='Current {}'.format(self.position_regular.long_name))
+        self.pos_aux_group = Group.objects.create(
+            name=self.position_auxiliary.long_name)
+        self.pos_aux_group_curr = Group.objects.create(
+            name='Current {}'.format(self.position_auxiliary.long_name))
+
+    def test_get_corresponding_groups(self):
+        """Test the OfficerPosition.get_corresponding_groups method."""
+        # If we specify the term that is the current term, then the "Current"
+        # groups should be included; otherwise, "Current" groups should not be
+        # included.
+        # Check the corresponding groups for a "regular" (non-auxiliary,
+        # non-exec) officer position. We should expect the corresponding groups
+        # to be Officer and the group specific to the position:
+        groups = [self.officer_group, self.pos_reg_group]
+        self.assertItemsEqual(
+            groups,
+            self.position_regular.get_corresponding_groups())
+        self.assertItemsEqual(
+            groups,
+            self.position_regular.get_corresponding_groups(self.term_old))
+        # For the current term:
+        groups.extend([self.officer_group_curr, self.pos_reg_group_curr])
+        self.assertItemsEqual(
+            groups,
+            self.position_regular.get_corresponding_groups(term=self.term))
+
+        # For the executive position, the corresponding groups will also
+        # include the "Executive" groups:
+        groups = [self.officer_group, self.exec_group, self.pos_exec_group]
+        self.assertItemsEqual(
+            groups,
+            self.position_exec.get_corresponding_groups())
+        self.assertItemsEqual(
+            groups,
+            self.position_exec.get_corresponding_groups(self.term_old))
+        # For the current term:
+        groups.extend([self.officer_group_curr, self.exec_group_curr,
+                       self.pos_exec_group_curr])
+        self.assertItemsEqual(
+            groups,
+            self.position_exec.get_corresponding_groups(term=self.term))
+
+        # For the auxiliary position, there should be no "Officer" group or
+        # "Executive" group (since the position is non-exec):
+        groups = [self.pos_aux_group]
+        self.assertItemsEqual(
+            groups,
+            self.position_auxiliary.get_corresponding_groups())
+        self.assertItemsEqual(
+            groups,
+            self.position_auxiliary.get_corresponding_groups(self.term_old))
+        # For the current term:
+        groups.append(self.pos_aux_group_curr)
+        self.assertItemsEqual(
+            groups,
+            self.position_auxiliary.get_corresponding_groups(term=self.term))
+
+    def test_add_groups(self):
+        # Test the Officer method for adding the user to groups. Note that no
+        # officer objects are saved, as that would activate post-saves, which
+        # are tested seprately.
+        officer = Officer(user=self.user, position=self.position_regular,
+                          term=self.term)
+        expected_groups = self.position_regular.get_corresponding_groups(
+            term=self.term)
+        self.assertFalse(self.user.groups.exists())
+        officer._add_user_to_officer_groups()
+        # Check that all of the expected groups were added for this user:
+        self.assertTrue(self.user.groups.exists())
+        for group in expected_groups:
+            self.assertTrue(self.user.groups.filter(pk=group.pk).exists())
+
+    def test_remove_groups(self):
+        # Test the Officer method for removing the user from groups. Note that
+        # unlike test_add_groups, this method saves the Officer objets, as the
+        # _remove_user_from_officer_groups method depends on database entries
+        # to work properly. Thus, this method relies on post-save functions for
+        # adding groups for a user. (Post-saves are also tested separately.)
+        self.assertFalse(self.user.groups.exists())  # No groups yet
+
+        # Add a regular officer position (for which the post-save should add
+        # groups):
+        officer_reg = Officer(user=self.user, position=self.position_regular,
+                              term=self.term)
+        officer_reg.save()
+        groups = list(self.user.groups.all())
+        self.assertTrue(len(groups) > 0)
+
+        # Add the groups for an exec officer position manually so that the
+        # Officer object is not in the database (and does not need to be
+        # deleted here before we can test the removal function), and the user's
+        # group count should increase:
+        officer_exec = Officer(user=self.user, position=self.position_exec,
+                               term=self.term)
+        officer_exec._add_user_to_officer_groups()
+        self.assertTrue(len(groups) < self.user.groups.count())
+
+        # Now remove groups from the exec position, and the user's groups
+        # should return to the same positions as from before the exec position
+        # added any:
+        officer_exec._remove_user_from_officer_groups()
+        self.assertItemsEqual(groups, list(self.user.groups.all()))
+
+    def test_officer_post_save(self):
+        """Test that a user is added to the appropriate groups on post-save."""
+        self.assertFalse(self.user.groups.exists())  # No groups yet
+
+        # Add a regular officer position (for which the post-save should add
+        # groups):
+        officer_reg = Officer(user=self.user, position=self.position_regular,
+                              term=self.term)
+        expected_groups = set(self.position_regular.get_corresponding_groups(
+            term=self.term))
+        self.assertFalse(self.user.groups.exists())
+        officer_reg.save()
+        # Check that all of the expected groups were added for this user:
+        self.assertItemsEqual(expected_groups, self.user.groups.all())
+
+        # Add another position, and check that the correct groups are added:
+        officer_exec = Officer(user=self.user, position=self.position_exec,
+                               term=self.term_old)
+        officer_exec.save()
+        expected_groups.update(self.position_exec.get_corresponding_groups(
+            term=self.term_old))
+        self.assertItemsEqual(expected_groups, self.user.groups.all())
+
+    def test_officer_post_delete(self):
+        """Test that a user is removed from the appropriate groups on
+        post-delete.
+        """
+        self.assertFalse(self.user.groups.exists())  # No groups yet
+
+        # Add a regular officer position (for which the post-save should add
+        # groups):
+        officer_reg = Officer(user=self.user, position=self.position_regular,
+                              term=self.term)
+        officer_reg.save()
+        groups = list(self.user.groups.all())
+        self.assertTrue(len(groups) > 0)
+
+        # Add an exec officer position for this user, and the user's group
+        # count should increase:
+        officer_exec = Officer(user=self.user, position=self.position_exec,
+                               term=self.term)
+        officer_exec.save()
+        self.assertTrue(len(groups) < self.user.groups.count())
+
+        # Now delete exec officer, and the user's groups should return to the
+        # same positions as from before the exec position added any:
+        officer_exec.delete()
+        self.assertItemsEqual(groups, list(self.user.groups.all()))
+
+        # And delete the regular officer, and the user should be part of no
+        # more groups:
+        officer_reg.delete()
+        self.assertFalse(self.user.groups.exists())
+
+    def test_term_post_save(self):
+        """Test that when terms are saved, the "Current" groups are kept
+        up-to-date.
+        """
+        self.assertFalse(self.user.groups.exists())  # No groups yet
+
+        # Add an exec officer position (for which the post-save should add
+        # groups) in the current term:
+        officer_exec = Officer(user=self.user, position=self.position_exec,
+                               term=self.term)
+        officer_exec.save()
+        expected_groups = set(self.position_exec.get_corresponding_groups(
+            term=self.term))
+        groups = list(self.user.groups.all())
+        self.assertTrue(len(groups) > 0)
+        self.assertItemsEqual(groups, expected_groups)
+
+        # Make sure saving the current term is a no-op:
+        self.term.save()
+        groups = list(self.user.groups.all())
+        self.assertItemsEqual(groups, expected_groups)
+
+        # Add a regular officer position for this user in a new term (not
+        # "current"), and the user's group count should increase:
+        term_new = Term(term=Term.FALL, year=2012)
+        term_new.save()
+        officer_reg = Officer(user=self.user, position=self.position_regular,
+                              term=term_new)
+        officer_reg.save()
+        expected_groups.update(self.position_regular.get_corresponding_groups(
+            term=term_new))
+        groups = list(self.user.groups.all())
+        self.assertItemsEqual(groups, expected_groups)
+
+        # Now change the "new" term to be the current term:
+        term_new.current = True
+        term_new.save()
+
+        # The self.term object is stale now, so re-fetch it from the database:
+        self.term = Term.objects.get(pk=self.term.pk)
+
+        # We should expect that the user should still be a "Current Officer",
+        # but no longer "Current" for the groups specific to the exec position.
+        groups = list(self.user.groups.all())
+        # Get "expected_groups" over again, since the current term has changed:
+        expected_groups = set(self.position_exec.get_corresponding_groups(
+            term=self.term))
+        expected_groups.update(self.position_regular.get_corresponding_groups(
+            term=term_new))
+        self.assertItemsEqual(groups, expected_groups)
+
+        # Double-check some of the "Current" groups:
+        self.assertNotIn(self.exec_group_curr, groups)
+        self.assertNotIn(self.pos_exec_group_curr, groups)
+        self.assertIn(self.officer_group_curr, groups)
+        self.assertIn(self.pos_reg_group_curr, groups)
 
 
 class SettingsTest(TestCase):
