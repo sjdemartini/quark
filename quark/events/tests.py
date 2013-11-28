@@ -581,3 +581,51 @@ class EventFormsTest(EventTesting):
         self.assertEqual(project_report.term, self.event.term)
 
         self.assertEqual(project_report, event.project_report)
+
+    def test_form_modifying_project_report(self):
+        """ Ensures that when an EventForm is saved and a project report (PR)
+        already exists for that event, that the PR is updated if the event
+        still needs it or the PR is deleted if not.
+        """
+        # Fill out the form for the existing event and require a PR:
+        fields = {'name': self.event.name,
+                  'event_type': self.event.event_type.pk,
+                  'term': self.event.term.pk,
+                  'contact': self.user.pk,
+                  'committee': self.event.committee.pk,
+                  'restriction': Event.OFFICER,
+                  'location': self.event.location,
+                  'requirements_credit': self.event.requirements_credit,
+                  'max_guests_per_person': self.event.max_guests_per_person,
+                  'signup_limit': self.event.signup_limit,
+                  'start_datetime_0': self.start_date,
+                  'start_datetime_1': self.start_time,
+                  'end_datetime_0': self.end_date,
+                  'end_datetime_1': self.end_time,
+                  'needs_pr': True}
+        form = EventForm(data=fields, instance=self.event)
+        # Ensure that saving the EventForm for the existing event creates a PR:
+        self.assertIsNone(self.event.project_report)  # No PR yet
+        form.save()
+        self.assertIsNotNone(self.event.project_report)  # Now has a PR
+        project_report = ProjectReport.objects.all().get()
+        self.assertEquals(self.event.project_report, project_report)
+        self.assertEquals(self.event.name, project_report.title)
+
+        # Ensure that saving a new version of the EventForm with an update to
+        # an event field updates the existing event PR
+        new_name = 'My New Event Name'
+        fields.update({'name': new_name})
+        form = EventForm(data=fields, instance=self.event)
+        form.save()
+        self.assertEquals(new_name, self.event.name)
+        project_report = ProjectReport.objects.all().get()
+        self.assertEquals(self.event.name, project_report.title)
+
+        # Now modify the form to mark that a project report is not needed,
+        # ensure that the PR is deleted when the form is saved
+        fields.update({'needs_pr': False})
+        form = EventForm(data=fields, instance=self.event)
+        form.save()
+        self.assertFalse(ProjectReport.objects.all().exists())
+        self.assertIsNone(self.event.project_report)

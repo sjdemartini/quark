@@ -13,7 +13,8 @@ class EventForm(ChosenTermMixin, forms.ModelForm):
     start_datetime = VisualSplitDateTimeField(label='Start date and time')
     end_datetime = VisualSplitDateTimeField(label='End date and time')
 
-    needs_pr = forms.BooleanField(label='Needs project report', required=False)
+    needs_pr = forms.BooleanField(
+        label='Needs project report', initial=True, required=False)
 
     contact = UserCommonNameChoiceField()
 
@@ -29,6 +30,11 @@ class EventForm(ChosenTermMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(EventForm, self).__init__(*args, **kwargs)
         self.fields['committee'].required = True
+        # If there is an event instance for this form, infer whether a project
+        # report is needed based on whether the existing event has a project
+        # report:
+        if self.instance:
+            self.fields['needs_pr'].initial = bool(self.instance.project_report)
 
     def clean(self):
         cleaned_data = super(EventForm, self).clean()
@@ -58,7 +64,6 @@ class EventForm(ChosenTermMixin, forms.ModelForm):
     def save(self, *args, **kwargs):
         event = super(EventForm, self).save(*args, **kwargs)
         needs_pr = self.cleaned_data['needs_pr']
-
         if needs_pr:
             if event.project_report is None:
                 # Create PR
@@ -74,12 +79,17 @@ class EventForm(ChosenTermMixin, forms.ModelForm):
             project_report.committee = event.committee
             project_report.save()
             event.project_report = project_report
-            event.save()
+            event.save(update_fields=['project_report'])
         elif event.project_report is not None:
-            # Does not need project report, so delete PR
-            event.project_report.delete()
+            # Event does not need project report, so delete PR after removing
+            # the foreign key from the event. The FKey must be removed first
+            # and change must be saved to the database, otherwise a cascading
+            # delete will remove the event and anything that depends on it when
+            # the PR is deleted.
+            project_report = event.project_report
             event.project_report = None
-            event.save()
+            event.save(update_fields=['project_report'])
+            project_report.delete()
         return event
 
 
@@ -93,9 +103,15 @@ class EventSignUpForm(forms.ModelForm):
 
     class Meta(object):
         model = EventSignUp
-        fields = ('name', 'comments', 'driving', 'num_guests')
+        fields = ('comments', 'driving', 'num_guests')
+        widgets = {
+            # Make the comments widget shorter than the standard Textarea,
+            # since signup comments typically need not be very long.
+            'comments': forms.Textarea(attrs={'rows': 4})
+        }
 
     def __init__(self, *args, **kwargs):
+        needs_drivers = kwargs.pop('needs_drivers', False)
         max_guests = kwargs.pop('max_guests', None)
         super(EventSignUpForm, self).__init__(*args, **kwargs)
         if max_guests:
@@ -107,16 +123,23 @@ class EventSignUpForm(forms.ModelForm):
             # Remove the num_guests field from the form
             del self.fields['num_guests']
 
+        if not needs_drivers:
+            # Remove the driving field if the event doesn't need drivers
+            del self.fields['driving']
+
     # TODO(sjdemartini): Perform separate validation to ensure that the event
     # has enough space for the user and his guests, considering whether the
     # user is editing an existing signup or creating a new signup.
 
 
 class EventSignUpAnonymousForm(EventSignUpForm):
-    class Meta(object):
-        model = EventSignUp
+    # TODO(sjdemartini): check that the email address used does not belong to
+    # a user in the database already, in which case they should be told to
+    # sign in instead
+    class Meta(EventSignUpForm.Meta):
         fields = ('name', 'email', 'comments', 'driving', 'num_guests')
 
     def __init__(self, *args, **kwargs):
         super(EventSignUpAnonymousForm, self).__init__(*args, **kwargs)
+        self.fields['name'].required = True
         self.fields['email'].required = True

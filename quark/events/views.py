@@ -93,7 +93,6 @@ class EventCreateView(CreateView):
 
 class EventUpdateView(UpdateView):
     """View for editing a previously-created event."""
-
     form_class = EventForm
     model = Event
     pk_url_kwarg = 'event_pk'
@@ -119,19 +118,29 @@ class EventDetailView(DetailView):
     pk_url_kwarg = 'event_pk'
     model = Event
     template_name = 'events/detail.html'
+    object = None  # The event object being fetched for the DetailView
     form = None  # The form can be passed in as a parameter
 
     def dispatch(self, *args, **kwargs):
-        event = self.get_object()
-        # If this user can't view the current event, redirect to redirect to
-        # login if they aren't already logged in, otherwise raise
-        # PermissionDenied
-        if not event.can_user_view(self.request.user):
+        self.object = self.get_object()
+        # If this user can't view the current event, redirect to login if they
+        # aren't already logged in; otherwise raise PermissionDenied
+        if not self.object.can_user_view(self.request.user):
             if self.request.user.is_authenticated():
                 raise PermissionDenied
             else:
                 return redirect_to_login(self.request.path)
         return super(EventDetailView, self).dispatch(*args, **kwargs)
+
+    def get_object(self, *args, **kwargs):
+        """Return the event object for the detail view.
+
+        Use the cached copy of the object if it exists, otherwise call the
+        superclass method. This is useful because get_object is called early
+        by the dispatch method.
+        """
+        return self.object or super(EventDetailView, self).get_object(
+            *args, **kwargs)
 
     def post(self, *args, **kwargs):
         # Enable the view to perform the same action on post as for get
@@ -141,7 +150,7 @@ class EventDetailView(DetailView):
         context = super(EventDetailView, self).get_context_data(**kwargs)
 
         context['signup_list'] = self.object.eventsignup_set.filter(
-            unsignup=False).order_by('name').select_related('person')
+            unsignup=False).select_related('person', 'person__userprofile')
 
         signup = None
 
@@ -152,20 +161,25 @@ class EventDetailView(DetailView):
             # signup form.
             context['form'] = self.form
         else:
-            max_guests = self.object.max_guests_per_person
+            max_guests_per_person = self.object.max_guests_per_person
+            event_needs_drivers = self.object.needs_drivers
             if self.request.user.is_authenticated():
                 try:
                     signup = EventSignUp.objects.get(
                         event=self.object, person=self.request.user)
-                    context['form'] = EventSignUpForm(instance=signup,
-                                                      max_guests=max_guests)
+                    context['form'] = EventSignUpForm(
+                        instance=signup,
+                        max_guests=max_guests_per_person,
+                        needs_drivers=event_needs_drivers)
                 except EventSignUp.DoesNotExist:
                     context['form'] = EventSignUpForm(
                         initial={'name': self.request.user.get_full_name()},
-                        max_guests=max_guests)
+                        max_guests=max_guests_per_person,
+                        needs_drivers=event_needs_drivers)
             else:
                 context['form'] = EventSignUpAnonymousForm(
-                    max_guests=max_guests)
+                    max_guests=max_guests_per_person,
+                    needs_drivers=event_needs_drivers)
 
         context['user_signed_up'] = signup is not None and not signup.unsignup
 
@@ -178,6 +192,16 @@ class EventDetailView(DetailView):
 
         context['available_seats'] = context['total_seats'] - total_rsvps
 
+        def signup_sort_key(signup):
+            if signup.person:
+                return signup.person.userprofile.get_common_name()
+            else:
+                return signup.name
+
+        # Sort the signup list using the user's common name or the name used
+        # in signup (if anonymous signup)
+        context['signup_list'] = sorted(context['signup_list'],
+                                        key=signup_sort_key)
         return context
 
 

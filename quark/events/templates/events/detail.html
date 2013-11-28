@@ -54,13 +54,15 @@ Event has ended
 </h2>
 {% endif %}
 
-(<em><a href="{# TODO: {% url 'events:attendance' event.pk %} #}">Attendance</a>
-{% if event.attendance_submitted %}
-was submitted
-{% else %}
-not yet submitted
+{% if user.is_authenticated %}
+  (<em><a href="{# TODO: {% url 'events:attendance' event.pk %} #}">Attendance</a>
+  {% if event.attendance_submitted %}
+  was submitted
+  {% else %}
+  not yet submitted
+  {% endif %}
+  </em>)
 {% endif %}
-</em>)
 
 {# TODO: Add Google Calendar link once GCal string output method created #}
 
@@ -114,29 +116,40 @@ not yet submitted
   {% endif %}
 </h3>
 
+{# TODO(sjdemartini): Improve styles and readability of event signups #}
 {% if signup_list %}
 <ul>
-  {% for signup in signup_list %}
+{% for signup in signup_list %}
   <li>
-    {{ signup.name }}
-    {# TODO(sjdemartini): Improve styles and readability of event signups #}
-    {% if perms.events.view_signups %}
-    (<em>{% if signup.person %}{{ signup.person.get_full_name }}{% else %}anonymous signup - {{ signup.email }}{% endif %}</em>)
+  {% if perms.events.view_signups %}
+    {% if signup.person %}
+      {{ signup.person.userprofile.get_common_name }}
+    {% else %}
+      {{ signup.name }} (<em>Anonymous signup: {{ signup.email }}</em>)
+    {% endif %}
 
     {% if event.needs_drivers and signup.driving != 0 %}
-    - [+{{ signup.driving}} Ride{{ signup.driving|pluralize }}]
+    - [+{{ signup.driving }} Ride{{ signup.driving|pluralize }}]
     {% endif %}
 
     {% if signup.num_guests %}
     - [{{ signup.num_guests }} guest{{ signup.num_guests|pluralize }}]
     {% endif %}
 
-    {% if perms.events.view_comments and signup.comments %}
+    {% if signup.comments and perms.events.view_comments %}
     - <em>{{ signup.comments }}</em>
     {% endif %}
+
+  {% else %}
+  {# If person does NOT have permission to view signups, show version without details #}
+    {% if signup.person %}
+      {{ signup.person.userprofile.get_public_name }}
+    {% else %}
+      {{ signup.name }}
     {% endif %}
+  {% endif %}
   </li>
-  {% endfor %}
+{% endfor %}
 </ul>
 
 {% else %}

@@ -121,6 +121,12 @@ class UserProfile(models.Model):
     def get_common_name(self):
         return '{} {}'.format(self.preferred_name, self.user.last_name)
 
+    def get_public_name(self):
+        """Return a version of a person's name to be visible publicly, with
+        short name followed by last name initial.
+        """
+        return '{} {}.'.format(self.preferred_name, self.user.last_name[0])
+
     def get_college_student_info(self):
         return get_object_or_none(CollegeStudentInfo, user=self.user)
 

@@ -298,7 +298,7 @@ class Event(models.Model):
 class EventSignUp(models.Model):
     event = models.ForeignKey(Event)
     person = models.ForeignKey(settings.AUTH_USER_MODEL, null=True)
-    name = models.CharField(max_length=255)  # Person's name used for signup
+
     num_guests = models.PositiveSmallIntegerField(
         default=0,
         verbose_name='number of guests you are bringing')
@@ -309,7 +309,10 @@ class EventSignUp(models.Model):
     comments = models.TextField(
         blank=True, verbose_name='comments (optional)')
 
-    # Necessary for anonymous signups (when person is null):
+    # Name and email are necessary for anonymous signups (when person is null)
+    # Name of the person signing up:
+    name = models.CharField(max_length=255, blank=True)
+    # The person's email address:
     email = models.EmailField(
         blank=True, verbose_name='email address',
         help_text='Your email address will act as your password to unsign up.')
