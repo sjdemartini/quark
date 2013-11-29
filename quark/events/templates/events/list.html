@@ -50,12 +50,13 @@
   </thead>
   <tbody>
     {% for event in events %}
-    <tr>
+    {% with event_type_slug=event.event_type|slugify %}
+    <tr class="event-row event-type {{ event_type_slug }}{% if not event.is_upcoming %} past-event{% endif %}">
       <td data-value="{{ event.name|lower }}"><a href="{{ event.get_absolute_url }}"><strong>{{ event.name }}</strong></a><div>{{ event.tagline }}</div></td>
       <td data-value="{{ event.start_datetime|date:'U' }}">{{ event.list_date|safe }}</td>
       <td>{{ event.list_time|safe }}</td>
       <td>{{ event.location }}</td>
-      <td class="event-type {% if event.is_upcoming %}{{ event.event_type }}{% else %}past-event{% endif %}">
+      <td class="event-type {{ event_type_slug }}">
         {# TODO(sjdemartini): add link to filter by event type #}
         {{ event.event_type.name }}
       </td>
@@ -63,6 +64,7 @@
         {% if event.committee.mailing_list %}<a href="mailto:{{ event.committee.mailing_list }}@{{ hostname }}">{% endif %}{{ event.committee.short_name }}{% if event.committee.mailing_list %}</a>{% endif %}
       </td>
     </tr>
+    {% endwith event_type_slug %}
     {% endfor %}
   </tbody>
 </table>

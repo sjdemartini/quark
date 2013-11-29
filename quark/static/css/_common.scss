@@ -1,4 +1,7 @@
-// style.scss
+/* _common.scss */
+// Defines the styles common to most of the site, like essential layouts,
+// typography, forms, navigation styles, and more
+
 @import "base";
 
 /* BASIC STYLING */
@@ -829,8 +832,4 @@ $footer-total-height: ($footer-font-size / 1em) * (
 #copyright {
   text-align: left;
   margin: 0 15px;
-}
-
-#calendar div {
-  position: static;
 }

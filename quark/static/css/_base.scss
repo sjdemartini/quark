@@ -1,5 +1,6 @@
-// _base.scss - defines variables and custom mixins for general css3 aid and is
-// imported in all other pages except compass and common
+// Defines variables and custom mixins. Useful for importing into all other
+// scss files except _compass.scss (which this file imports).
+
 @import "compass";
 
 // Variables

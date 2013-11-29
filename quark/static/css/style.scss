@@ -1,6 +1,6 @@
-// _style.scss
+// The main scss file to be compiled to css for the website
 
-// normalize.css - css to reduce browser-specific quirks
+// normalize.css - css to reduce browser-specific quirks (i.e., reset css)
 @import "normalize";
 
 // _common.scss - css that is common to every page (e.g. the navigation bar)
@@ -9,9 +9,11 @@
 // _fontawesome.scss -- css that produces icons
 @import "fontawesome/fontawesome";
 
+
 ///// Page Specific Setup /////
 // _home.scss - css for the main page
 @import "home";
+
 
 ///// Feature Specific Setup /////
 // _achievements.scss - css for the achievement app
@@ -20,8 +22,11 @@
 // _leaderboard.scss - css for the leaderboard (e.g., achievements leaderboard)
 @import "leaderboard";
 
-// _profiles.scss - css for the president profiles
+// _profiles.scss - css for the user profiles
 @import "profiles";
 
 // _candidates.scss - css for the candidates app
 @import "candidates";
+
+// _events.scss - css for the events app
+@import "events";

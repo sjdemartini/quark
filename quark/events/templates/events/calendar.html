@@ -3,40 +3,65 @@
 {% load static %}
 
 {% block head %}
-    <link rel='stylesheet' href="{% static "css/fullcalendar.css" %}" />
-    <script type='text/javascript' src="{% static "js/fullcalendar.min.js" %}"></script>
-     <script type="text/javascript">
-    $(document).ready(function() {
-      $('#calendar').fullCalendar({
-        header: {
-          left: 'prev,next today',
-          center: 'title',
-          right: 'month,agendaWeek,agendaDay'
-        },
-        allDayText: 'multi-day',
-        firstHour: 10, // default view position for agendaWeek and agendaDay is 10am
-        aspectRatio: 1.5, // higher aspect ratio decreases calendar height
-        editable: false{% if events %},
-        events: [
-          {% for event in events %}
-            {
-              title    : '{{ event.name|escapejs }}',
-              start    : '{{ event.start_datetime.isoformat|escapejs }}',
-              end      : '{{ event.end_datetime.isoformat|escapejs }}',
-              allDay   : {% if event.is_multiday %}true{% else %}false{% endif %},
-              url      : '{{ event.get_absolute_url|escapejs }}',
-              editable : false,
-              textColor: '#009',
-              {% if not event.is_upcoming %}
-                backgroundColor: 'gray'
-              {% endif %}
-            }{% if not forloop.last %},{% endif %}
-          {% endfor %}
-        ]
-        {% endif %}
-      });
-    });
-  </script>
+<link rel='stylesheet' href="{% static "css/fullcalendar.css" %}" />
+<script src="{% static "js/fullcalendar.min.js" %}"></script>
+<script>
+{% comment %}
+TODO(sjdemartini): Ensure that header title and buttons (e.g., "month", "week",
+"day" buttons) are displayed cleanly/visibly on mobile. Will likely require
+custom JS and CSS.
+{% endcomment %}
+
+/**
+ * When the viewport becomes too narrow, ensure that day-view is enabled,
+ * rather than month-view, by default.
+ */
+function calendarResize(view) {
+  if ($(window).width() < 625){
+    $('#calendar').fullCalendar('changeView', 'agendaDay');
+  } else {
+    $('#calendar').fullCalendar('changeView', 'month');
+  }
+}
+
+$(function() {
+  $('#calendar').fullCalendar({
+    header: {
+      left: 'prev,next today',
+      center: 'title',
+      right: 'month,agendaWeek,agendaDay'
+    },
+    allDayText: 'multi-day',
+    firstHour: 10, // default view position for agendaWeek and agendaDay is 10am
+    aspectRatio: 1.5, // higher aspect ratio decreases calendar height
+    editable: false{% if events %},
+    windowResize: calendarResize,
+    events: [
+      {% for event in events %}
+        {
+          title: '{{ event.name|escapejs }}',
+          start: '{{ event.start_datetime.isoformat|escapejs }}',
+          end: '{{ event.end_datetime.isoformat|escapejs }}',
+          allDay: {% if event.is_multiday %}true{% else %}false{% endif %},
+          url: '{{ event.get_absolute_url|escapejs }}',
+          editable: false,
+          borderColor: 'gray',
+          textColor: '#009',
+          className: [
+            'event-type',
+            '{{ event.event_type|slugify }}'{% if not event.is_upcoming %},
+            'past-event'{% endif %}
+          ]
+        }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ]
+    {% endif %}
+  });
+
+  // Ensure the calendar is properly sized upon creation:
+  calendarResize();
+});
+</script>
 {% endblock head %}
 
 {% block content %}
