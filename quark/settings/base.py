@@ -206,6 +206,7 @@ PROJECT_APPS = [
     'quark.events',
     'quark.exams',
     'quark.minutes',
+    'quark.newsreel',
     'quark.past_presidents',
     'quark.project_reports',
     'quark.qldap',
