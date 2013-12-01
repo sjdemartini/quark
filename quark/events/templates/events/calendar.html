@@ -24,7 +24,7 @@
               start    : '{{ event.start_datetime.isoformat|escapejs }}',
               end      : '{{ event.end_datetime.isoformat|escapejs }}',
               allDay   : {% if event.is_multiday %}true{% else %}false{% endif %},
-              url      : {% url 'events:detail' event_id=event.id as event_url %}'{{ event_url|escapejs }}',
+              url      : '{{ event.get_absolute_url|escapejs }}',
               editable : false,
               textColor: '#009',
               {% if not event.is_upcoming %}

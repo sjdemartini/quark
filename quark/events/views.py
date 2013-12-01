@@ -4,7 +4,8 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import permission_required
-from django.core.urlresolvers import reverse
+from django.contrib.auth.views import redirect_to_login
+from django.core.exceptions import PermissionDenied
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
@@ -40,16 +41,17 @@ class EventListView(TermParameterMixin, ListView):
 
     def get_queryset(self):
         show_all_val = self.request.GET.get('show_all', '')
+        events = Event.objects.get_user_viewable(self.request.user)
         if (not self.is_current or self.show_all or
                 show_all_val.lower() == 'true'):
             # Show all events in the display_term if the term is not the
             # current term, or if the show_all parameter is "true"
             self.show_all = True
-            events = Event.objects.filter(term=self.display_term)
+            events = events.filter(term=self.display_term)
         else:
             # Events from the current term that have not yet ended and have not
             # been cancelled
-            events = Event.objects.get_upcoming()
+            events = events.get_upcoming()
         return events.select_related('event_type', 'committee')
 
     def get_context_data(self, **kwargs):
@@ -87,16 +89,13 @@ class EventCreateView(CreateView):
         messages.success(self.request, 'Event Successfully Created!')
         return super(EventCreateView, self).form_valid(form)
 
-    def get_success_url(self):
-        return reverse('events:detail', args=(self.object.id,))
-
 
 class EventUpdateView(UpdateView):
     """View for editing a previously-created event."""
 
     form_class = EventForm
     model = Event
-    pk_url_kwarg = 'event_id'
+    pk_url_kwarg = 'event_pk'
     template_name = 'events/edit.html'
 
     @method_decorator(login_required)
@@ -113,18 +112,27 @@ class EventUpdateView(UpdateView):
         messages.success(self.request, 'Event Successfully Updated!')
         return super(EventUpdateView, self).form_valid(form)
 
-    def get_success_url(self):
-        return reverse('events:detail', args=(self.object.id,))
-
 
 class EventDetailView(DetailView):
     """View for event details and signing up for events."""
     # TODO(sjdemartini): Handle event permissions (who can see which events)
 
-    pk_url_kwarg = 'event_id'
+    pk_url_kwarg = 'event_pk'
     model = Event
     template_name = 'events/detail.html'
     form = None  # The form can be passed in as a parameter
+
+    def dispatch(self, *args, **kwargs):
+        event = self.get_object()
+        # If this user can't view the current event, redirect to redirect to
+        # login if they aren't already logged in, otherwise raise
+        # PermissionDenied
+        if not event.can_user_view(self.request.user):
+            if self.request.user.is_authenticated():
+                raise PermissionDenied
+            else:
+                return redirect_to_login(self.request.path)
+        return super(EventDetailView, self).dispatch(*args, **kwargs)
 
     def post(self, *args, **kwargs):
         # Enable the view to perform the same action on post as for get
@@ -138,9 +146,11 @@ class EventDetailView(DetailView):
 
         signup = None
 
-        if self.form or not self.object.is_upcoming():
+        if (self.form or not self.object.is_upcoming()
+                or not self.object.can_user_sign_up(self.request.user)):
             # If form passed in to view, use that. Or if the event is no longer
-            # upcoming, don't supply a signup form.
+            # upcoming or the user isn't allowed to sign up, don't supply a
+            # signup form.
             context['form'] = self.form
         else:
             max_guests = self.object.max_guests_per_person
@@ -180,7 +190,10 @@ class EventSignUpView(FormView):
     event = None  # The event that this sign-up corresponds to
 
     def dispatch(self, *args, **kwargs):
-        self.event = get_object_or_404(Event, id=self.kwargs['event_id'])
+        self.event = get_object_or_404(Event, id=self.kwargs['event_pk'])
+        # A user cannot sign up unless they have permission to view the event
+        if not self.event.can_user_sign_up(self.request.user):
+            raise PermissionDenied
         return super(EventSignUpView, self).dispatch(*args, **kwargs)
 
     def get(self, *args, **kwargs):
@@ -241,7 +254,7 @@ class EventSignUpView(FormView):
         return view(self.request, **self.kwargs)
 
     def get_success_url(self):
-        return reverse('events:detail', args=(self.event.id,))
+        return self.event.get_absolute_url()
 
 
 class IndividualAttendanceListView(ListView):

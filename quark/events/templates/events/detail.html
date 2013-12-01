@@ -5,7 +5,7 @@
 
 {% block intro %}
 <h1>
-  Details for {{ event.name }}{% if perms.event.change_event %} (<a href="{% url 'events:edit' event.id %}">Edit</a>){% endif %}
+  Details for {{ event.name }}{% if perms.event.change_event %} (<a href="{% url 'events:edit' event.pk %}">Edit</a>){% endif %}
 </h1>
 {% endblock intro %}
 
@@ -20,7 +20,7 @@ Event has ended
 </h2>
 {% endif %}
 
-(<em><a href="{# TODO: {% url 'events:attendance' event.id %} #}">Attendance</a>
+(<em><a href="{# TODO: {% url 'events:attendance' event.pk %} #}">Attendance</a>
 {% if event.attendance_submitted %}
 was submitted
 {% else %}
@@ -34,7 +34,7 @@ not yet submitted
 <dl>
   <dt>When</dt>
     <dd>
-      {{ event.view_datetime }} (<a href="{# TODO: {% url 'event:ical' event.id %} #}">iCal</a>)
+      {{ event.view_datetime }} (<a href="{# TODO: {% url 'event:ical' event.pk %} #}">iCal</a>)
     </dd>
 
   <dt>Where</dt>
@@ -76,7 +76,7 @@ not yet submitted
 <h3>
   Who's signed up?
   {% if perms.events.change_eventsignup %}
-  (<a href="{# TODO: {% url 'events:attendance' event.id %} #}">Submit Attendance</a>)
+  (<a href="{# TODO: {% url 'events:attendance' event.pk %} #}">Submit Attendance</a>)
   {% endif %}
 </h3>
 

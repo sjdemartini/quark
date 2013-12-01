@@ -16,7 +16,7 @@ Figure out a good way to conditionally exclude fields from a form (i.e., put
 logic in the form or view to change which are included).
 {% endcomment %}
 
-<form action="{% url 'events:signup' event.id %}" method="post">
+<form action="{% url 'events:signup' event.pk %}" method="post">
   {% csrf_token %}
   {% include 'form.html' %}
   <div>
@@ -29,7 +29,7 @@ TODO(sjdemartini): Include this code once the unsignup endpoint is created.
 
 {% if user_signed_up %}
 <div>or</div>
-<form action="{% url 'events:unsignup' event.id %}" method="post">
+<form action="{% url 'events:unsignup' event.pk %}" method="post">
   {% csrf_token %}
   <div><input type="submit" value="Unsign Up" /></div>
 </form>

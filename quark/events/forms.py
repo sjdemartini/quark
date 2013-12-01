@@ -4,16 +4,12 @@ from django import forms
 from quark.base.fields import VisualSplitDateTimeField
 from quark.base.forms import ChosenTermMixin
 from quark.events.models import Event
-from quark.events.models import EventType
 from quark.events.models import EventSignUp
 from quark.project_reports.models import ProjectReport
 from quark.user_profiles.fields import UserCommonNameChoiceField
 
 
 class EventForm(ChosenTermMixin, forms.ModelForm):
-    event_type = chosen_forms.ChosenModelChoiceField(
-        label='Event Type', queryset=EventType.objects.all())
-
     start_datetime = VisualSplitDateTimeField(label='Start date and time')
     end_datetime = VisualSplitDateTimeField(label='End date and time')
 
@@ -25,8 +21,9 @@ class EventForm(ChosenTermMixin, forms.ModelForm):
         model = Event
         exclude = ('cancelled', 'project_report')
         widgets = {
-            'restriction': chosen_forms.ChosenSelect(),
-            'committee': chosen_forms.ChosenSelectMultiple()
+            'committee': chosen_forms.ChosenSelect(),
+            'event_type': chosen_forms.ChosenSelect(),
+            'restriction': chosen_forms.ChosenSelect()
         }
 
     def __init__(self, *args, **kwargs):

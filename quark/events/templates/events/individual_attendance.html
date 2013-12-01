@@ -13,14 +13,14 @@
   <p>
     {% for attendance in attendances %}
     <div>
-    <a class="{{ attendance.event_type }}" href={% url 'events:detail' attendance.event.pk %}>{{ attendance.event.name }}</a>
+      <a class="{{ attendance.event_type }}" href="{{ attendance.event.get_absolute_url }}">{{ attendance.event.name }}</a>
     </div>
     {% empty %}
     <span>You didn't attend an event in {{ display_term_name }}.</span>
     {% endfor %}
     {% for signup in signups %}
     <div>
-    [<a href="{% url 'events:detail' signup.event.pk %}">{{ signup.event.name }}</a>]
+      [<a href="{{ signup.event.get_absolute_url }}">{{ signup.event.name }}</a>]
     </div>
     {% endfor %}
   </p>

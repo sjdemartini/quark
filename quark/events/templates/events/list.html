@@ -51,7 +51,7 @@
   <tbody>
     {% for event in events %}
     <tr>
-      <td data-value="{{ event.name|lower }}"><a href="{% url 'events:detail' event.id %}"><strong>{{ event.name }}</strong></a><div>{{ event.tagline }}</div></td>
+      <td data-value="{{ event.name|lower }}"><a href="{{ event.get_absolute_url }}"><strong>{{ event.name }}</strong></a><div>{{ event.tagline }}</div></td>
       <td data-value="{{ event.start_datetime|date:'U' }}">{{ event.list_date|safe }}</td>
       <td>{{ event.list_time|safe }}</td>
       <td>{{ event.location }}</td>

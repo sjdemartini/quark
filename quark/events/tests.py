@@ -6,7 +6,9 @@ from django.test.utils import override_settings
 from django.utils import timezone
 
 from quark.base.models import Term
+from quark.base_tbp.models import Officer
 from quark.base_tbp.models import OfficerPosition
+from quark.candidates.models import Candidate
 from quark.events.forms import EventForm
 from quark.events.models import Event
 from quark.events.models import EventSignUp
@@ -23,7 +25,7 @@ class EventTesting(TestCase):
     """
     def setUp(self):
         self.user = get_user_model().objects.create_user(
-            username='officer',
+            username='bentleythebent',
             email='it@tbp.berkeley.edu',
             password='testofficerpw',
             first_name='Bentley',
@@ -42,16 +44,48 @@ class EventTesting(TestCase):
         self.event_type, _ = EventType.objects.get_or_create(
             name='Test Event Type')
 
-    def create_event(self, start_time, end_time, name='My Test Event'):
-        return Event(name=name,
-                     event_type=self.event_type,
-                     start_datetime=start_time,
-                     end_datetime=end_time,
-                     term=self.term,
-                     location='A test location',
-                     contact=self.user,
-                     committee=self.committee,
-                     restriction=Event.OFFICER)
+    def create_event(self, start_time, end_time, name='My Test Event',
+                     restriction=Event.OFFICER):
+        """Create, save, and return a new event."""
+        event = Event(name=name,
+                      event_type=self.event_type,
+                      start_datetime=start_time,
+                      end_datetime=end_time,
+                      term=self.term,
+                      location='A test location',
+                      contact=self.user,
+                      committee=self.committee,
+                      restriction=restriction)
+        event.save()
+        return event
+
+    def assert_can_view(self, event, user):
+        """Assert that the given event can be viewed by the given user."""
+        self.assertTrue(
+            event.can_user_view(self.user),
+            'Should be able to view {} event'.format(
+                event.get_restriction_display()))
+
+    def assert_cannot_view(self, event, user):
+        """Assert that the given event cannot be viewed by the given user."""
+        self.assertFalse(
+            event.can_user_view(self.user),
+            'Should not be able to view {} event'.format(
+                event.get_restriction_display()))
+
+    def assert_can_sign_up(self, event, user):
+        """Assert that the given event can be viewed by the given user."""
+        self.assertTrue(
+            event.can_user_sign_up(self.user),
+            'Should be able to sign up for {} event'.format(
+                event.get_restriction_display()))
+
+    def assert_cannot_sign_up(self, event, user):
+        """Assert that the given event can be viewed by the given user."""
+        self.assertFalse(
+            event.can_user_sign_up(self.user),
+            'Should not be able to sign up for {} event'.format(
+                event.get_restriction_display()))
 
 
 class EventTest(EventTesting):
@@ -71,7 +105,6 @@ class EventTest(EventTesting):
         start_time = timezone.now() + datetime.timedelta(hours=2)
         end_time = start_time + datetime.timedelta(hours=3)
         event = self.create_event(start_time, end_time)
-        event.save()
         upcoming_events = Event.objects.get_upcoming()
         self.assertIn(event, upcoming_events)
 
@@ -91,7 +124,6 @@ class EventTest(EventTesting):
         start_time = timezone.now() + datetime.timedelta(hours=2)
         end_time = start_time + datetime.timedelta(hours=3)
         event = self.create_event(start_time, end_time)
-        event.save()
         self.assertTrue(event.is_upcoming())
         upcoming_events = Event.objects.get_upcoming()
         self.assertIn(event, upcoming_events)
@@ -108,7 +140,6 @@ class EventTest(EventTesting):
         end_time = timezone.now() + datetime.timedelta(hours=3)
         event = self.create_event(start_time, end_time,
                                   name='My Ongoing Event')
-        event.save()
         self.assertTrue(event.is_upcoming())
         event.cancelled = True
         event.save()
@@ -119,7 +150,6 @@ class EventTest(EventTesting):
         end_time = start_time + datetime.timedelta(hours=3)
         event = self.create_event(start_time, end_time,
                                   name='My Old Event')
-        event.save()
         self.assertFalse(event.is_upcoming())
         event.cancelled = True
         event.save()
@@ -132,13 +162,11 @@ class EventTest(EventTesting):
         end_time = start_time + datetime.timedelta(days=1)
         event = self.create_event(start_time, end_time,
                                   name='My Multiday Event')
-        event.save()
         self.assertTrue(event.is_multiday())
 
         end_time = start_time + datetime.timedelta(weeks=1)
         event = self.create_event(start_time, end_time,
                                   name='My Weeklong Event')
-        event.save()
         self.assertTrue(event.is_multiday())
 
         # Create a very long event that does not span more than one day
@@ -146,8 +174,133 @@ class EventTest(EventTesting):
         end_time = start_time + datetime.timedelta(hours=23, minutes=50)
         event = self.create_event(start_time, end_time,
                                   name='My Non-multiday Event')
-        event.save()
         self.assertFalse(event.is_multiday())
+
+    def test_get_user_viewable(self):
+        # self.user is just an ordinary user with no groups or special
+        # permissions, so they should be able to view public, open, and
+        # candidate events, but not member and officer events
+        start_time = timezone.now()
+        end_time = start_time + datetime.timedelta(hours=2)
+        event_public = self.create_event(
+            start_time, end_time, restriction=Event.PUBLIC)
+        event_open = self.create_event(
+            start_time, end_time, restriction=Event.OPEN)
+        event_candidate = self.create_event(
+            start_time, end_time, restriction=Event.CANDIDATE)
+        event_member = self.create_event(
+            start_time, end_time, restriction=Event.MEMBER)
+        event_officer = self.create_event(
+            start_time, end_time, restriction=Event.OFFICER)
+
+        visible_events = Event.objects.get_user_viewable(self.user)
+        expected_events = [event_public, event_open, event_candidate]
+        self.assertQuerysetEqual(visible_events,
+                                 [repr(event) for event in expected_events],
+                                 ordered=False)
+
+        # Make this person a candidate, and view the permissions should stay
+        # the same
+        Candidate(user=self.user, term=self.term).save()
+        visible_events = Event.objects.get_user_viewable(self.user)
+        self.assertQuerysetEqual(visible_events,
+                                 [repr(event) for event in expected_events],
+                                 ordered=False)
+
+        # Make this person an officer, and they should be able to see all
+        # events
+        Officer(user=self.user, position=self.committee, term=self.term).save()
+        visible_events = Event.objects.get_user_viewable(self.user)
+        expected_events.extend([event_member, event_officer])
+        self.assertQuerysetEqual(visible_events,
+                                 [repr(event) for event in expected_events],
+                                 ordered=False)
+
+        # TODO(sjdemartini): add tests for members once UserProfile.is_member
+        # is not purely LDAP-dependent
+
+    def test_can_user_view(self):
+        # self.user is just an ordinary user with no groups or special
+        # permissions, so they should be able to view public, open, and
+        # candidate events, but not member and officer events
+        restrictions = [Event.PUBLIC, Event.OPEN, Event.CANDIDATE,
+                        Event.MEMBER, Event.OFFICER]
+
+        start_time = timezone.now()
+        end_time = start_time + datetime.timedelta(hours=2)
+        event = self.create_event(start_time, end_time)
+        for restriction in restrictions:
+            event.restriction = restriction
+            event.save()
+            if restriction in Event.VISIBLE_TO_EVERYONE:
+                self.assert_can_view(event, self.user)
+            else:
+                self.assert_cannot_view(event, self.user)
+
+        # Make this person a candidate, and view the permissions should stay
+        # the same
+        Candidate(user=self.user, term=self.term).save()
+        for restriction in restrictions:
+            event.restriction = restriction
+            event.save()
+            if restriction in Event.VISIBLE_TO_EVERYONE:
+                self.assert_can_view(event, self.user)
+            else:
+                self.assert_cannot_view(event, self.user)
+
+        # Make this person an officer, and they should be able to see all
+        # events
+        Officer(user=self.user, position=self.committee, term=self.term).save()
+        for restriction in restrictions:
+            event.restriction = restriction
+            event.save()
+            self.assert_can_view(event, self.user)
+
+        # TODO(sjdemartini): add tests for members once UserProfile.is_member
+        # is not purely LDAP-dependent
+
+    def test_can_user_sign_up(self):
+        # self.user is just an ordinary user with no groups or special
+        # permissions, so the user should only be able to sign up for public
+        # events
+        restrictions = [Event.PUBLIC, Event.OPEN, Event.CANDIDATE,
+                        Event.MEMBER, Event.OFFICER]
+
+        start_time = timezone.now()
+        end_time = start_time + datetime.timedelta(hours=2)
+        event = self.create_event(start_time, end_time)
+        for restriction in restrictions:
+            event.restriction = restriction
+            event.save()
+            if restriction == Event.PUBLIC:
+                self.assert_can_sign_up(event, self.user)
+            else:
+                self.assert_cannot_sign_up(event, self.user)
+
+        # Make this person a candidate, so the person should be able to sign up
+        # for public and candidate events
+        Candidate(user=self.user, term=self.term).save()
+        for restriction in restrictions:
+            event.restriction = restriction
+            event.save()
+            if (restriction == Event.PUBLIC or restriction == Event.CANDIDATE):
+                self.assert_can_sign_up(event, self.user)
+            else:
+                self.assert_cannot_sign_up(event, self.user)
+
+        # Make this person an officer, so the person should be able to sign up
+        # for all events except open events (which don't allow signups)
+        Officer(user=self.user, position=self.committee, term=self.term).save()
+        for restriction in restrictions:
+            event.restriction = restriction
+            event.save()
+            if restriction == Event.OPEN:
+                self.assert_cannot_sign_up(event, self.user)
+            else:
+                self.assert_can_sign_up(event, self.user)
+
+        # TODO(sjdemartini): add tests for members once UserProfile.is_member
+        # is not purely LDAP-dependent
 
     def test_list_date(self):
         start_time = datetime.datetime(2015, 3, 14, 9, 26, 53, 59)
@@ -156,7 +309,6 @@ class EventTest(EventTesting):
         end_time = start_time + datetime.timedelta(hours=2)
         event = self.create_event(start_time, end_time,
                                   name='My Pi Day Event')
-        event.save()
         self.assertEqual(event.list_date(), 'Sat, Mar 14')
 
         end_time = start_time + datetime.timedelta(days=1)
@@ -176,7 +328,6 @@ class EventTest(EventTesting):
         end_time = start_time + datetime.timedelta(hours=2, minutes=6)
         event = self.create_event(start_time, end_time,
                                   name='My Pi Day Event')
-        event.save()
         self.assertEqual(event.list_time(), '9:26 AM - 11:32 AM')
 
         end_time = start_time + datetime.timedelta(hours=11, minutes=2)
@@ -207,7 +358,6 @@ class EventTest(EventTesting):
         end_time = start_time + datetime.timedelta(hours=2, minutes=4)
         event = self.create_event(start_time, end_time,
                                   name='My Pi Day Event')
-        event.save()
         self.assertEqual(event.view_datetime(),
                          'Sat, Mar 14 9:26 AM to 11:30 AM')
 
@@ -239,7 +389,6 @@ class EventTest(EventTesting):
         start_time = timezone.now()
         end_time = start_time + datetime.timedelta(hours=2)
         event = self.create_event(start_time, end_time)
-        event.save()
         signup = EventSignUp(name='Edward', event=event, num_guests=0)
         signup.save()
         expected_str = u'{name} has signed up for {event_name}'.format(
@@ -281,7 +430,6 @@ class EventFormsTest(EventTesting):
             month=3, day=14, year=2015, hour=9, minute=26)
         end_datetime = start_datetime + datetime.timedelta(hours=2)
         self.event = self.create_event(start_datetime, end_datetime)
-        self.event.save()
 
         # Create string formats for start and end times:
         # Note that we separate date and time into separate strings to be used

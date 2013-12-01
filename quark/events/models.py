@@ -1,6 +1,8 @@
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import Sum
+from django.db.models.query import QuerySet
 from django.template import defaultfilters
 from django.utils import timezone
 
@@ -29,7 +31,7 @@ class EventType(models.Model):
         return (self.name,)
 
 
-class EventManager(models.Manager):
+class EventQuerySetMixin(object):
     def get_upcoming(self, current_term_only=True):
         """Return events that haven't been cancelled and haven't yet ended.
 
@@ -41,6 +43,35 @@ class EventManager(models.Manager):
         if current_term_only:
             self = self.filter(term=Term.objects.get_current_term())
         return self
+
+    def get_user_viewable(self, user):
+        """Return events that the given user can view.
+
+        Viewability is based on the "restriction" level for the events.
+        """
+        user_level = Event.get_user_restriction_level(user)
+
+        # Initialize visible_levels to those that are visible to everyone
+        visible_levels = Event.VISIBLE_TO_EVERYONE
+        if user_level >= Event.MEMBER:
+            visible_levels.append(Event.MEMBER)
+        if user_level >= Event.OFFICER:
+            visible_levels.append(Event.OFFICER)
+        return self.filter(restriction__in=visible_levels)
+
+
+class EventQuerySet(QuerySet, EventQuerySetMixin):
+    """Used in order to allow chaining of manager methods."""
+    pass
+
+
+class EventManager(models.Manager, EventQuerySetMixin):
+    """Manager that allows for chaining of methods of its mixin.
+
+    Based on https://djangosnippets.org/snippets/2114/
+    """
+    def get_query_set(self):
+        return EventQuerySet(self.model, using=self._db)
 
 
 class Event(models.Model):
@@ -56,11 +87,25 @@ class Event(models.Model):
         (CANDIDATE, 'Candidate'),
         (MEMBER, 'Member'),
         (OFFICER, 'Officer'),
-        (OPEN, 'Open (No Signups)'),
+        (OPEN, 'Open (No Signups)')
     )
 
-    name = models.CharField(max_length=80)
+    VISIBLE_TO_EVERYONE = [OPEN, PUBLIC, CANDIDATE]
+
+    name = models.CharField(max_length=80, verbose_name='event name')
     event_type = models.ForeignKey(EventType)
+
+    restriction = models.PositiveSmallIntegerField(
+        choices=RESTRICTION_CHOICES,
+        default=CANDIDATE,
+        db_index=True,
+        verbose_name='minimum restriction',
+        help_text=(
+            'Who can sign up for this? Each restriction level allows users in '
+            'that category, as well as users with more permissions (e.g., '
+            'setting the restriction as "Candidate" allows candidates, '
+            'members, and officers).'))
+
     start_datetime = models.DateTimeField()
     end_datetime = models.DateTimeField()
     term = models.ForeignKey(Term)
@@ -69,16 +114,10 @@ class Event(models.Model):
     location = models.CharField(max_length=80)
     contact = models.ForeignKey(settings.AUTH_USER_MODEL)
     committee = models.ForeignKey(OfficerPosition, null=True)
-    restriction = models.PositiveSmallIntegerField(
-        choices=RESTRICTION_CHOICES,
-        default=CANDIDATE,
-        help_text=(
-            'Each restriction level allows users in that category and '
-            'users with more permissions (e.g., setting the restriction as '
-            '"Candidate" allows candidates, members, and officers to sign '
-            'up).'))
+
     signup_limit = models.PositiveSmallIntegerField(
-        default=0, help_text='Set as 0 to allow unlimited signups.')
+        default=0,
+        help_text='Set as 0 to allow unlimited signups.')
     max_guests_per_person = models.PositiveSmallIntegerField(
         default=0,
         help_text='Maximum number of guests each person is allowed to bring.')
@@ -94,13 +133,6 @@ class Event(models.Model):
 
     project_report = models.ForeignKey(ProjectReport, null=True, blank=True,
                                        related_name='event', default=None)
-
-    # TODO(sjdemartini): implement restrictions (who can see or sign up for
-    # the event). One option is to create a class to handle restrictions.
-    # Another option is as follows, if a UserType model (or similar) is
-    # created:
-    #restriction = models.ManyToManyField(
-    #    UserType, help_text='Controls who can view/attend the event')
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -118,8 +150,8 @@ class Event(models.Model):
     def __unicode__(self):
         return u'{} - {}'.format(self.name, unicode(self.term))
 
-    # TODO(sjdemartini): implement get_absolute_url(self) for returning the
-    # URL of an event object
+    def get_absolute_url(self):
+        return reverse('events:detail', args=(self.pk,))
 
     def is_upcoming(self):
         """Return True if the event is not canceled and has not yet ended."""
@@ -154,6 +186,24 @@ class Event(models.Model):
         if include_guests:
             count += self.get_num_guests()
         return count
+
+    def can_user_sign_up(self, user):
+        """Return true if the given user is allowed to sign up for this event.
+
+        This method is based on the "restriction" level for the event.
+        """
+        return Event.get_user_restriction_level(user) >= self.restriction
+
+    def can_user_view(self, user):
+        """Return true if the given user is allowed to view this event.
+
+        This method is based on the "restriction" level for the event.
+        Note that CANDIDATE-restricted events are publicly visible (though
+        still restricting signups).
+        """
+        if self.restriction in Event.VISIBLE_TO_EVERYONE:
+            return True
+        return Event.get_user_restriction_level(user) >= self.restriction
 
     def list_date(self):
         """Return a succinct string representation of the event date.
@@ -231,6 +281,18 @@ class Event(models.Model):
         """
         datetime_object = timezone.localtime(datetime_object)
         return defaultfilters.date(datetime_object, 'g:i A')
+
+    @staticmethod
+    def get_user_restriction_level(user):
+        """Return the maximum event restriction level this user can access."""
+        if user.is_authenticated():
+            if user.userprofile.is_officer():
+                return Event.OFFICER
+            elif user.userprofile.is_member():
+                return Event.MEMBER
+            elif user.userprofile.is_candidate():
+                return Event.CANDIDATE
+        return Event.PUBLIC
 
 
 class EventSignUp(models.Model):
