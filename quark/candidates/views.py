@@ -2,7 +2,6 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import permission_required
 from django.core.urlresolvers import reverse
-from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView
@@ -12,6 +11,7 @@ from django.views.generic.base import ContextMixin
 from django.views.generic.edit import FormView
 
 from quark.base.models import Term
+from quark.base.views import TermParameterMixin
 from quark.candidates.models import Candidate
 from quark.candidates.models import CandidateRequirement
 from quark.candidates.models import CandidateRequirementProgress
@@ -78,33 +78,18 @@ class CandidateContextMixin(ContextMixin):
         return context
 
 
-class CandidateListView(ListView):
+class CandidateListView(TermParameterMixin, ListView):
     context_object_name = 'candidates'
     template_name = 'candidates/list.html'
-    display_term = None
 
     @method_decorator(login_required)
     @method_decorator(permission_required(
         'candidates.change_candidate', raise_exception=True))
     def dispatch(self, *args, **kwargs):
-        # pylint: disable=R0801
-        term = kwargs.get('term', '')
-        if not term:
-            self.display_term = Term.objects.get_current_term()
-        else:
-            self.display_term = Term.objects.get_by_url_name(term)
-            if self.display_term is None:
-                raise Http404
         return super(CandidateListView, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
         return Candidate.objects.filter(term=self.display_term)
-
-    def get_context_data(self, **kwargs):
-        context = super(CandidateListView, self).get_context_data(**kwargs)
-        context['terms'] = Term.objects.all()
-        context['display_term'] = self.display_term
-        return context
 
 
 class CandidatePhotoView(UpdateView):
@@ -133,7 +118,6 @@ class CandidateEditView(FormView, CandidateContextMixin):
     form_class = CandidateRequirementProgressFormSet
     template_name = 'candidates/edit.html'
     candidate = None
-    current_term = None
     progress_list = None
     requirements = None
 
@@ -143,9 +127,8 @@ class CandidateEditView(FormView, CandidateContextMixin):
     def dispatch(self, *args, **kwargs):
         self.candidate = get_object_or_404(
             Candidate, pk=self.kwargs['candidate_pk'])
-        self.current_term = Term.objects.get_current_term()
         self.requirements = CandidateRequirement.objects.filter(
-            term=self.current_term)
+            term=self.candidate.term)
 
         # Create a list of progresses that at each index contains either a
         # progress corresponding to a requirement or None if there is no

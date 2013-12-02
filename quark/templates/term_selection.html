@@ -13,13 +13,13 @@ url_base - If selecting a term should bring the user to a certain base URL
            (rather than just the current page)
 {% endcomment %}
 {% if terms %}
-<div>
+<p>
   Select a term:
   <select class="term-select"
-    onchange="window.location.href={% if url_base %}{{ url_base }}+{% endif %}'?term='+$(this).val();">
+    onchange="window.location.href={% if url_base %}'{{ url_base }}'+{% endif %}'?term='+$(this).val();">
   {% for term in terms %}
     <option value="{{ term.get_url_name }}"{% ifequal term.pk display_term.pk %} selected="selected"{% endifequal %}>{{ term.verbose_name }}</option>
   {% endfor %}
   </select>
-</div>
+</p>
 {% endif %}

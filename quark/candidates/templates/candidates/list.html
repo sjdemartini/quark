@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ display_term.verbose_name }} Candidates{% endblock title %}
-
 {% block intro %}
-<h1>{{ display_term.verbose_name }} Candidates</h1>
+<h1>
+  {% block title %}{{ display_term_name }} Candidates{% endblock title %}
+</h1>
 {% endblock intro %}
 
 {% block head %}
@@ -11,7 +11,8 @@
 {% endblock head %}
 
 {% block content %}
-{# TODO(ericdwang): Add selector for term #}
+{% include 'term_selection.html' %}
+
 <div>
   <a href="{% url 'candidates:edit-requirements' %}" class="btn">
     <i class="icon-wrench"></i> Edit Requirements

@@ -12,8 +12,7 @@ from quark.candidates.views import ManualCandidateRequirementCreateView
 
 urlpatterns = patterns(
     '',
-    url(r'^$', CandidateListView.as_view(), name='list-current'),
-    url(r'^(?P<term>\w{2}\d{4})/$', CandidateListView.as_view(), name='term'),
+    url(r'^$', CandidateListView.as_view(), name='list'),
     url(r'^(?P<candidate_pk>\d+)/$', CandidateEditView.as_view(),
         name='edit'),
     url(r'^(?P<candidate_pk>\d+)/photo$', CandidatePhotoView.as_view(),

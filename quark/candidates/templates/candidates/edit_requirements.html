@@ -27,6 +27,6 @@ NOTE: Only requirements that require more than zero credits will be displayed in
 </form>
 
 <p>
-  <a href="{% url 'candidates:term' term.get_url_name %}"><strong>Back to {{ term.verbose_name }} Candidates</strong></a>
+  <a href="{% url 'candidates:list' %}?term={{ candidate.term.get_url_name }}"><strong>Back to {{ term.verbose_name }} Candidates</strong></a>
 </p>
 {% endblock content %}

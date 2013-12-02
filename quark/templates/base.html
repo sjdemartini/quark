@@ -82,7 +82,7 @@
                     <div class="dropdown-arrow"></div>
                     {% if is_officer %}
                     <li><a href="{#TODO#}">Officer Portal</a></li>
-                    <li><a href="{% url 'candidates:list-current' %}">Candidate Admin</a></li>
+                    <li><a href="{% url 'candidates:list' %}">Candidate Admin</a></li>
                     {% endif %}
 
                     {% if is_member and not is_officer %}
