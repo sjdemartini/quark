@@ -1,9 +1,12 @@
+import json
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import permission_required
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
+from django.views.decorators.http import require_POST
 from django.views.generic import CreateView
 from django.views.generic import ListView
 from django.views.generic import UpdateView
@@ -32,6 +35,7 @@ from quark.events.models import EventAttendance
 from quark.events.models import EventType
 from quark.exams.models import Exam
 from quark.shortcuts import get_object_or_none
+from quark.utils.ajax import json_response
 
 
 class CandidateContextMixin(ContextMixin):
@@ -61,7 +65,8 @@ class CandidateContextMixin(ContextMixin):
         for challenge_type in challenge_types:
             requested_challenges[challenge_type] = []
         challenges = Challenge.objects.select_related(
-            'verifying_user__userprofile').filter(candidate=candidate)
+            'challenge_type', 'verifying_user__userprofile').filter(
+            candidate=candidate)
         for challenge in challenges:
             requested_challenges[challenge.challenge_type.name].append(
                 challenge)
@@ -132,7 +137,12 @@ class CandidateEditView(FormView, CandidateContextMixin):
         self.candidate = get_object_or_404(
             Candidate, pk=self.kwargs['candidate_pk'])
         self.requirements = CandidateRequirement.objects.filter(
-            term=self.candidate.term)
+            term=self.candidate.term).select_related(
+            'eventcandidaterequirement',
+            'eventcandidaterequirement__event_type',
+            'challengecandidaterequirement',
+            'challengecandidaterequirement__challenge_type',
+            'examfilecandidaterequirement')
 
         # Create a list of progresses that at each index contains either a
         # progress corresponding to a requirement or None if there is no
@@ -141,11 +151,12 @@ class CandidateEditView(FormView, CandidateContextMixin):
         progress_index = 0
         progresses = CandidateRequirementProgress.objects.filter(
             candidate=self.candidate)
+        num_progresses = progresses.count()
 
         for req in self.requirements:
             # Progresses are ordered the same way as requirements,
             # so all progresses will be correctly checked in the loop
-            if progress_index < progresses.count():
+            if progress_index < num_progresses:
                 progress = progresses[progress_index]
                 if progress.requirement == req:
                     self.progress_list.append(progress)
@@ -174,11 +185,16 @@ class CandidateEditView(FormView, CandidateContextMixin):
         for i, req in enumerate(self.requirements):
             progress = self.progress_list[i]
             form = formset[i]
-            completed, credits_needed = req.get_progress(self.candidate)
+            req_progress = req.get_progress(self.candidate)
+            completed = req_progress['completed']
+            credits_needed = req_progress['required']
 
             entry = {
-                'completed': completed, 'credits_needed': credits_needed,
-                'requirement': req, 'form': form}
+                'completed': completed,
+                'credits_needed': credits_needed,
+                'requirement': req,
+                'form': form
+            }
             form.initial['alternate_credits_needed'] = credits_needed
             form.initial['manually_recorded_credits'] = 0
             if progress:
@@ -561,11 +577,12 @@ class CandidatePortalView(CreateView, CandidateContextMixin):
             req_types[req[0]] = []
 
         for req in requirements:
-            completed, required = req.get_progress(self.candidate)
+            req_progress = req.get_progress(self.candidate)
             entry = {
-                'completed': completed,
-                'credits_needed': required,
-                'requirement': req}
+                'completed': req_progress['completed'],
+                'credits_needed': req_progress['required'],
+                'requirement': req
+            }
             req_type = req.requirement_type
             req_types[req_type].append(entry)
 
@@ -584,3 +601,43 @@ class CandidatePortalView(CreateView, CandidateContextMixin):
 
     def get_success_url(self):
         return reverse('candidates:portal')
+
+
+class CandidateInitiationView(CandidateListView):
+    """View for marking candidates as initiated, granting member status."""
+    template_name = 'candidates/initiation.html'
+
+    @method_decorator(login_required)
+    @method_decorator(permission_required(
+        'candidates.can_initiate_candidates', raise_exception=True))
+    def dispatch(self, *args, **kwargs):
+        return super(CandidateInitiationView, self).dispatch(*args, **kwargs)
+
+    def get_queryset(self, *args, **kwargs):
+        return super(CandidateInitiationView, self).get_queryset(
+            *args, **kwargs).select_related('user__userprofile', 'term')
+
+
+@require_POST
+@permission_required('candidates.can_initiate_candidates', raise_exception=True)
+def update_candidate_initiation_status(request):
+    """Endpoint for updating a candidate's initiation status.
+
+    The post parameters "candidate" and "initiated" specify the candidate (by
+    Candidate pk) and their new initiation status, respectively.
+    """
+    candidate_pk = request.POST.get('candidate')
+    if not candidate_pk:
+        return json_response(status=404)
+    candidate = get_object_or_none(Candidate, pk=candidate_pk)
+    initiated = json.loads(request.POST.get('initiated'))
+    if not candidate or initiated is None:
+        return json_response(status=400)
+
+    candidate.initiated = initiated
+    candidate.save(update_fields=['initiated'])
+    # TODO(sjdemartini): Update LDAP-related information, like removal from
+    # or addition to relevant groups.
+    # TODO(sjdemartini): Update relevant mailing lists, moving initiated
+    # candidates off of the candidates list and onto the members list.
+    return json_response()

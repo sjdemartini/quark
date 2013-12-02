@@ -100,15 +100,35 @@ class UserProfilesTest(TestCase):
         common_name = full_name
         full_name = '%s %s %s' % (self.first_name, middle_name, self.last_name)
         self.assertEqual(self.profile.get_full_name(), full_name)
+        self.assertEqual(self.profile.get_full_name(verbose=True), full_name)
+        self.assertEqual(self.profile.get_full_name(include_middle_name=False),
+                         common_name)
         self.assertEqual(self.profile.get_common_name(), common_name)
 
-        # Changing preferred name:
+        # Adding a preferred name:
         preferred_name = 'Bob'
         self.profile.preferred_name = preferred_name
         self.profile.save()
         common_name = '%s %s' % (preferred_name, self.last_name)
         self.assertEqual(self.profile.get_full_name(), full_name)
+        self.assertEqual(
+            self.profile.get_full_name(verbose=True),
+            '{} ({}) {} {}'.format(
+                preferred_name, self.first_name, middle_name, self.last_name))
+        self.assertEqual(self.profile.get_full_name(include_middle_name=False),
+                         '{} {}'.format(self.first_name, self.last_name))
         self.assertEqual(self.profile.get_common_name(), common_name)
+
+    def test_get_verbose_first_name(self):
+        # With no preferred_name specified, should return the user first name:
+        self.assertEqual(self.profile.get_verbose_first_name(), self.first_name)
+
+        preferred_name = 'Bob'
+        self.profile.preferred_name = preferred_name
+        self.profile.save()
+
+        self.assertEqual(self.profile.get_verbose_first_name(),
+                         '{} ({})'.format(preferred_name, self.first_name))
 
 
 class StudentOrgUserProfilesTest(TestCase):

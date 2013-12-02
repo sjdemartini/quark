@@ -46,7 +46,11 @@ div {
   th,
   td {
     padding: 5px;
-    vertical-align: top;  // Improves image-positioning in tables
+    vertical-align: top;  // Align the cell to the top
+    & > * {
+      // Make all direct children in tables vertically aligned to the middle
+      vertical-align: middle;
+    }
   }
 }
 
@@ -114,6 +118,11 @@ div {
   &:active {
     @include box-shadow(inset 0 3px 5px rgba(0, 0, 0, 0.125));
   }
+}
+
+.loading {
+  padding-left: 6px;
+  padding-right: 6px;
 }
 
 // Form

@@ -10,3 +10,13 @@
 .candidate-thumbnail {
   height: 64px;
 }
+
+
+// Initiation page:
+.candidate-initiated {
+  background-color: $success-bg-color;
+}
+
+.candidate-not-initiated {
+  background-color: $error-bg-color;
+}

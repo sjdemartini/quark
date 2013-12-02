@@ -111,17 +111,54 @@ class UserProfile(models.Model):
     def __unicode__(self):
         return self.get_common_name()
 
-    def get_short_name(self):
-        return self.preferred_name or self.user.first_name
+    def get_verbose_first_name(self):
+        """Return a verbose representation of the user's first name.
 
-    def get_full_name(self):
-        if self.middle_name:
-            return '{0} {1} {2}'.format(
-                self.user.first_name, self.middle_name, self.user.last_name)
+        The result includes both the preferred name and official first name, if
+        they differ. For instance, if someone's first name is Robert, with the
+        preferred name Bob, this method returns:
+        Bob (Robert)
+        """
+        if self.preferred_name != self.user.first_name:
+            # Use both "first" names
+            return '{} ({})'.format(self.preferred_name, self.user.first_name)
         else:
-            return '{} {}'.format(self.user.first_name, self.user.last_name)
+            return self.user.first_name
+
+    def get_full_name(self, include_middle_name=True, verbose=False):
+        """Return the user's full name.
+
+        If "include_middle_name" (default True) is True, the result includes
+        the user's middle name if the user has one.
+
+        If "verbose" (default False) is True, the result uses the verbose first
+        name as the first name (see get_verbose_first_name). For instance, if
+        someone's name is Robert Tau Bent, with the preferred name Bob, this
+        method returns the following when verbose and include_middle_name are
+        True:
+        Bob (Robert) Tau Bent
+        """
+        if verbose:
+            first_name = self.get_verbose_first_name()
+        else:
+            first_name = self.user.first_name
+
+        if include_middle_name and self.middle_name:
+            return '{0} {1} {2}'.format(
+                first_name, self.middle_name, self.user.last_name)
+        else:
+            return '{} {}'.format(first_name, self.user.last_name)
+
+    def get_verbose_full_name(self):
+        """Return a verbose representation of the user's full name.
+
+        Calls the get_full_name method with verbose set to True. Useful for
+        usage in templates.
+        """
+        return self.get_full_name(verbose=True)
 
     def get_common_name(self):
+        """Return the common representation of the person's name."""
         return '{} {}'.format(self.preferred_name, self.user.last_name)
 
     def get_public_name(self):

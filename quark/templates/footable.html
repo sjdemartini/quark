@@ -1,15 +1,25 @@
 {% comment %}
 Include this template into the head to use basic footable responsive design.
-footable.sort.js and footable.filter.js must be separately added to the head
-for sorting and filtering abilities, respectively.
 
-To create a footable, simply add the "footable" class to any table. See
-http://fooplugins.com/footable-demos/ for further documentation.
+To include sorting and/or filtering abilities with the footable, pass to the
+template in the include statement the additional context variables
+"include_sort" and/or "include_filter" set to True, respectively. The default is
+to not include sorting or filtering, as these require additional JS files.
+
+To make a table act as a footable, simply add the "footable" class to any
+table and include this template. See http://fooplugins.com/footable-demos/ for
+further documentation on footable usage.
 {% endcomment %}
 {% load static compress %}
 <link href="{% static 'footable/css/footable.core.min.css' %}" rel="stylesheet" type="text/css"/>
 {% compress js %}
 <script src="{% static 'footable/js/footable.js' %}" type="text/javascript"></script>
+{% if include_sort %}
+<script src="{% static 'footable/js/footable.sort.js' %}" type="text/javascript"></script>
+{% endif %}
+{% if include_filter %}
+<script src="{% static 'footable/js/footable.filter.js' %}" type="text/javascript"></script>
+{% endif %}
 <script type="text/javascript">
 $(function() {
   var table = $('.footable');

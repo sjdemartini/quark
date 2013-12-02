@@ -2,9 +2,10 @@ import os
 
 from django.conf import settings
 from django.db import models
+from django.db.models import Sum
 
 from quark.base.models import Term
-from quark.events.models import EventAttendance
+from quark.events.models import Event
 from quark.events.models import EventType
 from quark.exams.models import Exam
 from quark.resumes.models import Resume
@@ -44,21 +45,45 @@ class Candidate(models.Model):
 
     class Meta(object):
         ordering = ('-term', 'user__userprofile')
+        permissions = (
+            ('can_initiate_candidates', 'Can mark candidates as initiated'),
+        )
         unique_together = ('user', 'term')
 
-    def get_progress(self, requirement_type):
-        """
-        Returns a tuple (#completed, #required) for a given requirement type.
+    def get_progress(self, requirement_type=None):
+        """Return a dictionary with keys "completed" and "required", which
+        map to the number of completed requirements and the number that were
+        required, respectively.
 
-        Useful for progress bars and other visualizations.
+        If requirement_type is not specified, the method returns total progress
+        for all requirements. If requirement is specified, only progress for
+        the specific requirement type is returned.
+
+        Useful for summary info, progress bars, and other visualizations.
         """
-        requirements = CandidateRequirement.objects.filter(
-            term=self.term, requirement_type=requirement_type)
+        if requirement_type is None:
+            requirements = CandidateRequirement.objects.filter(term=self.term)
+        else:
+            requirements = CandidateRequirement.objects.filter(
+                term=self.term, requirement_type=requirement_type)
+
+        # Select-related to improve performance, fetching data for requirements
+        # from multiple tables
+        requirements.select_related(
+            'eventcandidaterequirement',
+            'eventcandidaterequirement__event_type',
+            'challengecandidaterequirement',
+            'challengecandidaterequirement__challenge_type',
+            'examfilecandidaterequirement')
+
+        # TODO(sjdemartini): Figure out a way to optimize fetching the progress
+        # for event requirements and fetching CandidateRequirementProgress
+        # objects in order to minimize number of queries
+
         progress = [req.get_progress(self) for req in requirements]
-        completed = sum([x[0] for x in progress])
-        required = sum([x[1] for x in progress])
-
-        return (completed, required)
+        completed = sum([x['completed'] for x in progress])
+        required = sum([x['required'] for x in progress])
+        return {'completed': completed, 'required': required}
 
     def get_college_student_info(self):
         # Avoid circular dependency by importing here:
@@ -181,7 +206,10 @@ class CandidateRequirement(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     def get_progress(self, candidate):
-        """Return a tuple (#completed, #required) for the given candidate."""
+        """Return a dictionary with keys "completed" and "required", which
+        map to the number of completed requirements and the number that were
+        required, respectively, for the given candidate.
+        """
         required = self.credits_needed
 
         if self.requirement_type == CandidateRequirement.EVENT:
@@ -211,7 +239,7 @@ class CandidateRequirement(models.Model):
         except CandidateRequirementProgress.DoesNotExist:
             pass
 
-        return (completed, required)
+        return {'completed': completed, 'required': required}
 
     def get_name(self):
         """Return a name for the requirement based on the requirement type."""
@@ -249,11 +277,12 @@ class EventCandidateRequirement(CandidateRequirement):
 
     def get_completed(self, candidate):
         """Return the number of credits completed by candidate."""
-        events_attended = EventAttendance.objects.filter(
-            user=candidate.user,
-            event__term=candidate.term,
-            event__event_type=self.event_type)
-        return sum([e.event.requirements_credit for e in events_attended])
+        events_attended = Event.objects.filter(
+            eventattendance__user=candidate.user,
+            term=candidate.term,
+            event_type=self.event_type)
+        return events_attended.aggregate(
+            total=Sum('requirements_credit'))['total'] or 0
 
     def __unicode__(self):
         return '{event_type} {req}'.format(

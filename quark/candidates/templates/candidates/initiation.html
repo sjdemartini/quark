@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block head %}
+{% include 'footable.html' with include_sort=True %}
+<script>
+function updateNumInitiated() {
+  var initiatedNode = $('#num-initiated');
+  var checkboxesChecked = $('.initiated-checkbox:checked');
+  initiatedNode.text(checkboxesChecked.size());
+}
+
+$(function() {
+  updateNumInitiated();
+});
+
+function initiateCandidate(event) {
+  var candidateRow = $(event.target).parents('tr');
+  var alreadyInitiated = candidateRow.hasClass('candidate-initiated');
+  var checkbox = $(event.target);
+  var req = $.post('{% url 'candidates:initiation-update' %}', {
+    candidate: candidateRow.data('candidate-pk'),
+    initiated: !alreadyInitiated  // Change their initiation status
+  });
+  // Show the spinner icon:
+  var spinner = checkbox.next();
+  spinner.show();
+  req.done(function() {
+    // Change the display to indicate that this candidate's initation status
+    // has changed
+    updateNumInitiated();
+    candidateRow.toggleClass('candidate-initiated');
+    candidateRow.toggleClass('candidate-not-initiated');
+  });
+  req.fail(function() {
+    // Uncheck the checkbox
+    checkbox.prop('checked', !checkbox.prop('checked'));
+    // TODO(sjdemartini): Somehow provide some feedback to the user about what
+    // went wrong?
+  });
+  req.always(function() {
+    // Hide the spinner icon
+    spinner.fadeOut(200);
+  });
+}
+</script>
+{% endblock head %}
+
+{% block intro %}
+<h1>
+  {% block title %}Initiation for {{ display_term_name }} Candidates{% endblock title %}
+</h1>
+{% endblock intro %}
+
+{% block content %}
+{% include 'term_selection.html' %}
+
+{% if candidates %}
+<p>
+  <div>Total number of candidates: {{ candidates|length }}</div>
+  <div>Number of candidates initiated: <span id="num-initiated">0</span></div>
+</p>
+
+<p>Check off the candidates who have initiated.</p>
+
+<table class="footable stylized">
+  <thead>
+    <tr>
+      <th data-sort-initial="true">First Name</th>
+      <th>Last Name</th>
+      <th data-hide="phone" data-sort-ignore="true">Picture</th>
+      <th data-hide="phone">Requirements Completed</th>
+      <th data-sort-ignore="true">Initiated?</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for candidate in candidates %}
+  <tr class="{% if candidate.initiated %}candidate-initiated{% else %}candidate-not-initiated{% endif %}" data-candidate-pk="{{ candidate.pk }}">
+    {% with cand_user_profile=candidate.user.userprofile %}
+    <td ><a href="{% url 'candidates:edit' candidate.pk %}">{{ cand_user_profile.get_verbose_first_name }}</a></td>
+    <td><a href="{% url 'candidates:edit' candidate.pk %}">{{ candidate.user.last_name }}</a></td>
+    <td>
+      {% if candidate.photo %}
+      <a href="{{ candidate.photo.url }}"><img src="{{ candidate.photo.url }}" alt="{{ candidate.user.get_full_name }}" class="candidate-thumbnail"></a>
+      {% else %}
+      <img src="{% static 'images/missing.jpg' %}" alt="No photo for {{ candidate.user.get_full_name }}" class="candidate-thumbnail">
+      {% endif %}
+    </td>
+    {% with progress=candidate.get_progress %}
+    <td data-value="{{ progress.completed }}">
+      {{ progress.completed }} / {{ progress.required }}
+    </td>
+    <td>
+      <input type="checkbox" class="initiated-checkbox"
+        name="{{ candidate.pk }}" onclick="initiateCandidate(event)"
+        {% if candidate.initiated %}checked{% endif %}>
+      <i class="icon-spinner icon-spin loading" style="display: none"></i>
+    </td>
+    {% endwith progress %}
+
+    {% endwith cand_user_profile %}
+  </tr>
+  {% endfor %}
+</table>
+
+{% else %}
+<p>There are no candidates for {{ display_term }}.</p>
+{% endif %}
+
+{% endblock content %}

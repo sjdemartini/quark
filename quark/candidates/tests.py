@@ -182,10 +182,9 @@ class CandidateTest(TestCase):
             requirement=self.manual_req1,
             manually_recorded_credits=2,
             alternate_credits_needed=2).save()
-        complete, needed = self.candidate.get_progress(
-            CandidateRequirement.MANUAL)
-        self.assertEqual(complete, 2)
-        self.assertEqual(needed, 7)
+        progress = self.candidate.get_progress(CandidateRequirement.MANUAL)
+        self.assertEqual(progress['completed'], 2)
+        self.assertEqual(progress['required'], 7)
 
         # Test the simple summing of credits
         progress2 = CandidateRequirementProgress(
@@ -194,18 +193,16 @@ class CandidateTest(TestCase):
             manually_recorded_credits=3,
             alternate_credits_needed=5)
         progress2.save()
-        complete, needed = self.candidate.get_progress(
-            CandidateRequirement.MANUAL)
-        self.assertEqual(complete, 5)
-        self.assertEqual(needed, 7)
+        progress = self.candidate.get_progress(CandidateRequirement.MANUAL)
+        self.assertEqual(progress['completed'], 5)
+        self.assertEqual(progress['required'], 7)
 
         # Test alternate credit requirement
         progress2.alternate_credits_needed = 4
         progress2.save()
-        complete, needed = self.candidate.get_progress(
-            CandidateRequirement.MANUAL)
-        self.assertEqual(complete, 5)
-        self.assertEqual(needed, 6)
+        progress = self.candidate.get_progress(CandidateRequirement.MANUAL)
+        self.assertEqual(progress['completed'], 5)
+        self.assertEqual(progress['required'], 6)
 
     def test_challenge_requirements(self):
         """Test that credits for challenges are counted correctly."""
@@ -216,25 +213,25 @@ class CandidateTest(TestCase):
             verifying_user=self.officer.user,
             challenge_type=self.individual_challenge_type)
         challenge.save()
-        complete, needed = self.candidate.get_progress(
-            CandidateRequirement.CHALLENGE)
-        self.assertEqual(complete, 0)
-        self.assertEqual(needed, 3)
+        progress = self.candidate.get_progress(CandidateRequirement.CHALLENGE)
+        self.assertEqual(progress['completed'], 0)
+        self.assertEqual(progress['required'], 3)
 
         # ...and verified challenges do count
         challenge.verified = True
         challenge.save()
-        complete, _ = self.candidate.get_progress(
-            CandidateRequirement.CHALLENGE)
-        self.assertEqual(complete, 1)
+        progress = self.candidate.get_progress(CandidateRequirement.CHALLENGE)
+        self.assertEqual(progress['completed'], 1)
+        self.assertEqual(progress['required'], 3)
 
         # Test alternate credit requirement
         CandidateRequirementProgress(
             candidate=self.candidate,
             requirement=self.challenge_req,
             alternate_credits_needed=2).save()
-        _, needed = self.candidate.get_progress(CandidateRequirement.CHALLENGE)
-        self.assertEqual(needed, 2)
+        progress = self.candidate.get_progress(CandidateRequirement.CHALLENGE)
+        self.assertEqual(progress['completed'], 1)
+        self.assertEqual(progress['required'], 2)
 
     def test_event_requirements(self):
         """Test that credits for events are counted correctly based on
@@ -242,39 +239,78 @@ class CandidateTest(TestCase):
         """
         # Attend Fun Event
         EventAttendance(event=self.fun_event1, user=self.user).save()
-        complete, _ = self.candidate.get_progress(CandidateRequirement.EVENT)
-        self.assertEqual(complete, 1)
+        progress = self.candidate.get_progress(CandidateRequirement.EVENT)
+        self.assertEqual(progress['completed'], 1)
 
         # Attend Big Fun Event (worth 2)
         EventAttendance(event=self.fun_event2, user=self.user).save()
-        complete, _ = self.candidate.get_progress(CandidateRequirement.EVENT)
-        self.assertEqual(complete, 3)
+        progress = self.candidate.get_progress(CandidateRequirement.EVENT)
+        self.assertEqual(progress['completed'], 3)
 
         # Attend Not Fun Event (not worth any requirements)
         EventAttendance(event=self.notfun_event, user=self.user).save()
-        complete, _ = self.candidate.get_progress(CandidateRequirement.EVENT)
-        self.assertEqual(complete, 3)
+        progress = self.candidate.get_progress(CandidateRequirement.EVENT)
+        self.assertEqual(progress['completed'], 3)
 
     def test_exams_requirements(self):
         """Test that credits for exam files are counted correctly."""
         # Upload 1 verified exam
         self.test_exam1.submitter = self.user
         self.test_exam1.save()
-        complete, _ = self.candidate.get_progress(
-            CandidateRequirement.EXAM_FILE)
         self.assertEqual(self.user, self.test_exam1.submitter)
-        self.assertEqual(complete, 1)
+        progress = self.candidate.get_progress(CandidateRequirement.EXAM_FILE)
+        self.assertEqual(progress['completed'], 1)
 
         # Upload 2 verified exams
         self.test_exam2.submitter = self.user
         self.test_exam2.save()
-        complete, _ = self.candidate.get_progress(
-            CandidateRequirement.EXAM_FILE)
-        self.assertEqual(complete, 2)
+        progress = self.candidate.get_progress(CandidateRequirement.EXAM_FILE)
+        self.assertEqual(progress['completed'], 2)
 
         # Unverify an exam (doesn't count anymore)
         self.test_exam1.verified = False
         self.test_exam1.save()
-        complete, _ = self.candidate.get_progress(
-            CandidateRequirement.EXAM_FILE)
-        self.assertEqual(complete, 1)
+        progress = self.candidate.get_progress(CandidateRequirement.EXAM_FILE)
+        self.assertEqual(progress['completed'], 1)
+
+    def test_get_total_progress(self):
+        """Test get_progress where requirement_type is not specified and
+        total progress for all requirements is returned.
+        """
+        # Get all the requirements that were created:
+        requirements = CandidateRequirement.objects.filter(term=self.term)
+        num_required = 0
+        for requirement in requirements:
+            num_required += requirement.credits_needed
+        progress = self.candidate.get_progress()
+
+        # Ensure that the method returns the same value as calculated manually.
+        # This value should not change over the course of the tests.
+        self.assertEqual(progress['required'], num_required)
+
+        # Haven't assigned any completions yet:
+        total_completed = 0
+        self.assertEqual(progress['completed'], total_completed)
+
+        # Attend Fun Event for fun event requirement
+        EventAttendance(event=self.fun_event1, user=self.user).save()
+        progress = self.candidate.get_progress()
+        self.assertEqual(progress['required'], num_required)
+        total_completed += 1
+        self.assertEqual(progress['completed'], total_completed)
+
+        # Complete a challenge:
+        Challenge(candidate=self.candidate, description='Hello kitty',
+                  verifying_user=self.officer.user,
+                  verified=True,
+                  challenge_type=self.individual_challenge_type).save()
+        progress = self.candidate.get_progress()
+        total_completed += 1
+        self.assertEqual(progress['required'], num_required)
+        self.assertEqual(progress['completed'], total_completed)
+
+        # Attend an event not worth any requirements
+        EventAttendance(event=self.notfun_event, user=self.user).save()
+        progress = self.candidate.get_progress()
+        self.assertEqual(progress['required'], num_required)
+        self.assertEqual(progress['completed'], total_completed)
