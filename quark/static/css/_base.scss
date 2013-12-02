@@ -11,8 +11,8 @@ $break-medium: 820px;
 $color-focus: #009;
 
 $form-label-width: 29%;
-$form-sep: 2%;
-$form-input-width: 65%;
+$form-sep: 3%;
+$form-input-width: (100% - $form-label-width - $form-sep);
 
 $error-text-color: #f00;
 $error-bg-color: #fdd;
@@ -60,4 +60,17 @@ $success-border-color: #5c5;
   bottom: unquote($bottom);
   width: unquote($width);
   height: unquote($height);
+}
+
+// Mixin for adding an :after element that ensures internal floated elements
+// are contained in the height of the element using the mixin. The clear:both
+// prevents the height from not including floated elements.
+@mixin clearfix {
+  &:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+  }
 }

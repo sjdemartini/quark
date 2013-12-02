@@ -145,7 +145,7 @@ function setupForms() {
   var requiredFields = $('.form-entry-required');
 
   // Use the HTML5 "required" attribute on input elements:
-  requiredFields.children('input').each(function() {
+  requiredFields.find('input').each(function() {
     this.required = true;
   });
 

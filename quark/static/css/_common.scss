@@ -37,8 +37,8 @@ div {
   margin: 0;
   padding: 0;
   position: relative;
-  // IE fix; also fixes jQuery autocomplete layout issue
-  // in which the inserted div's position is absolute
+  // IE fix; also fixes jQuery autocomplete layout issue in which the inserted
+  // div's position is absolute
 }
 
 // Table styling
@@ -121,56 +121,58 @@ td {
   .form-entry {
     margin: 1em 0;
     padding: 0 0.5em;
+    @include clearfix;
+    @include respond-to(small-med) {
+      margin-top: 1.3em;  // Increase the top margin with narrow viewport
+    }
 
-    label {
+    label, legend {
       width: $form-label-width;
-      margin-right: $form-sep;
       text-align: right;
-      display: inline-block;
+      float: left;
 
       @include respond-to(medium) {
         text-align: left;
       }
       @include respond-to(small-med) {
+        width: 100%;
+        float: none;
+      }
+    }
+
+    // Container for input fields and their associated help-text and errors:
+    .form-input {
+      width: $form-input-width;
+      float: right;
+      @include respond-to(small-med) {
+        width: 100%;
+        float: none;
+      }
+
+      @include respond-to(small-med) {
+        input[type=text],
+        input[type=email],
+        input[type=url],
+        input[type=password],
+        input[type=file],
+        select,
+        textarea {
+          width: 100%;
+        }
+      }
+
+      textarea {
+        resize: vertical;
+      }
+
+      .help-text,
+      .form-errors {
         display: block;
-        width: 100%;
+        margin-top: 2px;
+        font-size: 0.9em;
       }
     }
-    input[type=text],
-    input[type=email],
-    input[type=url],
-    input[type=password] {
-      @include respond-to(small-med) {
-        width: 100%;
-      }
-    }
-    input[type=file] {
-      width: $form-input-width;
-      @include respond-to(small-med) {
-        width: auto;
-      }
-    }
-    textarea {
-      width: $form-input-width;
-      @include respond-to(small-med) {
-        width: 100%;
-      }
-      resize: vertical;
-    }
-    select {
-      @include respond-to(small-med) {
-        width: 100%;
-      }
-    }
-    > span {
-      display: block;
-      margin-left: $form-label-width + $form-sep;
-      margin-top: 2px;
-      font-size: 0.9em;
-      @include respond-to(small-med) {
-        margin-left: auto;
-      }
-    }
+
     &.form-entry-required label:after {
       // Append an asterisk after labels for required fields
       content: '*';
@@ -180,12 +182,14 @@ td {
       position: absolute;
       margin-left: 4px;
     }
+
+    &.form-entry-error {
+      padding: 0.5em;
+      background: $error-bg-color;
+      @include border-radius(0.3em);
+    }
   }
-  .form-entry-error {
-    padding: 0.5em;
-    @include border-radius(0.3em);
-    background: $error-bg-color;
-  }
+
   input[type=submit] {
     margin-left: $form-label-width + $form-sep;
     background-color: #fff;
@@ -199,21 +203,21 @@ td {
 
 #content form.form-narrow {
   .form-entry {
-    label {
+    label, legend {
       width: $form-label-width / 2;
       text-align: left;
       @include respond-to(small-med) {
-        display: block;
         width: 100%;
       }
     }
-    > span {
-      margin-left: $form-label-width / 2 + $form-sep;
+    .form-input {
+      width: $form-input-width + ($form-label-width / 2);
       @include respond-to(small-med) {
-        margin-left: auto;
+        width: 100%;
       }
     }
     &.form-entry-required label:after {
+      // Don't denote required fields, since this form is meant to be simple
       content: '';
     }
   }
@@ -758,15 +762,7 @@ blockquote {
 
 #content {
   margin: 0 15px;
-}
-
-// Add an :after element that ensures internal floated elements are contained
-// in the height of the content div. The clear:both prevents the height from
-// not including floated elements.
-#content:after {
-  content: '';
-  display: block;
-  clear: both;
+  @include clearfix;
 }
 
 #bubble {

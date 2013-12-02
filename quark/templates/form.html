@@ -4,9 +4,12 @@
 
 {% for field in form.visible_fields %}
   <div class="form-entry{% if field.errors %} form-entry-error{% endif %}{% if field.field.required %} form-entry-required{% endif %}">
-    {{ field.label_tag }} {{ field }}
-    {% if field.help_text %}<span class="help-text">{{ field.help_text }}</span>{% endif %}
-    {% if field.errors %}<span class="errors">{{ field.errors }}</span>{% endif %}
+    {{ field.label_tag }}
+    <div class="form-input">
+      {{ field }}
+      {% if field.help_text %}<span class="help-text">{{ field.help_text }}</span>{% endif %}
+      {% if field.errors %}<span class="form-errors">{{ field.errors }}</span>{% endif %}
+    </div>
   </div>
 {% endfor %}
 {% for field in form.hidden_fields %}
