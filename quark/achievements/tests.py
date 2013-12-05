@@ -129,6 +129,7 @@ class OfficerAchievementsTest(TestCase):
         self.historian = OfficerPosition.objects.get(short_name='historian')
         self.infotech = OfficerPosition.objects.get(short_name='it')
         self.vicepres = OfficerPosition.objects.get(short_name='vp')
+        self.president = OfficerPosition.objects.get(short_name='president')
 
     def create_officer(self, user, position, term=None, is_chair=False):
         if term is None:
@@ -215,3 +216,126 @@ class OfficerAchievementsTest(TestCase):
         self.create_officer(self.sample_user, self.infotech, self.sp2010, True)
         self.assertEqual(self.achievements.filter(
             achievement__pk='chair2committees', acquired=True).count(), 0)
+
+    def test_three_diff_positions(self):
+        # having three different officer positions confers the achievement
+        self.create_officer(self.sample_user, self.infotech, self.fa2009)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='three_unique_positions', acquired=True).count(), 0)
+
+        self.create_officer(self.sample_user, self.historian, self.sp2010)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='three_unique_positions', acquired=True).count(), 0)
+
+        self.create_officer(self.sample_user, self.vicepres, self.fa2010)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='three_unique_positions', acquired=True).count(), 1)
+
+    def test_three_same_positions(self):
+        # having some repeats within the 3 does not confer achievement
+        self.create_officer(self.sample_user, self.infotech, self.fa2009)
+        self.create_officer(self.sample_user, self.infotech, self.sp2010)
+        self.create_officer(self.sample_user, self.vicepres, self.fa2010)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='three_unique_positions', acquired=True).count(), 0)
+
+        self.create_officer(self.sample_user, self.vicepres, self.sp2011)
+        self.create_officer(self.sample_user, self.infotech, self.fa2011)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='three_unique_positions', acquired=True).count(), 0)
+
+        self.create_officer(self.sample_user, self.historian, self.sp2012)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='three_unique_positions', acquired=True).count(), 1)
+
+    def test_two_and_three_in_a_row(self):
+        # being the same position 3x in a row confers both achievements
+        self.create_officer(self.sample_user, self.infotech, self.sp2009)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='twice_same_position', acquired=True).count(), 0)
+
+        self.create_officer(self.sample_user, self.infotech, self.fa2009)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='twice_same_position', acquired=True).count(), 1)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='thrice_same_position', acquired=True).count(), 0)
+
+        self.create_officer(self.sample_user, self.infotech, self.sp2010)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='thrice_same_position', acquired=True).count(), 1)
+
+    def test_broken_streaks(self):
+        # an officer being the same position thrice but not in a row does
+        # not confer the achievement
+        self.create_officer(self.sample_user, self.infotech, self.sp2009)
+        self.create_officer(self.sample_user, self.historian, self.fa2009)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='twice_same_position', acquired=True).count(), 0)
+
+        self.create_officer(self.sample_user, self.infotech, self.sp2010)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='twice_same_position', acquired=True).count(), 0)
+
+        self.create_officer(self.sample_user, self.infotech, self.fa2010)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='twice_same_position', acquired=True).count(), 1)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='thrice_same_position', acquired=True).count(), 0)
+
+    def test_multiple_streaks(self):
+        # an officer being two positions each twice in a row gets it
+        self.create_officer(self.sample_user, self.infotech, self.sp2009)
+        self.create_officer(self.sample_user, self.infotech, self.fa2009)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='two_repeated_positions', acquired=True).count(), 0)
+
+        self.create_officer(self.sample_user, self.historian, self.sp2010)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='two_repeated_positions', acquired=True).count(), 0)
+
+        self.create_officer(self.sample_user, self.historian, self.fa2010)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='two_repeated_positions', acquired=True).count(), 1)
+
+    def test_same_committee_two_different_streaks(self):
+        # two repeated positions need to be different positions
+        self.create_officer(self.sample_user, self.infotech, self.sp2009)
+        self.create_officer(self.sample_user, self.infotech, self.fa2009)
+        self.create_officer(self.sample_user, self.historian, self.sp2010)
+        self.create_officer(self.sample_user, self.infotech, self.fa2010)
+        self.create_officer(self.sample_user, self.infotech, self.sp2011)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='two_repeated_positions', acquired=True).count(), 0)
+
+    def test_straight_to_the_top_vp(self):
+        # becoming vp in 2 semesters gives this achievement
+        self.create_officer(self.sample_user, self.historian, self.sp2009)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='straighttothetop', acquired=True).count(), 0)
+
+        self.create_officer(self.sample_user, self.vicepres, self.fa2009)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='straighttothetop', acquired=True).count(), 1)
+
+    def test_straight_to_the_top_pres(self):
+        # becoming pres in 3 semesters also gives this achievement
+        self.create_officer(self.sample_user, self.historian, self.sp2009)
+        self.create_officer(self.sample_user, self.historian, self.fa2009)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='straighttothetop', acquired=True).count(), 0)
+
+        self.create_officer(self.sample_user, self.president, self.sp2010)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='straighttothetop', acquired=True).count(), 1)
+
+    def test_late_to_the_top(self):
+        # becoming vp after 2 semesters or pres after 3 does not give it
+        self.create_officer(self.sample_user, self.historian, self.sp2009)
+        self.create_officer(self.sample_user, self.historian, self.fa2009)
+        self.create_officer(self.sample_user, self.vicepres, self.sp2010)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='straighttothetop', acquired=True).count(), 0)
+
+        self.create_officer(self.sample_user, self.president, self.fa2010)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='straighttothetop', acquired=True).count(), 0)

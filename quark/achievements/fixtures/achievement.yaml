@@ -144,3 +144,76 @@
     manual: False
     repeatable: False
     rank: 10.2
+- pk: three_unique_positions
+  model: achievements.Achievement
+  fields:
+    name: Jack of Many Trades
+    description: Hold three or more different officer positions.
+    category: elections
+    points: 20
+    goal: 0
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 5.1
+    acquired_icon: images/achievements/three_unique_positions.png
+    unacquired_icon: images/achievements/three_unique_positions_g.png
+- pk: twice_same_position
+  model: achievements.Achievement
+  fields:
+    name: Double Tap
+    description: Be the same officer position twice in a row.
+    category: elections
+    sequence: Repeats
+    points: 10
+    goal: 0
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 6.1
+    acquired_icon: images/achievements/twicesameposition.png
+    unacquired_icon: images/achievements/twicesameposition_g.png
+- pk: thrice_same_position
+  model: achievements.Achievement
+  fields:
+    name: Hat Trick
+    description: Be the same officer position thrice in a row.
+    category: elections
+    sequence: Repeats
+    points: 30
+    goal: 0
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 6.2
+    acquired_icon: images/achievements/thricesameposition.png
+    unacquired_icon: images/achievements/thricesameposition_g.png
+- pk: two_repeated_positions
+  model: achievements.Achievement
+  fields:
+    name: Double Double
+    description: Hold two different officer positions twice in a row.
+    category: elections
+    sequence: Repeats
+    points: 25
+    goal: 0
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 6.3
+    acquired_icon: images/achievements/tworepeatedpositions.png
+    unacquired_icon: images/achievements/tworepeatedpositions_g.png
+- pk: straighttothetop
+  model: achievements.Achievement
+  fields:
+    name: Straight to the Top
+    description: Become VP in 2 semesters or President in 3.
+    category: elections
+    points: 25
+    goal: 0
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 11.2
+    acquired_icon: images/achievements/straighttothetop.png
+    unacquired_icon: images/achievements/straighttothetop_g.png
