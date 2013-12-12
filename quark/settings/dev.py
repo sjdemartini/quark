@@ -46,6 +46,13 @@ DATABASES = {
 # Custom dev cookie session ID
 SESSION_COOKIE_NAME =  'quark_dev_%s_sid' % _user
 
+# Always show the Django Debug Toolbar on dev. By default, the Debug Toolbar
+# would only be shown when DEBUG=True and the request is from an IP listed in
+# the INTERNAL_IPS setting.
+DEBUG_TOOLBAR_CONFIG = {
+    'SHOW_TOOLBAR_CALLBACK': lambda request: True
+}
+
 # Use nginx proxy. Dev server available at https://tbp.berkeley.edu/PORT/
 # Set this config value in your settings_local.py file if you want to use to
 # be more secure (yes, you do) and use a HTTPS proxy instead of
