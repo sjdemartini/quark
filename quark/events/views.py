@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
+from django.db.models import Q
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
@@ -16,15 +17,15 @@ from django.views.generic import DetailView
 from django.views.generic import FormView
 from django.views.generic import ListView
 from django.views.generic import UpdateView
+from django.views.generic import TemplateView
 
 from quark.base.models import Term
+from quark.base.views import TermParameterMixin
 from quark.events.forms import EventForm
 from quark.events.forms import EventSignUpAnonymousForm
 from quark.events.forms import EventSignUpForm
 from quark.events.models import Event
-from quark.events.models import EventAttendance
 from quark.events.models import EventSignUp
-from quark.base.views import TermParameterMixin
 
 
 class EventListView(TermParameterMixin, ListView):
@@ -115,8 +116,6 @@ class EventUpdateView(UpdateView):
 
 class EventDetailView(DetailView):
     """View for event details and signing up for events."""
-    # TODO(sjdemartini): Handle event permissions (who can see which events)
-
     pk_url_kwarg = 'event_pk'
     model = Event
     template_name = 'events/detail.html'
@@ -257,34 +256,56 @@ class EventSignUpView(FormView):
         return self.event.get_absolute_url()
 
 
-class IndividualAttendanceListView(ListView):
-    context_object_name = 'attendances'
-    model = EventAttendance
+class IndividualAttendanceListView(TermParameterMixin, TemplateView):
     template_name = 'events/individual_attendance.html'
-    term = None
     attendance_user = None
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         self.attendance_user = get_object_or_404(
             get_user_model(), username=self.kwargs['username'])
-        self.term = Term.objects.get_current_term()
         return super(IndividualAttendanceListView, self).dispatch(
             *args, **kwargs)
-
-    def get_queryset(self):
-        return EventAttendance.objects.filter(
-            event__term=self.term,
-            person=self.attendance_user).order_by(
-            'event__end_datetime')
 
     def get_context_data(self, **kwargs):
         context = super(
             IndividualAttendanceListView, self).get_context_data(**kwargs)
         context['attendance_user'] = self.attendance_user
-        context['signups'] = EventSignUp.objects.filter(
-            event__term=self.term,
-            event__start_datetime__gt=timezone.now(),
-            person=self.attendance_user, unsignup=False)
-        context['display_term'] = self.term
+
+        # Get non-cancelled events from the given term, and select_related for
+        # event_type, since it is used in the template for each event:
+        events = Event.objects.get_user_viewable(self.request.user).filter(
+            term=self.display_term, cancelled=False).order_by(
+            'end_datetime').select_related('event_type')
+
+        current_time = timezone.now()
+        past_events = events.filter(end_datetime__lte=current_time)
+        future_events = events.filter(end_datetime__gt=current_time)
+
+        context['attended'] = past_events.filter(
+            eventattendance__person=self.attendance_user)
+
+        # Get future events that the user has either signed up for or already
+        # received attendance for:
+        signup_filter = Q(eventsignup__person=self.attendance_user,
+                          eventsignup__unsignup=False)
+        attendance_filter = Q(eventattendance__person=self.attendance_user)
+        participation_filter = signup_filter | attendance_filter
+        context['future_participating'] = future_events.filter(
+            participation_filter)
+
+        # Get past events that don't have attendance recorded:
+        context['past_not_recorded'] = past_events.filter(
+            eventattendance__isnull=True)
+
+        # Get past events (that had attendance recorded) that the user did not
+        # attend:
+        context['not_attended'] = past_events.exclude(
+            eventattendance__isnull=True).exclude(pk__in=context['attended'])
+
+        # Get future events for which the user has not signed up or received
+        # attendance:
+        context['future_not_participating'] = future_events.exclude(
+            pk__in=context['future_participating'])
+
         return context

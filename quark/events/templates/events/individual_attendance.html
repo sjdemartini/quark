@@ -1,29 +1,58 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ attendance_user.first_name }}'s Attendance ({{ display_term.verbose_name }}){% endblock title %}
-
 {% block intro %}
-<h1>{{ attendance_user.first_name }}'s Attendance ({{ display_term.verbose_name }})</h1>
+<h1>
+  {% block title %}{{ attendance_user.userprofile.get_common_name }}'s Attendance ({{ display_term.verbose_name }}){% endblock title %}
+</h1>
 {% endblock intro %}
 
 {% block content %}
-{% with display_term_name=display_term.verbose_name %}
-<div id="user-event-attendance">
-  <h2>Events Attended ({{ attendances|length }} [+{{ signups|length }}])</h2>
+{% include 'term_selection.html' %}
+<div class="user-event-attendance">
+  {# TODO(sjdemartini): add CSS for user-event-attendance divs so styled similar to noiro #}
+  <h2>Events Attended ({{ attended|length }} [+{{ future_participating|length }}])</h2>
   <p>
-    {% for attendance in attendances %}
-    <div>
-      <a class="{{ attendance.event_type }}" href="{{ attendance.event.get_absolute_url }}">{{ attendance.event.name }}</a>
+    {% for event in attended %}
+    <div class="event-type {{ event.event_type|slugify }}">
+      <a href="{{ event.get_absolute_url }}">{{ event.name }}</a>
     </div>
     {% empty %}
-    <span>You didn't attend an event in {{ display_term_name }}.</span>
+    <div>You didn't attend an event in {{ display_term_name }}.</div>
     {% endfor %}
-    {% for signup in signups %}
-    <div>
-      [<a href="{{ signup.event.get_absolute_url }}">{{ signup.event.name }}</a>]
+
+    {% for event in future_participating %}
+    <div class="event-type {{ event.event_type|slugify }} future">
+      <a href="{{ event.get_absolute_url }}">{{ event.name }}</a>
     </div>
     {% endfor %}
   </p>
+
+  <h2>Events Not Attended ({{ not_attended|length }} [+{{ future_not_participating|length }}])</h2>
+  <p>
+    {% for event in not_attended %}
+    <div class="event-type {{ event.event_type|slugify }}">
+      <a href="{{ event.get_absolute_url }}">{{ event.name }}</a>
+    </div>
+    {% empty %}
+    <div>You attended all events in {{ display_term_name }}.</div>
+    {% endfor %}
+
+    {% for event in future_not_participating %}
+    <div class="event-type {{ event.event_type|slugify }} future">
+      <a href="{{ event.get_absolute_url }}">{{ event.name }}</a>
+    </div>
+    {% endfor %}
+  </p>
+
+  <h2>Attendance Not Recorded ({{ past_not_recorded|length }})</h2>
+  <p>
+    {% for event in past_not_recorded %}
+    <div class="event-type {{ event.event_type|slugify }}">
+      <a href="{{ event.get_absolute_url }}">{{ event.name }}</a>
+    </div>
+    {% empty %}
+    <div>Attendance has been submitted for all events in {{ display_term_name }}.</div>
+    {% endfor %}
+  </p>
 </div>
-{% endwith display_term_name %}
 {% endblock content %}
