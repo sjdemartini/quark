@@ -1,6 +1,5 @@
 from chosen import forms as chosen_forms
 from django import forms
-from django.contrib.auth import get_user_model
 
 from quark.base.fields import VisualSplitDateTimeField
 from quark.base.forms import ChosenTermMixin
@@ -20,8 +19,7 @@ class EventForm(ChosenTermMixin, forms.ModelForm):
 
     needs_pr = forms.BooleanField(label='Needs project report', required=False)
 
-    contact = UserCommonNameChoiceField(
-        queryset=get_user_model().objects.all())
+    contact = UserCommonNameChoiceField()
 
     class Meta(object):
         model = Event

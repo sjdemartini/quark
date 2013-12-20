@@ -42,7 +42,6 @@ class PollForm(ChosenTermMixin, forms.ModelForm):
         choices=GROUPS,
         help_text='Which group of users will people be able to vote for?')
     eligible_users = UserCommonNameMultipleChoiceField(
-        queryset=get_user_model().objects.all(),
         required=False,
         help_text='Whom will people be able to vote for?')
     max_votes_per_user = forms.IntegerField(min_value=1)
