@@ -1,6 +1,3 @@
-[submodule "static/chosen"]
-	path = static/chosen
-	url = https://github.com/harvesthq/chosen.git
 [submodule "quark/static/footable"]
 	path = quark/static/footable
 	url = git://github.com/bradvin/FooTable.git
