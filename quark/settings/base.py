@@ -156,11 +156,13 @@ THUMBNAIL_PROCESSORS = (
     'easy_thumbnails.processors.filters',
 )
 
-# This is for the django-compressor plugin
+# Set up SASS (SCSS) compression for django-compressor
 COMPRESS_PRECOMPILERS = (
     ('text/x-scss', 'sass {infile}:{outfile}'),
 )
 
+# Make django-compressor store its output compressed files in the original
+# location of the static files, rather than a subfolder
 COMPRESS_OUTPUT_DIR = ''
 
 MIDDLEWARE_CLASSES = [
