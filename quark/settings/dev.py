@@ -53,8 +53,10 @@ DEBUG_TOOLBAR_CONFIG = {
     'SHOW_TOOLBAR_CALLBACK': lambda request: True
 }
 
-# Use nginx proxy. Dev server available at https://tbp.berkeley.edu/PORT/
-# Set this config value in your settings_local.py file if you want to use to
-# be more secure (yes, you do) and use a HTTPS proxy instead of
+# Use nginx proxy. Dev server available at https://tbp.berkeley.edu/dev<PORT>/
+# Set this config value in your settings_local.py file if you want to
+# be more secure (yes, you do) and use an HTTPS proxy instead of
 # http://tbp.berkeley.edu:PORT/
-#FORCE_SCRIPT_NAME = '/%d' % <Your Port Here>
+#FORCE_SCRIPT_NAME = '/dev####'
+#STATIC_URL = '/dev####/static/'
+#MEDIA_URL = '/dev####/media/'
