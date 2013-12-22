@@ -16,13 +16,19 @@ from quark.user_profiles.models import UserProfile
 
 class UserProfilesTest(TestCase):
     def setUp(self):
-        self.user = get_user_model().objects.create_user(
+        self.model = get_user_model()
+
+        self.user = self.model.objects.create_user(
             'test_user', 'it@tbp.berkeley.edu', 'testpw')
         self.first_name = 'Edward'
         self.last_name = 'Williams'
         self.user.first_name = self.first_name
         self.user.last_name = self.last_name
         self.user.save()
+
+        # Re-fetch the user from the DB to avoid issues with the current
+        # object having a stale reference to their corresponding userprofile
+        self.user = self.model.objects.get(pk=self.user.pk)
 
         # There should be a one-to-one relation to a UserProfile created on
         # User post-save
@@ -41,6 +47,8 @@ class UserProfilesTest(TestCase):
         self.committee.save()
 
     def test_user_post_save_profile_creation(self):
+        # Test that a user profile is tied to the created user after the
+        # user is created
         self.assertEqual(self.profile, UserProfile.objects.get(user=self.user))
 
     @override_settings(HOSTNAME='example.com')
@@ -68,12 +76,22 @@ class UserProfilesTest(TestCase):
         self.assertEqual(self.profile.get_preferred_email(),
                          '{}@example.com'.format(self.user.get_username()))
 
+    def test_save_preferred_name(self):
+        # Check that the preferred name was set as the user's first name on
+        # save:
+        self.assertEqual(self.profile.preferred_name, self.first_name)
+
+        # Ensure that the preferred name can still be set and persists
+        preferred_name = 'Bob'
+        self.profile.preferred_name = preferred_name
+        self.profile.save()
+        self.assertEqual(self.profile.preferred_name, preferred_name)
+
     def test_name_methods(self):
         # Name methods with only first and last name
         full_name = '%s %s' % (self.first_name, self.last_name)
         self.assertEqual(self.profile.get_full_name(), full_name)
         self.assertEqual(self.profile.get_common_name(), full_name)
-        self.assertEqual(self.profile.get_short_name(), self.first_name)
 
         # With middle name
         middle_name = 'Robert'
@@ -83,7 +101,6 @@ class UserProfilesTest(TestCase):
         full_name = '%s %s %s' % (self.first_name, middle_name, self.last_name)
         self.assertEqual(self.profile.get_full_name(), full_name)
         self.assertEqual(self.profile.get_common_name(), common_name)
-        self.assertEqual(self.profile.get_short_name(), self.first_name)
 
         # Changing preferred name:
         preferred_name = 'Bob'
@@ -92,7 +109,6 @@ class UserProfilesTest(TestCase):
         common_name = '%s %s' % (preferred_name, self.last_name)
         self.assertEqual(self.profile.get_full_name(), full_name)
         self.assertEqual(self.profile.get_common_name(), common_name)
-        self.assertEqual(self.profile.get_short_name(), preferred_name)
 
 
 class StudentOrgUserProfilesTest(TestCase):
@@ -414,6 +430,11 @@ class FieldsTest(TestCase):
         self.user2.first_name = 'Mike'
         self.user2.last_name = 'McTest'
         self.user2.save()
+
+        # Re-fetch the users from the DB to avoid issues with the current
+        # objects having stale references to their corresponding userprofiles
+        self.user1 = self.model.objects.get(pk=self.user1.pk)
+        self.user2 = self.model.objects.get(pk=self.user2.pk)
 
     def test_common_name_choice_fields(self):
         # Form a queryset of all users created above, in order by last name:

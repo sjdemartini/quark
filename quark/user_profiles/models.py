@@ -40,6 +40,8 @@ class UserProfile(models.Model):
 
     user = models.OneToOneField(settings.AUTH_USER_MODEL)
 
+    # Note that preferred_name is pulled from the user's first_name in the
+    # save() method if preferred_name is left blank
     preferred_name = models.CharField(
         max_length=64,
         db_index=True,
@@ -90,11 +92,20 @@ class UserProfile(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
+    def save(self, *args, **kwargs):
+        """Ensure that the user has a preferred name saved.
+
+        Cache the user's first name as their preferred name if the preferred
+        name is not specified. This helps to ensure that we can sort users
+        by their preferred_names, and also simplifies logic for displaying a
+        user's "common" name.
+        """
+        if not self.preferred_name:
+            self.preferred_name = self.user.first_name
+        super(UserProfile, self).save(*args, **kwargs)
+
     def __unicode__(self):
         return self.get_common_name()
-
-    def get_short_name(self):
-        return self.preferred_name or self.user.first_name
 
     def get_full_name(self):
         if self.middle_name:
@@ -104,7 +115,7 @@ class UserProfile(models.Model):
             return '{} {}'.format(self.user.first_name, self.user.last_name)
 
     def get_common_name(self):
-        return '{} {}'.format(self.get_short_name(), self.user.last_name)
+        return '{} {}'.format(self.preferred_name, self.user.last_name)
 
     def get_college_student_info(self):
         return get_object_or_none(CollegeStudentInfo, user=self.user)
@@ -292,8 +303,16 @@ def user_profile_post_save(sender, instance, created, **kwargs):
     if kwargs['raw']:
         # Disable the handler during fixture loading
         return
-    if created:
-        UserProfile.objects.get_or_create(user=instance)
+
+    profile, _ = UserProfile.objects.get_or_create(user=instance)
+
+    # If the profile does not have the preferred_name set and the user's
+    # first_name field is not empty, call the profile's save method to update
+    # the preferred_name field. This is necessary in case the profile was
+    # originally created on post_save when the user's first_name was not
+    # specified.
+    if instance.first_name and not profile.preferred_name:
+        profile.save()
 
 
 def student_org_user_profile_post_save(sender, instance, created, **kwargs):

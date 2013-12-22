@@ -44,11 +44,8 @@
               {% with is_officer=user_profile.is_officer %}
               {% with is_member=user_profile.is_member %}
               {% with is_candidate=user_profile.is_candidate %}
-              {% with short_name=user_profile.get_short_name %}
               <ul>
-                {% if short_name %}
-                <li id="login-welcome">Welcome, {{ short_name }}!</li>
-                {% endif %}
+                <li id="login-welcome">Welcome, {{ user_profile.preferred_name }}!</li>
                 <li>
                   <a href="javascript:void(0)" class="dropdown-title">
                     <i class="icon-user"></i>
@@ -109,7 +106,6 @@
                   </a>
                 </li>
               </ul>
-              {% endwith short_name %}
               {% endwith is_candidate %}
               {% endwith is_member %}
               {% endwith is_officer %}
