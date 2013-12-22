@@ -50,7 +50,7 @@ class EventListView(TermParameterMixin, ListView):
             # Events from the current term that have not yet ended and have not
             # been cancelled
             events = Event.objects.get_upcoming()
-        return events
+        return events.select_related('event_type', 'committee')
 
     def get_context_data(self, **kwargs):
         context = super(EventListView, self).get_context_data(**kwargs)
@@ -134,7 +134,7 @@ class EventDetailView(DetailView):
         context = super(EventDetailView, self).get_context_data(**kwargs)
 
         context['signup_list'] = self.object.eventsignup_set.filter(
-            unsignup=False).order_by('name')
+            unsignup=False).order_by('name').select_related('person')
 
         signup = None
 
