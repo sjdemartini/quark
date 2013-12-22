@@ -161,6 +161,8 @@ COMPRESS_PRECOMPILERS = (
     ('text/x-scss', 'sass {infile}:{outfile}'),
 )
 
+COMPRESS_OUTPUT_DIR = ''
+
 MIDDLEWARE_CLASSES = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',

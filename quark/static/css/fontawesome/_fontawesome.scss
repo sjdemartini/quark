@@ -3,7 +3,7 @@
 @import "variables";
 @import "icons";
 
-$FontAwesomePath: '../../font' !default;
+$FontAwesomePath: '../font' !default;
 $FontAwesomeVersion: '3.2.1' !default;
 // CSS3 rule defining a font
 @font-face {

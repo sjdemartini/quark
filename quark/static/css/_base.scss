@@ -32,14 +32,14 @@ $form-input-width: 65%;
 @mixin background-light {
   background: {
     color: #eee;
-    image: url(/static/images/gray_light_texture.jpg);
+    image: url(../images/gray_light_texture.jpg);
   }
 }
 
 @mixin background-gray {
   background: {
     color: gray;
-    image: url(/static/images/gray_texture.jpg);
+    image: url(../images/gray_texture.jpg);
   }
 }
 
