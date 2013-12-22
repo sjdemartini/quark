@@ -55,13 +55,14 @@
                   <ul class="dropdown">
                     <div class="dropdown-arrow-border"></div>
                     <div class="dropdown-arrow"></div>
-                    <li><a href="{#TODO#}">Edit Your Info</a></li>
+                    <li><a href="{% url 'user-profiles:edit' %}">Edit Your Info</a></li>
 
                     {# TODO: forwarding email permissions check here #}
                     <li><a href="{#TODO#}">Forwarding Email</a></li>
 
-                    {# Only candidates and members may submit resumes. #}
-                    {% if perms.resumes.add_resume %}<li><a href="{% url 'resumes:edit' %}">Edit Resume</a></li>{% endif %}
+                    {% if perms.resumes.add_resume %}
+                    <li><a href="{% url 'resumes:edit' %}">Edit Resume</a></li>
+                    {% endif %}
 
                     <li><a href="{% url 'accounts:change-password' %}">Change Password</a></li>
 

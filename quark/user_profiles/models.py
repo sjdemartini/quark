@@ -48,20 +48,19 @@ class UserProfile(models.Model):
         max_length=64,
         db_index=True,
         blank=True,
-        help_text='What would you like us to call you? (Optional)')
+        help_text='What would you like us to call you?')
 
     middle_name = models.CharField(max_length=64, blank=True)
     birthday = models.DateField(blank=True, null=True)
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True)
 
-    picture = models.ImageField(
-        upload_to=rename_file, blank=True, null=True, help_text='Optional')
+    picture = models.ImageField(upload_to=rename_file, blank=True, null=True)
 
     alt_email = models.EmailField(
         blank=True,
         verbose_name='Alternate email address',
-        help_text=('Preferably a non-edu email address '
-                   '(e.g., @gmail.com, @yahoo.com)'))
+        help_text=('Preferably at least one of your email addresses on record '
+                   'will be a non-edu address (e.g., @gmail.com, @yahoo.com).'))
 
     cell_phone = PhoneNumberField(blank=True)
     home_phone = PhoneNumberField(blank=True)
@@ -111,6 +110,9 @@ class UserProfile(models.Model):
 
     def __unicode__(self):
         return self.get_common_name()
+
+    def get_short_name(self):
+        return self.preferred_name or self.user.first_name
 
     def get_full_name(self):
         if self.middle_name:

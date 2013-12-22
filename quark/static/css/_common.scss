@@ -126,7 +126,8 @@ div {
       margin-top: 1.3em;  // Increase the top margin with narrow viewport
     }
 
-    label, legend {
+    & > label,
+    & > legend {
       width: $form-label-width;
       text-align: right;
       float: left;
@@ -173,7 +174,7 @@ div {
       }
     }
 
-    &.form-entry-required label:after {
+    &.form-entry-required > label:after {
       // Append an asterisk after labels for required fields
       content: '*';
       color: #f00;
@@ -208,7 +209,8 @@ div {
 
 #content form.form-narrow {
   .form-entry {
-    label, legend {
+    & > label,
+    & > legend {
       width: $form-label-width / 2;
       text-align: left;
       @include respond-to(small-med) {

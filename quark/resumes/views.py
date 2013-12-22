@@ -26,7 +26,6 @@ class ResumeEditView(FormView):
         return super(ResumeEditView, self).dispatch(*args, **kwargs)
 
     def get_form(self, form_class):
-        """Initialize each form in the formset with a challenge."""
         form = super(ResumeEditView, self).get_form(form_class)
         if self.resume:
             form.instance = self.resume
