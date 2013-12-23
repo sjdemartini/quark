@@ -226,3 +226,62 @@ class Term(models.Model):
     class Meta(object):
         ordering = ('id',)
         unique_together = ('term', 'year')
+
+
+class OfficerPosition(models.Model):
+    """An officer position for a student organization.
+
+    Officer objects reference OfficerPositions to link users to the officer
+    positions they have held.
+    """
+    short_name = models.CharField(max_length=16, unique=True)
+    long_name = models.CharField(max_length=64, unique=True)
+    executive = models.BooleanField(
+        default=False,
+        help_text='Is this an executive position (like President)?')
+    auxiliary = models.BooleanField(
+        default=False,
+        help_text='Is this position auxiliary (i.e., not a core officer '
+                  'position)?')
+    mailing_list = models.CharField(
+        max_length=16, blank=True,
+        help_text='The mailing list name, not including the @domain.')
+
+    # Rank is used to provide an ordering on officers, where a low number
+    # represents a higher rank (e.g., president might be given a rank of 1,
+    # and vice president a rank of 2).
+    rank = models.DecimalField(max_digits=5, decimal_places=2)
+
+    class Meta(object):
+        ordering = ('rank',)
+
+    def __unicode__(self):
+        return self.long_name
+
+    def natural_key(self):
+        return (self.short_name,)
+
+
+class Officer(models.Model):
+    """An officer of a student organization."""
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    position = models.ForeignKey(OfficerPosition)
+    term = models.ForeignKey(Term)
+
+    is_chair = models.BooleanField(
+        default=False,
+        help_text='Is this person the chair of their committee?')
+
+    def __unicode__(self):
+        return '%s - %s (%s %d)' % (
+            self.user.get_username(), self.position.short_name,
+            self.term.get_term_display(), self.term.year)
+
+    def position_name(self):
+        name = self.position.long_name
+        if self.is_chair:
+            name += ' Chair'
+        return name
+
+    class Meta(object):
+        unique_together = ('user', 'position', 'term')

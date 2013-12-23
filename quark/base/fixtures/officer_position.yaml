@@ -1,154 +1,161 @@
 - fields:
     long_name: President
+    executive: true
     mailing_list: president
     rank: 1
     short_name: president
-  model: base_tbp.OfficerPosition
+  model: base.OfficerPosition
   pk: 1
 - fields:
     long_name: Vice President
+    executive: true
     mailing_list: vp
     rank: 2
     short_name: vp
-  model: base_tbp.OfficerPosition
+  model: base.OfficerPosition
   pk: 2
 - fields:
     long_name: Recording Secretary
+    executive: true
     mailing_list: rsec
     rank: 3
     short_name: rsec
-  model: base_tbp.OfficerPosition
+  model: base.OfficerPosition
   pk: 3
 - fields:
     long_name: Corresponding Secretary
+    executive: true
     mailing_list: csec
     rank: 4
     short_name: csec
-  model: base_tbp.OfficerPosition
+  model: base.OfficerPosition
   pk: 4
 - fields:
     long_name: Treasurer
+    executive: true
     mailing_list: treasurer
     rank: 5
     short_name: treasurer
-  model: base_tbp.OfficerPosition
+  model: base.OfficerPosition
   pk: 5
 - fields:
     long_name: Activities
     mailing_list: activities
     rank: 6
     short_name: activities
-  model: base_tbp.OfficerPosition
+  model: base.OfficerPosition
   pk: 6
 - fields:
     long_name: Industrial Relations
     mailing_list: indrel
     rank: 7
     short_name: indrel
-  model: base_tbp.OfficerPosition
+  model: base.OfficerPosition
   pk: 7
 - fields:
     long_name: Professional Development
     mailing_list: prodev
     rank: 8
     short_name: prodev
-  model: base_tbp.OfficerPosition
+  model: base.OfficerPosition
   pk: 8
 - fields:
     long_name: Publicity
     mailing_list: publicity
     rank: 9
     short_name: publicity
-  model: base_tbp.OfficerPosition
+  model: base.OfficerPosition
   pk: 9
 - fields:
     long_name: Engineering 98
     mailing_list: stars
     rank: 10
     short_name: e98
-  model: base_tbp.OfficerPosition
+  model: base.OfficerPosition
   pk: 10
 - fields:
     long_name: Information Technology
     mailing_list: it
     rank: 11
     short_name: it
-  model: base_tbp.OfficerPosition
+  model: base.OfficerPosition
   pk: 11
 - fields:
     long_name: Historian
     mailing_list: historian
     rank: 12
     short_name: historian
-  model: base_tbp.OfficerPosition
+  model: base.OfficerPosition
   pk: 12
 - fields:
     long_name: STARS
     mailing_list: stars
     rank: 13
     short_name: stars
-  model: base_tbp.OfficerPosition
+  model: base.OfficerPosition
   pk: 13
 - fields:
     long_name: Service
     mailing_list: service
     rank: 14
     short_name: service
-  model: base_tbp.OfficerPosition
+  model: base.OfficerPosition
   pk: 14
 - fields:
     long_name: House Leader
     mailing_list: house-leaders
     rank: 15
     short_name: house-leaders
-  model: base_tbp.OfficerPosition
+  model: base.OfficerPosition
   pk: 15
 - fields:
     long_name: Faculty Advisor
+    auxiliary: true
     mailing_list: advisors
     rank: 16
     short_name: faculty
-  model: base_tbp.OfficerPosition
+  model: base.OfficerPosition
   pk: 16
 - fields:
     long_name: Advisor
+    auxiliary: true
     mailing_list: advisors
     rank: 17
     short_name: advisor
-  model: base_tbp.OfficerPosition
+  model: base.OfficerPosition
   pk: 17
 - fields:
     long_name: External Relations
     mailing_list: extrel
     rank: 4.5
     short_name: extrel
-  model: base_tbp.OfficerPosition
+  model: base.OfficerPosition
   pk: 18
 - fields:
     long_name: Advising
     mailing_list: advising
     rank: 14.5
     short_name: advising
-  model: base_tbp.OfficerPosition
+  model: base.OfficerPosition
   pk: 19
 - fields:
     long_name: EJC Representative
     mailing_list: ejc
     rank: 14.6
     short_name: ejc
-  model: base_tbp.OfficerPosition
+  model: base.OfficerPosition
   pk: 20
 - fields:
     long_name: New Projects
     mailing_list: newprojects
     rank: 14.7
     short_name: np
-  model: base_tbp.OfficerPosition
+  model: base.OfficerPosition
   pk: 21
 - fields:
     long_name: Pioneers in Engineering Liaison
     mailing_list: pie-liaison
     rank: 14.5
     short_name: PiE Liaison
-  model: base_tbp.OfficerPosition
+  model: base.OfficerPosition
   pk: 22

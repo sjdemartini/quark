@@ -15,9 +15,9 @@ from quark.accounts.decorators import current_officer_required
 from quark.accounts.decorators import officer_required
 from quark.accounts.decorators import officer_types_required
 from quark.accounts.models import LDAPUser
+from quark.base.models import Officer
+from quark.base.models import OfficerPosition
 from quark.base.models import Term
-from quark.base_tbp.models import Officer
-from quark.base_tbp.models import OfficerPosition
 from quark.candidates.models import Candidate
 from quark.qldap.utils import username_exists
 from quark.qldap.utils import delete_user

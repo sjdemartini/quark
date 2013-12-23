@@ -1,7 +1,7 @@
 from django.db import models
 
 from quark.achievements.models import Achievement
-from quark.base_tbp.models import Officer
+from quark.base.models import Officer
 from quark.shortcuts import get_object_or_none
 
 

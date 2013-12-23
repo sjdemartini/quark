@@ -5,8 +5,8 @@ from django.test import TestCase
 from django.utils import timezone
 import mox
 
+from quark.base.models import OfficerPosition
 from quark.base.models import Term
-from quark.base_tbp.models import OfficerPosition
 from quark.project_reports.models import ProjectReport
 
 

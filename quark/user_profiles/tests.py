@@ -2,9 +2,9 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.test.utils import override_settings
 
+from quark.base.models import Officer
+from quark.base.models import OfficerPosition
 from quark.base.models import Term
-from quark.base_tbp.models import Officer
-from quark.base_tbp.models import OfficerPosition
 from quark.candidates.models import Candidate
 from quark.shortcuts import get_object_or_none
 from quark.user_profiles.fields import UserCommonNameChoiceField

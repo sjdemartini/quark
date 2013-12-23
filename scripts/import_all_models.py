@@ -2,7 +2,6 @@ from django.core.management import call_command
 
 from scripts.alter_tables import alter_tables
 from scripts.import_base_models import import_terms
-from scripts.import_base_tbp_models import import_officers
 from scripts.import_courses_models import import_courses
 from scripts.import_courses_models import import_course_instances
 from scripts.import_courses_models import import_departments

@@ -1,10 +1,9 @@
 from django.contrib.auth import get_user_model
 from django.core.files import File
 
+from quark.base.models import OfficerPosition
 from quark.base.models import Term
-from quark.base_tbp.models import OfficerPosition
 from quark.project_reports.models import ProjectReport
-
 from scripts import get_json_data
 from scripts import NOIRO_MEDIA_LOCATION
 from scripts.import_base_models import SEMESTER_TO_TERM

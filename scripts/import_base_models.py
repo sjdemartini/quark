@@ -1,5 +1,8 @@
-from quark.base.models import Term
+from django.contrib.auth import get_user_model
 
+from quark.base.models import Officer
+from quark.base.models import OfficerPosition
+from quark.base.models import Term
 from scripts import get_json_data
 
 
@@ -20,3 +23,18 @@ def import_terms():
             year=fields['year'],
             current=fields['current'])
         SEMESTER_TO_TERM[model['pk']] = term.pk
+
+
+user_model = get_user_model()
+
+
+def import_officers():
+    models = get_json_data('noiro_main.officer.json')
+    for model in models:
+        fields = model['fields']
+        Officer.objects.get_or_create(
+            pk=model['pk'],
+            user=user_model.objects.get(pk=fields['user']),
+            position=OfficerPosition.objects.get(pk=fields['position']),
+            term=Term.objects.get(pk=SEMESTER_TO_TERM[fields['semester']]),
+            is_chair=fields['is_chair'])

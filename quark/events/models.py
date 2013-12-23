@@ -6,8 +6,8 @@ from django.db.models.query import QuerySet
 from django.template import defaultfilters
 from django.utils import timezone
 
+from quark.base.models import OfficerPosition
 from quark.base.models import Term
-from quark.base_tbp.models import OfficerPosition
 from quark.project_reports.models import ProjectReport
 
 

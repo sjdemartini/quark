@@ -197,7 +197,6 @@ PROJECT_APPS = [
     'quark.accounts',
     'quark.achievements',
     'quark.base',
-    'quark.base_tbp',
     'quark.candidates',
     'quark.courses',
     'quark.course_surveys',

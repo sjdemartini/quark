@@ -3,9 +3,9 @@ from django.test import TestCase
 
 from quark.achievements.models import Achievement
 from quark.achievements.models import UserAchievement
+from quark.base.models import Officer
+from quark.base.models import OfficerPosition
 from quark.base.models import Term
-from quark.base_tbp.models import Officer
-from quark.base_tbp.models import OfficerPosition
 
 
 class AchievementAssignmentTest(TestCase):
