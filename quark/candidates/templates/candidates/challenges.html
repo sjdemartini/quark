@@ -19,15 +19,19 @@
         <th>Candidate</th>
         <th>Type</th>
         <th>Verified</th>
+        <th>Reason</th>
       </tr>
     </thead>
     <tbody>
     {% for challenge_form in form %}
     <tr>
-      <td>{{ challenge_form.instance.description }}</td>
-      <td>{{ challenge_form.instance.candidate.user.get_full_name }}</td>
-      <td>{{ challenge_form.instance.get_challenge_type_display }}</td>
+      {% with challenge=challenge_form.instance %}
+      <td>{{ challenge.description }}</td>
+      <td><a href="{% url 'candidates:edit' challenge.candidate.pk %}">{{ challenge.candidate.user.userprofile.get_common_name }}</a></td>
+      <td>{{ challenge.challenge_type }}</td>
       <td>{{ challenge_form.verified }}</td>
+      <td>{{ challenge_form.reason }}</td>
+      {% endwith challenge %}
     </tr>
     {% endfor %}
     </tbody>

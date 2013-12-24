@@ -26,7 +26,7 @@
   {% if candidates %}
   <p><strong>Number of candidates</strong>: {{ candidates|length }}</p>
   <i class="icon-ok"></i> = receives texts
-  <table class="footable">
+  <table class="footable bordered">
     <thead>
       <tr>
         <th data-class="expand">Name</th>
@@ -41,10 +41,11 @@
     <tr>
       {% with student_info=candidate.get_college_student_info %}
       {% with cand_user_profile=candidate.user.userprofile %}
-      <td><a href="{% url 'candidates:edit' candidate.pk %}">{{ candidate.user.get_full_name }}</a></td>
+      {% with cand_common_name=cand_user_profile.get_common_name %}
+      <td><a href="{% url 'candidates:edit' candidate.pk %}">{{ cand_common_name }}</a></td>
       <td>
         {% if candidate.photo %}
-        <a href="{{ candidate.photo.url }}"><img src="{{ candidate.photo.url }}" alt="{{ candidate.user.get_full_name }}" class="candidate-thumbnail"></a>
+        <a href="{{ candidate.photo.url }}"><img src="{{ candidate.photo.url }}" alt="{{ cand_common_name }}" class="candidate-thumbnail"></a>
         {% else %}
         No photo
         {% endif %}
@@ -66,6 +67,7 @@
       </td>
       <td><a href="mailto:{{ candidate.user.email }}">{{ candidate.user.email }}</a></td>
       {% endwith student_info %}
+      {% endwith cand_common_name %}
       {% endwith cand_user_profile %}
     </tr>
     {% endfor %}

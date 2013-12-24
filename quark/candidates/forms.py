@@ -27,7 +27,7 @@ class ChallengeVerifyForm(forms.ModelForm):
 
     class Meta(object):
         model = Challenge
-        fields = ('verified',)
+        fields = ('verified', 'reason')
 
 
 class CandidateRequirementForm(forms.ModelForm):

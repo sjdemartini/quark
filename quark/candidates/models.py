@@ -19,18 +19,25 @@ class Candidate(models.Model):
     """
     PHOTOS_LOCATION = 'candidates'
 
-    def get_photo_path(instance, filename):
-        # pylint: disable=E0213
-        """Files are stored in directories corresponding to the candidate's
-        term.
+    def rename_photo(instance, filename):
+        """Rename the photo to the candidate's username, and update the photo
+        if it already exists.
         """
-        return os.path.join(
-            Candidate.PHOTOS_LOCATION, instance.term.get_url_name(), filename)
+        # pylint: disable=E0213
+        file_ext = os.path.splitext(filename)[1]
+        filename = os.path.join(Candidate.PHOTOS_LOCATION,
+                                str(instance.user.get_username()) + file_ext)
+        full_path = os.path.join(settings.MEDIA_ROOT, filename)
+        # if photo already exists, delete it so the new photo can use the
+        # same name
+        if os.path.exists(full_path):
+            os.remove(full_path)
+        return filename
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     term = models.ForeignKey(Term)
     initiated = models.BooleanField(default=False)
-    photo = models.ImageField(blank=True, upload_to=get_photo_path)
+    photo = models.ImageField(blank=True, upload_to=rename_photo)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -132,6 +139,9 @@ class Challenge(models.Model):
         settings.AUTH_USER_MODEL,
         help_text='Person who verified the challenge.')
     verified = models.NullBooleanField(choices=VERIFIED_CHOICES)
+    reason = models.CharField(
+        blank=True, max_length=255,
+        help_text='Why is the challenge being approved or denied? (Optional)')
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)

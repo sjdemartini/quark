@@ -252,7 +252,9 @@ class ChallengeVerifyView(FormView):
             verifying_user=self.request.user, candidate__term=self.current_term)
         for i in range(challenges.count()):
             formset[i].instance = challenges[i]
-            formset[i].initial = {'verified': challenges[i].verified}
+            formset[i].initial = {
+                'verified': challenges[i].verified,
+                'reason': challenges[i].reason}
         return formset
 
     def get_context_data(self, **kwargs):

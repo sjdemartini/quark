@@ -3,14 +3,14 @@
 {% block title %}Upload Candidate Photo{% endblock title %}
 
 {% block intro %}
-<h1>Upload Candidate Photo for {{ candidate.user.get_full_name }}</h1>
+<h1>Upload Candidate Photo for {{ candidate.user.userprofile.get_common_name }}</h1>
 {% endblock intro %}
 
 {% block content %}
 <div>
   <p>Current photo:</p>
   {% if candidate.photo %}
-  <img src="{{ candidate.photo.url }}" alt="{{ candidate.user.get_full_name }}" class="candidate-photo">
+  <img src="{{ candidate.photo.url }}" alt="{{ candidate.user.userprofile.get_common_name }}" class="candidate-photo">
   {% else %}
   No photo uploaded yet.
   {% endif %}
@@ -25,6 +25,6 @@
 </form>
 
 <div>
-  <a href=" {% url 'candidates:edit' candidate.pk %}"><strong>Candidate Management for {{ candidate.user.get_full_name }}</strong></a>
+  <a href=" {% url 'candidates:edit' candidate.pk %}"><strong>Candidate Management for {{ candidate.user.userprofile.get_common_name }}</strong></a>
 </div>
 {% endblock content %}

@@ -7,10 +7,14 @@
 <h1>Candidate Portal</h1>
 {% endblock intro %}
 
+{% block head %}
+{% include 'footable.html' %}
+{% endblock head %}
+
 {% block content %}
 <h2>Event Requirements</h2>
 {% for entry in req_types.event %}
-{% include 'candidates/individual_portal_progress.html' with entry=entry%}
+{% include 'candidates/individual_portal_progress.html' with entry=entry %}
 <ul>
   {% with event_type=entry.requirement.eventcandidaterequirement.event_type.name %}
   {% for event in events|get_item:event_type %}
@@ -26,31 +30,14 @@ There are no Event requirements.
 
 <h2>Challenge Requirements</h2>
 {% for entry in req_types.challenge %}
-{% include 'candidates/individual_portal_progress.html' with entry=entry%}
+{% include 'candidates/individual_portal_progress.html' with entry=entry %}
 {% with challenge_type=entry.requirement.challengecandidaterequirement.challenge_type.name %}
 {% if challenges|get_item:challenge_type %}
-<table>
-  <thead>
-    <tr>
-      <th>Challenge Description</th>
-      <th>Officer</th>
-      <th>Status</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for challenge in challenges|get_item:challenge_type %}
-    <tr>
-      <td>{{ challenge.description }}</td>
-      <td>{{ challenge.verifying_user.get_full_name }}</td>
-      <td>{{ challenge.get_verified_display }}</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+{% include 'candidates/challenge_table.html' %}
 {% else %}
 No {{ challenge_type }} challenges submitted.
 {% endif %}
-{% endwith %}
+{% endwith challenge_type %}
 {% empty %}
 There are no Challenge requirements.
 {% endfor %}
@@ -66,7 +53,7 @@ There are no Challenge requirements.
 
 <h2>Exam File Requirements</h2>
 {% for entry in req_types.exam %}
-{% include 'candidates/individual_portal_progress.html' with entry=entry%}
+{% include 'candidates/individual_portal_progress.html' with entry=entry %}
 
 <h3>Approved Exams Uploaded</h3>
 <ul>
@@ -104,7 +91,7 @@ There are no Exam File requirements.
 
 <h2>Resume Requirements</h2>
 {% for entry in req_types.resume %}
-{% include 'candidates/individual_portal_progress.html' with entry=entry%}
+{% include 'candidates/individual_portal_progress.html' with entry=entry %}
 {% empty %}
 There are no Resume requirements.
 {% endfor %}
@@ -112,7 +99,7 @@ There are no Resume requirements.
 
 <h2>Manual Requirements</h2>
 {% for entry in req_types.manual %}
-{% include 'candidates/individual_portal_progress.html' with entry=entry%}
+{% include 'candidates/individual_portal_progress.html' with entry=entry %}
 {% empty %}
 There are no Manual requirements.
 {% endfor %}

@@ -1,0 +1,31 @@
+{% comment %}
+This template is included in edit.html and portal.html to show a table with
+all the challenges a candidate has submitted.
+
+Any template that includes this must include footable.html to activate the
+footable.
+{% endcomment %}
+{% load template_utils %}
+
+<table class="footable bordered">
+  <thead>
+    <tr>
+      <th>Challenge Description</th>
+      <th data-hide="phone">Officer</th>
+      <th>Type</th>
+      <th>Status</th>
+      <th data-hide="phone,tablet">Reason</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for challenge in challenges|get_item:challenge_type %}
+    <tr>
+      <td>{{ challenge.description }}</td>
+      <td>{{ challenge.verifying_user.userprofile.get_common_name }}</td>
+      <td>{{ challenge.challenge_type }}</td>
+      <td>{{ challenge.get_verified_display }}</td>
+      <td>{{ challenge.reason|default:'&mdash;' }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
