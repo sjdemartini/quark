@@ -89,9 +89,9 @@ class CourseDetailView(DetailView):
         for inst in context['instructors']:
             ratings = context['surveys'].filter(instructor=inst).aggregate(
                 Avg('prof_rating'), Avg('course_rating'))
-            prof_ratings_avg[inst.full_name()] = (
+            prof_ratings_avg[inst.pk] = (
                 ratings['prof_rating__avg'])
-            course_ratings_avg[inst.full_name()] = (
+            course_ratings_avg[inst.pk] = (
                 ratings['course_rating__avg'])
         context['prof_ratings_avg'] = prof_ratings_avg
         context['course_ratings_avg'] = course_ratings_avg

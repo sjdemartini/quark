@@ -3,7 +3,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import permission_required
 from django.core.servers.basehttp import FileWrapper
 from django.core.urlresolvers import reverse
-from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
@@ -71,23 +70,34 @@ class ExamDownloadView(DetailView):
 class ExamReviewListView(ListView):
     """Show all exams that are unverified or have flags."""
     context_object_name = 'exams'
-    queryset = Exam.objects.filter(
-        Q(blacklisted=False), Q(verified=False) | Q(flags__gt=0))
     template_name = 'exams/review.html'
+    flagged_exams = None
+    unverified_exams = None
 
     @method_decorator(login_required)
     @method_decorator(
         permission_required('exams.change_exam', raise_exception=True))
     def dispatch(self, *args, **kwargs):
+        non_blacklisted_exams = Exam.objects.filter(blacklisted=False)
+        self.unverified_exams = non_blacklisted_exams.filter(verified=False)
+        self.flagged_exams = non_blacklisted_exams.filter(flags__gt=0)
         return super(ExamReviewListView, self).dispatch(*args, **kwargs)
+
+    def get_queryset(self):
+        return (self.unverified_exams | self.flagged_exams).select_related(
+            'course_instance__term',
+            'course_instance__course__department').prefetch_related(
+            'course_instance__instructors')
 
     def get_context_data(self, **kwargs):
         context = super(ExamReviewListView, self).get_context_data(**kwargs)
-        context['unverified_exams'] = Exam.objects.filter(
-            verified=False, blacklisted=False)
-        context['flagged_exams'] = Exam.objects.filter(
-            flags__gt=0, blacklisted=False)
-        context['blacklisted_exams'] = Exam.objects.filter(blacklisted=True)
+        context['unverified_exam_count'] = self.unverified_exams.count()
+        context['flagged_exam_count'] = self.flagged_exams.count()
+        context['blacklisted_exams'] = Exam.objects.filter(
+            blacklisted=True).select_related(
+            'course_instance__term',
+            'course_instance__course__department').prefetch_related(
+            'course_instance__instructors')
         return context
 
 
@@ -230,9 +240,12 @@ class PermissionListView(FormView):
     def get_form(self, form_class):
         """Initialize each form in the formset with an instructor permission."""
         formset = super(PermissionListView, self).get_form(form_class)
-        permissions = InstructorPermission.objects.all()
-        for i in range(permissions.count()):
-            permission = permissions[i]
+        permissions = InstructorPermission.objects.select_related(
+            'instructor').all()
+        # Iterate over permissions directly and use a counter only for the
+        # current form, so that a query is not generated for each iteration
+        # as a result of indexing into the queryset
+        for i, permission in enumerate(permissions):
             formset[i].instance = permission
             formset[i].initial = {
                 'permission_allowed': permission.permission_allowed,

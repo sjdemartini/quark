@@ -62,7 +62,6 @@ class Exam(models.Model):
         consist of the whole unique 32-character alphanumeric id, without
         hyphens.
         """
-        # TODO(ericdwang): look into using django-filer
         # pylint: disable=E0213
         instance.file_ext = os.path.splitext(filename)[1]
         return os.path.join(Exam.EXAM_FILES_LOCATION,

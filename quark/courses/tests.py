@@ -322,10 +322,10 @@ class CourseDetailViewTest(CoursesTestCase):
         # Value for this dictionary is (avg_prof_rating, avg_course_rating)
         self.assertEqual(
             resp.context['prof_ratings_avg'][
-                self.instructor_cs.full_name()], 2.5)
+                self.instructor_cs.pk], 2.5)
         self.assertEqual(
             resp.context['course_ratings_avg'][
-                self.instructor_cs.full_name()], 5)
+                self.instructor_cs.pk], 5)
 
 
 class InstructorDetailViewTest(CoursesTestCase):

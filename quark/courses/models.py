@@ -115,7 +115,7 @@ class Course(models.Model):
 
         For example, "cs61A".
         """
-        return '%s%s' % (self.department.slug, self.number)
+        return '{}{}'.format(self.department.slug, self.number)
 
     def save(self, *args, **kwargs):
         self.number = self.number.upper().strip()
@@ -133,10 +133,10 @@ class Instructor(models.Model):
     website = models.URLField(blank=True)
 
     def __unicode__(self):
-        return '%s (%s)' % (self.full_name(), self.department.short_name)
+        return self.full_name()
 
     def full_name(self):
-        return '%s %s' % (self.first_name, self.last_name)
+        return '{} {}'.format(self.first_name, self.last_name)
 
     class Meta(object):
         ordering = ('last_name', 'first_name', 'middle_initial')
@@ -151,4 +151,4 @@ class CourseInstance(models.Model):
     instructors = models.ManyToManyField(Instructor)
 
     def __unicode__(self):
-        return '%s - %s' % (self.course, self.term)
+        return '{} - {}'.format(self.course, self.term)

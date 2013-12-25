@@ -12,10 +12,10 @@
 
 {% block content %}
 <div>
-  There {{ unverified_exams|pluralize:'is,are' }} <strong>{{ unverified_exams|length }}</strong> exam{{ unverified_exams|pluralize }} awaiting verification.
+  There {{ unverified_exam_count|pluralize:'is,are' }} <strong>{{ unverified_exam_count }}</strong> exam{{ unverified_exam_count|pluralize }} awaiting verification.
 </div>
 <div>
-  There {{ flagged_exams|pluralize:'is,are' }} <strong>{{ flagged_exams|length }}</strong> flagged exam{{ flagged_exams|pluralize }} needing attention.
+  There {{ flagged_exam_count|pluralize:'is,are' }} <strong>{{ flagged_exam_count }}</strong> flagged exam{{ flagged_exam_count|pluralize }} needing attention.
 </div>
 <div>
   There {{ blacklisted_exams|pluralize:'is,are' }} <strong>{{ blacklisted_exams|length }}</strong> blacklisted exam{{ blacklisted_exams|pluralize }}.

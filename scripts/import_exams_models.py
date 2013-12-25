@@ -16,6 +16,7 @@ from quark.courses.models import Department
 from quark.courses.models import Instructor
 from quark.exams.models import Exam
 from quark.exams.models import ExamFlag
+from quark.shortcuts import get_object_or_none
 from scripts import get_json_data
 
 
@@ -165,13 +166,13 @@ def import_exam_flags():
 
         # Don't import flags for exams that weren't imported because they were
         # duplicates with a different file type
-        exam = Exam.objects.filter(pk=fields['exam'])
-        if not exam.exists():
+        exam = get_object_or_none(Exam, pk=fields['exam'])
+        if not exam:
             continue
 
         exam_flag, _ = ExamFlag.objects.get_or_create(
             pk=model['pk'],
-            exam=exam[0],
+            exam=exam,
             reason=fields['reason'])
 
         # Convert the naive datetime into an aware datetime

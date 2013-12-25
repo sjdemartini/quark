@@ -1,8 +1,10 @@
 from chosen import forms as chosen_forms
 from django import forms
+from django.db.models import Count
 from django.utils.safestring import mark_safe
 
 from quark.base.forms import ChosenTermMixin
+from quark.courses.models import Course
 from quark.courses.models import CourseInstance
 from quark.courses.models import Department
 from quark.courses.models import Instructor
@@ -10,6 +12,7 @@ from quark.exams.models import Exam
 from quark.exams.models import ExamFlag
 from quark.exams.models import InstructorPermission
 from quark.shortcuts import get_file_mimetype
+from quark.shortcuts import get_object_or_none
 
 
 class ExamForm(ChosenTermMixin, forms.ModelForm):
@@ -20,7 +23,8 @@ class ExamForm(ChosenTermMixin, forms.ModelForm):
     instructors = chosen_forms.ChosenModelMultipleChoiceField(
         queryset=Instructor.objects.all())
 
-    course_instance = None  # set by check_course_instance
+    course_instance = None  # set by set_course_instance
+    instructors = None  # set by set_course_instance
 
     class Meta(object):
         model = Exam
@@ -33,28 +37,44 @@ class ExamForm(ChosenTermMixin, forms.ModelForm):
             'department', 'course_number', 'instructors', 'term', 'exam_number',
             'exam_type']
 
-    def check_course_instance(self, cleaned_data):
-        """Check if the course instance exists."""
-        course_instance = CourseInstance.objects.filter(
-            course__department=self.cleaned_data.get('department'),
-            course__number=self.cleaned_data.get('course_number'),
-            term=self.cleaned_data.get('term'))
+    def set_course_instance(self, cleaned_data):
+        """Check if a course is valid and whether a course instance exists
+        with the exact instructors given, and create a course instance if one
+        doesn't exist.
+        """
+        department = self.cleaned_data.get('department')
+        course_number = self.cleaned_data.get('course_number')
+        term = self.cleaned_data.get('term')
+
+        course = get_object_or_none(
+            Course, department=department, number=course_number)
+        if not course:
+            error_msg = '{department} {number} does not exist.'.format(
+                department=department, number=course_number)
+            self._errors['department'] = self.error_class([error_msg])
+            self._errors['course_number'] = self.error_class([error_msg])
+            raise forms.ValidationError('Invalid course')
+
         # check instructors to prevent trying to iterate over nothing
-        if self.cleaned_data.get('instructors') is None:
+        self.instructors = self.cleaned_data.get('instructors')
+        if not self.instructors:
             raise forms.ValidationError('Please fill out all fields.')
-        for instructor in self.cleaned_data.get('instructors'):
+
+        course_instance = CourseInstance.objects.annotate(
+            count=Count('instructors')).filter(
+            count=len(self.instructors),
+            term=term,
+            course=course)
+        for instructor in self.instructors:
             course_instance = course_instance.filter(instructors=instructor)
-        if len(course_instance) == 0:
-            instructors = ', '.join(
-                [i.last_name for i in self.cleaned_data.get('instructors')])
-            raise forms.ValidationError(
-                '{department} {number} ({term}), taught by {instructors}'
-                ' never existed.'.format(
-                    term=self.cleaned_data.get('term').verbose_name(),
-                    department=self.cleaned_data.get('department'),
-                    number=self.cleaned_data.get('course_number'),
-                    instructors=instructors))
-        self.course_instance = course_instance[0]
+        if course_instance.exists():
+            course_instance = course_instance.get()
+        else:
+            course_instance = CourseInstance.objects.create(
+                term=term, course=course)
+            course_instance.instructors.add(*self.instructors)
+            course_instance.save()
+        self.course_instance = course_instance
 
     def save(self, *args, **kwargs):
         """Add a course instance to the exam."""
@@ -63,8 +83,11 @@ class ExamForm(ChosenTermMixin, forms.ModelForm):
 
 
 class UploadForm(ExamForm):
+    # Remove the "Unknown" choice when uploading
+    exam_number = forms.ChoiceField(choices=Exam.EXAM_NUMBER_CHOICES[1:])
     exam_file = forms.FileField(
-        label='File (PDF only please)')
+        label='File (PDF only please)',
+        widget=forms.FileInput(attrs={'accept': 'application/pdf'}))
     agreed = forms.BooleanField(required=True, label=mark_safe(
         'I agree, per campus policy on Course Note-Taking and Materials '
         '(available <a href="http://campuspol.chance.berkeley.edu/policies/'
@@ -81,10 +104,6 @@ class UploadForm(ExamForm):
     def clean_exam_file(self):
         """Check if uploaded exam file is of an acceptable format."""
         exam_file = self.cleaned_data.get('exam_file')
-        # Check if a file was actually uploaded
-        if not exam_file:
-            raise forms.ValidationError('Please attach a file.')
-
         if get_file_mimetype(exam_file) != 'application/pdf':
             raise forms.ValidationError('Uploaded file must be a PDF file.')
         return exam_file
@@ -92,7 +111,7 @@ class UploadForm(ExamForm):
     def clean(self):
         """Check if uploaded exam already exists."""
         cleaned_data = super(UploadForm, self).clean()
-        self.check_course_instance(cleaned_data)
+        self.set_course_instance(cleaned_data)
         duplicates = Exam.objects.filter(
             course_instance=self.course_instance,
             exam_number=cleaned_data.get('exam_number'),
@@ -100,13 +119,14 @@ class UploadForm(ExamForm):
         if duplicates.exists():
             raise forms.ValidationError(
                 'This exam already exists in the database.')
+        return cleaned_data
 
     def save(self, *args, **kwargs):
         """Check if professors are blacklisted."""
-        for instructor in self.cleaned_data.get('instructors'):
-            permission = InstructorPermission.objects.get_or_create(
-                instructor=instructor)[0].permission_allowed
-            if permission is False:
+        for instructor in self.instructors:
+            permission, _ = InstructorPermission.objects.get_or_create(
+                instructor=instructor)
+            if permission.permission_allowed is False:
                 self.instance.blacklisted = True
         return super(UploadForm, self).save(*args, **kwargs)
 
@@ -131,7 +151,7 @@ class EditForm(ExamForm):
         current exam being edited.
         """
         cleaned_data = super(EditForm, self).clean()
-        self.check_course_instance(cleaned_data)
+        self.set_course_instance(cleaned_data)
         duplicates = Exam.objects.filter(
             course_instance=self.course_instance,
             exam_number=cleaned_data.get('exam_number'),

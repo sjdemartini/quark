@@ -13,13 +13,11 @@
 {% block content %}
 <h2>Average Course Rating: {{ total_course_ratings_avg }}</h2>
 {% for inst in instructors %}
-{% with name=inst.full_name %}
 <div class="avg-rating">
-  <h3><a href="{% url 'courses:instructor' inst_pk=inst.pk %}">{{ name }}</a></h3>
-  <div class="rating-number"><strong>Teaching Effectivenss</strong> {{ prof_ratings_avg|get_item:name }}</div>
-  <div class="rating-number"><strong>Course Quality</strong> {{ course_ratings_avg|get_item:name }}</div>
+  <h3><a href="{% url 'courses:instructor' inst_pk=inst.pk %}">{{ inst.full_name }}</a></h3>
+  <div class="rating-number"><strong>Teaching Effectivenss</strong> {{ prof_ratings_avg|get_item:inst.pk }}</div>
+  <div class="rating-number"><strong>Course Quality</strong> {{ course_ratings_avg|get_item:inst.pk }}</div>
 </div>
-{% endwith %}
 {% endfor %}
 
 <h2>Exams</h2>
