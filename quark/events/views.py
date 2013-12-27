@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
+from django.db.models import Count
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -24,8 +25,10 @@ from quark.events.forms import EventForm
 from quark.events.forms import EventSignUpAnonymousForm
 from quark.events.forms import EventSignUpForm
 from quark.events.models import Event
+from quark.events.models import EventAttendance
 from quark.events.models import EventSignUp
 from quark.shortcuts import AjaxResponseMixin
+from quark.shortcuts import get_object_or_none
 
 
 class EventListView(TermParameterMixin, ListView):
@@ -319,3 +322,60 @@ class IndividualAttendanceListView(TermParameterMixin, TemplateView):
             pk__in=context['future_participating'])
 
         return context
+
+
+class LeaderboardListView(TermParameterMixin, ListView):
+    """View for selecting all users who have attended an event in a
+    particular term (display_term from TermParameterMixin).
+
+    The view omits all users with no attendance.
+    """
+    context_object_name = 'leader_list'
+    template_name = 'events/leaderboard.html'
+    paginate_by = 75  # separates leaders into pages of 25 each
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(LeaderboardListView, self).dispatch(*args, **kwargs)
+
+    def get_queryset(self):
+        aggregates = EventAttendance.objects.filter(
+            event__term=self.display_term,
+            event__cancelled=False).values('user').annotate(
+            Count('user')).order_by('-user__count').select_related(
+            'user__userprofile')
+
+        if len(aggregates) > 0:
+            max_events = aggregates[0]['user__count'] or 0
+        else:
+            max_events = 0
+
+        leaders = []
+        if max_events > 0:  # make sure there's no divide by zero
+            i = 0
+            prev_value = -1
+            prev_rank = 0
+        user_model = get_user_model()
+        for aggregate in aggregates:
+            factor = 2.5 + aggregate['user__count'] * 67.5 / max_events
+            # Factor used for CSS width property (percentage).
+            # Use 70 as the max width (i.e. the user who attended the most
+            # events has width 70%), and add 2.5 to make sure there is enough
+            # room to be displayed.
+            user = get_object_or_none(user_model, pk=aggregate['user'])
+            if user is None:
+                continue
+            i += 1
+            if aggregate['user__count'] != prev_value:
+                rank = i
+            else:
+                rank = prev_rank
+            prev_rank = rank
+            prev_value = aggregate['user__count']
+
+            leaders.append({'user': user,
+                            'count': aggregate['user__count'],
+                            'factor': factor,
+                            'rank': rank})
+
+        return leaders

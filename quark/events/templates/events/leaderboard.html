@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block intro %}
+  <h1>{% block title %}Events Leaderboard{% endblock title %}</h1>
+{% endblock intro %}
+
+{% block content %}
+{% include 'term_selection.html' %}
+
+<ul class="leaderboard">
+  {% for entry in leader_list %}
+  <li>
+    {# Spaceless to fix whitespace issues with inline-block css style #}
+    {% spaceless %}
+    <div class="name {% cycle 'odd' 'even' %}">
+        {{ entry.rank }}. <a href="{% url 'events:individual-attendance' entry.user.username %}?term={{ display_term.get_url_name }}">{{ entry.user.userprofile.get_common_name }}</a>
+    </div>
+    <span class="count-container {% cycle 'odd' 'even' %}" style="width: {{ entry.factor }}%;">
+      <span class="count">{{ entry.count }}</span>
+    </span>
+    {% endspaceless %}
+  </li>
+  {% empty %}
+  <p>Nobody has attended any events yet in {{ display_term_name }}. </p>
+  {% endfor %}
+</ul>
+
+{% include 'pagination.html' %}
+{% endblock content %}
