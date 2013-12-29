@@ -51,8 +51,12 @@ class TermManager(models.Manager):
             return None
 
     def get_terms(self, include_future=False, include_summer=False,
-                  reverse=False):
+                  include_unknown=False, reverse=False):
+        """Get term objects according to optional criteria."""
         terms = self.all()
+
+        if not include_unknown:
+            terms = terms.exclude(term=Term.UNKNOWN)
 
         if not include_summer:
             terms = terms.exclude(term=Term.SUMMER)

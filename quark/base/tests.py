@@ -127,6 +127,20 @@ class TermManagerTest(TestCase):
         self.assertEquals(terms[2].year, 2012)
         self.assertEquals(terms[2].term, Term.FALL)
 
+    def test_get_terms_no_unknown(self):
+        unknown = Term(term=Term.UNKNOWN, year=2011)
+        unknown.save()
+        spring = Term(term=Term.SPRING, year=2012)
+        spring.save()
+        fall = Term(term=Term.FALL, year=2013, current=True)
+        fall.save()
+
+        terms = Term.objects.get_terms(include_unknown=False)
+        self.assertEquals(list(terms), [spring, fall])
+
+        terms = Term.objects.get_terms(include_unknown=True)
+        self.assertEquals(list(terms), [unknown, spring, fall])
+
     def test_get_terms_no_future(self):
         # Intentionally unordered.
         Term(term=Term.SUMMER, year=2012, current=False).save()
