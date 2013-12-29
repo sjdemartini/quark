@@ -32,7 +32,7 @@
   <body>
     {% block cms_block %}{% endblock cms_block %}
     {# TODO(sjdemartini): fill in all URLs for links as they are created #}
-    <div id="wrapper" style="{% block wrapper_style %}{% endblock wrapper_style %}">
+    <div id="wrapper" class="{% block wrapper_class %}{% endblock wrapper_class %}">
       {% block header %}
       <div id="header">
         <div id="header-focus">

@@ -52,6 +52,10 @@
   }
 }
 
+.home-background {
+  @include background-light;
+}
+
 #updates {
   padding-bottom: 10px;
   > div {
