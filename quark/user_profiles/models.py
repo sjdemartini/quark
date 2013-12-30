@@ -11,6 +11,7 @@ from quark.base.models import Major
 from quark.base.models import Term
 from quark.candidates.models import Candidate
 from quark.qldap import utils as ldap_utils
+from quark.shortcuts import disable_for_loaddata
 from quark.shortcuts import get_object_or_none
 
 
@@ -294,16 +295,13 @@ class StudentOrgUserProfile(models.Model):
         return self.initiation_term
 
 
+@disable_for_loaddata
 def user_profile_post_save(sender, instance, created, **kwargs):
     """Ensures that a UserProfile object exists for every user.
 
     Whenever a user is created, this callback performs a get_or_create()
     to ensure that there is a UserProfile for the saved User.
     """
-    if kwargs['raw']:
-        # Disable the handler during fixture loading
-        return
-
     profile, _ = UserProfile.objects.get_or_create(user=instance)
 
     # If the profile does not have the preferred_name set and the user's

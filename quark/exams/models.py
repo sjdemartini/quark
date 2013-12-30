@@ -8,6 +8,7 @@ from django.db.models.signals import post_save
 
 from quark.courses.models import CourseInstance
 from quark.courses.models import Instructor
+from quark.shortcuts import disable_for_loaddata
 
 
 class ExamManager(models.Manager):
@@ -194,6 +195,7 @@ class InstructorPermission(models.Model):
         ordering = ('instructor',)
 
 
+@disable_for_loaddata
 def create_new_permissions(sender, instance, **kwargs):
     """Check if new InstructorPermissions need to be created after an exam
     is saved.
@@ -213,6 +215,7 @@ def delete_file(sender, instance, **kwargs):
     # with deleting the exam model
 
 
+@disable_for_loaddata
 def update_exam_flags(sender, instance, **kwargs):
     """Update the amount of flags an exam has every time a flag is updated."""
     exam = Exam.objects.get(pk=instance.exam.pk)
@@ -220,6 +223,7 @@ def update_exam_flags(sender, instance, **kwargs):
     exam.save()
 
 
+@disable_for_loaddata
 def update_exam_blacklist(sender, instance, **kwargs):
     """Update whether an exam is blacklisted every time an instructor
     permission is updated.
