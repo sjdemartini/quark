@@ -19,10 +19,13 @@ class StudentOrgUserProfileAdmin(admin.ModelAdmin):
 
 
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'preferred_name', 'alt_email', 'cell_phone',
-                    'receive_text')
+    list_display = ('user', 'preferred_name', 'last_name', 'alt_email',
+                    'cell_phone', 'receive_text')
     search_fields = ('user__username', 'user__first_name', 'user__last_name',
                      'preferred_name')
+
+    def last_name(self, obj):
+        return obj.user.last_name
 
 
 admin.site.register(CollegeStudentInfo, CollegeStudentInfoAdmin)

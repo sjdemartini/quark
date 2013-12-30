@@ -93,6 +93,9 @@ class UserProfile(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
+    class Meta(object):
+        ordering = ('preferred_name', 'user__last_name')
+
     def save(self, *args, **kwargs):
         """Ensure that the user has a preferred name saved.
 

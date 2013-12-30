@@ -42,6 +42,10 @@ class Candidate(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
+    class Meta(object):
+        ordering = ('-term', 'user__userprofile')
+        unique_together = ('user', 'term')
+
     def get_progress(self, requirement_type):
         """
         Returns a tuple (#completed, #required) for a given requirement type.
@@ -63,10 +67,6 @@ class Candidate(models.Model):
 
     def __unicode__(self):
         return '{user} ({term})'.format(user=self.user, term=self.term)
-
-    class Meta(object):
-        ordering = ('-term', 'user')
-        unique_together = ('user', 'term')
 
 
 def candidate_post_save(sender, instance, created, **kwargs):

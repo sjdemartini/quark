@@ -11,10 +11,14 @@ from quark.candidates.models import ManualCandidateRequirement
 
 
 class CandidateModelAdmin(admin.ModelAdmin):
-    list_display = ('user', 'term', 'initiated')
+    list_display = ('user', 'user_name', 'term', 'initiated')
     list_filter = ('term', 'initiated')
-    search_fields = ('user__username', 'user__preferred_name',
+    search_fields = ('user__username', 'user__userprofile__preferred_name',
                      'user__first_name', 'user__last_name')
+
+    def user_name(self, obj):
+        return obj.user.userprofile.get_common_name()
+    user_name.short_description = 'Name'
 
 
 class CandidateRequirementAdmin(admin.ModelAdmin):
@@ -26,12 +30,20 @@ class CandidateRequirementAdmin(admin.ModelAdmin):
 class CandidateRequirementProgressAdmin(admin.ModelAdmin):
     list_display = ('candidate', 'requirement', 'manually_recorded_credits',
                     'alternate_credits_needed')
+    search_fields = ('candidate__user__username',
+                     'candidate__user__userprofile__preferred_name',
+                     'candidate__user__first_name',
+                     'candidate__user__last_name')
 
 
 class ChallengeAdmin(admin.ModelAdmin):
     list_display = ('candidate', 'challenge_type', 'verifying_user',
                     'verified')
     list_filter = ('challenge_type', 'candidate__term')
+    search_fields = ('candidate__user__username',
+                     'candidate__user__userprofile__preferred_name',
+                     'candidate__user__first_name',
+                     'candidate__user__last_name')
 
 
 class ChallengeCandidateRequirementAdmin(CandidateRequirementAdmin):
