@@ -81,7 +81,7 @@ def import_event_sign_ups():
             unsignup=fields['unsignup'])
 
         if fields['person']:
-            event_sign_up.person = user_model.objects.get(pk=fields['person'])
+            event_sign_up.user = user_model.objects.get(pk=fields['person'])
 
         try:
             # Try to convert the naive datetime into an aware datetime, which
@@ -103,4 +103,4 @@ def import_event_attendances():
         EventAttendance.objects.get_or_create(
             pk=model['pk'],
             event=Event.objects.get(pk=fields['event']),
-            person=user_model.objects.get(pk=fields['person']))
+            user=user_model.objects.get(pk=fields['person']))
