@@ -150,7 +150,7 @@ class EventDetailView(DetailView):
         context = super(EventDetailView, self).get_context_data(**kwargs)
 
         context['signup_list'] = self.object.eventsignup_set.filter(
-            unsignup=False).select_related('person', 'person__userprofile')
+            unsignup=False).select_related('user', 'user__userprofile')
 
         signup = None
 
@@ -166,7 +166,7 @@ class EventDetailView(DetailView):
             if self.request.user.is_authenticated():
                 try:
                     signup = EventSignUp.objects.get(
-                        event=self.object, person=self.request.user)
+                        event=self.object, user=self.request.user)
                     context['form'] = EventSignUpForm(
                         instance=signup,
                         max_guests=max_guests_per_person,
@@ -193,8 +193,8 @@ class EventDetailView(DetailView):
         context['available_seats'] = context['total_seats'] - total_rsvps
 
         def signup_sort_key(signup):
-            if signup.person:
-                return signup.person.userprofile.get_common_name()
+            if signup.user:
+                return signup.user.userprofile.get_common_name()
             else:
                 return signup.name
 
@@ -245,8 +245,8 @@ class EventSignUpView(AjaxResponseMixin, FormView):
 
         if self.request.user.is_authenticated():
             signup, created = EventSignUp.objects.get_or_create(
-                event=self.event, person=self.request.user)
-            signup.person = self.request.user
+                event=self.event, user=self.request.user)
+            signup.user = self.request.user
         else:
             signup, created = EventSignUp.objects.get_or_create(
                 event=self.event, email=obj.email)
@@ -299,13 +299,13 @@ class IndividualAttendanceListView(TermParameterMixin, TemplateView):
         future_events = events.filter(end_datetime__gt=current_time)
 
         context['attended'] = past_events.filter(
-            eventattendance__person=self.attendance_user)
+            eventattendance__user=self.attendance_user)
 
         # Get future events that the user has either signed up for or already
         # received attendance for:
-        signup_filter = Q(eventsignup__person=self.attendance_user,
+        signup_filter = Q(eventsignup__user=self.attendance_user,
                           eventsignup__unsignup=False)
-        attendance_filter = Q(eventattendance__person=self.attendance_user)
+        attendance_filter = Q(eventattendance__user=self.attendance_user)
         participation_filter = signup_filter | attendance_filter
         context['future_participating'] = future_events.filter(
             participation_filter)

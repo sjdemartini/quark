@@ -199,7 +199,7 @@ class EventTest(EventTesting):
                                  [repr(event) for event in expected_events],
                                  ordered=False)
 
-        # Make this person a candidate, and view the permissions should stay
+        # Make this user a candidate, and view the permissions should stay
         # the same
         Candidate(user=self.user, term=self.term).save()
         visible_events = Event.objects.get_user_viewable(self.user)
@@ -207,7 +207,7 @@ class EventTest(EventTesting):
                                  [repr(event) for event in expected_events],
                                  ordered=False)
 
-        # Make this person an officer, and they should be able to see all
+        # Make this user an officer, and they should be able to see all
         # events
         Officer(user=self.user, position=self.committee, term=self.term).save()
         visible_events = Event.objects.get_user_viewable(self.user)
@@ -237,7 +237,7 @@ class EventTest(EventTesting):
             else:
                 self.assert_cannot_view(event, self.user)
 
-        # Make this person a candidate, and view the permissions should stay
+        # Make this user a candidate, and view the permissions should stay
         # the same
         Candidate(user=self.user, term=self.term).save()
         for restriction in restrictions:
@@ -248,7 +248,7 @@ class EventTest(EventTesting):
             else:
                 self.assert_cannot_view(event, self.user)
 
-        # Make this person an officer, and they should be able to see all
+        # Make this user an officer, and they should be able to see all
         # events
         Officer(user=self.user, position=self.committee, term=self.term).save()
         for restriction in restrictions:
@@ -277,7 +277,7 @@ class EventTest(EventTesting):
             else:
                 self.assert_cannot_sign_up(event, self.user)
 
-        # Make this person a candidate, so the person should be able to sign up
+        # Make this user a candidate, so the user should be able to sign up
         # for public and candidate events
         Candidate(user=self.user, term=self.term).save()
         for restriction in restrictions:
@@ -288,7 +288,7 @@ class EventTest(EventTesting):
             else:
                 self.assert_cannot_sign_up(event, self.user)
 
-        # Make this person an officer, so the person should be able to sign up
+        # Make this user an officer, so the user should be able to sign up
         # for all events except open events (which don't allow signups)
         Officer(user=self.user, position=self.committee, term=self.term).save()
         for restriction in restrictions:
@@ -395,7 +395,7 @@ class EventTest(EventTesting):
             name=signup.name, event_name=event.name)
         self.assertEqual(expected_str, unicode(signup))
 
-        signup.person = self.user
+        signup.user = self.user
         signup.save()
         expected_str = u'{name} has signed up for {event_name}'.format(
             name=self.user.get_full_name(), event_name=event.name)

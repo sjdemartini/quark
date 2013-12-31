@@ -49,7 +49,7 @@ class CandidateContextMixin(ContextMixin):
         for event_type in event_types:
             attended_events[event_type] = []
         attendances = EventAttendance.objects.filter(
-            person=candidate.user, event__term=candidate.term)
+            user=candidate.user, event__term=candidate.term)
         for attendance in attendances:
             attended_events[
                 attendance.event.event_type.name].append(attendance.event)

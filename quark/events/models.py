@@ -297,7 +297,7 @@ class Event(models.Model):
 
 class EventSignUp(models.Model):
     event = models.ForeignKey(Event)
-    person = models.ForeignKey(settings.AUTH_USER_MODEL, null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True)
 
     num_guests = models.PositiveSmallIntegerField(
         default=0,
@@ -309,7 +309,7 @@ class EventSignUp(models.Model):
     comments = models.TextField(
         blank=True, verbose_name='comments (optional)')
 
-    # Name and email are necessary for anonymous signups (when person is null)
+    # Name and email are necessary for anonymous signups (when user is null)
     # Name of the person signing up:
     name = models.CharField(max_length=255, blank=True)
     # The person's email address:
@@ -330,10 +330,10 @@ class EventSignUp(models.Model):
 
     def __unicode__(self):
         action = 'unsigned' if self.unsignup else 'signed'
-        if self.person is None:
+        if self.user is None:
             name = self.name
         else:
-            name = self.person.get_full_name()
+            name = self.user.get_full_name()
         guest_string = (
             ' (+{})'.format(self.num_guests) if self.num_guests > 0 else '')
         return '{person}{guests} has {action} up for {event_name}'.format(
@@ -345,15 +345,15 @@ class EventSignUp(models.Model):
 
 class EventAttendance(models.Model):
     event = models.ForeignKey(Event)
-    person = models.ForeignKey(settings.AUTH_USER_MODEL)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
 
     # TODO(sjdemartini): Deal with the pre-noiro attendance importing? Note
     # that noiro added a separate field here to handle pre-noiro attendance
     # imports, as well as ImportedAttendance objects
 
     def __unicode__(self):
-        return '{} attended {}'.format(self.person.get_full_name(),
+        return '{} attended {}'.format(self.user.get_full_name(),
                                        self.event.name)
 
     class Meta(object):
-        unique_together = ('event', 'person')
+        unique_together = ('event', 'user')

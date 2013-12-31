@@ -122,8 +122,8 @@ class ChallengeType(models.Model):
 class Challenge(models.Model):
     """A challenge done by a Candidate.
 
-    Challenges are requested by the Candidate upon completion
-    and verified by the person who gave the candidate the challenge.
+    Challenges are requested by the Candidate upon completion and verified by
+    the person who gave the candidate the challenge.
     """
     # Custom displays for the verified NullBooleanField
     VERIFIED_CHOICES = (
@@ -250,7 +250,7 @@ class EventCandidateRequirement(CandidateRequirement):
     def get_completed(self, candidate):
         """Return the number of credits completed by candidate."""
         events_attended = EventAttendance.objects.filter(
-            person=candidate.user,
+            user=candidate.user,
             event__term=candidate.term,
             event__event_type=self.event_type)
         return sum([e.event.requirements_credit for e in events_attended])

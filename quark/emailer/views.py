@@ -174,10 +174,10 @@ class EventEmailerView(EmailerView):
     def form_valid(self, form, **kwargs):
         bcc_list = []
         for signup in self.signedup_list:
-            if signup.person:
-                # check if person has an account or if they signed up with
-                # their email address
-                bcc_list.append(signup.person.email)
+            # Check if the person has an account or if they signed up
+            # "anonymously" with their email address
+            if signup.user:
+                bcc_list.append(signup.user.email)
             else:
                 bcc_list.append(signup.email)
 

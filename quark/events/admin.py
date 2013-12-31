@@ -18,20 +18,18 @@ get_term.short_description = 'Term'
 
 
 class EventAttendanceAdmin(admin.ModelAdmin):
-    list_display = ('event', 'person', get_term)
+    list_display = ('event', 'user', get_term)
     list_filter = ('event__term',)
-    search_fields = ('event__name', 'person__username',
-                     'person__preferred_name', 'person__first_name',
-                     'person__last_name')
+    search_fields = ('event__name', 'user__username', 'user__preferred_name',
+                     'user__first_name', 'user__last_name')
 
 
 class EventSignupAdmin(admin.ModelAdmin):
-    list_display = ('event', 'person', 'name', 'email', get_term, 'num_guests',
+    list_display = ('event', 'user', 'name', 'email', get_term, 'num_guests',
                     'unsignup')
     list_filter = ('event__term',)
-    search_fields = ('event__name', 'person__username',
-                     'person__preferred_name', 'person__first_name',
-                     'person__last_name', 'name')
+    search_fields = ('event__name', 'user__username', 'user__preferred_name',
+                     'user__first_name', 'user__last_name', 'name')
 
 
 admin.site.register(Event, EventAdmin)

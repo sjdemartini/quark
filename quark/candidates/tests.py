@@ -241,20 +241,17 @@ class CandidateTest(TestCase):
         attendance.
         """
         # Attend Fun Event
-        EventAttendance(event=self.fun_event1,
-                        person=self.user).save()
+        EventAttendance(event=self.fun_event1, user=self.user).save()
         complete, _ = self.candidate.get_progress(CandidateRequirement.EVENT)
         self.assertEqual(complete, 1)
 
         # Attend Big Fun Event (worth 2)
-        EventAttendance(event=self.fun_event2,
-                        person=self.user).save()
+        EventAttendance(event=self.fun_event2, user=self.user).save()
         complete, _ = self.candidate.get_progress(CandidateRequirement.EVENT)
         self.assertEqual(complete, 3)
 
         # Attend Not Fun Event (not worth any requirements)
-        EventAttendance(event=self.notfun_event,
-                        person=self.user).save()
+        EventAttendance(event=self.notfun_event, user=self.user).save()
         complete, _ = self.candidate.get_progress(CandidateRequirement.EVENT)
         self.assertEqual(complete, 3)
 
