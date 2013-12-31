@@ -119,7 +119,6 @@ class EventDetailView(DetailView):
     model = Event
     template_name = 'events/detail.html'
     object = None  # The event object being fetched for the DetailView
-    form = None  # The form can be passed in as a parameter
 
     def dispatch(self, *args, **kwargs):
         self.object = self.get_object()
@@ -154,32 +153,26 @@ class EventDetailView(DetailView):
 
         signup = None
 
-        if (self.form or not self.object.is_upcoming()
+        if (not self.object.is_upcoming()
                 or not self.object.can_user_sign_up(self.request.user)):
-            # If form passed in to view, use that. Or if the event is no longer
-            # upcoming or the user isn't allowed to sign up, don't supply a
-            # signup form.
-            context['form'] = self.form
+            # If the event is no longer upcoming or the user isn't allowed to
+            # sign up, don't supply a signup form.
+            context['form'] = None
         else:
-            max_guests_per_person = self.object.max_guests_per_person
-            event_needs_drivers = self.object.needs_drivers
+            extra_kwargs = {'max_guests': self.object.max_guests_per_person,
+                            'needs_drivers': self.object.needs_drivers}
             if self.request.user.is_authenticated():
                 try:
                     signup = EventSignUp.objects.get(
                         event=self.object, user=self.request.user)
                     context['form'] = EventSignUpForm(
-                        instance=signup,
-                        max_guests=max_guests_per_person,
-                        needs_drivers=event_needs_drivers)
+                        instance=signup, **extra_kwargs)
                 except EventSignUp.DoesNotExist:
                     context['form'] = EventSignUpForm(
                         initial={'name': self.request.user.get_full_name()},
-                        max_guests=max_guests_per_person,
-                        needs_drivers=event_needs_drivers)
+                        **extra_kwargs)
             else:
-                context['form'] = EventSignUpAnonymousForm(
-                    max_guests=max_guests_per_person,
-                    needs_drivers=event_needs_drivers)
+                context['form'] = EventSignUpAnonymousForm(**extra_kwargs)
 
         context['user_signed_up'] = signup is not None and not signup.unsignup
 
@@ -234,6 +227,7 @@ class EventSignUpView(AjaxResponseMixin, FormView):
         """Set the number of max guests in the form."""
         kwargs = super(EventSignUpView, self).get_form_kwargs(**kwargs)
         kwargs['max_guests'] = self.event.max_guests_per_person
+        kwargs['needs_drivers'] = self.event.needs_drivers
         return kwargs
 
     def form_valid(self, form):

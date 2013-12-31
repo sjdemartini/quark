@@ -120,12 +120,12 @@ class EventSignUpForm(forms.ModelForm):
                 label='Number of guests you are bringing (up to {})'.format(
                     max_guests))
         else:
-            # Remove the num_guests field from the form
-            del self.fields['num_guests']
+            # Hide the num_guests field from the form
+            self.fields['num_guests'].widget = forms.HiddenInput()
 
         if not needs_drivers:
-            # Remove the driving field if the event doesn't need drivers
-            del self.fields['driving']
+            # Hide the driving field if the event doesn't need drivers
+            self.fields['driving'].widget = forms.HiddenInput()
 
     # TODO(sjdemartini): Perform separate validation to ensure that the event
     # has enough space for the user and his guests, considering whether the

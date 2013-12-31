@@ -21,5 +21,5 @@ class ProjectReportForm(ChosenTermMixin, forms.ModelForm):
         exclude = ('first_completed_at',)
         widgets = {
             'date': VisualDateWidget(),
-            'committee': chosen_forms.ChosenSelectMultiple()
+            'committee': chosen_forms.ChosenSelect()
         }
