@@ -74,5 +74,8 @@ class MinutesUploadView(MinutesCreateView):
     def form_valid(self, form):
         # Read in the uploaded text file
         notes_file = self.request.FILES['notes']
+        # Make sure we are reading from the beginning of the file (necessary
+        # if upload validation reads file to examine mimetype):
+        notes_file.seek(0)
         form.instance.notes = notes_file.read()
         return super(MinutesUploadView, self).form_valid(form)

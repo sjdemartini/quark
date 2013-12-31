@@ -1,5 +1,3 @@
-import magic
-
 from chosen import forms as chosen_forms
 from django import forms
 from django.utils.safestring import mark_safe
@@ -11,6 +9,7 @@ from quark.courses.models import Instructor
 from quark.exams.models import Exam
 from quark.exams.models import ExamFlag
 from quark.exams.models import InstructorPermission
+from quark.shortcuts import get_file_mimetype
 
 
 class ExamForm(ChosenTermMixin, forms.ModelForm):
@@ -79,9 +78,19 @@ class UploadForm(ExamForm):
         super(UploadForm, self).__init__(*args, **kwargs)
         self.fields.keyOrder += ['exam_file', 'agreed']
 
+    def clean_exam_file(self):
+        """Check if uploaded exam file is of an acceptable format."""
+        exam_file = self.cleaned_data.get('exam_file')
+        # Check if a file was actually uploaded
+        if not exam_file:
+            raise forms.ValidationError('Please attach a file.')
+
+        if get_file_mimetype(exam_file) != 'application/pdf':
+            raise forms.ValidationError('Uploaded file must be a PDF file.')
+        return exam_file
+
     def clean(self):
-        """Check if uploaded exam already exists and whether the file is of
-        an acceptable format."""
+        """Check if uploaded exam already exists."""
         cleaned_data = super(UploadForm, self).clean()
         self.check_course_instance(cleaned_data)
         duplicates = Exam.objects.filter(
@@ -90,26 +99,7 @@ class UploadForm(ExamForm):
             exam_type=cleaned_data.get('exam_type'))
         if duplicates.exists():
             raise forms.ValidationError(
-                'This exam already exists in the database. '
-                'Please upload a new exam.')
-
-        # check if a file was actually uploaded
-        exam_file = cleaned_data.get('exam_file')
-        if not exam_file:
-            raise forms.ValidationError('Please attach a file.')
-
-        # Use python-magic to verify the file type so someone cannot upload
-        # an unallowed file type by simply changing the file extension.
-        # If the uploaded file is greater than 2.5MB (if multiple_chunks()
-        # returns True), then it will be stored temporarily on disk;
-        # otherwise, it will be stored in memory.
-        if exam_file.multiple_chunks():
-            output = magic.from_file(exam_file.temporary_file_path(), mime=True)
-        else:
-            output = magic.from_buffer(exam_file.read(), mime=True)
-        if output != 'application/pdf':
-            raise forms.ValidationError('Uploaded file must be a PDF file.')
-        return cleaned_data
+                'This exam already exists in the database.')
 
     def save(self, *args, **kwargs):
         """Check if professors are blacklisted."""

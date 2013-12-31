@@ -1,5 +1,6 @@
 from functools import wraps
 import json
+import magic
 
 from django.http import HttpResponse
 from django.shortcuts import _get_queryset
@@ -22,6 +23,23 @@ def get_object_or_none(klass, *args, **kwargs):
         return queryset.get(*args, **kwargs)
     except queryset.model.DoesNotExist:
         return None
+
+
+def get_file_mimetype(file_object):
+    """Return the file mimetype (using python-magic) for the given file.
+
+    This method is useful for verifying the file type of uploaded files so that
+    someone cannot upload a disallowed file type by simply changing the file
+    extension.
+    """
+    # If the uploaded file is greater than 2.5MB (if multiple_chunks() returns
+    # True), then it will be stored temporarily on disk; otherwise, it will be
+    # stored in memory.
+    if file_object.multiple_chunks():
+        output = magic.from_file(file_object.temporary_file_path(), mime=True)
+    else:
+        output = magic.from_buffer(file_object.read(), mime=True)
+    return output
 
 
 def disable_for_loaddata(signal_handler):
