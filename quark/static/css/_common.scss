@@ -180,7 +180,12 @@ td {
       font-size: 75%;
       margin-left: 5px;
       position: absolute;
-      top: 2px;
+      @include respond-to(large-only) {
+        // Since the large viewport has labels right-aligned, the asterisk
+        // should be positioned to the top of text, whereas for left-aligned
+        // labels, it should just appear at the end of the label.
+        top: 2px;
+      }
     }
 
     &.form-entry-error {
