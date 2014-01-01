@@ -40,8 +40,8 @@ $(function() {
       {% for event in events %}
         {
           title: '{{ event.name|escapejs }}',
-          start: '{{ event.start_datetime.isoformat|escapejs }}',
-          end: '{{ event.end_datetime.isoformat|escapejs }}',
+          start: '{{ event.start_datetime|date:'c'|escapejs }}',
+          end: '{{ event.end_datetime|date:'c'|escapejs }}',
           allDay: {% if event.is_multiday %}true{% else %}false{% endif %},
           url: '{{ event.get_absolute_url|escapejs }}',
           editable: false,
