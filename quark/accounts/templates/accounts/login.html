@@ -2,16 +2,14 @@
 
 {% load settings_values %}
 
-{% block content %}
+{% block intro %}
 <h1>
   {% block title %}Log In{% endblock title %}
 </h1>
+{% endblock intro %}
 
-{% if form.errors %}
-<div class="error">Invalid username and/or password</div>
-{% endif %}
-
-<form method="post" action="{% url 'accounts:login' %}" class="form-narrow">
+{% block content %}
+<form method="post" action="{{ request.path }}" class="form-narrow">
   {% csrf_token %}
   {% include 'form.html' %}
 
@@ -23,4 +21,4 @@
 {% settings_assign 'IT_ADDRESS' as it_addr %}
 <p>Are you a member without an account? Request one by emailing IT at <a href="mailto:{{ it_addr }}">{{ it_addr }}</a>.</p>
 
-{% endblock %}
+{% endblock content %}
