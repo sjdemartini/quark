@@ -2,6 +2,8 @@ import random
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import permission_required
+from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMessage
 from django.core.mail import make_msgid
 from django.shortcuts import get_object_or_404
@@ -10,13 +12,10 @@ from django.template import RequestContext
 from django.utils.decorators import method_decorator
 from django.views.generic.edit import FormView
 
-# TODO(nitishp) uncomment things as functionality is added to quark
-# from quark.base.decorators import officer_required
 from quark.base.models import Officer
 from quark.base.models import Term
 from quark.emailer.forms import ContactCaptcha, ContactForm
-# from quark.events.views import get_event
-from quark.events.models import Event  # until get_event is added
+from quark.events.models import Event
 
 
 class EmailerView(FormView):
@@ -153,9 +152,10 @@ class EventEmailerView(EmailerView):
     signedup_list = None
     cc_email = None
 
-    # TODO(nitishp) restore when user access is sorted out
-    # @method_decorator(officer_required)
     @method_decorator(login_required)
+    @method_decorator(
+        permission_required('events.contact_participants',
+                            raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         self.initial = {
             'name': request.user.get_full_name(),
@@ -164,9 +164,9 @@ class EventEmailerView(EmailerView):
                 self.event.name)}
 
         event_id = kwargs['event_id']
-        # TODO(nitishp) restore when views are added for events
-        # self.event = get_event(request, event_id)
         self.event = get_object_or_404(Event, pk=event_id)  # same as above
+        if not self.event.can_user_view(request.user):
+            raise PermissionDenied
         self.signedup_list = self.event.eventsignup_set.order_by('name')
         self.cc_email = [self.event.committee.short_name + '@tbp.berkeley.edu']
         return super(EventEmailerView, self).dispatch(request, *args, **kwargs)

@@ -6,15 +6,13 @@ from django.core import mail
 from django.core.mail import BadHeaderError
 from django.core.urlresolvers import reverse
 from django.test import TestCase
-from django.test.client import Client
 from django.test.utils import override_settings
-from django.utils import unittest
 
 from quark.emailer.forms import ContactForm, ContactCaptcha
 #from quark.events.models import Event
 
 
-class ContactFormTest(unittest.TestCase):
+class ContactFormTest(TestCase):
     def setUp(self):
         self.form = ContactForm({'name': 'John Doe',
                                  'email': 'test@tbp.berkeley.edu',
@@ -74,8 +72,8 @@ class ContactFormTest(unittest.TestCase):
         self.assertEqual(message, 'no error')
 
     def test_email_no_recipient(self):
-        with self.assertRaises(BadHeaderError):
-            self.form.send_email()
+        self.assertRaises(BadHeaderError, self.form.send_email)
+        self.assertEqual(len(mail.outbox), 0)  # Check that an email isn't sent
 
     def test_email_success(self):
         self.assertTrue(self.form.is_valid())
@@ -243,7 +241,6 @@ class EventEmailerTest(TestCase):
 @override_settings(INDREL_ADDRESS='test_ind@tbp.berkeley.edu')
 class CompanyEmailerTest(TestCase):
     def setUp(self):
-        self.client = Client()
         self.url = reverse('emailer:company')
         # TODO(nitishp) make a company user
         self.user = get_user_model().objects.create_user(
@@ -252,7 +249,8 @@ class CompanyEmailerTest(TestCase):
             password='secretpass',
             first_name='Test',
             last_name='Company')
-        self.client.login(username='testcompany', password='secretpass')
+        self.assertTrue(
+            self.client.login(username='testcompany', password='secretpass'))
         self.mox = mox.Mox()
         self.default_entry = {'name': 'Test Company',
                               'email': 'test@tbp.berkeley.edu',
@@ -292,7 +290,11 @@ class CompanyEmailerTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertFalse(context['result_message'])
         self.assertFalse(context['success'])
+
+        # The ContactForm (non-captcha) should be used for logged-in users:
         self.assertIsInstance(context['form'], ContactForm)
+        self.assertNotIsInstance(context['form'], ContactCaptcha)
+
         self.assertEqual(context['form'].initial['name'], 'Test Company')
         self.assertEqual(context['form'].initial['email'],
                          'test_logged_in@tbp.berkeley.edu')
