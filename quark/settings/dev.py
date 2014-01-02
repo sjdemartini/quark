@@ -53,10 +53,7 @@ DEBUG_TOOLBAR_CONFIG = {
     'SHOW_TOOLBAR_CALLBACK': lambda request: True
 }
 
-# Use nginx proxy. Dev server available at https://tbp.berkeley.edu/dev<PORT>/
-# Set this config value in your settings_local.py file if you want to
-# be more secure (yes, you do) and use an HTTPS proxy instead of
-# http://tbp.berkeley.edu:PORT/
-#FORCE_SCRIPT_NAME = '/dev####'
-#STATIC_URL = '/dev####/static/'
-#MEDIA_URL = '/dev####/media/'
+# NOTE: It is highly recommended that you copy settings_local_template.py (in
+# the quark directory) to a new file settings_local.py (to be put in the same
+# directory). This will allow you to use HTTPS for your dev server. See
+# settings_local_template.py for further clarification and instruction.

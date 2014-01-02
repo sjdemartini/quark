@@ -1,0 +1,11 @@
+# When using the nginx proxy, the dev server available at
+# https://tbp.berkeley.edu/dev<PORT>/
+# The following settings allow you to make use of the HTTPS proxy instead of
+# the insecure http://tbp.berkeley.edu:PORT/
+
+# Replace #### with your complete port number
+FORCE_SCRIPT_NAME = '/dev####'
+STATIC_URL = '/dev####/static/'
+MEDIA_URL = '/dev####/media/'
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
