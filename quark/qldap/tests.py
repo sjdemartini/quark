@@ -148,6 +148,7 @@ class LDAPTestCase(TestCase):
         # Number for first char
         self.assertIsNone(utils.USERNAME_REGEX.match('123'))
 
+    @override_settings(USE_LDAP=True)
     @override_settings(DEBUG=True)
     def test_backend_auth(self):
         self.assertTrue(utils.mod_user_group(

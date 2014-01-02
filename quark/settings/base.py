@@ -46,6 +46,12 @@ DATABASES = {
 # Currently use django.contrib.auth.User.
 AUTH_USER_MODEL = 'auth.User'
 
+# USE_LDAP indicates when an LDAP proxy model (accounts.LDAPUser) for users
+# (proxies AUTH_USER_MODEL) should be used. When USE_LDAP is True, the LDAP
+# authentication backend becomes active, and user account forms (like changing
+# passwords) use the LDAPUser proxy model.
+USE_LDAP = False  # Only use LDAP in production
+
 AUTHENTICATION_BACKENDS = (
     'quark.qldap.backends.LDAPBackend',
     'django.contrib.auth.backends.ModelBackend',
@@ -192,6 +198,19 @@ TEMPLATE_DIRS = (
     os.path.join(WORKSPACE_DJANGO_ROOT, 'templates'),
 )
 
+DJANGO_CONTRIB_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    #'django.contrib.flatpages',
+    # TODO(davidbliu): Handle deprecation of markup
+    'django.contrib.markup',
+    'django.contrib.messages',
+    'django.contrib.sessions',
+    'django.contrib.sites',
+    'django.contrib.staticfiles',
+]
+
 # All projects that we write (and thus, need to be tested) should go here.
 PROJECT_APPS = [
     'quark.accounts',
@@ -228,16 +247,6 @@ THIRD_PARTY_APPS = [
     'cmsplugin_filer_video',
     'compressor',
     'debug_toolbar',
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    #'django.contrib.flatpages',
-    # TODO(davidbliu): Handle deprecation of markup
-    'django.contrib.markup',
-    'django.contrib.messages',
-    'django.contrib.sessions',
-    'django.contrib.sites',
-    'django.contrib.staticfiles',
     'django_jenkins',
     'easy_thumbnails',
     'filer',  # Used by CMS
@@ -250,7 +259,7 @@ THIRD_PARTY_APPS = [
 ]
 
 # This is the actual variable that django looks at.
-INSTALLED_APPS = PROJECT_APPS + THIRD_PARTY_APPS
+INSTALLED_APPS = DJANGO_CONTRIB_APPS + PROJECT_APPS + THIRD_PARTY_APPS
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to

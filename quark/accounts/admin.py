@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
 
+from quark.accounts.forms import AdminPasswordChangeForm
 from quark.accounts.forms import UserChangeForm
 from quark.accounts.forms import UserCreationForm
 from quark.user_profiles.models import UserProfile
@@ -19,6 +20,7 @@ class UserProfileInline(admin.StackedInline):
 class UserAdminWithProfile(UserAdmin):
     add_form = UserCreationForm
     form = UserChangeForm
+    change_password_form = AdminPasswordChangeForm
     inlines = (UserProfileInline, )
     list_display_links = ('username', 'first_name', 'last_name',)
     list_filter = ('is_staff', 'is_superuser', 'groups')

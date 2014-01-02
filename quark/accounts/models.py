@@ -1,5 +1,6 @@
+from django.contrib import auth
 from django.contrib.auth.models import BaseUserManager
-from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 
 from quark.qldap import utils as ldap_utils
 
@@ -17,10 +18,10 @@ class LDAPUserManager(BaseUserManager):
     def create_user(self, username, email, password,
                     first_name, last_name, **extra_fields):
         # Password must not be empty, but can be None for unusuable password
-        if ((not username or not email or password == '' or
-             not first_name or not last_name)):
-            raise ValueError('Users must have username, email, password, '
-                             'first name and last name')
+        if (not username or not email or password == '' or
+                not first_name or not last_name):
+            raise ValidationError('Users must have username, email, password, '
+                                  'first name and last name')
         norm_email = self.normalize_email(email)
         if ldap_utils.create_user(username, password, norm_email, first_name,
                                   last_name):
@@ -45,12 +46,15 @@ class LDAPUserManager(BaseUserManager):
                                 is_superuser=True, **extra_fields)
 
 
-class LDAPUser(User):
+class LDAPUser(auth.get_user_model()):
     """Overrides user model's password facilities.
 
     User passwords are stored only in LDAP and not in Django, so LDAP is used
     to set and check passwords. Django user objects will be set with unusable
     passwords.
+
+    The LDAPUser cannot be set as the AUTH_USER_MODEL, as it is a proxy model
+    for the AUTH_USER_MODEL.
     """
     # TODO(flieee): Also synchronizes username with LDAP on save
     # Requires quark.qldap
@@ -63,8 +67,13 @@ class LDAPUser(User):
 
     def save(self, *args, **kwargs):
         """Only save the instance if user exists in LDAP."""
-        if ldap_utils.username_exists(self.get_username()):
-            super(LDAPUser, self).save(*args, **kwargs)
+        if not ldap_utils.username_exists(self.get_username()):
+            raise ValidationError(
+                'There is no user with username {} in LDAP, so the user cannot '
+                'be saved. If you are trying to create a user, please use the '
+                'LDAPUserManager create_user method.'.format(
+                    self.get_username()))
+        super(LDAPUser, self).save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
         """Delete the instance only if LDAP user deletion was successfull."""
@@ -77,3 +86,10 @@ class LDAPUser(User):
     def set_password(self, raw_password):
         self.set_unusable_password()
         ldap_utils.set_password(self.get_username(), raw_password)
+
+
+def make_ldap_user(user):
+    """Sets the user model for the given user to be the LDAPUser proxy model.
+    """
+    # Change the user class to the proxy model LDAPUser
+    user.__class__ = LDAPUser

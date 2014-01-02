@@ -10,11 +10,25 @@ User = get_user_model()
 
 
 class LDAPBackend(ModelBackend):
+    """An authentication backend which checks user name and password in the
+    LDAP database.
+
+    The backend creates a new Django user if the user is found in the LDAP
+    database (with matching password) but does not exist in the Django
+    database.
+
+    Note that this backend is only active if the settings attribute USE_LDAP
+    is set to True; otherwise it does nothing.
+    """
     supports_object_permissions = False
     supports_anonymous_user = False
     supports_inactive_user = False
 
     def authenticate(self, username=None, password=None):
+        if not getattr(settings, 'USE_LDAP', False):
+            # Must have USE_LDAP set to True to authenticate with this backend
+            return None
+
         if username is None or password is None:
             return None
 
@@ -27,6 +41,10 @@ class LDAPBackend(ModelBackend):
             return self.__create_user(username)
 
     def get_user(self, user_id):
+        if not getattr(settings, 'USE_LDAP', False):
+            # Must have USE_LDAP set to True to authenticate with this backend
+            return None
+
         try:
             return User.objects.get(pk=user_id)
         except User.DoesNotExist:

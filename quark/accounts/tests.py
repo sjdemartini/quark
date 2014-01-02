@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth.models import User as DefaultUser
 from django.core.exceptions import PermissionDenied
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
@@ -14,6 +15,7 @@ from quark.accounts.decorators import candidate_required
 from quark.accounts.decorators import current_officer_required
 from quark.accounts.decorators import officer_required
 from quark.accounts.decorators import officer_types_required
+from quark.accounts.models import make_ldap_user
 from quark.accounts.models import LDAPUser
 from quark.base.models import Officer
 from quark.base.models import OfficerPosition
@@ -112,7 +114,7 @@ class CreateLDAPUserTestCase(TestCase):
 
     def test_bad_create_user(self):
         """Creating an LDAP user directly via model instantiation should not
-        actually save the new user into the database.
+        actually save the new user into the database and should raise an error.
         """
         bad_username = 'baduser'
         if username_exists(bad_username):
@@ -123,7 +125,7 @@ class CreateLDAPUserTestCase(TestCase):
             password=self.password,
             first_name=self.first_name,
             last_name=self.last_name)
-        user.save()
+        self.assertRaises(ValidationError, user.save)
 
         query = self.model.objects.filter(username=bad_username)
         self.assertEqual(0, query.count())
@@ -306,3 +308,34 @@ class DecoratorsTest(TestCase):
 
         self.assertTrue(self.view.called)
         self.assertEqual(response.status_code, 200)
+
+
+@override_settings(AUTH_USER_MODEL='auth.User')
+class MakeLDAPUserTest(TestCase):
+    def setUp(self):
+        self.username = 'bentleythebent'
+        self.user = get_user_model().objects.create_user(
+            username=self.username,
+            email='it@tbp.berkeley.edu',
+            password='testofficerpw',
+            first_name='Bentley',
+            last_name='Bent')
+
+    def test_get_ldap_user_class(self):
+        """Check that get_ldap_user returns an LDAPUser instance of the given
+        user, without modifying the original object.
+        """
+        self.assertNotIsInstance(self.user, LDAPUser)
+        make_ldap_user(self.user)
+        self.assertIsInstance(self.user, LDAPUser)
+        self.assertEqual(self.user.get_username(), self.username)
+
+    def test_num_sql_queries(self):
+        """Ensure that the method leads to no additional SQL queries changing
+        the user to an instance of LDAPUser.
+        """
+        # pylint: disable=E1103
+        with self.assertNumQueries(0):
+            make_ldap_user(self.user)
+            self.assertIsInstance(self.user, LDAPUser)
+            self.assertEqual(self.user.get_username(), self.username)
