@@ -57,3 +57,11 @@ DEBUG_TOOLBAR_CONFIG = {
 # the quark directory) to a new file settings_local.py (to be put in the same
 # directory). This will allow you to use HTTPS for your dev server. See
 # settings_local_template.py for further clarification and instruction.
+
+# Import any local settings
+try:
+    # pylint: disable=F0401,W0401,W0614
+    from quark.settings_local import *
+except ImportError:
+    # Ignore if there's no local settings file
+    pass
