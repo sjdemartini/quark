@@ -23,6 +23,9 @@ class CandidatePhotoForm(forms.ModelForm):
 
 
 class ChallengeVerifyForm(forms.ModelForm):
+    # TODO(ericdwang): NullBooleanFields show an extra blank field when using
+    # custom choices. This field can be removed (so Challenge.VERIFIED_CHOICES
+    # would be used instead) when Django fixes the bug.
     verified = forms.NullBooleanField()
 
     class Meta(object):
@@ -68,7 +71,7 @@ class CandidateRequirementProgressForm(forms.ModelForm):
 
 class BaseCandidateRequirementFormset(forms.formsets.BaseFormSet):
     """Base formset used to create the formset for editing candidate
-    requirements and the progresses for a candidate.
+    requirements for the current term.
     """
     def total_form_count(self):
         """Sets the number of forms equal to the number of candidate
@@ -84,31 +87,39 @@ class BaseCandidateRequirementFormset(forms.formsets.BaseFormSet):
 
 class BaseCandidateProgressFormset(forms.formsets.BaseFormSet):
     """Base formset used to create the formset for editing candidate
-    requirements and the progresses for a candidate.
+    requirement progresses for a specific candidate.
     """
+    candidate_term = None
+
+    def __init__(self, *args, **kwargs):
+        self.candidate_term = kwargs.pop('candidate_term', None)
+        super(BaseCandidateProgressFormset, self).__init__(*args, **kwargs)
+
     def total_form_count(self):
         """Sets the number of forms equal to the number of candidate
-        requirements for the current term.
+        requirements for the candidate's term.
         """
         return CandidateRequirement.objects.filter(
-            term=Term.objects.get_current_term()).count()
+            term=self.candidate_term).count()
 
 
 class BaseChallengeVerifyFormset(forms.formsets.BaseFormSet):
     """Base formset used to create the formset for verifying challenges."""
+    display_term = None
     user = None
 
     def __init__(self, *args, **kwargs):
+        self.display_term = kwargs.pop('display_term', None)
         self.user = kwargs.pop('user', None)
         super(BaseChallengeVerifyFormset, self).__init__(*args, **kwargs)
 
     def total_form_count(self):
         """Sets the number of forms equal to the number of challenges
-        requested from the user for the current term.
+        requested from the user for the specified term.
         """
         return Challenge.objects.filter(
             verifying_user=self.user,
-            candidate__term=Term.objects.get_current_term()).count()
+            candidate__term=self.display_term).count()
 
 
 # pylint: disable=C0103

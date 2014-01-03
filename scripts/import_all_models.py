@@ -8,6 +8,7 @@ from scripts.import_candidates_models import import_candidate_progresses
 from scripts.import_candidates_models import import_challenges
 from scripts.import_candidates_models import import_challenge_requirements
 from scripts.import_candidates_models import import_event_requirements
+from scripts.import_candidates_models import import_exam_files_requirements
 from scripts.import_courses_models import import_courses
 from scripts.import_courses_models import import_course_instances
 from scripts.import_courses_models import import_departments
@@ -133,5 +134,7 @@ print('Importing candidate event requirements.')
 import_event_requirements()
 print('Importing candidate requirement progresses.')
 import_candidate_progresses()
+print('Importing candidate exam requirements.')
+import_exam_files_requirements()
 
 print('All models successfully imported.')

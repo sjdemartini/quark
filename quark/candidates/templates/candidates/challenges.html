@@ -3,23 +3,29 @@
 {% block title %}Verify Challenges{% endblock title %}
 
 {% block intro %}
-<h1>Verify Challenges for {{ term.verbose_name }}</h1>
+<h1>Verify Challenges for {{ display_term_name }}</h1>
 {% endblock intro %}
 
+{% block head %}
+{% include 'footable.html' %}
+{% endblock head %}
+
 {% block content %}
+{% include 'term_selection.html' %}
+
 <form method="post" class="form-narrow">
   {% csrf_token %}
   {{ form.management_form }}
 
   {% if form|length != 0 %}
-  <table class="stylized">
+  <table class="footable stylized bordered">
     <thead>
       <tr>
         <th>Challenge Description</th>
         <th>Candidate</th>
-        <th>Type</th>
+        <th data-hide="phone">Type</th>
         <th>Verified</th>
-        <th>Reason</th>
+        <th data-hide="phone,tablet">Reason (Optional)</th>
       </tr>
     </thead>
     <tbody>
@@ -38,7 +44,7 @@
   </table>
 
   <div>
-    <input type="submit" value="Verify">
+    <input type="submit" value="Save">
   </div>
   {% else %}
   <p>You have no pending challenges.</p>
@@ -46,6 +52,6 @@
 </form>
 
 <p>
-  <a href="{% url 'candidates:list' %}?term={{ candidate.term.get_url_name }}"><strong>{{ term.verbose_name }} Candidates</strong></a>
+  <a href="{% url 'candidates:list' %}?term={{ display_term.get_url_name }}"><strong>{{ display_term_name }} Candidates</strong></a>
 </p>
 {% endblock content %}

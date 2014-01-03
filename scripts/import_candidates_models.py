@@ -11,6 +11,7 @@ from quark.candidates.models import ChallengeCandidateRequirement
 from quark.candidates.models import Challenge
 from quark.candidates.models import ChallengeType
 from quark.candidates.models import EventCandidateRequirement
+from quark.candidates.models import ExamFileCandidateRequirement
 from quark.events.models import EventType
 from scripts import get_json_data
 from scripts import NOIRO_MEDIA_LOCATION
@@ -104,3 +105,13 @@ def import_candidate_progresses():
             requirement=EventCandidateRequirement.objects.get(pk=new_pk),
             alternate_credits_needed=fields['new_num_required'],
             comments=fields['comments'])
+
+
+def import_exam_files_requirements():
+    # Only create exam file requirements for non-summer terms between 2009 and
+    # 2013 inclusive (when noiro was being used)
+    terms = Term.objects.get_terms(
+        include_summer=False).filter(year__gte=2009).filter(year__lte=2013)
+    for term in terms:
+        ExamFileCandidateRequirement.objects.get_or_create(
+            credits_needed=2, term=term)

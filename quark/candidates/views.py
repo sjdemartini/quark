@@ -48,7 +48,8 @@ class CandidateContextMixin(ContextMixin):
         event_types = EventType.objects.values_list('name', flat=True)
         for event_type in event_types:
             attended_events[event_type] = []
-        attendances = EventAttendance.objects.filter(
+        attendances = EventAttendance.objects.select_related(
+            'event__event_type').filter(
             user=candidate.user, event__term=candidate.term)
         for attendance in attendances:
             attended_events[
@@ -59,7 +60,8 @@ class CandidateContextMixin(ContextMixin):
         challenge_types = ChallengeType.objects.values_list('name', flat=True)
         for challenge_type in challenge_types:
             requested_challenges[challenge_type] = []
-        challenges = Challenge.objects.filter(candidate=candidate)
+        challenges = Challenge.objects.select_related(
+            'verifying_user__userprofile').filter(candidate=candidate)
         for challenge in challenges:
             requested_challenges[challenge.challenge_type.name].append(
                 challenge)
@@ -90,7 +92,8 @@ class CandidateListView(TermParameterMixin, ListView):
         return super(CandidateListView, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
-        return Candidate.objects.filter(term=self.display_term)
+        return Candidate.objects.select_related(
+            'user__userprofile').filter(term=self.display_term)
 
 
 class CandidatePhotoView(UpdateView):
@@ -152,6 +155,12 @@ class CandidateEditView(FormView, CandidateContextMixin):
 
         return super(CandidateEditView, self).dispatch(*args, **kwargs)
 
+    def get_form_kwargs(self, **kwargs):
+        """Set the term in the form."""
+        kwargs = super(CandidateEditView, self).get_form_kwargs(**kwargs)
+        kwargs['candidate_term'] = self.candidate.term
+        return kwargs
+
     def get_context_data(self, **kwargs):
         kwargs['candidate'] = self.candidate
         context = super(CandidateEditView, self).get_context_data(**kwargs)
@@ -162,8 +171,7 @@ class CandidateEditView(FormView, CandidateContextMixin):
         for req in CandidateRequirement.REQUIREMENT_TYPE_CHOICES:
             req_types[req[0]] = []
 
-        for i in range(self.requirements.count()):
-            req = self.requirements[i]
+        for i, req in enumerate(self.requirements):
             progress = self.progress_list[i]
             form = formset[i]
             completed, credits_needed = req.get_progress(self.candidate)
@@ -191,8 +199,7 @@ class CandidateEditView(FormView, CandidateContextMixin):
         Create a progress if one doesn't exist and credits_needed != 0
         Edit a progress if one exists and credits_needed != 0
         """
-        for i in range(self.requirements.count()):
-            requirement = self.requirements[i]
+        for i, requirement in enumerate(self.requirements):
             current_form = form[i]
             progress = self.progress_list[i]
             manually_recorded_credits = current_form.cleaned_data.get(
@@ -228,41 +235,35 @@ class CandidateEditView(FormView, CandidateContextMixin):
             'candidates:edit', kwargs={'candidate_pk': self.candidate.pk})
 
 
-class ChallengeVerifyView(FormView):
+class ChallengeVerifyView(TermParameterMixin, FormView):
     form_class = ChallengeVerifyFormSet
     template_name = 'candidates/challenges.html'
-    current_term = None
 
     @method_decorator(login_required)
     @method_decorator(permission_required(
         'candidates.change_challenge', raise_exception=True))
     def dispatch(self, *args, **kwargs):
-        self.current_term = Term.objects.get_current_term()
         return super(ChallengeVerifyView, self).dispatch(*args, **kwargs)
 
     def get_form_kwargs(self, **kwargs):
-        """Set the user in the form."""
+        """Set the user and term in the form."""
         kwargs = super(ChallengeVerifyView, self).get_form_kwargs(**kwargs)
+        kwargs['display_term'] = self.display_term
         kwargs['user'] = self.request.user
         return kwargs
 
     def get_form(self, form_class):
         """Initialize each form in the formset with a challenge."""
         formset = super(ChallengeVerifyView, self).get_form(form_class)
-        challenges = Challenge.objects.filter(
-            verifying_user=self.request.user, candidate__term=self.current_term)
-        for i in range(challenges.count()):
-            formset[i].instance = challenges[i]
+        challenges = Challenge.objects.select_related(
+            'candidate__user__userprofile', 'challenge_type').filter(
+            verifying_user=self.request.user, candidate__term=self.display_term)
+        for i, challenge in enumerate(challenges):
+            formset[i].instance = challenge
             formset[i].initial = {
                 'verified': challenges[i].verified,
                 'reason': challenges[i].reason}
         return formset
-
-    def get_context_data(self, **kwargs):
-        context = super(ChallengeVerifyView, self).get_context_data(
-            **kwargs)
-        context['term'] = self.current_term
-        return context
 
     def form_valid(self, form):
         """Check every form individually in the formset."""
@@ -367,16 +368,14 @@ class CandidateRequirementsEditView(FormView):
         for req in CandidateRequirement.REQUIREMENT_TYPE_CHOICES:
             req_types[req[0]] = []
 
-        for i in range(self.event_types.count()):
-            event_type = self.event_types[i]
+        for i, event_type in enumerate(self.event_types):
             req = self.req_lists[CandidateRequirement.EVENT][i]
             form = formset[form_index]
             entry = get_entry(event_type.name, req, form)
             req_types[CandidateRequirement.EVENT].append(entry)
             form_index += 1
 
-        for i in range(self.challenge_types.count()):
-            challenge_type = self.challenge_types[i]
+        for i, challenge_type in enumerate(self.challenge_types):
             req = self.req_lists[CandidateRequirement.CHALLENGE][i]
             form = formset[form_index]
             entry = get_entry(challenge_type.name, req, form)
@@ -415,8 +414,7 @@ class CandidateRequirementsEditView(FormView):
         """
         form_index = 0
 
-        for i in range(self.event_types.count()):
-            event_type = self.event_types[i]
+        for i, event_type in enumerate(self.event_types):
             req = self.req_lists[CandidateRequirement.EVENT][i]
             current_form = form[form_index]
             credits_needed = current_form.cleaned_data.get('credits_needed')
@@ -434,8 +432,7 @@ class CandidateRequirementsEditView(FormView):
                     req.delete()
             form_index += 1
 
-        for i in range(self.challenge_types.count()):
-            challenge_type = self.challenge_types[i]
+        for i, challenge_type in enumerate(self.challenge_types):
             req = self.req_lists[CandidateRequirement.CHALLENGE][i]
             current_form = form[form_index]
             credits_needed = current_form.cleaned_data.get('credits_needed')
@@ -563,8 +560,7 @@ class CandidatePortalView(CreateView, CandidateContextMixin):
         for req in CandidateRequirement.REQUIREMENT_TYPE_CHOICES:
             req_types[req[0]] = []
 
-        for i in range(requirements.count()):
-            req = requirements[i]
+        for req in requirements:
             completed, required = req.get_progress(self.candidate)
             entry = {
                 'completed': completed,

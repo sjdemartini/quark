@@ -43,7 +43,7 @@ No photo uploaded yet.
   <tr>
     <td><strong>Phone</strong></td>
     <td>
-      {{ cand_user_profile.cell_phone }}
+      <a href="tel:{{ cand_user_profile.cell_phone }}">{{ cand_user_profile.cell_phone }}</a>
       ({% if not cand_user_profile.receive_text %}does not receive{% else %}receives{% endif %} texts)
     </td>
   </tr>
