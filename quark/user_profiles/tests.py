@@ -16,9 +16,9 @@ from quark.user_profiles.models import UserProfile
 
 class UserProfilesTest(TestCase):
     def setUp(self):
-        self.model = get_user_model()
+        self.user_model = get_user_model()
 
-        self.user = self.model.objects.create_user(
+        self.user = self.user_model.objects.create_user(
             'test_user', 'it@tbp.berkeley.edu', 'testpw')
         self.first_name = 'Edward'
         self.last_name = 'Williams'
@@ -28,7 +28,7 @@ class UserProfilesTest(TestCase):
 
         # Re-fetch the user from the DB to avoid issues with the current
         # object having a stale reference to their corresponding userprofile
-        self.user = self.model.objects.get(pk=self.user.pk)
+        self.user = self.user_model.objects.get(pk=self.user.pk)
 
         # There should be a one-to-one relation to a UserProfile created on
         # User post-save
@@ -236,7 +236,8 @@ class UserTypeMethodTesting(TestCase):
     #                   methods (e.g., is_officer LDAP group test)
 
     def setUp(self):
-        self.user = get_user_model().objects.create_user(
+        self.user_model = get_user_model()
+        self.user = self.user_model.objects.create_user(
             'test_user', 'it@tbp.berkeley.edu', 'testpw')
         self.user.first_name = 'Edward'
         self.user.last_name = 'Williams'
@@ -262,7 +263,8 @@ class UserTypeMethodTesting(TestCase):
             short_name='advisor',
             long_name='Advisor (test)',
             rank=4,
-            mailing_list='IT')
+            mailing_list='IT',
+            auxiliary=True)
         self.advisor_pos.save()
 
         self.term = Term(term=Term.SPRING, year=2013, current=True)
@@ -319,62 +321,107 @@ class UserTypeMethodTesting(TestCase):
         # from all terms. The order of the list returned is based on term, then
         # officer position rank
         # No officer positions for this user yet:
-        self.assertEqual(self.profile.get_officer_positions(), [])
+        self.assertEqual(list(self.profile.get_officer_positions()), [])
 
         # One Officer position in the current term:
         Officer(user=self.user, position=self.committee, term=self.term,
                 is_chair=True).save()
         self.assertEqual(
-            self.profile.get_officer_positions(),
+            list(self.profile.get_officer_positions()),
             [self.committee])
         self.assertEqual(
-            self.profile.get_officer_positions(term=self.term),
+            list(self.profile.get_officer_positions(term=self.term)),
             [self.committee])
         self.assertEqual(
-            self.profile.get_officer_positions(term=self.term_old),
+            list(self.profile.get_officer_positions(term=self.term_old)),
             [])
 
         # Advisor officer position in an old term:
         Officer(user=self.user, position=self.advisor_pos,
                 term=self.term_old).save()
         self.assertEqual(
-            self.profile.get_officer_positions(),
+            list(self.profile.get_officer_positions()),
             [self.advisor_pos, self.committee])
         self.assertEqual(
-            self.profile.get_officer_positions(term=self.term),
+            list(self.profile.get_officer_positions(term=self.term)),
             [self.committee])
         self.assertEqual(
-            self.profile.get_officer_positions(term=self.term_old),
+            list(self.profile.get_officer_positions(term=self.term_old)),
             [self.advisor_pos])
 
         # Another advisor officer position in the current term
         Officer(user=self.user, position=self.advisor_pos,
                 term=self.term).save()
         self.assertEqual(
-            self.profile.get_officer_positions(),
+            list(self.profile.get_officer_positions()),
             [self.advisor_pos, self.committee, self.advisor_pos])
         self.assertEqual(
-            self.profile.get_officer_positions(term=self.term),
+            list(self.profile.get_officer_positions(term=self.term)),
             [self.committee, self.advisor_pos])
         self.assertEqual(
-            self.profile.get_officer_positions(term=self.term_old),
+            list(self.profile.get_officer_positions(term=self.term_old)),
             [self.advisor_pos])
 
         # Add a house leader officer position in the current term:
         # Ensure ordering is correct:
         Officer(user=self.user, position=self.house_leader,
                 term=self.term).save()
-        self.assertEqual(self.profile.get_officer_positions(),
-                         [self.advisor_pos, self.committee, self.house_leader,
-                          self.advisor_pos])
+        self.assertEqual(
+            list(self.profile.get_officer_positions()),
+            [self.advisor_pos, self.committee, self.house_leader,
+             self.advisor_pos])
         older_term = Term(term=Term.SPRING, year=2008)
         older_term.save()
         # Add a house leader officer position in an even older term:
         Officer(user=self.user, position=self.house_leader,
                 term=older_term).save()
-        self.assertEqual(self.profile.get_officer_positions(),
-                         [self.house_leader, self.advisor_pos, self.committee,
-                          self.house_leader, self.advisor_pos])
+        self.assertEqual(
+            list(self.profile.get_officer_positions()),
+            [self.house_leader, self.advisor_pos, self.committee,
+             self.house_leader, self.advisor_pos])
+
+    def test_get_officer_positions_user_specific(self):
+        """Test that get_officer_positions does not return positions held by
+        other users.
+        """
+        # No officer positions for either user yet:
+        new_user = self.user_model(username='new_officer_test',
+                                   password='password',
+                                   email='shyguy@tbp.berkeley.edu')
+        new_user.save()
+        new_user_profile = new_user.userprofile
+        self.assertEqual(
+            list(self.profile.get_officer_positions()), [])
+        self.assertEqual(
+            list(new_user_profile.get_officer_positions()), [])
+
+        # Make both users different officer positions:
+        Officer(user=self.user, position=self.committee,
+                term=self.term).save()
+        Officer(user=new_user, position=self.advisor_pos,
+                term=self.term_old).save()
+
+        # Check the officer positions for self.user:
+        self.assertEqual(
+            list(self.profile.get_officer_positions()),
+            [self.committee])
+        self.assertEqual(
+            list(self.profile.get_officer_positions(term=self.term)),
+            [self.committee])
+        self.assertEqual(
+            list(self.profile.get_officer_positions(term=self.term_old)),
+            [])
+
+        # Check the officer positions for new_user:
+        self.assertEqual(
+            list(new_user_profile.get_officer_positions()),
+            [self.advisor_pos])
+        self.assertEqual(
+            list(new_user_profile.get_officer_positions(term=self.term)),
+            [])
+        self.assertEqual(
+            list(new_user_profile.get_officer_positions(term=self.term_old)),
+            [self.advisor_pos])
 
     def test_is_officer_position(self):
         # Note that current=False is the default, which checks whether the
@@ -413,9 +460,9 @@ class UserTypeMethodTesting(TestCase):
 
 class FieldsTest(TestCase):
     def setUp(self):
-        self.model = get_user_model()
+        self.user_model = get_user_model()
 
-        self.user1 = self.model.objects.create_user(
+        self.user1 = self.user_model.objects.create_user(
             username='testuser1',
             email='test1@tbp.berkeley.edu',
             password='testpassword')
@@ -423,7 +470,7 @@ class FieldsTest(TestCase):
         self.user1.last_name = 'Bentley'
         self.user1.save()
 
-        self.user2 = self.model.objects.create_user(
+        self.user2 = self.user_model.objects.create_user(
             username='testuser2',
             email='test2@tbp.berkeley.edu',
             password='testpassword')
@@ -433,12 +480,12 @@ class FieldsTest(TestCase):
 
         # Re-fetch the users from the DB to avoid issues with the current
         # objects having stale references to their corresponding userprofiles
-        self.user1 = self.model.objects.get(pk=self.user1.pk)
-        self.user2 = self.model.objects.get(pk=self.user2.pk)
+        self.user1 = self.user_model.objects.get(pk=self.user1.pk)
+        self.user2 = self.user_model.objects.get(pk=self.user2.pk)
 
     def test_common_name_choice_fields(self):
         # Form a queryset of all users created above, in order by last name:
-        user_queryset = self.model.objects.all()
+        user_queryset = self.user_model.objects.all()
 
         name_field = UserCommonNameChoiceField(
             queryset=user_queryset)

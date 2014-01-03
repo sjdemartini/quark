@@ -8,6 +8,7 @@ from localflavor.us.models import USStateField
 
 from quark.base.models import IDCodeMixin
 from quark.base.models import Major
+from quark.base.models import OfficerPosition
 from quark.base.models import Term
 from quark.candidates.models import Candidate
 from quark.qldap import utils as ldap_utils
@@ -174,8 +175,8 @@ class UserProfile(models.Model):
         been an officer. If current=True, then the method returns True iff
         the person is currently an officer.
 
-        If exclude_aux is True, then auxiliary positions (specified below in
-        this method) are not counted as officer positions.
+        If exclude_aux is True, then auxiliary positions (positions with
+        auxiliary=True) are not counted as officer positions.
         """
         if current:
             term = Term.objects.get_current_term()
@@ -189,36 +190,32 @@ class UserProfile(models.Model):
                 return True
             term = None
         officer_positions = self.get_officer_positions(term)
-        if officer_positions:
-            if exclude_aux:
-                excluded_positions = set(['advisor', 'faculty'])
-                for position in officer_positions:
-                    if position.short_name not in excluded_positions:
-                        return True
-            else:
-                return True
-        return False
+        if exclude_aux:
+            officer_positions = officer_positions.exclude(auxiliary=True)
+        return officer_positions.exists()
 
     def get_officer_positions(self, term=None):
-        """Return a list of all officer positions held by this user in the
+        """Return a query set of all officer positions held by this user in the
         specified term, or in all terms if no term specified.
 
         The order of the list is from oldest to newest term, and within a term,
         from highest rank OfficerPosition (smallest number) to lowest rank.
         """
-        # Note that QuerySets are lazy, so there is no database activity until
-        # the list comprehension
-        officers = self.user.officer_set.order_by('term', 'position')
         if term:
-            officers = officers.filter(term=term)
-        return [officer.position for officer in officers]
+            officer_positions = OfficerPosition.objects.filter(
+                officer__user=self.user, officer__term=term)
+        else:
+            officer_positions = OfficerPosition.objects.filter(
+                officer__user=self.user)
+
+        return officer_positions.order_by('officer__term', 'rank')
 
     def is_officer_position(self, position, current=False):
         """Return True if the person has held this position.
 
         If current=False, then the method returns True iff the person has ever
         held the position. If current=True, then the method returns True iff
-        the person currently holds the position.
+        the person holds the position in the current term.
         """
         officers = self.user.officer_set.filter(position__short_name=position)
         if current:
