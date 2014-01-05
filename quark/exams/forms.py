@@ -24,7 +24,7 @@ class ExamForm(ChosenTermMixin, forms.ModelForm):
         queryset=Instructor.objects.all())
 
     course_instance = None  # set by set_course_instance
-    instructors = None  # set by set_course_instance
+    exam_instructors = None  # set by set_course_instance
 
     class Meta(object):
         model = Exam
@@ -56,23 +56,23 @@ class ExamForm(ChosenTermMixin, forms.ModelForm):
             raise forms.ValidationError('Invalid course')
 
         # check instructors to prevent trying to iterate over nothing
-        self.instructors = self.cleaned_data.get('instructors')
-        if not self.instructors:
+        self.exam_instructors = self.cleaned_data.get('instructors')
+        if not self.exam_instructors:
             raise forms.ValidationError('Please fill out all fields.')
 
         course_instance = CourseInstance.objects.annotate(
             count=Count('instructors')).filter(
-            count=len(self.instructors),
+            count=len(self.exam_instructors),
             term=term,
             course=course)
-        for instructor in self.instructors:
+        for instructor in self.exam_instructors:
             course_instance = course_instance.filter(instructors=instructor)
         if course_instance.exists():
             course_instance = course_instance.get()
         else:
             course_instance = CourseInstance.objects.create(
                 term=term, course=course)
-            course_instance.instructors.add(*self.instructors)
+            course_instance.instructors.add(*self.exam_instructors)
             course_instance.save()
         self.course_instance = course_instance
 
@@ -123,7 +123,7 @@ class UploadForm(ExamForm):
 
     def save(self, *args, **kwargs):
         """Check if professors are blacklisted."""
-        for instructor in self.instructors:
+        for instructor in self.exam_instructors:
             permission, _ = InstructorPermission.objects.get_or_create(
                 instructor=instructor)
             if permission.permission_allowed is False:
