@@ -10,27 +10,43 @@ $(function() {
     e.preventDefault();
     var self = $(this);
     var url = self.attr('action');
+    // Clear the form of any existing errors (useful on re-submitting the form,
+    // so that prior errors are cleared):
     clear_form_field_errors(self);
-    ajax_req = $.ajax({
+    req = $.ajax({
       url: url,
-      type: 'POST',
-      data: self.serialize(),
-      success: function(data, textStatus, jqXHR) {
-        // Refresh the page for success
-        window.location.href = '{{ request.path }}';
-      },
-      error: function(data, textStatus, jqXHR) {
-        var errors = $.parseJSON(data.responseText);
-        var isFocused = false;
-        $.each(errors, function(index, value) {
-          if (index === '__all__') {
-            add_error_message(value[0], self);
-          } else {
-            apply_form_field_error(index, value, !isFocused);
-            isFocused = true;
-          }
-        });
-      }
+      type: self.attr('method'),
+      data: self.serialize()
+    });
+    req.done(function(data, textStatus, jqXHR) {
+      // Refresh the page for success
+      window.location.href = '{{ request.path }}';
+    });
+    req.fail(function(data, textStatus, jqXHR) {
+      // The form errors will be in the "data" key of the response
+      var errors = $.parseJSON(data.responseText).data;
+      show_form_errors(errors);
+    });
+  });
+  $('#unsignup-form').submit(function(e) {
+    e.preventDefault();
+    var self = $(this);
+    // Clear the signup form (since it is used for unsignup) of any existing
+    // errors
+    clear_form_field_errors('#signup-form');
+    req = $.ajax({
+      url: self.attr('action'),
+      type: self.attr('method'),
+      data: $('#id_email').serialize()
+    });
+    req.done(function(data, textStatus, jqXHR) {
+      // Refresh the page for success
+      window.location.href = '{{ request.path }}';
+    });
+    req.fail(function(data, textStatus, jqXHR) {
+      // The form errors will be in the "data" key of the response
+      var errors = $.parseJSON(data.responseText).data;
+      show_form_errors(errors);
     });
   });
 });

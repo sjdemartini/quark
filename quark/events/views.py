@@ -12,6 +12,7 @@ from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.views.decorators.http import require_POST
 from django.views.generic import CreateView
 from django.views.generic import DetailView
 from django.views.generic import FormView
@@ -27,8 +28,9 @@ from quark.events.forms import EventSignUpForm
 from quark.events.models import Event
 from quark.events.models import EventAttendance
 from quark.events.models import EventSignUp
-from quark.shortcuts import AjaxResponseMixin
 from quark.shortcuts import get_object_or_none
+from quark.utils.ajax import AjaxFormResponseMixin
+from quark.utils.ajax import json_response
 
 
 class EventListView(TermParameterMixin, ListView):
@@ -168,8 +170,13 @@ class EventDetailView(DetailView):
                 try:
                     signup = EventSignUp.objects.get(
                         event=self.object, user=self.request.user)
-                    context['form'] = EventSignUpForm(
-                        instance=signup, **extra_kwargs)
+                    if signup.unsignup:
+                        # If the user has unsigned up, provide a new signup
+                        # form
+                        context['form'] = EventSignUpForm(**extra_kwargs)
+                    else:
+                        context['form'] = EventSignUpForm(
+                            instance=signup, **extra_kwargs)
                 except EventSignUp.DoesNotExist:
                     context['form'] = EventSignUpForm(
                         initial={'name': self.request.user.get_full_name()},
@@ -201,7 +208,7 @@ class EventDetailView(DetailView):
         return context
 
 
-class EventSignUpView(AjaxResponseMixin, FormView):
+class EventSignUpView(AjaxFormResponseMixin, FormView):
     """Handles the form action for signing up for events."""
     # TODO(sjdemartini): Handle various scenarios for failed signups. For
     # instance, no more spots left, not allowed to bring x number of guests,
@@ -210,9 +217,9 @@ class EventSignUpView(AjaxResponseMixin, FormView):
 
     def dispatch(self, *args, **kwargs):
         self.event = get_object_or_404(Event, pk=self.kwargs['event_pk'])
-        # A user cannot sign up unless they have permission to view the event
+        # A user cannot sign up unless they have permission to do so
         if not self.event.can_user_sign_up(self.request.user):
-            raise PermissionDenied
+            return json_response(status=403)
         return super(EventSignUpView, self).dispatch(*args, **kwargs)
 
     def get_form_class(self):
@@ -267,6 +274,49 @@ class EventSignUpView(AjaxResponseMixin, FormView):
 
     def get_success_url(self):
         return self.event.get_absolute_url()
+
+
+@require_POST
+def event_unsignup(request, event_pk):
+    """Handles the action of un-signing up for events."""
+    try:
+        event = Event.objects.get(pk=event_pk)
+    except:
+        return json_response(status=400)
+    success_msg = 'Unsignup successful.'
+    if request.user.is_authenticated():
+        try:
+            # Try to get a signup object for this user
+            signup = EventSignUp.objects.get(event=event, user=request.user)
+            signup.user = request.user
+
+            # Set the signup as "unsigned up"
+            signup.unsignup = True
+            signup.save()
+
+            messages.success(request, success_msg)
+        except EventSignUp.DoesNotExist:
+            # If a signup could not be found, ignore this, since the user
+            # is not signed up for the event
+            pass
+    else:
+        email = request.POST.get('email')
+        if email:
+            try:
+                signup = EventSignUp.objects.get(event=event, email=email)
+                signup.unsignup = True
+                signup.save()
+                messages.success(request, success_msg)
+            except:
+                errors = {'email': ('The email address you entered was not '
+                                    'used to sign up.')}
+                return json_response(status=400, data=errors)
+        else:
+            errors = {
+                'email': 'Please enter the email address you used to sign up.'
+            }
+            return json_response(status=400, data=errors)
+    return json_response()
 
 
 class IndividualAttendanceListView(TermParameterMixin, TemplateView):

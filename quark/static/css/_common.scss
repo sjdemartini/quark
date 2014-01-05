@@ -197,14 +197,21 @@ div {
     }
   }
 
-  input[type=submit] {
+  input[type=submit],
+  .form-input-message {
     margin-left: $form-label-width + $form-sep;
-    background-color: #fff;
-    @extend .btn;
     @include respond-to(small-med) {
-      width: auto;
       margin-left: 0;
     }
+  }
+
+  input[type=submit] {
+    background-color: #fff;
+    @extend .btn;
+  }
+  .form-input-message {
+    margin-top: 0.3em;
+    margin-bottom: 0.3em;
   }
 }
 
@@ -229,7 +236,9 @@ div {
       content: '';
     }
   }
-  input[type="submit"] {
+
+  input[type="submit"],
+  .form-input-message {
     margin-left: 0;
   }
 }

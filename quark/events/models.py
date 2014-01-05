@@ -316,7 +316,8 @@ class EventSignUp(models.Model):
     # The person's email address:
     email = models.EmailField(
         blank=True, verbose_name='email address',
-        help_text='Your email address will act as your password to unsign up.')
+        help_text='Your email address will be used to later update your signup '
+                  'or to unsign up.')
 
     timestamp = models.DateTimeField(auto_now=True)
 

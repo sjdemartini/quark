@@ -14,18 +14,18 @@ form. It works for both standard signups and anonymous (not-logged-in) signups.
   {% csrf_token %}
   {% include 'form.html' %}
   <div>
-    <input type="submit" value="{% if user_signed_up %}Update {% endif %}Sign Up" />
+    <input type="submit" value="{% if user_signed_up %}Update {% endif %}Sign Up">
   </div>
 </form>
 
-{% comment %}
-TODO(sjdemartini): Include this code once the unsignup endpoint is created.
-
-{% if user_signed_up %}
-<div>or</div>
-<form action="{% url 'events:unsignup' event.pk %}" method="post">
+{% if user_signed_up or not user.is_authenticated %}
+<form action="{% url 'events:unsignup' event.pk %}" method="post" id="unsignup-form">
   {% csrf_token %}
-  <div><input type="submit" value="Unsign Up" /></div>
+  <div class="form-input-message">
+    or{% if not user.is_authenticated %} enter your email address and{% endif %}
+  </div>
+  <div>
+    <input type="submit" value="Unsign Up">
+  </div>
 </form>
 {% endif %}
-{% endcomment %}
