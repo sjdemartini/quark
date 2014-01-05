@@ -19,6 +19,7 @@ from scripts.import_events_models import import_event_sign_ups
 from scripts.import_events_models import import_event_types
 from scripts.import_exams_models import import_exams
 from scripts.import_exams_models import import_exam_flags
+from scripts.import_minutes_models import import_minutes
 from scripts.import_project_reports_models import import_project_reports
 from scripts.import_resumes_models import import_resumes
 from scripts.import_user_models import delete_user_profiles
@@ -69,6 +70,7 @@ from scripts.import_user_models import import_users
 # candidate_portal.challenge.json
 # candidate_portal.eventrequirement.json
 # candidate_portal.eventrequirementexception.json
+# minutes.minutes.json
 
 print('Backing up all current data to scripts/data/backup.json')
 backup = open('scripts/data/backup.json', 'w')
@@ -136,5 +138,8 @@ print('Importing candidate requirement progresses.')
 import_candidate_progresses()
 print('Importing candidate exam requirements.')
 import_exam_files_requirements()
+
+print('Importing minutes.')
+import_minutes()
 
 print('All models successfully imported.')

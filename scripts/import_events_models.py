@@ -11,7 +11,6 @@ from quark.events.models import EventAttendance
 from quark.events.models import EventSignUp
 from quark.events.models import EventType
 from quark.project_reports.models import ProjectReport
-
 from scripts import get_json_data
 from scripts.import_base_models import SEMESTER_TO_TERM
 

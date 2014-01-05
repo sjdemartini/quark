@@ -3,7 +3,6 @@ from quark.courses.models import Course
 from quark.courses.models import CourseInstance
 from quark.courses.models import Department
 from quark.courses.models import Instructor
-
 from scripts import get_json_data
 from scripts.import_base_models import SEMESTER_TO_TERM
 

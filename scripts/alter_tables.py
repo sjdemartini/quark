@@ -7,7 +7,8 @@ TABLES = [
     'events_event',
     'events_eventsignup',
     'resumes_resume',
-    'exams_examflag']
+    'exams_examflag',
+    'minutes_minutes']
 
 
 def alter_tables():
