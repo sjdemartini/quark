@@ -82,10 +82,7 @@ class EventForm(ChosenTermMixin, forms.ModelForm):
             event.save(update_fields=['project_report'])
         elif event.project_report is not None:
             # Event does not need project report, so delete PR after removing
-            # the foreign key from the event. The FKey must be removed first
-            # and change must be saved to the database, otherwise a cascading
-            # delete will remove the event and anything that depends on it when
-            # the PR is deleted.
+            # the foreign key from the event.
             project_report = event.project_report
             event.project_report = None
             event.save(update_fields=['project_report'])

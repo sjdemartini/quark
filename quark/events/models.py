@@ -132,7 +132,8 @@ class Event(models.Model):
         choices=((0, 0), (1, 1), (2, 2), (3, 3)))
 
     project_report = models.ForeignKey(ProjectReport, null=True, blank=True,
-                                       related_name='event', default=None)
+                                       related_name='event', default=None,
+                                       on_delete=models.SET_NULL)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
