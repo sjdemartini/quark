@@ -583,7 +583,7 @@ blockquote {
       @include border-radius(5px);
       margin: 4px;
       margin-right: 5%;
-      z-index: 100;
+      z-index: 80;
       cursor: pointer;
       &:hover {
         background: #222;
@@ -623,7 +623,7 @@ blockquote {
       display: block;
       top: 100%;
       left: 0;
-      z-index: 100;
+      z-index: 80;
       @include border-bottom-radius(3px);
       padding: 0;
       margin-top: 11px;
