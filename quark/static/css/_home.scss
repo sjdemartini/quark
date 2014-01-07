@@ -39,11 +39,13 @@
   h3 {
     color: #fff;
     font-weight: 300;
+    font-size: 1.15em;
   }
   @include respond-to(medium) {
     background-color: rgba(0, 0, 0, 0.7);
-    margin-left: 3%;
-    margin-right: 3%;
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+    top: 0.5em;
   }
   @include respond-to(small) {
     background-color: rgba(0, 0, 0, 0.9);

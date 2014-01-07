@@ -10,14 +10,18 @@ $(function() {
  * as showing or hiding the nav elements).
  */
 function setupNav() {
-  var nav = $('#nav');
-  var mediumWidth = 820;
-
-  // wasNarrow refers to whether the window width (viewport) was narrow in the
-  // previous call to the navResize function. Note that this is necessary as an
-  // indicator for whether the window width just changed to become narrow (as
-  // opposed to a window resive event in which the width remains narrow).
-  var wasNarrow = $(window).width < mediumWidth;
+  /**
+   * Return true if the viewport is within the medium viewport.
+   */
+  function isNarrow() {
+    // Detect whether the browser is "narrow" (not wide viewport) by seeing if
+    // the nav menubar is visible. If so, then the viewport is narrow (since the
+    // menubar is only shown for narrow viewports).
+    // Note that this method ensure consistency with the CSS media-queries,
+    // rather than calculating viewport width using JS, which may be
+    // inconsistent.
+    return $('#nav-menubar').is(":visible");
+  }
 
   /**
    * Toggle the height of an element.
@@ -25,14 +29,23 @@ function setupNav() {
    * selector - the identifier of the element for which we toggle the height
    * time - how long to take (default: 300ms)
    */
-  var heightToggle = function(selector, time) {
+  function heightToggle(selector, time) {
     if (typeof(time) === 'undefined') {
       time = 300;
     }
     $(selector).stop(true, true).slideToggle(time);
   }
 
-  // Controls toggle of main nav bar
+  var nav = $('#nav');  // The nav bar
+
+  // wasNarrow refers to whether the window width (viewport) was narrow in the
+  // previous call to the navResize function. Note that this is necessary as an
+  // indicator for whether the window width just changed to become narrow (as
+  // opposed to a window resive event in which the width remains narrow).
+  var wasNarrow = isNarrow();
+
+  // The "menubar" toggles visibility of the main navigation options when the
+  // viewport is narrow
   $('#nav-menubar').click(function(event) {
     heightToggle(nav);
   });
@@ -72,8 +85,8 @@ function setupNav() {
   });
 
   // Function to ensure proper display when resizing of page occurs
-  var navResize = function() {
-    if ($(window).width() > mediumWidth) {
+  function navResize() {
+    if (!isNarrow()) {
       // Wide viewport
       if (wasNarrow) {
         // First, hide all submenu elements, since they were taken out of the
@@ -83,10 +96,10 @@ function setupNav() {
         // Make sure nav bar is shown, first hiding and then showing, to ensure
         // that the view is force-refreshed after submenu elements are hidden
         nav.hide();
-        heightToggle(nav, 0);
+        nav.show();
 
         // Now open all subnavs so that they can be drop downs
-        heightToggle(navSubMenus, 0);
+        navSubMenus.show();
       }
       wasNarrow = false;
     } else if (!wasNarrow) {
@@ -102,16 +115,18 @@ function setupNav() {
       });
       wasNarrow = true;
     }
-  };
-
-  // Initialize the nav by calling navResize:
-  navResize();
+  }
 
   // Set a window resize event to ensure that elements display correctly when
   // the browser window is resized
+  var resizeId;
   $(window).resize(function() {
-    navResize();
+    clearTimeout(resizeId);  // Stop any navResize call currently running
+    resizeId = setTimeout(navResize, 0);
   });
+
+  // Initialize the nav by calling navResize:
+  navResize();
 }
 
 
