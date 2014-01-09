@@ -1,16 +1,22 @@
-{# This template is included in review.html to display a table for exams. #}
+{% comment %}
+This template is included in review.html to display a table for exams.
+
+Any template that includes this must include footable.html to activate the
+footable.
+{% endcomment %}
+
 <table class="footable bordered stylized">
   <thead>
     <tr>
-      <th>Course</th>
+      <th data-sort-initial="true">Course</th>
       <th data-hide="phone,tablet">Instructors</th>
-      <th>Exam</th>
-      <th data-hide="phone,tablet">Type</th>
-      <th data-hide="phone,tablet">Term</th>
-      <th data-hide="phone,tablet">Year</th>
-      <th>Verified</th>
-      <th data-hide="phone,tablet">Flags</th>
-      <th data-hide="phone">Actions</th>
+      <th data-hide="phone">Exam</th>
+      <th data-hide="phone">Type</th>
+      <th>Term</th>
+      <th>Year</th>
+      <th data-hide="phone">Verified</th>
+      <th data-hide="phone">Flags</th>
+      <th data-hide="phone,tablet" data-sort-ignore="true">Actions</th>
     </tr>
   </thead>
   <tbody>

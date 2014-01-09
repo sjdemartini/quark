@@ -109,8 +109,8 @@ def import_exams():
             course_instance.save()
 
         # Check for unknown exam numbers
-        exam_number = fields['examNumber']
-        if exam_number.lower() == 'unknown':
+        exam_number = fields['examNumber'].lower()
+        if exam_number == 'unknown' or exam_number == 'mt':
             exam_number = Exam.UNKNOWN
 
         # Check manually whether an exam already exists rather than use
