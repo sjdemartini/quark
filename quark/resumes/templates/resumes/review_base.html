@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block head %}
+{% include 'footable.html' with include_sort=True %}
+{% endblock head %}
+
+{% block intro %}
+<h1>Resume Review</h1>
+
+<div class="btn-group">
+  {% if all %}
+  <div class="btn btn-sm selected">All</div>
+  {% else %}
+  <a href="{% url 'resumes:list' %}" class="btn btn-sm">All</a>
+  {% endif %}
+
+  {% if verify %}
+  <div class="btn btn-sm selected">Awaiting Verification</div>
+  {% else %}
+  <a href="{% url 'resumes:verify' %}" class="btn btn-sm">Awaiting Verification</a>
+  {% endif %}
+
+  {% if critique %}
+  <div class="btn btn-sm selected">Awaiting Critique</div>
+  {% else %}
+  <a href="{% url 'resumes:critique' %}" class="btn btn-sm">Awaiting Critique</a>
+  {% endif %}
+</div>
+{% endblock intro %}

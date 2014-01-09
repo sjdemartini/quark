@@ -1,4 +1,5 @@
 from django import forms
+from django.forms import formsets
 
 from quark.resumes.models import Resume
 from quark.shortcuts import get_file_mimetype
@@ -23,3 +24,55 @@ class ResumeForm(forms.ModelForm):
         if get_file_mimetype(resume_file) != 'application/pdf':
             raise forms.ValidationError('Uploaded file must be a PDF file.')
         return resume_file
+
+
+class ResumeListForm(forms.ModelForm):
+    class Meta(object):
+        model = Resume
+        fields = ('verified',)
+
+
+class BaseResumeListForm(formsets.BaseFormSet):
+    def total_form_count(self):
+        return Resume.objects.all().count()
+
+
+class ResumeVerifyForm(forms.ModelForm):
+    class Meta(object):
+        model = Resume
+        fields = ('verified',)
+
+
+class BaseResumeVerifyForm(formsets.BaseFormSet):
+    def total_form_count(self):
+        return Resume.objects.filter(verified__isnull=True).count()
+
+
+class ResumeCritiqueForm(forms.ModelForm):
+    class Meta(object):
+        model = Resume
+        fields = ('critique',)
+
+    def clean(self):
+        cleaned_data = super(ResumeCritiqueForm, self).clean()
+        # save the inverse of the value indicated under the
+        # "critique completed" column to resume.critique.
+        cleaned_data['critique'] = not cleaned_data['critique']
+        return cleaned_data
+
+
+class BaseResumeCritiqueForm(formsets.BaseFormSet):
+    def total_form_count(self):
+        return Resume.objects.filter(critique=True).count()
+
+# pylint: disable=C0103
+ResumeListFormSet = formsets.formset_factory(
+    ResumeListForm, formset=BaseResumeListForm)
+
+# pylint: disable=C0103
+ResumeVerifyFormSet = formsets.formset_factory(
+    ResumeVerifyForm, formset=BaseResumeVerifyForm)
+
+# pylint: disable=C0103
+ResumeCritiqueFormSet = formsets.formset_factory(
+    ResumeCritiqueForm, formset=BaseResumeCritiqueForm)

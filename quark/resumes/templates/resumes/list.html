@@ -1,0 +1,14 @@
+{% extends 'resumes/review_base.html' %}
+
+{% block title %}All Resumes{% endblock title %}
+
+{% block content %}
+<h2>All Resumes</h2>
+{% if form|length != 0 %}
+<p>Marking a resume as verified means it is appropriate for viewing by companies. After making changes, scroll to the bottom and click save.</p>
+{% include 'resumes/resumes_table.html' %}
+{% else %}
+<p>There are no resumes to be displayed.</p>
+{% endif %}
+
+{% endblock content %}

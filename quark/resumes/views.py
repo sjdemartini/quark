@@ -1,5 +1,7 @@
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import permission_required
 from django.core.servers.basehttp import FileWrapper
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
@@ -10,9 +12,122 @@ from django.views.generic import DetailView
 from django.views.generic.edit import FormView
 
 from quark.resumes.forms import ResumeForm
+from quark.resumes.forms import ResumeListFormSet
+from quark.resumes.forms import ResumeCritiqueFormSet
+from quark.resumes.forms import ResumeVerifyFormSet
 from quark.resumes.models import Resume
 from quark.shortcuts import get_object_or_none
 from quark.user_profiles.models import CollegeStudentInfo
+
+
+class ResumeVerifyView(FormView):
+    form_class = ResumeVerifyFormSet
+    template_name = 'resumes/verify.html'
+
+    @method_decorator(login_required)
+    @method_decorator(
+        permission_required('resumes.change_resumes', raise_exception=True))
+    def dispatch(self, *args, **kwargs):
+        return super(ResumeVerifyView, self).dispatch(*args, **kwargs)
+
+    def get_form(self, form_class):
+        formset = super(ResumeVerifyView, self).get_form(form_class)
+        resumes = Resume.objects.filter(verified__isnull=True).select_related(
+            'user__userprofile', 'user__collegestudentinfo',
+            'user__collegestudentinfo__grad_term').prefetch_related(
+            'user__collegestudentinfo__major')
+        for i, resume in enumerate(resumes):
+            formset[i].instance = resume
+            formset[i].initial = {'verified': resume.verified}
+        return formset
+
+    def form_valid(self, form):
+        for resume_form in form:
+            resume_form.save()
+        messages.success(self.request, 'Changes saved!')
+        return super(ResumeVerifyView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('resumes:verify')
+
+    def get_context_data(self, **kwargs):
+        context = super(ResumeVerifyView, self).get_context_data(**kwargs)
+        context['verify'] = True
+        return context
+
+
+class ResumeCritiqueView(FormView):
+    form_class = ResumeCritiqueFormSet
+    template_name = 'resumes/critique.html'
+
+    @method_decorator(login_required)
+    @method_decorator(
+        permission_required('resumes.change_resumes', raise_exception=True))
+    def dispatch(self, *args, **kwargs):
+        return super(ResumeCritiqueView, self).dispatch(*args, **kwargs)
+
+    def get_form(self, form_class):
+        formset = super(ResumeCritiqueView, self).get_form(form_class)
+        resumes = Resume.objects.filter(critique=True).select_related(
+            'user__userprofile', 'user__collegestudentinfo',
+            'user__collegestudentinfo__grad_term').prefetch_related(
+            'user__collegestudentinfo__major')
+        for i, resume in enumerate(resumes):
+            formset[i].instance = resume
+            # display the inverse of the value stored in resume.critique
+            # for the "critique completed" column.
+            formset[i].initial = {'critique': not resume.critique}
+        return formset
+
+    def form_valid(self, form):
+        for resume_form in form:
+            resume_form.save()
+        messages.success(self.request, 'Changes saved!')
+        return super(ResumeCritiqueView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('resumes:critique')
+
+    def get_context_data(self, **kwargs):
+        context = super(ResumeCritiqueView, self).get_context_data(**kwargs)
+        context['critique'] = True
+        return context
+
+
+class ResumeListView(FormView):
+    form_class = ResumeListFormSet
+    template_name = 'resumes/list.html'
+
+    @method_decorator(login_required)
+    @method_decorator(
+        permission_required('resumes.change_resumes', raise_exception=True))
+    def dispatch(self, *args, **kwargs):
+        return super(ResumeListView, self).dispatch(*args, **kwargs)
+
+    def get_form(self, form_class):
+        formset = super(ResumeListView, self).get_form(form_class)
+        resumes = Resume.objects.select_related(
+            'user__userprofile', 'user__collegestudentinfo',
+            'user__collegestudentinfo__grad_term').prefetch_related(
+            'user__collegestudentinfo__major')
+        for i, resume in enumerate(resumes):
+            formset[i].instance = resume
+            formset[i].initial = {'verified': resume.verified}
+        return formset
+
+    def form_valid(self, form):
+        for resume_form in form:
+            resume_form.save()
+        messages.success(self.request, 'Changes saved!')
+        return super(ResumeListView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('resumes:list')
+
+    def get_context_data(self, **kwargs):
+        context = super(ResumeListView, self).get_context_data(**kwargs)
+        context['all'] = True
+        return context
 
 
 class ResumeEditView(FormView):
@@ -62,9 +177,20 @@ class ResumeEditView(FormView):
 class ResumeDownloadView(DetailView):
     """View for downloading resumes."""
     model = Resume
+    user = None
+
+    # TODO(jerrycheng): implement correct permissions for downloading resumes
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        if 'user_pk' in self.kwargs:
+            self.user = get_object_or_404(
+                get_user_model(), pk=self.kwargs['user_pk'])
+        else:
+            self.user = self.request.user
+        return super(ResumeDownloadView, self).dispatch(*args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        resume = get_object_or_404(Resume, user=self.request.user)
+        resume = get_object_or_404(Resume, user=self.user)
         response = HttpResponse(
             FileWrapper(resume.resume_file),
             content_type='application/pdf')

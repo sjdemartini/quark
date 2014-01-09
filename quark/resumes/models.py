@@ -32,6 +32,8 @@ class Resume(models.Model):
     # Each resume must be manually verified by an officer to determine
     # whether it is suitable to show to companies. For candidates, resumes
     # must also be verified to fulfill the resume candidate requirement.
+    # This field is set to null if no one has examined this resume yet, false
+    # if it has been deemed inappropriate, and true if it has been verified.
     verified = models.NullBooleanField()
     critique = models.BooleanField(
         default=True, verbose_name='Critique requested',

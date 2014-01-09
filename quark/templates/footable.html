@@ -20,6 +20,9 @@ further documentation on footable usage.
 {% if include_filter %}
 <script src="{% static 'footable/js/footable.filter.js' %}" type="text/javascript"></script>
 {% endif %}
+{% if include_pagination %}
+<script src="{% static 'footable/js/footable.paginate.js' %}" type="text/javascript"></script>
+{% endif %}
 <script type="text/javascript">
 $(function() {
   var table = $('.footable');
@@ -35,6 +38,7 @@ $(function() {
       phone: 480,
       tablet: 820
     },
+
     calculateWidthAndHeightOverride: function(table, info) {
       info.width = info.viewportWidth;
       info.height = info.viewportHeight;

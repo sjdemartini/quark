@@ -1,0 +1,101 @@
+{% comment %}
+This template is used by verify.html and critique.html for resume review.
+
+Any template that includes this must include footable.html to activate the
+footable.
+{% endcomment %}
+
+<form method="post" class="form-narrow">
+  {% csrf_token %}
+  {{ form.management_form }}
+
+  <table class="footable bordered stylized">
+    <thead>
+      <tr>
+        {% if critique %}
+        <th data-sort-ignore="true">Critique Completed</th>
+        {% endif %}
+        {% if verify %}
+        <th data-sort-ignore="true">Verified</th>
+        {% endif %}
+        {% if all %}
+        <th data-hide="phone" data-sort-ignore="true">Verified</th>
+        {% endif %}
+        <th>First Name</th>
+        <th>Last Name</th>
+        {% if critique %}
+        <th data-hide="phone,tablet">Email Address</th>
+        {% endif %}
+        <th data-hide="phone,tablet">Graduation Term</th>
+        <th data-hide="phone">Major</th>
+        {% if all %}
+        <th data-sort-ignore="true" data-type="numeric">Resume</th>
+        {% else %}
+        <th data-hide="phone" data-sort-ignore="true" data-type="numeric">Resume</th>
+        {% endif %}
+        <th data-hide="phone,tablet" data-type="numeric">Date Updated</th>
+        {% if not all %}
+        <th data-hide="phone,tablet" data-type="numeric">Is Candidate?</th>
+        {% endif %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for resume_form in form %}
+      {% with resume=resume_form.instance %}
+      {% with student_info=resume.user.userprofile.get_college_student_info %}
+      <tr>
+        {% if critique %}
+        <td>{{ resume_form.critique }}</td>
+        {% endif %}
+        {% if verify or all %}
+        <td>{{ resume_form.verified }}</td>
+        {% endif %}
+        <td>{{ resume.user.first_name }}</td>
+        <td>{{ resume.user.last_name }}</td>
+        {% if critique %}
+        <td>
+          <a href="mailto:{{ resume.user.userprofile.get_preferred_email }}">
+            {{ resume.user.userprofile.get_preferred_email }}
+          </a>
+        </td>
+        {% endif %}
+        <td data-value="{{ student_info.grad_term.pk }}">
+         {{ student_info.grad_term }}
+        </td>
+        <td>
+          <ul>
+            {% for major in student_info.major.all %}
+            <li>{{ major }}</li>
+            {% endfor %}
+          </ul>
+        </td>
+        <td>
+          <a href="{% url 'resumes:download-user' resume.user.pk %}">
+            <i class="icon-download-alt" title="Download"></i>
+          </a>
+        </td>
+        <td data-value="{{ resume.updated|date:'U' }}">
+          {{ resume.updated | date:'Y-m-d' }}
+        </td>
+        {% if not all %}
+        {% with is_candidate=resume.user.userprofile.is_candidate %}
+        <td data-value="{{ is_candidate|yesno:'1,0' }}">
+        {% if is_candidate %}
+          <i class="icon-ok" title="Yes"></i>
+        {% else %}
+          <i class="icon-ban-circle" title="No"></i>
+        {% endif %}
+        </td>
+        {% endwith %}
+        {% endif %}
+      </tr>
+      {% endwith student_info %}
+      {% endwith resume %}
+      {% endfor %}
+  </tbody>
+</table>
+
+  <div>
+    <input type="submit" value="Save">
+  </div>
+</form>

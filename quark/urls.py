@@ -57,7 +57,7 @@ urlpatterns = patterns(
     url(r'^quote-board/', include('quark.quote_board.urls',
                                   app_name='quote_board',
                                   namespace='quote-board')),
-    url(r'^resume/', include('quark.resumes.urls',
+    url(r'^resumes/', include('quark.resumes.urls',
                              app_name='resumes',
                              namespace='resumes')),
     url(r'^vote/', include('quark.vote.urls',

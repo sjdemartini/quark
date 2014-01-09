@@ -1,0 +1,7 @@
+FORCE_SCRIPT_NAME = '/dev8222'
+STATIC_URL = '/dev8222/static/'
+MEDIA_URL = '/dev8222/media/'
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
+USE_LDAP = True
