@@ -11,20 +11,13 @@
 {% endblock head %}
 
 {% block content %}
-<div>
-  There {{ unverified_exam_count|pluralize:'is,are' }} <strong>{{ unverified_exam_count }}</strong> exam{{ unverified_exam_count|pluralize }} awaiting verification.
-</div>
-<div>
-  There {{ flagged_exam_count|pluralize:'is,are' }} <strong>{{ flagged_exam_count }}</strong> flagged exam{{ flagged_exam_count|pluralize }} needing attention.
-</div>
-<div>
-  There {{ blacklisted_exams|pluralize:'is,are' }} <strong>{{ blacklisted_exams|length }}</strong> blacklisted exam{{ blacklisted_exams|pluralize }}.
-</div>
+<h3>Number of Unverified Exams: {{ unverified_exam_count }}</h3>
+<h3>Number of Blacklisted Exams: {{ blacklisted_exams|length }}</h3>
 
 <div>
   <h2>Non-Blacklisted Exams</h2>
   {% if exams %}
-  {% include 'exams/exam_table.html' with exams=exams %}
+  {% include 'exams/exam_table.html' with exams=exams show_course=True %}
   {% else %}
   <p>There are currently no non-blacklisted exams that need to be reviewed.</p>
   {% endif %}
@@ -33,17 +26,9 @@
 <div>
   <h2>Blacklisted Exams</h2>
   {% if blacklisted_exams %}
-  {% include 'exams/exam_table.html' with exams=blacklisted_exams %}
+  {% include 'exams/exam_table.html' with exams=blacklisted_exams show_course=True %}
   {% else %}
   <p>There are currently no blacklisted exams.</p>
   {% endif %}
-</div>
-
-<div>
-  <p>Can't get enough reviewing? <a href="{% url 'exams:upload' %}"><strong>Upload an exam</strong></a>!</p>
-</div>
-
-<div>
-  <p><a href="{% url 'exams:permissions' %}"><strong>Instructor Permissions</strong></a></p>
 </div>
 {% endblock content %}

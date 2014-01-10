@@ -7,10 +7,17 @@
 {% endblock intro %}
 
 {% block content %}
-{% include 'exams/header.html' %}
+{% include 'exams/exam_display.html' %}
 
-<h3>There {{ flags|pluralize:'is,are' }} {{ flags|length }} flag{{ flags|pluralize }} for this exam.</h3>
+<p>
+  <a href="{% url 'exams:download' exam.pk %}" class="btn">
+    <i class="icon-download-alt"></i> Download</a>
+  <a href="{% url 'exams:delete' exam.pk %}" class="btn">
+    <i class="icon-trash"></i> Delete</a>
+</p>
+
 {% if flags %}
+<h3>Flags for this Exam: {{ flags|length }}</h3>
 <ul>
   {% for flag in flags %}
   <li>
@@ -29,33 +36,31 @@
 </ul>
 {% endif %}
 
-<h3>There {{ permissions|pluralize:'is,are' }} {{ permissions|length }} permission{{ permissions|pluralize }} for this exam.</h3>
+{% if permissions %}
+<h3>Permissions for this Exam</h3>
 <ul>
   {% for permission in permissions %}
   <li>
-    <a href="{% url 'exams:permissions' %}#{{ permission.instructor.pk }}"><strong>{{ permission.instructor }}</strong></a> - Permission allowed: {{ permission.get_permission_allowed_display }}
+    <a href="{% url 'courses:edit-instructor' permission.instructor.pk %}"><strong>{{ permission.instructor.full_name }}</strong></a> - Permission allowed: {{ permission.permission_allowed }}
   </li>
   {% endfor %}
 </ul>
+{% endif %}
 
+<h3>Edit Details</h3>
 <form method="post">
   {% csrf_token %}
   {% include 'form.html' %}
-  <div>
-    <a href="{% url 'exams:download' exam_pk=exam.pk %}"><strong>Download Exam</strong></a>
-  </div>
   <div>
     <input type="submit" value="Update">
   </div>
 </form>
 
-<form action="{% url 'exams:delete' exam_pk=exam.pk %}">
-  <input type="submit" value="Delete">
-</form>
-
-<iframe id="exam-preview" style="width: 100%; height: 500px;" src="{% url 'exams:download' exam_pk=exam.pk %}">
+{% comment %}
+TODO(ericdwang): address automatic exam download issue with iframe on mobile
+devices
+{% endcomment %}
+<iframe id="exam-preview" src="{% url 'exams:download' exam.pk %}" class="exam-preview">
   <div>Your browser does not support iframes.</div>
 </iframe>
-
-{% include 'exams/footer.html' %}
 {% endblock content %}

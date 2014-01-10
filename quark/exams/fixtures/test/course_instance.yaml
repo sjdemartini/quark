@@ -47,3 +47,18 @@
     instructors: [30]
   model: courses.CourseInstance
   pk: 30000
+- fields:
+    instructor: 10
+    permission_allowed: True
+  model: exams.InstructorPermission
+  pk: 100000
+- fields:
+    instructor: 20
+    permission_allowed: True
+  model: exams.InstructorPermission
+  pk: 200000
+- fields:
+    instructor: 30
+    permission_allowed: True
+  model: exams.InstructorPermission
+  pk: 300000

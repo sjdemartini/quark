@@ -1,13 +1,15 @@
 {% extends 'base.html' %}
 
+{% block title %}Edit Instructor{% endblock title %}
+
 {% block intro %}
 <h1>
-  {% block title %}Upload Exam{% endblock title %}
+  Edit <a href="{{ instructor.get_absolute_url }}">{{ instructor.full_name }}</a>
 </h1>
 {% endblock intro %}
 
 {% block content %}
-<form method="post" enctype="multipart/form-data">
+<form action="{{ request.path }}" method="post">
   {% csrf_token %}
   {% include 'form.html' %}
   <div>

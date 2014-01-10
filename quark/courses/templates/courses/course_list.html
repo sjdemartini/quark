@@ -1,16 +1,18 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ department.long_name }}{% endblock title %}
-
 {% block intro %}
-<h1>{{ department.long_name }}</h1>
-{% endblock %}
+<h1>
+  {% block title %}{{ department.long_name }} Courses{% endblock title %}
+</h1>
+{% endblock intro %}
 
 {% block content %}
+{% include 'courses/course_header.html' %}
+
 <h2>Courses</h2>
 <ul>
-  {% for course in course_list %}
-  <li><a href="{% url 'courses:detail' department.slug course.number %}">{{ course.abbreviation }}</a></li>
+  {% for course in courses %}
+  <li><a href="{{ course.get_absolute_url }}">{{ course.abbreviation }}</a></li>
   {% endfor %}
 </ul>
-{% endblock %}
+{% endblock content %}

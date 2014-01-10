@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block intro %}
+<h1>
+  {% block title %}Delete Instructor{% endblock title %}
+</h1>
+{% endblock intro %}
+
+{% block content %}
+<p>Are you SURE you want to delete <a href="{{ instructor.get_absolute_url }}">{{ instructor.full_name }}</a>? THIS ACTION IS NOT REVERSIBLE.</p>
+
+<form method="post" class="form-narrow">
+  {% csrf_token %}
+  {% include 'form.html' %}
+  <div>
+    <input type="submit" value="Delete">
+  </div>
+</form>
+
+<p>
+  <a href="{% url 'courses:edit-instructor' instructor.pk %}"><strong>Edit instructor instead</strong></a>
+</p>
+
+{% endblock content %}

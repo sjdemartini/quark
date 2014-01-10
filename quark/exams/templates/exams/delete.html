@@ -4,13 +4,13 @@
 <h1>
   {% block title %}Delete Exam{% endblock title %}
 </h1>
-{% endblock %}
+{% endblock intro %}
 
 {% block content %}
-{% include 'exams/header.html' %}
+{% include 'exams/exam_display.html' %}
 <p>Are you SURE you want to delete this exam? THIS ACTION IS NOT REVERSIBLE.</p>
 
-<form method="post">
+<form method="post" class="form-narrow">
   {% csrf_token %}
   {% include 'form.html' %}
   <div>
@@ -18,9 +18,7 @@
   </div>
 </form>
 
-<div>
-  <a href="{% url 'exams:edit' exam_pk=exam.pk %}"><strong>Edit exam instead</strong></a>
-</div>
-
-{% include 'exams/footer.html' %}
+<p>
+  <a href="{{ exam.get_absolute_url }}"><strong>Edit exam instead</strong></a>
+</p>
 {% endblock content %}

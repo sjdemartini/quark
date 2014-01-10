@@ -1,0 +1,15 @@
+{% comment %}
+This template is included in various course templates to display buttons for
+uploading exams and exam review.
+{% endcomment %}
+
+<p>
+{% if perms.exam.add_exam %}
+  <a href="{% url 'exams:upload' %}" class="btn">
+    <i class="icon-upload-alt"></i> Upload Exam</a>
+{% endif %}
+{% if perms.exam.change_exam %}
+  <a href="{% url 'exams:review' %}" class="btn">
+    <i class="icon-table"></i> Exam Review</a>
+{% endif %}
+</p>

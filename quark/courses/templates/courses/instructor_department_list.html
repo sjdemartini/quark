@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block intro %}
+<h1>
+  {% block title %}Instructors{% endblock title %}
+</h1>
+{% endblock intro %}
+
+{% block content %}
+{% include 'courses/instructor_header.html' %}
+
+<h2>Search for an Instructor</h2>
+<form action method="get">
+  <div>
+    {# TODO(ericdwang): Add search functionality #}
+    <input type="text" id="search-first-name" name="search-first-name" value="First name">
+    <input type="text" id="search-last-name" name="search-last-name" value="Last name">
+  </div>
+</form>
+
+<h2>Browse by Department</h2>
+<ul>
+  {% for department in departments %}
+  <li><a href="{% url 'courses:instructor-list' department.slug %}">{{ department.long_name }}</a></li>
+  {% endfor %}
+</ul>
+{% endblock %}

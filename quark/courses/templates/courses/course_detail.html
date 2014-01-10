@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% load static template_utils %}
+
+{% block title %}{{ course.get_display_name }}{% endblock title %}
+
+{% block intro %}
+<h1>
+  <a href="{{ course.department.get_absolute_url }}">{{ course.department.long_name }}</a> {{ course.number }}
+</h1>
+{% if course.title %}<div>{{ course.title }}</div>{% endif %}
+{% if course.description %}<div>{{ course.description }}</div>{% endif %}
+{% endblock intro %}
+
+{% block head %}
+{% include 'footable.html' %}
+<script src="{% static 'footable/js/footable.sort.js' %}" type="text/javascript"></script>
+{% endblock head %}
+
+{% block content %}
+{% include 'courses/course_header.html' %}
+
+<h2>Exams</h2>
+{% if exams %}
+{% include 'exams/exam_table.html' with exams=exams show_course=False %}
+{% else %}
+There are currently no exams for this course.
+{% endif %}
+
+{% comment %}
+# TODO(ericdwang): re-add course ratings
+<h2>Average Course Rating: {{ total_course_ratings_avg }}</h2>
+{% for inst in instructors %}
+<div class="avg-rating">
+  <h3><a href="{{ inst.get_absolute_url }}">{{ inst.full_name }}</a></h3>
+  <div class="rating-number"><strong>Teaching Effectivenss</strong> {{ prof_ratings_avg|get_item:inst.pk }}</div>
+  <div class="rating-number"><strong>Course Quality</strong> {{ course_ratings_avg|get_item:inst.pk }}</div>
+</div>
+{% endfor %}
+{% endcomment %}
+
+<h2>Course Surveys</h2>
+{% for survey in surveys %}
+<div class="survey">
+  <h3>{{ survey.term.verbose_name }}
+    <a href="{{ survey.instructor.get_absolute_url }}">{{ survey.instructor.full_name }}</a>
+  </h3>
+  {% if survey.prof_rating %}
+  <div class="rating-number"><strong>Instructor Rating</strong> {{ survey.prof_rating }}</div>
+  {% endif %}
+  {% if survey.course_rating %}
+  <div class="rating-number"><strong>Course Rating</strong> {{ survey.course_rating }}</div>
+  {% endif %}
+  {% if survey.time_commitment %}
+  <div class="rating-number"><strong>Workload</strong> {{ survey.time_commitment }}</div>
+  {% endif %}
+  {% if survey.exam_difficulty %}
+  <div class="rating-number"><strong>Exam Difficulty</strong> {{ survey.exam_difficulty }}</div>
+  {% endif %}
+  {% if survey.hw_difficulty %}
+  <div class="rating-number"><strong>Assignment Difficulty</strong> {{ survey.hw_difficulty }}</div>
+  {% endif %}
+  {% if survey.comments %}
+  <p class="rating-comment"><strong>Comments</strong> {{ survey.comments }}</p>
+  {% endif %}
+</div>
+{% empty %}
+There are currently no surveys for this course.
+{% endfor %}
+{% endblock content %}

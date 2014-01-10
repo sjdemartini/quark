@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block intro %}
+<h1>
+  {% block title %}{{ department.long_name }} Instructors{% endblock title %}
+</h1>
+{% endblock intro %}
+
+{% block content %}
+{% include 'courses/instructor_header.html' %}
+
+<ul>
+  {% for instructor in instructors %}
+  <li>
+    <a href="{{ instructor.get_absolute_url }}">{{ instructor.last_name_first }}</a>
+    {% if perms.courses.change_instructor %}
+    &ndash; <a href="{% url 'courses:edit-instructor' instructor.pk %}" title="Edit">
+      <i class="icon-edit"></i> Edit</a>
+    {% endif %}
+    {% if perms.courses.delete_instructor %}
+    | <a href="{% url 'courses:delete-instructor' instructor.pk %}" title="Delete">
+      <i class="icon-trash"></i> Delete</a>
+    {% endif %}
+  </li>
+  {% endfor %}
+</ul>
+{% endblock content %}

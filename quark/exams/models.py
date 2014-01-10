@@ -2,6 +2,7 @@ import os
 import uuid
 
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models.signals import pre_delete
 from django.db.models.signals import post_save
@@ -84,12 +85,8 @@ class Exam(models.Model):
     objects = ExamManager()
 
     @property
-    def department(self):
-        return self.course_instance.course.department
-
-    @property
-    def number(self):
-        return self.course_instance.course.number
+    def course(self):
+        return self.course_instance.course
 
     @property
     def term(self):
@@ -100,21 +97,12 @@ class Exam(models.Model):
         """Return a QuerySet of all instructors associated with the exam."""
         return self.course_instance.instructors.all()
 
-    @property
-    def permissions(self):
-        """Return a QuerySet of all instructor permissions associated
-        with the exam.
-        """
-        return InstructorPermission.objects.filter(
-            instructor__in=self.instructors)
-
     def has_permission(self):
         """Return whether this exam has permission from all instructors
         associated with it.
         """
-        instructors = self.course_instance.instructors.all()
-        return not InstructorPermission.objects.filter(
-            instructor__in=instructors, permission_allowed=False).exists()
+        return not self.course_instance.instructors.filter(
+            instructorpermission__permission_allowed=False).exists()
 
     def get_folder(self):
         """Return the path of the folder where the exam file is."""
@@ -126,6 +114,9 @@ class Exam(models.Model):
         return os.path.join(settings.MEDIA_ROOT, Exam.EXAM_FILES_LOCATION,
                             str(self.unique_id)[0:2],
                             self.unique_id + self.file_ext)
+
+    def get_absolute_url(self):
+        return reverse('exams:edit', args=(self.pk,))
 
     def save(self, *args, **kwargs):
         """Assign a unique for a newly created exam."""
@@ -145,14 +136,16 @@ class Exam(models.Model):
 
     def __unicode__(self):
         """Return a human-readable representation of the exam file."""
-        return ('{term} {number} {type} for {course}, taught by '
-                '{instructors}').format(
+        exam_unicode = '{term} {number} {type} for {course}'.format(
             term=self.course_instance.term.verbose_name(),
             number=self.get_exam_number_display(),
             type=self.get_exam_type_display(),
-            course=self.course_instance.course,
-            instructors=', '.join(
-                [i.last_name for i in self.instructors]))
+            course=self.course_instance.course)
+        if self.instructors:
+            instructors = ', '.join([i.last_name for i in self.instructors])
+            return '{}, taught by {}'.format(exam_unicode, instructors)
+        else:
+            return '{} (Instructors Unknown)'.format(exam_unicode)
 
 
 class ExamFlag(models.Model):
@@ -171,36 +164,22 @@ class ExamFlag(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
-        return unicode(self.exam) + ' Flag'
+        return '{} Flag'.format(unicode(self.exam))
 
 
 class InstructorPermission(models.Model):
-    # Permission Allowed constants
-    PERMISSION_ALLOWED_CHOICES = (
-        (None, 'Unknown'),
-        (True, 'Allow'),
-        (False, 'Deny'),
-    )
-
     instructor = models.OneToOneField(Instructor)
-    permission_allowed = models.NullBooleanField(
-        choices=PERMISSION_ALLOWED_CHOICES)
-    correspondence = models.TextField(blank=True)
-
-    def __unicode__(self):
-        return unicode(self.instructor) + ' Permission'
+    permission_allowed = models.BooleanField(
+        help_text='Has this instructor given permission to post exams?')
+    correspondence = models.TextField(
+        blank=True,
+        help_text='Reason for why permission was or was not given.')
 
     class Meta(object):
         ordering = ('instructor',)
 
-
-@disable_for_loaddata
-def create_new_permissions(sender, instance, **kwargs):
-    """Check if new InstructorPermissions need to be created after an exam
-    is saved.
-    """
-    for instructor in instance.course_instance.instructors.all():
-        InstructorPermission.objects.get_or_create(instructor=instructor)
+    def __unicode__(self):
+        return '{} Permission'.format(unicode(self.instructor))
 
 
 def delete_file(sender, instance, **kwargs):
@@ -238,7 +217,6 @@ def update_exam_blacklist(sender, instance, **kwargs):
                 exam.save()
 
 
-post_save.connect(create_new_permissions, sender=Exam)
 pre_delete.connect(delete_file, sender=Exam)
 post_save.connect(update_exam_flags, sender=ExamFlag)
 post_save.connect(update_exam_blacklist, sender=InstructorPermission)

@@ -2,19 +2,31 @@
 
 {% load template_utils %}
 
+{% block title %}{{ instructor.full_name }}{% endblock title %}
+
 {% block intro %}
 <h1>
-  {% block title %}{{ instructor.full_name }}{% endblock title %}
+  {{ instructor.full_name }}
+  (<a href="{% url 'courses:instructor-list' instructor.department.slug %}">{{ instructor.department }}</a>)
 </h1>
 {% endblock intro %}
 
 {% block content %}
+{% if perms.courses.change_instructor %}
+<a href="{% url 'courses:edit-instructor' instructor.pk %}" class="btn">
+  <i class="icon-edit"></i> Edit</a>
+{% endif %}
+{% if perms.courses.delete_instructor %}
+<a href="{% url 'courses:delete-instructor' instructor.pk %}" class="btn">
+  <i class="icon-trash"></i> Delete</a>
+{% endif %}
+
 <h2>Average Rating: {{ total_prof_ratings_avg }}</h2>
 <h2>Average Ratings For Individual Courses</h2>
 {% for course in courses %}
 {% with name=course.abbreviation %}
 <div class="avg-rating">
-  <h3><a href="{% url 'courses:detail' dept_slug=course.department.slug course_num=course.number  %}">{{ name }}</a></h3>
+  <h3><a href="{{ course.get_absolute_url }}">{{ name }}</a></h3>
   <div class="rating-number"><strong>Teaching Effectiveness</strong> {{ prof_ratings_avg|get_item:name }}</div>
   <div class="rating-number"><strong>Course Quality</strong> {{ course_ratings_avg|get_item:name }}</div>
 </div>
@@ -25,7 +37,8 @@
 {% for survey in surveys %}
   <div class="survey">
     <h3>{{ survey.term.verbose_name }}
-    <a href="{% url 'courses:detail' dept_slug=survey.course.department.slug course_num=survey.course.number  %}">{{ survey.course.abbreviation }}</a></h3>
+      <a href="{{ survey.course.get_absolute_url }}">{{ survey.course.abbreviation }}</a>
+    </h3>
     {% if survey.prof_rating %}
     <div class="rating-number"><strong>Instructor Rating</strong> {{ survey.prof_rating }}</div>
     {% endif %}
@@ -46,6 +59,6 @@
     {% endif %}
   </div>
 {% empty %}
-There are currently no surveys for this course.
+There are currently no surveys for this instructor.
 {% endfor %}
-{% endblock %}
+{% endblock content %}

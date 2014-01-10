@@ -1,0 +1,11 @@
+{% comment %}
+This template is included in various instructor templates to display a button
+for adding instructors.
+{% endcomment %}
+
+{% if perms.courses.add_instructor %}
+<p>
+  <a href="{% url 'courses:add-instructor' %}" class="btn">
+    <i class="icon-plus"></i> Instructor</a>
+</p>
+{% endif %}

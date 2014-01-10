@@ -261,7 +261,7 @@ class DepartmentListViewTest(CoursesTestCase):
 
     def test_dept_filter(self):
         resp = self.client.get('/courses/')
-        self.assertEqual(resp.context['department_list'].count(), 2)
+        self.assertEqual(resp.context['departments'].count(), 2)
         self.exam_ee_1.verified = False
         self.exam_ee_1.save()
         self.survey_cs_1.published = False
@@ -270,7 +270,7 @@ class DepartmentListViewTest(CoursesTestCase):
         self.survey_cs_1_b.save()
         resp = self.client.get('/courses/')
         # Filters out departments that don't have exams/surveys
-        self.assertEqual(resp.context['department_list'].count(), 0)
+        self.assertEqual(resp.context['departments'].count(), 0)
 
 
 class CourseListViewTest(CoursesTestCase):
@@ -282,9 +282,9 @@ class CourseListViewTest(CoursesTestCase):
 
     def test_course_filter(self):
         resp = self.client.get('/courses/cs/')
-        self.assertEqual(resp.context['course_list'].count(), 1)
+        self.assertEqual(len(resp.context['courses']), 1)
         resp = self.client.get('/courses/ee/')
-        self.assertEqual(resp.context['course_list'].count(), 1)
+        self.assertEqual(len(resp.context['courses']), 1)
         self.survey_cs_1.published = False
         self.survey_cs_1.save()
         self.survey_cs_1_b.published = False
@@ -311,21 +311,21 @@ class CourseDetailViewTest(CoursesTestCase):
         resp = self.client.get('/courses/cs/1/')
         self.assertEqual(resp.context['course'].pk,
                          self.course_cs_1.pk)
-        self.assertEqual(resp.context['course_instances'].count(), 1)
         self.assertEqual(resp.context['exams'].count(), 0)
         self.assertEqual(resp.context['surveys'].count(), 2)
-        self.assertEqual(resp.context['instructors'].count(), 1)
+        # self.assertEqual(resp.context['instructors'].count(), 1)
 
-    def test_course_aggregates(self):
-        resp = self.client.get('/courses/cs/1/')
-        self.assertEqual(resp.context['total_course_ratings_avg'], 5)
-        # Value for this dictionary is (avg_prof_rating, avg_course_rating)
-        self.assertEqual(
-            resp.context['prof_ratings_avg'][
-                self.instructor_cs.pk], 2.5)
-        self.assertEqual(
-            resp.context['course_ratings_avg'][
-                self.instructor_cs.pk], 5)
+    # TODO(ericdwang): re-add course aggregate tests
+    # def test_course_aggregates(self):
+    #     resp = self.client.get('/courses/cs/1/')
+    #     self.assertEqual(resp.context['total_course_ratings_avg'], 5)
+    #     # Value for this dictionary is (avg_prof_rating, avg_course_rating)
+    #     self.assertEqual(
+    #         resp.context['prof_ratings_avg'][
+    #             self.instructor_cs.pk], 2.5)
+    #     self.assertEqual(
+    #         resp.context['course_ratings_avg'][
+    #             self.instructor_cs.pk], 5)
 
 
 class InstructorDetailViewTest(CoursesTestCase):
@@ -340,8 +340,6 @@ class InstructorDetailViewTest(CoursesTestCase):
         resp = self.client.get(
             '/courses/instructors/%d/' % (self.instructor_cs.pk))
         self.assertEqual(resp.context['instructor'].pk, self.instructor_cs.pk)
-        self.assertEqual(resp.context['course_instances'].count(), 1)
-        self.assertEqual(resp.context['exams'].count(), 0)
         self.assertEqual(resp.context['surveys'].count(), 2)
         self.assertEqual(resp.context['total_prof_ratings_avg'], 2.5)
         # Value for this dictionary is (avg_prof_rating, avg_course_rating)

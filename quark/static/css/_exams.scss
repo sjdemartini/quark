@@ -1,0 +1,13 @@
+/* _exams.scss */
+@import "base";
+
+// Exam iframe preview
+.exam-preview {
+  @include respond-to(medium) {
+    display: none;
+  }
+
+  width: 100%;
+  height: 500px;
+  margin-top: 30px;
+}

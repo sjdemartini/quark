@@ -124,9 +124,9 @@ class UploadForm(ExamForm):
     def save(self, *args, **kwargs):
         """Check if professors are blacklisted."""
         for instructor in self.exam_instructors:
-            permission, _ = InstructorPermission.objects.get_or_create(
-                instructor=instructor)
-            if permission.permission_allowed is False:
+            permission = get_object_or_none(
+                InstructorPermission, instructor=instructor)
+            if permission and permission.permission_allowed is False:
                 self.instance.blacklisted = True
         return super(UploadForm, self).save(*args, **kwargs)
 
@@ -174,24 +174,3 @@ class FlagResolveForm(forms.ModelForm):
     class Meta(object):
         model = ExamFlag
         fields = ('resolution',)
-
-
-class EditPermissionForm(forms.ModelForm):
-    permission_allowed = forms.NullBooleanField()
-
-    class Meta(object):
-        model = InstructorPermission
-        fields = ('permission_allowed', 'correspondence')
-
-
-class BaseEditPermissionFormset(forms.formsets.BaseFormSet):
-    def total_form_count(self):
-        """Sets the number of forms equal to the number of instructor
-        permissions.
-        """
-        return InstructorPermission.objects.all().count()
-
-
-# pylint: disable=C0103
-EditPermissionFormSet = forms.formsets.formset_factory(
-    EditPermissionForm, formset=BaseEditPermissionFormset)

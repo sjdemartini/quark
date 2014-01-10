@@ -1,13 +1,18 @@
 {% extends 'base.html' %}
 
 {% block intro %}
-<h1>Courses</h1>
-{% endblock %}
+<h1>
+  {% block title %}Courses{% endblock title %}
+</h1>
+{% endblock intro %}
 
 {% block content %}
+{% include 'courses/course_header.html' %}
+
 <h2>Search for a Course</h2>
 <form action method="get">
   <div>
+    {# TODO(ericdwang): Add search functionality #}
     <input type="text" id="search-dept" name="search-dept" value="Department">
     <input type="text" id="search-course" name="search-course" value="Course">
   </div>
@@ -15,8 +20,8 @@
 
 <h2>Browse by Department</h2>
 <ul>
-  {% for department in department_list %}
-  <li><a href="{% url 'courses:department-courses' department.slug %}">{{ department.long_name }}</a></li>
+  {% for department in departments %}
+  <li><a href="{{ department.get_absolute_url }}">{{ department.long_name }}</a></li>
   {% endfor %}
 </ul>
-{% endblock %}
+{% endblock content %}

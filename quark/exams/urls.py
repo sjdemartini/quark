@@ -8,7 +8,7 @@ from quark.exams.views import ExamFlagCreateView
 from quark.exams.views import ExamFlagResolveView
 from quark.exams.views import ExamReviewListView
 from quark.exams.views import ExamUploadView
-from quark.exams.views import PermissionListView
+
 
 urlpatterns = patterns(
     '',
@@ -21,5 +21,4 @@ urlpatterns = patterns(
     url(r'^(?P<exam_pk>\d+)/flag/$', ExamFlagCreateView.as_view(), name='flag'),
     url(r'^(?P<exam_pk>\d+)/flag/(?P<flag_pk>\d+)/$',
         ExamFlagResolveView.as_view(), name='flag-resolve'),
-    url(r'^permissions/$', PermissionListView.as_view(), name='permissions')
 )

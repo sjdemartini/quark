@@ -2,12 +2,12 @@
 
 {% block intro %}
 <h1>
-  {% block title %}Upload Exam{% endblock title %}
+  {% block title %}Add Instructor{% endblock title %}
 </h1>
 {% endblock intro %}
 
 {% block content %}
-<form method="post" enctype="multipart/form-data">
+<form action="{{ request.path }}" method="post">
   {% csrf_token %}
   {% include 'form.html' %}
   <div>

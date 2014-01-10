@@ -1,0 +1,11 @@
+<h2>
+  {{ exam.term.verbose_name }}
+  {{ exam.get_exam_number_display }}
+  {{ exam.get_exam_type_display }} for
+  <a href="{{ exam.course.get_absolute_url }}">{{ exam.course }}</a>{% if exam.instructors %}, taught by{% endif %}
+  {% for instructor in exam.instructors %}
+  <a href="{{ instructor.get_absolute_url }}">{{ instructor.last_name }}</a>{% if not forloop.last %}, {% endif %}
+  {% empty %}
+  (Instructors Unknown)
+  {% endfor %}
+</h2>

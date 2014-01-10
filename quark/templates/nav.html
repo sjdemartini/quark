@@ -35,7 +35,11 @@
       <li>
         <a href="{# TODO #}">Student Resources</a>
         <ul>
-          <li><a href="{% url 'courses:list-departments' %}">Exams And Course Surveys</a></li>
+          <li><a href="{% url 'courses:course-department-list' %}">Exams And Course Surveys</a></li>
+          <li><a href="{% url 'courses:instructor-department-list' %}">Instructor Ratings</a></li>
+          {% if perms.exams.change_exam %}
+          <li><a href="{% url 'exams:review' %}">Exam Review</a></li>
+          {% endif %}
           <li><a href="{# TODO #}">Helpdesk</a></li>
         </ul>
       </li>
@@ -43,7 +47,9 @@
         <a href="{# TODO #}">Industrial Relations</a>
         <ul>
           <li><a href="{# TODO #}">Company Sponsors</a></li>
+          {% if perms.exams.change_resume %}
           <li><a href="{# TODO #}">Resume Admin</a></li>
+          {% endif %}
           <li><a href="{# TODO #}">Helpdesk</a></li>
         </ul>
       </li>

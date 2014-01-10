@@ -7,7 +7,7 @@
 {% endblock intro %}
 
 {% block content %}
-{% include 'exams/header.html' %}
+{% include 'exams/exam_display.html' %}
 <div>Is there a problem with this exam? Let us know how we can fix it!</div>
 
 <form method="post">
@@ -20,9 +20,8 @@
 
 {% if perms.exams.change_exam %}
 <div>
-  <a href="{% url 'exams:edit' exam_pk=exam.pk %}"><strong>Edit exam</strong></a>
+  <a href="{{ exam.get_absolute_url }}"><strong>Edit exam</strong></a>
 </div>
-{% include 'exams/footer.html' %}
 {% endif %}
 
 {% endblock content %}

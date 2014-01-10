@@ -32,7 +32,7 @@ class ExamFlagAdmin(admin.ModelAdmin):
 
 class InstructorPermissionAdmin(admin.ModelAdmin):
     list_display = ('instructor', 'permission_allowed')
-    list_filter = ('instructor__department', 'permission_allowed')
+    list_filter = ('permission_allowed', 'instructor__department')
     search_fields = ('instructor__first_name', 'instructor__last_name')
 
 

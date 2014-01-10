@@ -1,6 +1,7 @@
 # pylint: disable=W0402
 import string
 
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.template.defaultfilters import slugify
 
@@ -23,16 +24,19 @@ class Department(models.Model):
         max_length=25,
         editable=False)
 
+    class Meta(object):
+        ordering = ('long_name',)
+
     def __unicode__(self):
         return self.long_name
+
+    def get_absolute_url(self):
+        return reverse('courses:course-list', args=(self.slug,))
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.short_name)
         self.abbreviation = self.abbreviation.upper().strip()
         super(Department, self).save(*args, **kwargs)
-
-    class Meta(object):
-        ordering = ('long_name',)
 
 
 class Course(models.Model):
@@ -40,6 +44,9 @@ class Course(models.Model):
     number = models.CharField(max_length=10, db_index=True)
     title = models.CharField(max_length=100, blank=True)
     description = models.TextField(blank=True)
+
+    class Meta(object):
+        unique_together = ('department', 'number')
 
     def __lt__(self, other):
         if not isinstance(other, Course):
@@ -117,12 +124,13 @@ class Course(models.Model):
         """
         return '{}{}'.format(self.department.slug, self.number)
 
+    def get_absolute_url(self):
+        return reverse('courses:course-detail', args=(
+            self.department.slug, self.number))
+
     def save(self, *args, **kwargs):
         self.number = self.number.upper().strip()
         super(Course, self).save(*args, **kwargs)
-
-    class Meta(object):
-        unique_together = ('department', 'number')
 
 
 class Instructor(models.Model):
@@ -132,16 +140,28 @@ class Instructor(models.Model):
     department = models.ForeignKey(Department)
     website = models.URLField(blank=True)
 
+    class Meta(object):
+        ordering = ('last_name', 'first_name', 'middle_initial')
+        unique_together = (
+            'first_name', 'middle_initial', 'last_name', 'department')
+
     def __unicode__(self):
         return self.full_name()
 
     def full_name(self):
         return '{} {}'.format(self.first_name, self.last_name)
 
-    class Meta(object):
-        ordering = ('last_name', 'first_name', 'middle_initial')
-        unique_together = (
-            'first_name', 'middle_initial', 'last_name', 'department')
+    def last_name_first(self):
+        """Return the instructor's name as "last_name, first_name" if
+        first_name is not None, and "last_name" otherwise.
+        """
+        if self.first_name:
+            return '{}, {}'.format(self.last_name, self.first_name)
+        else:
+            return self.last_name
+
+    def get_absolute_url(self):
+        return reverse('courses:instructor-detail', args=(self.pk,))
 
 
 class CourseInstance(models.Model):
