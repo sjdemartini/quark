@@ -42,7 +42,8 @@ function setupNav() {
   // previous call to the navResize function. Note that this is necessary as an
   // indicator for whether the window width just changed to become narrow (as
   // opposed to a window resive event in which the width remains narrow).
-  var wasNarrow = isNarrow();
+  // Initialize as false, since haven't called navResize before:
+  var wasNarrow = false;
 
   // The "menubar" toggles visibility of the main navigation options when the
   // viewport is narrow
@@ -62,9 +63,10 @@ function setupNav() {
     // Add to the parent of the submenu the submenu toggle button:
     subMenu.parent().prepend(subMenuButton);
 
-    // Add fields to the actual HTML element for the subMenuButton:
+    // Get the actual HTML element for the subMenuButton:
     var subMenuButtonElem = subMenuButton.get(0);
 
+    // Add fields for the HTML element:
     // "closedSubMenu" indicates whether the user collapsed the submenu. This
     // saves state if the user goes between wide and narrow viewports.
     // Initialize all submenus as collapsed.
@@ -96,10 +98,10 @@ function setupNav() {
         // Make sure nav bar is shown, first hiding and then showing, to ensure
         // that the view is force-refreshed after submenu elements are hidden
         nav.hide();
-        nav.show();
+        heightToggle(nav, 0);
 
         // Now open all subnavs so that they can be drop downs
-        navSubMenus.show();
+        heightToggle(navSubMenus, 0);
       }
       wasNarrow = false;
     } else if (!wasNarrow) {
