@@ -1,16 +1,52 @@
-{% load menu_tags %}
-      <div id="navigation-container">
-        <div id="nav-menubar">
-          <a id="nav-menubar-open">
-            Menu
-            <i class="icon-reorder nav-menubar-icon"></i>
-          </a>
-        </div>
+{% load ancestor %}
+{% url 'events:list' as events %}
+<div id="navigation-container">
+  {# The nav-menubar is used on mobile to expand the nav options #}
+  <div id="nav-menubar">
+    <a id="nav-menubar-open">
+      Menu
+      <i class="icon-reorder nav-menubar-icon"></i>
+    </a>
+  </div>
 
-        <div id="nav">
-          <ul>
-            {% show_menu 0 1 100 100 %}
-          </ul>
-        </div>
-        {% show_sub_menu 1 1 100 'sub_menu.html' %}
-      </div>
+  <div id="nav">
+    <ul>
+      <li>
+        <a href="{# TODO #}">About</a></li>
+        <ul>
+          <li><a href="{# TODO #}">Contact Us</a></li>
+          <li><a href="{# TODO #}">Eligibility</a></li>
+          <li><a href="{% url 'project-reports:list' %}">Project Reports</a></li>
+        </ul>
+      </li>
+      <li>
+        <a href="{# TODO #}">People</a>
+        <ul>
+          <li><a href="{# TODO #}">Officers</a></li>
+        </ul>
+      </li>
+      <li class="{% ancestor events %}">
+      <a href="{{ events }}">Events</a>
+        <ul>
+          <li><a href="{% url 'events:calendar' %}">Events Calendar</a></li>
+          <li><a href="{# TODO #}">Ad-Hoc Events</a></li>
+        </ul>
+      </li>
+      <li>
+        <a href="{# TODO #}">Student Resources</a>
+        <ul>
+          <li><a href="{% url 'courses:list-departments' %}">Exams And Course Surveys</a></li>
+          <li><a href="{# TODO #}">Helpdesk</a></li>
+        </ul>
+      </li>
+      <li>
+        <a href="{# TODO #}">Industrial Relations</a>
+        <ul>
+          <li><a href="{# TODO #}">Company Sponsors</a></li>
+          <li><a href="{# TODO #}">Resume Admin</a></li>
+          <li><a href="{# TODO #}">Helpdesk</a></li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+</div>

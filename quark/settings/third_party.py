@@ -4,25 +4,6 @@ import os
 from quark.settings.base import WORKSPACE_ROOT
 
 
-# django-cms settings
-# Adds 2 new date-time fields in the advanced-settings tab of the page.
-# Allows for limiting the time a page is published.
-CMS_SHOW_START_DATE = True
-CMS_SHOW_END_DATE = True
-
-# Enable CMS permissions to be given on a per page basis
-CMS_PERMISSION = True
-
-# URL base for CMS's media files
-CMS_MEDIA_URL = '/cms/'
-
-# List of templates you can select for a page
-CMS_TEMPLATES = (
-    ('base.html', 'Base'),
-    ('base_cms.html', 'CMS Content'),
-)
-
-
 # Jenkins integration.
 JENKINS_TASKS = (
     'django_jenkins.tasks.django_tests',
@@ -35,5 +16,3 @@ JENKINS_TASKS = (
     'django_jenkins.tasks.with_coverage',
 )
 PYLINT_RCFILE = os.path.join(WORKSPACE_ROOT, '.pylintrc')
-
-

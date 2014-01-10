@@ -699,17 +699,12 @@ blockquote {
     transition: all 125ms;
   }
   @include respond-to(large-only) {
-    .selected > a,
-    .ancestor > a {
+    .selected > a {
       color: #000;
       text-decoration: none;
       background-color: rgba(255, 255, 255, 0.2);
       // white transparent overlay
       font-weight: 600;
-    }
-    .selected > ul,
-    .ancestor > ul {
-      display: none !important;
     }
   }
 }
@@ -740,8 +735,7 @@ blockquote {
     }
   }
   @include respond-to(large-only) {
-    .selected > a,
-    .ancestor > a {
+    .selected > a {
        background-color: #fff;
        color: #000;
        text-decoration: none;

@@ -142,7 +142,6 @@ TEMPLATE_LOADERS = (
     'django.template.loaders.app_directories.Loader',
 )
 
-# Some context processors are added for CMS
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.auth.context_processors.auth',
     'django.contrib.messages.context_processors.messages',
@@ -150,16 +149,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.request',
     'django.core.context_processors.media',
     'django.core.context_processors.static',
-    'cms.context_processors.media',
-    'sekizai.context_processors.sekizai',
-)
-
-# This is for the django filer plugin
-THUMBNAIL_PROCESSORS = (
-    'easy_thumbnails.processors.colorspace',
-    'easy_thumbnails.processors.autocrop',
-    'filer.thumbnail_processors.scale_and_crop_with_subject_location',
-    'easy_thumbnails.processors.filters',
 )
 
 # Set up SASS (SCSS) compression for django-compressor
@@ -182,10 +171,6 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.transaction.TransactionMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
-    'cms.middleware.page.CurrentPageMiddleware',
-    'cms.middleware.user.CurrentUserMiddleware',
-    'cms.middleware.toolbar.ToolbarMiddleware',
-    'cms.middleware.language.LanguageCookieMiddleware',
     #'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 ]
 
@@ -236,26 +221,12 @@ PROJECT_APPS = [
 # Third-party apps belong here, since we won't use them for testing.
 THIRD_PARTY_APPS = [
     'chosen',
-    'cms',
-    #'cms.plugins.link',
-    #'cms.plugins.snippet',
-    'cms.plugins.text',
-    'cmsplugin_filer_file',
-    'cmsplugin_filer_folder',
-    'cmsplugin_filer_image',
-    'cmsplugin_filer_teaser',
-    'cmsplugin_filer_video',
     'compressor',
     'debug_toolbar',
     'django_jenkins',
     'easy_thumbnails',
-    'filer',  # Used by CMS
     'localflavor',
-    'menus',  # Required by CMS
-    'mptt',  # Required by CMS
-    'reversion',  # For versioning of content with CMS
-    'sekizai',  # Required by CMS
-    'south',  # For data migration. Also required by CMS
+    'south',  # For data migration
 ]
 
 # This is the actual variable that django looks at.

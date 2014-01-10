@@ -52,7 +52,6 @@ urlpatterns = patterns('',
     url(r'^vote/', include('quark.vote.urls',
                            app_name='vote',
                            namespace='vote')),
-    url(r'^', include('cms.urls')),  # Catch-all for CMS-managed pages
 )
 
 if settings.DEBUG:
