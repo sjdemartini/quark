@@ -1,3 +1,6 @@
+# Copy this file to quark/settings_local.py and make the necessary changes
+# noted below in order to use HTTPS for your dev server.
+
 # When using the nginx proxy, the dev server available at
 # https://tbp.berkeley.edu/dev<PORT>/
 # The following settings allow you to make use of the HTTPS proxy instead of
@@ -9,3 +12,6 @@ STATIC_URL = '/dev####/static/'
 MEDIA_URL = '/dev####/media/'
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
+
+# To use LDAP authentication, uncomment the next line:
+#USE_LDAP = True
