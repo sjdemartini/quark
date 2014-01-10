@@ -196,6 +196,7 @@ PROJECT_APPS = [
     'quark.emailer',
     'quark.events',
     'quark.exams',
+    'quark.mailing_lists',
     'quark.minutes',
     'quark.newsreel',
     'quark.past_presidents',
@@ -221,6 +222,11 @@ THIRD_PARTY_APPS = [
 
 # This is the actual variable that django looks at.
 INSTALLED_APPS = DJANGO_CONTRIB_APPS + PROJECT_APPS + THIRD_PARTY_APPS
+
+# Mailman path
+MMPATH = '/usr/lib/mailman'
+if MMPATH not in sys.path:
+    sys.path.append(MMPATH)
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to

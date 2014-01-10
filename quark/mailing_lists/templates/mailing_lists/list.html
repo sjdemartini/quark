@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block intro %}
+  <h1>{% block title %}Mailing Lists{% endblock title %}</h1>
+{% endblock intro %}
+
+{% block head %}
+{% include 'footable.html' %}
+{% endblock head %}
+
+{% block content %}
+<p><strong>Number of Mailing Lists</strong>: {{ mailing_lists|length }}</p>
+<table class="footable stylized boardered">
+  <thead>
+    <tr>
+      <th>Admin</th>
+      <th data-hide="phone">Public?</th>
+      <th>List Name</th>
+      <th data-hide="phone,tablet">Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for list in mailing_lists %}
+    <tr>
+      <td><a href="{{ list.adminurl }}">Admin</a></td>
+      <td>{% if list.public %}Yes{% else %}No{% endif %}</td>
+      <td><a href="{{ list.url }}">{{ list.name }}</a></td>
+      <td>{% if list.description %}{{ list.description|safe }}{% else %}[no description available]{% endif %}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock content%}
