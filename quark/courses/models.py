@@ -45,9 +45,9 @@ class Course(models.Model):
         if not isinstance(other, Course):
             return False
         # Compare departments of courses
-        if (self.department.abbreviation < other.department.abbreviation):
+        if self.department.abbreviation < other.department.abbreviation:
             return True
-        elif (self.department.abbreviation > other.department.abbreviation):
+        elif self.department.abbreviation > other.department.abbreviation:
             return False
         else:
             # Compare integer part of course numbers

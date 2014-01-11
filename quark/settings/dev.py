@@ -50,7 +50,7 @@ SESSION_COOKIE_NAME =  'quark_dev_%s_sid' % _user
 # would only be shown when DEBUG=True and the request is from an IP listed in
 # the INTERNAL_IPS setting.
 DEBUG_TOOLBAR_CONFIG = {
-    'SHOW_TOOLBAR_CALLBACK': lambda request: True
+    'SHOW_TOOLBAR_CALLBACK': 'quark.settings.third_party.show_toolbar'
 }
 
 # NOTE: It is highly recommended that you copy settings_local_template.py (in

@@ -21,7 +21,7 @@ class Command(BaseCommand):
             raise ImproperlyConfigured('Invalid server name "%s" (%s)' % (
                 server, valid_servers))
 
-        print('Running development server for "%s"' % server)
+        print 'Running development server for "%s"' % server
         dev_utils.update_db()
         dev = DevServer(username=getpass.getuser(), server=server)
         dev.run_server()

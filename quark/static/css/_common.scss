@@ -153,9 +153,10 @@ div {
       @include respond-to(small-med) {
         input[type=text],
         input[type=email],
-        input[type=url],
-        input[type=password],
         input[type=file],
+        input[type=number],
+        input[type=password],
+        input[type=url],
         select,
         textarea {
           width: 100%;

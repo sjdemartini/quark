@@ -188,8 +188,6 @@ DJANGO_CONTRIB_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     #'django.contrib.flatpages',
-    # TODO(davidbliu): Handle deprecation of markup
-    'django.contrib.markup',
     'django.contrib.messages',
     'django.contrib.sessions',
     'django.contrib.sites',

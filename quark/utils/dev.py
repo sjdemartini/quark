@@ -66,18 +66,18 @@ class DevServer(object):
         self.port += offset
         if verbose:
             if offset == DevServer.DEFAULT_OFFSET:
-                print('WARNING: Using shared port: %d' % self.port)
-            print('Current IP and Port is: %s and %d' % (self.ip, self.port))
+                print 'WARNING: Using shared port: %d' % self.port
+            print 'Current IP and Port is: %s and %d' % (self.ip, self.port)
         return self.port
 
     def run_server(self, verbose=True):
         """Runs a dev server based on current settings"""
         if verbose:
-            print('Running server...')
+            print 'Running server...'
         try:
             execute_from_command_line(
                 ['manage.py', 'runserver', '%s:%d' % (self.ip, self.port)])
         except KeyboardInterrupt:
             # Catch Ctrl-C and exit cleanly without a stacktrace
             if verbose:
-                print('KeyboardInterrupt: Exiting')
+                print 'KeyboardInterrupt: Exiting'

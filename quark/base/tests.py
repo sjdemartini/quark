@@ -36,15 +36,7 @@ class MajorTest(TestCase):
             long_name='Math',
             university=ucb,
             website='http://math.berkeley.edu')
-        with self.assertRaises(IntegrityError):
-            duplicate.save()
-        self.assertEqual(
-            1,
-            len(Major.objects.filter(
-                short_name='math',
-                long_name='Math',
-                university=ucb,
-                website='http://math.berkeley.edu')))
+        self.assertRaises(IntegrityError, duplicate.save)
 
 
 class TermManagerTest(TestCase):

@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static markup %}
 
 {% block title %}{{ event.name }} - Events{% endblock %}
 
@@ -83,11 +83,7 @@ Event has ended
 
   {% if event.description %}
   <dt>Description</dt>
-    <dd>{{ event.description }}</dd>
-    {% comment %}
-    TODO(sjdemartini): Enable markdown for event description like:
-    {{ event.description|markdown:"safe" }}
-    {% endcomment %}
+    <dd>{{ event.description|markdown }}</dd>
   {% endif %}
 
   {% if event.requirements_credit > 0 %}

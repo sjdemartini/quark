@@ -184,18 +184,18 @@ class CandidateRequirement(models.Model):
         """Return a tuple (#completed, #required) for the given candidate."""
         required = self.credits_needed
 
-        if (self.requirement_type == CandidateRequirement.EVENT):
+        if self.requirement_type == CandidateRequirement.EVENT:
             completed = self.eventcandidaterequirement.get_completed(candidate)
-        elif (self.requirement_type == CandidateRequirement.CHALLENGE):
+        elif self.requirement_type == CandidateRequirement.CHALLENGE:
             completed = self.challengecandidaterequirement.get_completed(
                 candidate)
-        elif (self.requirement_type == CandidateRequirement.EXAM_FILE):
+        elif self.requirement_type == CandidateRequirement.EXAM_FILE:
             completed = self.examfilecandidaterequirement.get_completed(
                 candidate)
-        elif (self.requirement_type == CandidateRequirement.RESUME):
+        elif self.requirement_type == CandidateRequirement.RESUME:
             completed = Resume.objects.filter(
                 user=candidate.user, verified=True).count()
-        elif (self.requirement_type == CandidateRequirement.MANUAL):
+        elif self.requirement_type == CandidateRequirement.MANUAL:
             # Actual credits earned is read from CandidateProgress below
             completed = 0
         else:
@@ -215,15 +215,15 @@ class CandidateRequirement(models.Model):
 
     def get_name(self):
         """Return a name for the requirement based on the requirement type."""
-        if (self.requirement_type == CandidateRequirement.EVENT):
+        if self.requirement_type == CandidateRequirement.EVENT:
             return self.eventcandidaterequirement.event_type.name
-        elif (self.requirement_type == CandidateRequirement.CHALLENGE):
-            return (self.challengecandidaterequirement.challenge_type.name)
-        elif (self.requirement_type == CandidateRequirement.EXAM_FILE):
+        elif self.requirement_type == CandidateRequirement.CHALLENGE:
+            return self.challengecandidaterequirement.challenge_type.name
+        elif self.requirement_type == CandidateRequirement.EXAM_FILE:
             return 'Uploaded Exam Files'
-        elif (self.requirement_type == CandidateRequirement.RESUME):
+        elif self.requirement_type == CandidateRequirement.RESUME:
             return 'Uploaded Resume'
-        elif (self.requirement_type == CandidateRequirement.MANUAL):
+        elif self.requirement_type == CandidateRequirement.MANUAL:
             return self.manualcandidaterequirement.name
         else:
             raise NotImplementedError(

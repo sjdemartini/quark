@@ -6,8 +6,8 @@ if [[ `id --user` == "0" ]]; then
     exit 1
 fi
 
-# Use virtualenv with Django-1.5 installed.
-source /home/tbp/virtualenv/django15/bin/activate
+# Use virtualenv with Django-1.6 installed.
+source /home/tbp/virtualenv/django16/bin/activate
 
 # Clean up compiled python files
 find . -type f -name "*.py[co]" -delete

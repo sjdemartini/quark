@@ -283,7 +283,7 @@ class EventTest(EventTesting):
         for restriction in restrictions:
             event.restriction = restriction
             event.save()
-            if (restriction == Event.PUBLIC or restriction == Event.CANDIDATE):
+            if restriction == Event.PUBLIC or restriction == Event.CANDIDATE:
                 self.assert_can_sign_up(event, self.user)
             else:
                 self.assert_cannot_sign_up(event, self.user)
