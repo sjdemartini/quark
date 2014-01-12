@@ -57,6 +57,7 @@ class TermParameterMixin(object):
         context = super(TermParameterMixin, self).get_context_data(**kwargs)
         context['display_term'] = self.display_term
         context['display_term_name'] = self.display_term.verbose_name()
+        context['display_term_url_name'] = self.display_term.get_url_name()
         context['is_current'] = self.is_current
 
         # Add queryset of all Terms up to and including the current term,

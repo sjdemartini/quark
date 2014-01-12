@@ -148,8 +148,11 @@ tr.past-event {
 }
 
 // Calendar display of events
-#calendar div {
-  position: static;
+#calendar {
+  margin-top: 1em;
+  div {
+    position: static;
+  }
 }
 
 // Recording attendance

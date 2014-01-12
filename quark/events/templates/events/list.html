@@ -14,20 +14,6 @@
 {% endblock head %}
 
 {% block content %}
-{% url 'events:list' as events_list_url %}
-<p>
-  <strong>
-  {% if not is_current or show_all %}
-    {# Go to the default events list, which is for the current term #}
-    <a href="{{ events_list_url }}">List Current Upcoming Events</a>
-  {% else %}
-    {# Show all events (from the current term) #}
-    <a href="{{ events_list_url }}?show_all=true">List All {{ display_term_name }} Events</a>
-  {% endif %}
-  | <a href="{% url 'events:calendar' %}">View a Calendar of Events</a>
-  </strong>
-</p>
-
 {% if events %}
 {% settings_assign 'HOSTNAME' as hostname %}
 <p>

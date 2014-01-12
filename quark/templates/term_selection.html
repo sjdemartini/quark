@@ -6,14 +6,16 @@ Note that when a user selects a term from the dropdown, a "term" get request
 parameter will be appended to the URL with a URL-name representation for that
 term (e.g., term=sp2012 for the Spring 2012 semester).
 
-Variables for this template:
+Context variables used in this template:
 terms - iterable of Term objects
 display_term - the term currently being featured/shown on the page
-url_base - If selecting a term should bring the user to a certain base URL
-           (rather than just the current page)
+url_base (optional) - If selecting a term should bring the user to a certain
+                      base URL (rather than just the current page)
+float_right (optional) - If True, the term selection dropdown floats to the
+                         right, which can save vertical screen space.
 {% endcomment %}
 {% if terms %}
-<p>
+<p{% if float_right %} style="float: right;"{% endif %}>
   Select a term:
   <select class="term-select"
     onchange="window.location.href={% if url_base %}'{{ url_base }}'+{% endif %}'?term='+$(this).val();">

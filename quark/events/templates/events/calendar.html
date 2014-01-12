@@ -93,10 +93,6 @@ $(function() {
 {% endblock head %}
 
 {% block content %}
-<p>
-  <strong><a href="{% url 'events:list' %}">List Upcoming Events</a></strong>
-</p>
-
 {% if events %}
 <div id="calendar"></div>
 {% else %}

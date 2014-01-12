@@ -52,6 +52,6 @@
 </form>
 
 <p>
-  <a href="{% url 'candidates:list' %}?term={{ display_term.get_url_name }}"><strong>{{ display_term_name }} Candidates</strong></a>
+  <a href="{% url 'candidates:list' %}?term={{ display_term_url_name }}"><strong>{{ display_term_name }} Candidates</strong></a>
 </p>
 {% endblock content %}

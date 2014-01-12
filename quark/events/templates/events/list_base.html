@@ -1,14 +1,15 @@
 {% extends 'base.html' %}
 
 {% block intro %}
+{% include 'term_selection.html' with float_right=True %}
 <h1>
 {% block title %}
 {% if not show_all %}Upcoming {% endif %}{{ display_term_name }} Events
 {% endblock title %}
 </h1>
 
-{% if perms.events.add_event %}
 <p>
+{% if perms.events.add_event %}
   <a href="{% url 'events:add' %}" class="btn">
     <i class="icon-plus"></i> Event
   </a>
@@ -17,8 +18,30 @@
   <a href="{% url 'events:leaderboard' %}" class="btn">
     <i class="icon-bar-chart"></i> Leaderboard</a>
   {# TODO(sjdemartini): add links for event admin #}
-</p>
 {% endif %}
+</p>
 
-{% include 'term_selection.html' %}
+{% url 'events:list' as events_list_url %}
+{% url 'events:calendar' as calendar_url %}
+<div class="btn-group">
+  {% if is_current and not show_all %}
+  <div class="btn btn-sm selected">List Upcoming</div>
+  {% else %}
+  {# Link for the default events list, which is for upcoming events in the current term #}
+  <a href="{{ events_list_url }}" class="btn btn-sm">List Upcoming</a>
+  {% endif %}
+
+  {% if show_all and request.path != calendar_url %}
+  <div class="btn btn-sm selected">List All</div>
+  {% else %}
+  {# Link for listing all events #}
+  <a href="{{ events_list_url }}?{% if is_current %}show_all=true{% else %}term={{ display_term_url_name}}{% endif %}" class="btn btn-sm">List All</a>
+  {% endif %}
+
+  {% if request.path == calendar_url %}
+  <div class="btn btn-sm selected">Calendar</div>
+  {% else %}
+  <a href="{{ calendar_url }}?term={{ display_term_url_name }}" class="btn btn-sm">Calendar</a>
+  {% endif %}
+</div>
 {% endblock intro %}

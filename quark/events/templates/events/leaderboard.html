@@ -13,7 +13,7 @@
     {# Spaceless to fix whitespace issues with inline-block css style #}
     {% spaceless %}
     <div class="name {% cycle 'odd' 'even' %}">
-        {{ entry.rank }}. <a href="{% url 'events:individual-attendance' entry.user.username %}?term={{ display_term.get_url_name }}">{{ entry.user.userprofile.get_common_name }}</a>
+        {{ entry.rank }}. <a href="{% url 'events:individual-attendance' entry.user.username %}?term={{ display_term_url_name }}">{{ entry.user.userprofile.get_common_name }}</a>
     </div>
     <span class="count-container {% cycle 'odd' 'even' %}" style="width: {{ entry.factor }}%;">
       <span class="count">{{ entry.user.count }}</span>
