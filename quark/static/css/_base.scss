@@ -4,18 +4,23 @@
 @import "compass";
 
 // Variables
+// Breakpoint widths:
 $break-small: 480px;
 $break-small-med: 625px;
 $break-medium: 820px;
 
-$link-blue: #0000ad;
-$dark-blue: #3e3e83;
-$gold: #c7aa36;
-$ultra-light-gray: #fafafa;
-
+// Form widths:
 $form-label-width: 29%;
 $form-sep: 3%;
 $form-input-width: (100% - $form-label-width - $form-sep);
+
+// Colors:
+$link-blue: #0000ad;
+$dark-blue: #3e3e83;
+$gold: #c7aa36;
+$light-gray: #eee;
+$ultra-light-gray: #fafafa;
+$medium-gray: #ccc;
 
 $error-bg-color: #fdd;
 $error-border-color: #f99;
@@ -42,7 +47,7 @@ $success-border-color: #5c5;
 
 @mixin background-light {
   background: {
-    color: #eee;
+    color: $light-gray;
     image: url(../images/gray_light_texture.jpg);
   }
 }

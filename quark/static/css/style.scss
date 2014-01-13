@@ -19,12 +19,6 @@
 // _achievements.scss - css for the achievement app
 @import "achievements";
 
-// _leaderboard.scss - css for the leaderboard (e.g., achievements leaderboard)
-@import "leaderboard";
-
-// _profiles.scss - css for the user profiles
-@import "profiles";
-
 // _candidates.scss - css for the candidates app
 @import "candidates";
 
@@ -33,3 +27,12 @@
 
 // _exams.scss - css for the exams app
 @import "exams";
+
+// _leaderboard.scss - css for the leaderboard (e.g., achievements leaderboard)
+@import "leaderboard";
+
+// _newsreel.scss - css for the newsreel app
+@import "newsreel";
+
+// _profiles.scss - css for user profiles
+@import "profiles";

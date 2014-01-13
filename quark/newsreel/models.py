@@ -8,7 +8,9 @@ class News(models.Model):
     Multiple News pieces can be included together to create a "newsreel."
     """
     title = models.CharField(max_length=100)
-    blurb = models.TextField()
+    blurb = models.TextField(
+        help_text='You can use "markdown syntax" to add formatting, links, '
+                  'etc.')
     image = models.ImageField(upload_to='newsreel/')
 
     # A rank for ordering the items in a newsreel, where higher number
@@ -23,7 +25,7 @@ class News(models.Model):
         # Order News first on rank (high number to low number), and then on
         # date (most recently updated to least recently updated):
         ordering = ('-rank', '-updated')
-        verbose_name_plural = 'News'
+        verbose_name_plural = 'news'
 
     def save(self, *args, **kwargs):
         """Set the rank to be a higher number (higher rank) than all existing

@@ -351,10 +351,6 @@ h6 {
   color: #888;
 }
 
-.whiteshadow {
-  text-shadow: #fff 1px 1px 1px;
-}
-
 pre {
   white-space: pre-wrap;
   font-family: monospace;
@@ -586,7 +582,7 @@ blockquote {
         margin: 0 -10px;  // Extend link to the edges of the dropdown container
         padding: 3px 10px;
         &:hover {
-          background-color: #eee;
+          background-color: $light-gray;
         }
       }
     }
@@ -801,7 +797,7 @@ blockquote {
 }
 
 #subnav {
-  background-color: #eee;
+  background-color: $light-gray;
   border-bottom: 1px solid gray;
   @include box-shadow(inset 0 0 5px #999);
   a {
@@ -891,7 +887,7 @@ $footer-total-height: ($footer-font-size / 1em) * (
 }
 
 #footer {
-  background-color: #eee;
+  background-color: $light-gray;
   border-top: $footer-border-size solid #999;
   color: #666;
   font-size: $footer-font-size;

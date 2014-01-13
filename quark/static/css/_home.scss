@@ -87,7 +87,7 @@
     li {
       padding-bottom: 10px;
       &:hover {
-        background: #eee;
+        background: $light-gray;
       }
       &:last-child:hover {
         @include border-bottom-radius(4px);

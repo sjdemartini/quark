@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load markup %}
+
+{% block intro %}
+<h1>
+{% block title %}Newsreel{% endblock title %}
+</h1>
+{% endblock intro %}
+
+{% block head %}
+<script>
+$(function() {
+  $('#news-items').sortable({
+    update: function(event, ui) {
+      // Serialize the ordering of news elements (where the data is based on the
+      // id's of the li elements):
+      var data = $(this).sortable('serialize', {key: 'news'});
+      $.post('{% url 'newsreel:reorder' %}', data);
+    }
+  });
+});
+</script>
+{% endblock head %}
+
+{% block content %}
+{% if perms.newsreel.add_news %}
+<p>
+  <a href="{# TODO(sjdemartini): Add view for adding news items #}" class="btn">
+    <i class="icon-plus"></i> News Item
+  </a>
+</p>
+{% endif %}
+
+{% if news_items %}
+<p>
+Click and drag any news item to reorder the list. The order will be saved
+automatically when changed. Items will be displayed in the newsreel on the home
+page in order from top to bottom.
+</p>
+
+<ul id="news-items">
+{% for news in news_items %}
+  <li id="news_{{ news.pk }}">
+    <img src="{{ news.image.url }}" alt="{{ news.title }}" class="news-image">
+    <h3>
+      {{ news.title }}
+      <span class="options">
+        {% if perms.newsreel.change_news %}<a href="{# TODO #}"><i class="icon-edit icon-border" title="Edit"></i></a>{% endif %}
+        {% if perms.newsreel.delete_news %}<a href="{# TODO #}"><i class="icon-trash" title="Delete"></i></a>{% endif %}
+      </span>
+    </h3>
+    <p class="subtext">Added on {{ news.created }}{% if perms.newsreel.change_news %} | Updated on {{ news.updated }}{% endif %}</p>
+    <div>{{ news.blurb|markdown }}</div>
+  </li>
+{% endfor %}
+</ul>
+
+{% else %}
+<p>No news items have been created.</p>
+{% endif %}
+{% endblock content %}

@@ -1,0 +1,50 @@
+/* _newsreel.scss */
+// Styles for the events app
+
+@import "base";
+
+#news-items {
+  // Don't make the list take up the full width. Especially useful for narrow
+  // viewport touch devices, which need to room to be able to scroll.
+  width: 93%;
+
+  & > li {
+    @include clearfix;
+    border: 1px solid $medium-gray;
+    @include border-radius(3px);
+    background: $ultra-light-gray;
+    margin-bottom: 8px;
+    padding: {
+      bottom: 10px;
+      left: 20px;
+      right: 20px;
+    }
+
+    .options {
+      margin-left: 15px;
+      @include respond-to(medium) {
+        display: block;
+        margin-left: 0;
+      }
+
+      i {
+        margin-right: 15px;  // Provide a margin between icons
+      }
+    }
+  }
+  .news-image {
+    float: right;
+    max-height: 300px;
+    max-width: 300px;
+    margin: {
+      top: 10px;
+      bottom: 10px;
+    }
+
+    @include respond-to(small-med) {
+      float: none;
+      margin-bottom: 0;
+      max-width: 100%;
+    }
+  }
+}
