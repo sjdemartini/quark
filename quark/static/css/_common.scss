@@ -274,6 +274,11 @@ div {
     background: $error-bg-color;
     border: 1px solid $error-border-color;
   }
+
+  .icon-remove {
+    float: right;
+    cursor: pointer;
+  }
 }
 
 /* TYPOGRAPHY */
