@@ -19,13 +19,22 @@
     {% compress css %}
     <link type="text/x-scss" rel="stylesheet" href="{% static 'css/style.scss' %}">
     {% endcompress %}
+
+    {% compress css %}
+    {{ form.media.css }}
+    {% endcompress %}
+
     {% block jquery %}{% include 'jquery.html' %}{% endblock jquery %}
+
     {% compress js %}
     <script src="{% static 'js/main.js' %}"></script>
     {% endcompress %}
-    {{ form.media.css }}
+
+    {% compress js %}
     {{ form.media.js }}
-    {% block head %}{% endblock head %}
+    {% endcompress %}
+
+    {% block head %}{# Block for adding content (e.g., scripts) to the head #}{% endblock head %}
   </head>
   <body>
     {# TODO(sjdemartini): fill in all URLs for links as they are created #}

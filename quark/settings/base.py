@@ -151,15 +151,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.static',
 )
 
-# Set up SASS (SCSS) compression for django-compressor
-COMPRESS_PRECOMPILERS = (
-    ('text/x-scss', 'sass {infile}:{outfile}'),
-)
-
-# Make django-compressor store its output compressed files in the original
-# location of the static files, rather than a subfolder
-COMPRESS_OUTPUT_DIR = ''
-
 MIDDLEWARE_CLASSES = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',

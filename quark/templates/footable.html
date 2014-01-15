@@ -6,9 +6,10 @@ for sorting and filtering abilities, respectively.
 To create a footable, simply add the "footable" class to any table. See
 http://fooplugins.com/footable-demos/ for further documentation.
 {% endcomment %}
-{% load static %}
+{% load static compress %}
+<link href="{% static 'footable/css/footable.core.min.css' %}" rel="stylesheet" type="text/css"/>
+{% compress js %}
 <script src="{% static 'footable/js/footable.js' %}" type="text/javascript"></script>
-<link href="{% static 'footable/css/footable.core.css' %}" rel="stylesheet" type="text/css"/>
 <script type="text/javascript">
 $(function() {
   var table = $('.footable');
@@ -32,3 +33,4 @@ $(function() {
   });
 });
 </script>
+{% endcompress %}

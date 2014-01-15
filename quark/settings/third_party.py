@@ -4,6 +4,23 @@ import os
 from quark.settings.base import WORKSPACE_ROOT
 
 
+# Set up SASS (SCSS) compression for django-compressor
+COMPRESS_PRECOMPILERS = (
+    ('text/x-scss', 'sass {infile}:{outfile}'),
+)
+
+# Use the "AbsoluteFilter" to change relative URLs to absolute URLs, and
+# CSSMinFilter to minify the CSS
+COMPRESS_CSS_FILTERS = [
+    'compressor.filters.css_default.CssAbsoluteFilter',
+    'compressor.filters.cssmin.CSSMinFilter'
+]
+
+# Make django-compressor store its output compressed files in the original
+# location of the static files, rather than a subfolder
+COMPRESS_OUTPUT_DIR = ''
+
+
 # Jenkins integration.
 JENKINS_TASKS = (
     'django_jenkins.tasks.django_tests',
