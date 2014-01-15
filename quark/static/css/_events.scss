@@ -79,6 +79,11 @@ tr.past-event {
   background-color: #FAFAFA;
 }
 
+// Make paragraphs in event-info (resulting from markdown) have slimmer margins
+.event-info p {
+  margin: 0.5em 0;
+}
+
 // Event detail and signups
 .event-credit {
   font-weight: 600;
@@ -145,4 +150,62 @@ tr.past-event {
 // Calendar display of events
 #calendar div {
   position: static;
+}
+
+// Recording attendance
+#member-search {
+  @include respond-to(medium) {
+    display: block;
+  }
+}
+
+.attendance-group {
+  float: left;
+  width: 30%;
+  margin: 10px;
+  @include respond-to(medium) {
+    width: 45%;
+  }
+  @include respond-to(small) {
+    margin: 0;
+    width: 100%;
+  }
+
+  ul > li {
+    padding: 5px;
+    border: 1px dashed #ddd;
+    border-bottom: 0;
+    &:last-child {
+      border-bottom: 1px dashed #ddd;
+    }
+    @include respond-to(small) {
+      // Increase vertical padding to make it more of a touch target
+      padding: {
+        top: 10px;
+        bottom: 10px;
+      }
+    }
+  }
+}
+
+$attended-highlight: #FF8;
+
+.checkable {
+  &:hover {
+    cursor: pointer;
+    background-color: $success-bg-color;
+  }
+}
+
+.attending {
+  background-color: $attended-highlight;
+
+  &:hover {
+    color: $error-text-color;
+    cursor: pointer;
+  }
+}
+
+.signed-up {
+  font-weight: 600;
 }

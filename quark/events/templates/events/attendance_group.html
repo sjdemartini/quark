@@ -1,0 +1,20 @@
+{% comment %}
+This template is included in attendance.html for showing a list of people that
+are part of the same group.
+
+This template takes in the group_name variable, group_list_id variable
+(optional), and the group_users variables, which are used for displaying the
+name of the group as a header, for adding an ID to the list of users, and for
+listing out the users in that group, respectively.
+{% endcomment %}
+<div class="attendance-group">
+  <h2>{{ group_name }}</h2>
+  <ul{% if group_list_id %} id="{{ group_list_id }}"{% endif %}>
+    {% for group_user in group_users %}
+    <li class="{% if group_user.pk in attendees %}attending{% else %}checkable{% endif %}{% if group_user.pk in signed_up %} signed-up{% endif %}" id="user_{{ group_user.pk }}">
+      {{ group_user.userprofile.get_verbose_full_name }}
+      <i class="icon-spinner icon-spin loading" style="display: none"></i>
+    </li>
+    {% endfor %}
+  </ul>
+</div>

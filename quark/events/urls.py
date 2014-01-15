@@ -1,6 +1,10 @@
 from django.conf.urls import patterns
 from django.conf.urls import url
 
+from quark.events.views import attendance_delete
+from quark.events.views import attendance_search
+from quark.events.views import attendance_submit
+from quark.events.views import AttendanceRecordView
 from quark.events.views import EventCreateView
 from quark.events.views import EventDetailView
 from quark.events.views import EventListView
@@ -21,6 +25,11 @@ urlpatterns = patterns(
         name='signup'),
     url(r'^(?P<event_pk>\d+)/unsignup/$', event_unsignup,
         name='unsignup'),
+    url(r'^(?P<event_pk>\d+)/attendance/$', AttendanceRecordView.as_view(),
+        name='attendance'),
+    url(r'^attendance/delete/$', attendance_delete, name='attendance-delete'),
+    url(r'^attendance/search/$', attendance_search, name='attendance-search'),
+    url(r'^attendance/submit/$', attendance_submit, name='attendance-submit'),
     url(r'^user/(?P<username>[a-zA-Z0-9._-]+)/$',
         IndividualAttendanceListView.as_view(), name='individual-attendance'),
     url(r'^calendar/$', EventListView.as_view(show_all=True,

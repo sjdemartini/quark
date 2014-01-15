@@ -62,31 +62,28 @@ $(function() {
 {% block content %}
 {% if not event.is_upcoming %}
 <h2>
-{% if event.cancelled %}
-Event was cancelled
-{% else %}
-Event has ended
-{% endif %}
+  {% if event.cancelled %}
+  Event was cancelled
+  {% else %}
+  Event has ended
+  {% endif %}
 </h2>
 {% endif %}
 
-{% if user.is_authenticated %}
-  (<em><a href="{# TODO: {% url 'events:attendance' event.pk %} #}">Attendance</a>
-  {% if event.attendance_submitted %}
-  was submitted
-  {% else %}
-  not yet submitted
-  {% endif %}
-  </em>)
-{% endif %}
+{% url 'events:attendance' event.pk as event_attendance_url %}
 
 {# TODO: Add Google Calendar link once GCal string output method created #}
 
-<div>
-<dl>
+<dl class="event-info">
   <dt>When</dt>
     <dd>
-      {{ event.view_datetime }} (<a href="{# TODO: {% url 'event:ical' event.pk %} #}">iCal</a>)
+      <div>{{ event.view_datetime }} (<a href="{# TODO: {% url 'event:ical' event.pk %} #}">iCal</a>)</div>
+      {% if user.is_authenticated %}
+      <div>
+        (<em>{% if perms.events.add_eventattendance %}<a href="{{ event_attendance_url }}">Attendance</a>{% else %}Attendance{% endif %}
+          {% if event.attendance_submitted %}was submitted{% else %}not yet submitted{% endif %}</em>)
+      </div>
+      {% endif %}
     </dd>
 
   <dt>Where</dt>
@@ -114,17 +111,15 @@ Event has ended
     <dd>{{ event.signup_limit }}</dd>
   {% endifnotequal %}
 </dl>
-</div>
 
-{# TODO(sjdemartini): Conditionally include signup template depending on event restrictions #}
 {% if form %}
 {% include 'events/signup.html' %}
 {% endif %}
 
 <h3>
   Who's signed up?
-  {% if perms.events.change_eventsignup %}
-  (<a href="{# TODO: {% url 'events:attendance' event.pk %} #}">Submit Attendance</a>)
+  {% if perms.events.add_eventattendance %}
+  (<a href="{{ event_attendance_url }}">Submit Attendance</a>)
   {% endif %}
 </h3>
 

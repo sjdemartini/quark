@@ -26,9 +26,13 @@ from quark.events.forms import EventForm
 from quark.events.forms import EventSignUpAnonymousForm
 from quark.events.forms import EventSignUpForm
 from quark.events.models import Event
+from quark.events.models import EventAttendance
 from quark.events.models import EventSignUp
 from quark.utils.ajax import AjaxFormResponseMixin
 from quark.utils.ajax import json_response
+
+
+user_model = get_user_model()
 
 
 class EventListView(TermParameterMixin, ListView):
@@ -317,6 +321,130 @@ def event_unsignup(request, event_pk):
     return json_response()
 
 
+class AttendanceRecordView(DetailView):
+    """View for recording attendance for a given event."""
+    model = Event
+    context_object_name = 'event'
+    pk_url_kwarg = 'event_pk'
+    template_name = 'events/attendance.html'
+
+    @method_decorator(login_required)
+    @method_decorator(
+        permission_required('events.add_eventattendance', raise_exception=True))
+    def dispatch(self, *args, **kwargs):
+        return super(AttendanceRecordView, self).dispatch(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(AttendanceRecordView, self).get_context_data(**kwargs)
+        current_term = Term.objects.get_current_term()
+
+        officers = user_model.objects.filter(
+            officer__term=current_term).select_related(
+            'userprofile').order_by('userprofile').distinct()
+        context['officers'] = officers
+
+        candidates = user_model.objects.filter(
+            candidate__term=current_term).select_related(
+            'userprofile').order_by('userprofile').distinct()
+        context['candidates'] = candidates
+
+        # Get all other users (not including officers or candidates) who either
+        # signed up or received attendance for this event:
+        context['members'] = user_model.objects.filter(
+            Q(eventsignup__event=self.object, eventsignup__unsignup=False) |
+            Q(eventattendance__event=self.object)).distinct().exclude(
+            Q(pk__in=officers) | Q(pk__in=candidates)).select_related(
+            'userprofile').order_by('userprofile')
+
+        # Create a set of the pk's of attendees', useful for checking (in
+        # constant time) whether a given user is an attendee:
+        context['attendees'] = set(user_model.objects.filter(
+            eventattendance__event=self.object).values_list('pk', flat=True))
+
+        # Similarly create a set of the pk's of people who have signed up:
+        context['signed_up'] = set(user_model.objects.filter(
+            eventsignup__event=self.object,
+            eventsignup__unsignup=False).values_list('pk', flat=True))
+
+        return context
+
+
+@require_POST
+@permission_required('events.add_eventattendance', raise_exception=True)
+def attendance_submit(request):
+    """Record attendance for a given user at a given event.
+
+    The user is specified by a userPK post parameter, and the event is
+    specified by an eventPK post parameter.
+    """
+    event_pk = request.POST['eventPK']
+    event = Event.objects.get(pk=event_pk)
+    user_pk = request.POST['userPK']
+    user = user_model.objects.get(pk=user_pk)
+    # Record attendance for this user at this event
+    EventAttendance.objects.get_or_create(user=user, event=event)
+    return json_response()
+
+
+@require_POST
+@permission_required('events.delete_eventattendance', raise_exception=True)
+def attendance_delete(request):
+    """Remove attendance for a given user at a given event.
+
+    The user is specified by a userPK post parameter, and the event is
+    specified by an eventPK post parameter.
+    """
+    event_pk = request.POST['eventPK']
+    event = Event.objects.get(pk=event_pk)
+    user_pk = request.POST['userPK']
+    # Delete this user's attendance for the event if it exists:
+    try:
+        EventAttendance.objects.get(user__pk=user_pk, event=event).delete()
+    except EventAttendance.DoesNotExist:
+        # Fine if the attendance does not exist, since we wanted to remove it
+        pass
+    return json_response()
+
+
+def attendance_search(request, max_results=20):
+    """Return a JSON response of members based on search for name.
+
+    The search uses the "searchTerm" post parameter. Return up to max_results
+    number of results. The results only include people who have not attended
+    the event specified by the post parameter eventPK.
+    """
+    search_query = request.GET['searchTerm']
+    event_pk = request.GET['eventPK']
+    event = Event.objects.get(pk=event_pk)
+
+    # Get all users who did not attend this event:
+    # TODO(sjdemartini): Properly filter for members, instead of just getting
+    # all users who are not officers or candidates (as these other users may
+    # include company users, etc.)
+    members = user_model.objects.exclude(
+        eventattendance__event=event).select_related(
+        'userprofile')
+
+    # A list of entries for each member that matches the search query:
+    member_matches = []
+
+    # Parse the search query into separate pieces if the query includes
+    # whitespace
+    search_terms = search_query.lower().split()
+    for member in members:
+        name = member.userprofile.get_verbose_full_name()
+        name_lower = name.lower()
+        if all(search_term in name_lower for search_term in search_terms):
+            entry = {
+                'label': name,
+                'value': member.pk
+            }
+            member_matches.append(entry)
+        if len(member_matches) >= max_results:
+            break
+    return json_response(data=member_matches)
+
+
 class IndividualAttendanceListView(TermParameterMixin, TemplateView):
     template_name = 'events/individual_attendance.html'
     attendance_user = None
@@ -324,7 +452,7 @@ class IndividualAttendanceListView(TermParameterMixin, TemplateView):
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         self.attendance_user = get_object_or_404(
-            get_user_model(), username=self.kwargs['username'])
+            user_model, username=self.kwargs['username'])
         return super(IndividualAttendanceListView, self).dispatch(
             *args, **kwargs)
 

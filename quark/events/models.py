@@ -206,6 +206,10 @@ class Event(models.Model):
             return True
         return Event.get_user_restriction_level(user) >= self.restriction
 
+    def attendance_submitted(self):
+        """Return True if there are any attendance records for this event."""
+        return self.eventattendance_set.exists()
+
     def list_date(self):
         """Return a succinct string representation of the event date.
 
