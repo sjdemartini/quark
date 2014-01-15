@@ -26,9 +26,7 @@ from quark.events.forms import EventForm
 from quark.events.forms import EventSignUpAnonymousForm
 from quark.events.forms import EventSignUpForm
 from quark.events.models import Event
-from quark.events.models import EventAttendance
 from quark.events.models import EventSignUp
-from quark.shortcuts import get_object_or_none
 from quark.utils.ajax import AjaxFormResponseMixin
 from quark.utils.ajax import json_response
 
@@ -381,51 +379,48 @@ class LeaderboardListView(TermParameterMixin, ListView):
     The view omits all users with no attendance.
     """
     context_object_name = 'leader_list'
+    paginate_by = 75
     template_name = 'events/leaderboard.html'
-    paginate_by = 75  # separates leaders into pages of 25 each
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super(LeaderboardListView, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
-        aggregates = EventAttendance.objects.filter(
-            event__term=self.display_term,
-            event__cancelled=False).values('user').annotate(
-            Count('user')).order_by('-user__count').select_related(
-            'user__userprofile')
+        leaders = get_user_model().objects.filter(
+            eventattendance__event__term=self.display_term,
+            eventattendance__event__cancelled=False).select_related(
+            'userprofile').annotate(count=Count('eventattendance')).order_by(
+            '-count')
 
-        if len(aggregates) > 0:
-            max_events = aggregates[0]['user__count'] or 0
+        if len(leaders) > 0:
+            max_events = leaders[0].count or 0
         else:
             max_events = 0
 
-        leaders = []
+        # Create a list of "leader" entries, where each entry is a dictionary
+        # that includes the user, their rank on the leaderboard (1st, 2nd,
+        # etc.), and their leaderboard width "factor" (see below for details).
+        leader_list = []
         if max_events > 0:  # make sure there's no divide by zero
-            i = 0
             prev_value = -1
-            prev_rank = 0
-        user_model = get_user_model()
-        for aggregate in aggregates:
-            factor = 2.5 + aggregate['user__count'] * 67.5 / max_events
-            # Factor used for CSS width property (percentage).
-            # Use 70 as the max width (i.e. the user who attended the most
-            # events has width 70%), and add 2.5 to make sure there is enough
-            # room to be displayed.
-            user = get_object_or_none(user_model, pk=aggregate['user'])
-            if user is None:
-                continue
-            i += 1
-            if aggregate['user__count'] != prev_value:
-                rank = i
-            else:
-                rank = prev_rank
-            prev_rank = rank
-            prev_value = aggregate['user__count']
+            prev_rank = 1
 
-            leaders.append({'user': user,
-                            'count': aggregate['user__count'],
-                            'factor': factor,
-                            'rank': rank})
+            for i, leader in enumerate(leaders, start=prev_rank):
+                # factor used for CSS width property (percentage). Use 70 as
+                # the max width (i.e. the user who attended the most events has
+                # width 70%), including adding 2.5 to every factor to make sure
+                # that there is enough room for text to be displayed.
+                factor = 2.5 + leader.count * 67.5 / max_events
+                if leader.count == prev_value:
+                    rank = prev_rank
+                else:
+                    rank = i
+                prev_rank = rank
+                prev_value = leader.count
 
-        return leaders
+                # Add the leader entry to the list
+                leader_list.append({'user': leader,
+                                    'factor': factor,
+                                    'rank': rank})
+        return leader_list

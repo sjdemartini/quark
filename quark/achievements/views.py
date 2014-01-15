@@ -52,15 +52,16 @@ class LeaderboardListView(ListView):
     # and omits all users with 0 or negative scores
     context_object_name = 'leader_list'
     template_name = 'achievements/leaderboard.html'
-    paginate_by = 25  # separates leaders into pages of 25 each
+    paginate_by = 35  # separates leaders into pages of 35 each
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super(LeaderboardListView, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
-        leaders = get_user_model().objects.select_related('user').filter(
-            userachievement__acquired=True).annotate(score=Sum(
+        leaders = get_user_model().objects.filter(
+            userachievement__acquired=True).select_related(
+            'userprofile').annotate(score=Sum(
             'userachievement__achievement__points')).filter(
             score__gte=0).order_by('-score')
 
@@ -69,37 +70,33 @@ class LeaderboardListView(ListView):
         else:
             max_score = 0
 
-        factors = []
-        ranks = []
-
-        # get factors and ranks for everyone in leaderboard
+        # Create a list of "leader" entries, where each entry is a dictionary
+        # that includes the user, their rank on the leaderboard (1st, 2nd,
+        # etc.), and their leaderboard width "factor" (see below for details).
+        leader_list = []
         if max_score > 0:
 
             prev_value = -1
             prev_rank = 1
 
             for i, leader in enumerate(leaders, start=prev_rank):
-                # factor used for CSS width property (percentage). Use 70.0
-                # as the maximum width (i.e. top scorer has width 70%), and
-                # add 2.5 to make sure that there is enough room for text to
-                # be displayed
+                # factor used for CSS width property (percentage). Use 70.0 as
+                # the maximum width (i.e. top scorer has width 70%), including
+                # adding 2.5 to every factor to make sure that there is enough
+                # room for text to be displayed.
                 factor = 2.5 + leader.score * 67.5 / max_score
-                if leader.score != prev_value:
-                    rank = i
-                else:
+                if leader.score == prev_value:
                     rank = prev_rank
+                else:
+                    rank = i
 
                 prev_rank = rank
                 prev_value = leader.score
 
-                ranks.append(rank)
-                factors.append(factor)
-
-        # create a list that combines the users on the leaderboard, their
-        # rank, and their factor for easier iteration in the html template
-        leader_list = [{'user': t[0], 'rank': t[1], 'factor': t[2]}
-                       for t in zip(leaders, ranks, factors)]
-
+                # Add the leader entry to the list
+                leader_list.append({'user': leader,
+                                    'factor': factor,
+                                    'rank': rank})
         return leader_list
 
 

@@ -16,7 +16,7 @@
         {{ entry.rank }}. <a href="{% url 'events:individual-attendance' entry.user.username %}?term={{ display_term.get_url_name }}">{{ entry.user.userprofile.get_common_name }}</a>
     </div>
     <span class="count-container {% cycle 'odd' 'even' %}" style="width: {{ entry.factor }}%;">
-      <span class="count">{{ entry.count }}</span>
+      <span class="count">{{ entry.user.count }}</span>
     </span>
     {% endspaceless %}
   </li>
