@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static markup %}
+{% load markup %}
 
 {% block title %}{{ event.name }} - Events{% endblock %}
 
@@ -102,7 +102,7 @@ $(function() {
   {% if event.requirements_credit > 0 %}
   <dt>Candidate Requirements</dt>
     <dd>
-      This event satisfies <strong>{{ event.requirements_credit }} {{ event.event_type|lower }}</strong> event requirement{{ event.requirements_credit|pluralize }}.
+      This event satisfies <span class="event-credit event-type {{ event.event_type|slugify }}">{{ event.requirements_credit }} {{ event.event_type|lower }}</span> event requirement{{ event.requirements_credit|pluralize }}.
     </dd>
   {% endif %}
 
@@ -125,45 +125,17 @@ $(function() {
 
 {# TODO(sjdemartini): Improve styles and readability of event signups #}
 {% if signup_list %}
-<ul>
-{% for signup in signup_list %}
-  <li>
-  {% if perms.events.view_signups %}
-    {% if signup.user %}
-      {{ signup.user.userprofile.get_common_name }}
-    {% else %}
-      {{ signup.name }} (<em>Anonymous signup: {{ signup.email }}</em>)
-    {% endif %}
-
-    {% if event.needs_drivers and signup.driving != 0 %}
-    - [+{{ signup.driving }} Ride{{ signup.driving|pluralize }}]
-    {% endif %}
-
-    {% if signup.num_guests %}
-    - [{{ signup.num_guests }} guest{{ signup.num_guests|pluralize }}]
-    {% endif %}
-
-    {% if signup.comments and perms.events.view_comments %}
-    - <em>{{ signup.comments }}</em>
-    {% endif %}
-
-  {% else %}
-  {% comment %}
-  If the person viewing the page does NOT have permission to view signups, show
-  the version without details.
-  {% endcomment %}
-    {% if signup.user %}
-      {{ signup.user.userprofile.get_public_name }}
-    {% else %}
-      {{ signup.name }}
-    {% endif %}
-  {% endif %}
-  </li>
-{% endfor %}
-</ul>
-
+{% spaceless %}
+  <ul class="signup-list">
+  {% for signup in signup_list %}
+    <li>
+    {% include 'events/signup_detail.html' %}
+    </li>
+  {% endfor %}
+  </ul>
+{% endspaceless %}
 {% else %}
-<div>No one has signed up.{% if form %} Be the first!{% endif %}</div>
+  <div>No one has signed up.{% if form %} Be the first!{% endif %}</div>
 {% endif %}
 
 <div>

@@ -9,13 +9,9 @@
     <li>
       <a href="javascript:void(0)" class="dropdown-title">
         <div class="user-pic">
-          {% if user_profile.picture %}
-            <img src="{{ user_profile.picture|thumbnail_url:'avatar' }}" alt="{{ user_profile.get_common_name }}">
-          {% else %}
-            <img src="{% static 'images/missing.jpg' %}" alt="{{ user_profile.get_common_name }}" width=40 height=40>
-          {% endif %}
+          {% include 'user_thumbnail.html' %}
         </div>
-        <i class="icon-user"></i>
+        <i class="icon-user profile-user-icon"></i>
         <span>{{ user_profile.preferred_name }}</span>
         <i class="icon-sort-down login-arrow"></i>
       </a>

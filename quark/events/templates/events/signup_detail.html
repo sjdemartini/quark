@@ -1,0 +1,52 @@
+{% comment %}
+This template is included in events/detail.html to provide a detailed view of
+each event signup.
+
+The template expects a context variable "signup" for the EventSignUp object to
+display, and displays signup info depending on the request user's permissions.
+{% endcomment %}
+{% if perms.events.view_signups %}
+  {% with signup_user_name=signup.user.userprofile.get_common_name %}
+
+  {% if signup.user %}
+  <div class="signup-pic">
+    {% include 'user_thumbnail.html' with user_profile=signup.user.userprofile alt_text=signup_user_name %}
+  </div>
+  {% endif %}
+
+  <div class="signup-details">
+  {% if signup.user %}
+    <div class="signup-name">{{ signup_user_name }}</div>
+  {% else %}
+    <div class="signup-name">{{ signup.name }}</div>
+    <div class="subtext">Anonymous signup: {{ signup.email }}</div>
+  {% endif %}
+
+    <div class="signup-info">
+      {% if event.needs_drivers and signup.driving != 0 %}
+        <i class="icon-road"></i>&nbsp;<span class="signup-driving"><strong>+{{ signup.driving }}</strong> Ride{{ signup.driving|pluralize }}</span>
+        {% if signup.num_guests %} &nbsp;&bull;&nbsp; {% endif %}
+      {% endif %}
+
+      {% if signup.num_guests %}
+        <i class="icon-group"></i>&nbsp;<span class="signup-guests">{{ signup.num_guests }} guest{{ signup.num_guests|pluralize }}</span>
+      {% endif %}
+    </div>
+
+  {% if signup.comments and perms.events.view_comments %}
+    <div class="signup-comments">{{ signup.comments }}</div>
+  {% endif %}
+
+  </div>
+  {% endwith signup_user_name %}
+{% else %}
+{% comment %}
+If the person viewing the page does NOT have permission to view signups, show
+the version without details.
+{% endcomment %}
+  {% if signup.user %}
+    {{ signup.user.userprofile.get_public_name }}
+  {% else %}
+    {{ signup.name }}
+  {% endif %}
+{% endif %}

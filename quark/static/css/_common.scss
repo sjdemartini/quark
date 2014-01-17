@@ -474,7 +474,8 @@ blockquote {
     padding-right: 10px;
   }
 
-  // Show the user-pic above medium width, and show the icon-user below that
+  // Show the user-pic above medium width, and show the profile-user-icon below
+  // that width
   .user-pic {
     display: inline-block;
     margin-right: 5px;
@@ -488,7 +489,7 @@ blockquote {
     }
   }
 
-  .icon-user {
+  .profile-user-icon {
     display: none;
     @include respond-to(medium) {
       display: inherit;
@@ -617,6 +618,20 @@ blockquote {
         }
       }
     }
+  }
+}
+
+// If a user's photo hasn't been uploaded, the default icon is used instead:
+.user-default-avatar {
+  height: 40px;
+  width: 40px;
+  text-align: center;
+  background: $medium-gray;
+
+  .icon-user {
+    font-size: 35px !important;
+    color: #fff !important;
+    line-height: 40px !important;
   }
 }
 

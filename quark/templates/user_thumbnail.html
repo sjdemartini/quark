@@ -1,0 +1,15 @@
+{% comment %}
+This template is used to provide a thumbnail of the user's profile picture
+given their UserProfile (given as the user_profile context variable). If they
+do not have a picture uploaded, then the template uses a default user icon in
+its place.
+
+The "alt_text" context variable is optional and can be used to override the
+default alt text on the image (the user's common name).
+{% endcomment %}
+{% load thumbnail %}
+{% if user_profile.picture %}
+  <img class="user-picture-avatar" src="{{ user_profile.picture|thumbnail_url:'avatar' }}" alt="{{ alt_text|default:user_profile.get_common_name }}">
+{% else %}
+  <div class="user-default-avatar"><i class="icon-user"></i></div>
+{% endif %}
