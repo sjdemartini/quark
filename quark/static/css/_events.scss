@@ -79,6 +79,69 @@ tr.past-event {
   background-color: #FAFAFA;
 }
 
+// Event detail and signups
+.event-credit {
+  font-weight: 600;
+  padding: 2px 3px;
+  @include border-radius(2px);
+}
+
+.signup-list {
+  li {
+    display: inline-block;
+    background: $ultra-light-gray;
+    border: 1px solid #eee;
+    @include border-radius(3px);
+    margin-right: 5px;
+    margin-bottom: 5px;
+    padding: 3px;
+    vertical-align: middle;
+    width: 31%;
+    @include respond-to(medium) {
+      width: 46%;
+    }
+    @include respond-to(small) {
+      width: 100%;
+    }
+
+    .signup-pic {
+      display: table-cell;
+      padding-right: 5px;
+      img {
+        display: block;
+      }
+    }
+
+    .signup-details {
+      display: table-cell;
+      vertical-align: middle;
+    }
+
+    .signup-name {
+      color: $dark-blue;
+      font-weight: 400;
+      margin-top: -3px;
+    }
+
+    .signup-info,
+    .signup-comments {
+      font-size: 0.8em;
+    }
+
+    .icon-road {
+      color: $dark-blue;
+    }
+
+    .icon-group {
+      color: $gold;
+    }
+
+    .signup-comments {
+      font-style: italic;
+    }
+  }
+}
+
 // Calendar display of events
 #calendar div {
   position: static;

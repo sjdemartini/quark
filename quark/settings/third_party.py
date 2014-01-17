@@ -36,6 +36,18 @@ JENKINS_TASKS = (
 PYLINT_RCFILE = os.path.join(WORKSPACE_ROOT, '.pylintrc')
 
 
+# Set up aliases for easy-thumbnails
+THUMBNAIL_ALIASES = {
+    '': {
+        'avatar': {
+            'size': (40, 40),
+            'autocrop': True,
+            'crop': 'smart'
+        }
+    },
+}
+
+
 # Define the function that determines whether the Django Debug Toolbar should
 # be shown
 def show_toolbar(request):

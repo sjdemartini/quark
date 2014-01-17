@@ -29,6 +29,9 @@ except subprocess.CalledProcessError:
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
+# Set the debug mode for easy-thumbnails
+THUMBNAIL_DEBUG = DEBUG
+
 # Set dev user's info for admins/manager
 ADMINS = ((_name, _email),)
 MANAGERS = ADMINS
