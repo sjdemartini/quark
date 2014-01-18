@@ -7,11 +7,13 @@ from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.views.generic import TemplateView
 
+from quark.base.views import HomePageView
+
 
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    url(r'^$', TemplateView.as_view(template_name='index.html'), name='home'),
+    url(r'^$', HomePageView.as_view(), name='home'),
     url(r'^accounts/', include('quark.accounts.urls',
                                app_name='accounts',
                                namespace='accounts')),

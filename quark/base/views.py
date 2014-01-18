@@ -1,6 +1,18 @@
 from django.shortcuts import render
+from django.views.generic.base import TemplateView
 
 from quark.base.models import Term
+from quark.events.models import Event
+
+
+class HomePageView(TemplateView):
+    template_name = 'index.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(HomePageView, self).get_context_data(**kwargs)
+        context['event_list'] = Event.objects.get_user_viewable(
+            self.request.user).get_upcoming()[:3]
+        return context
 
 
 class TermParameterMixin(object):

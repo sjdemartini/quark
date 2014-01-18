@@ -67,24 +67,20 @@
           </div>
           <div id="updates">
             <div>
-              <a href=""><h2>Upcoming events</h2></a>
+              <a href="{% url 'events:list' %}"><h2>Upcoming events</h2></a>
+              {% if event_list %}
+              {% for event in event_list %}
               <ul>
                 <li>
-                  <a href=""><div class="updatetitle">General Meeting 3</div>
-                  <div class="updatedesc small">Thu, Apr 11 6:00 PM - 8:00 PM, The Woz</div>
-                  <div class="updatedesc">Show off your skillz at the TALENT SHOW!</div></a>
-                </li>
-                <li>
-                  <a href=""><div class="updatetitle">Internship Panel</div>
-                  <div class="updatedesc small">Tue, Apr 16 7:30 PM - 9:00 PM, 3110 Etcheverry</div>
-                  <div class="updatedesc">How to score that dream job</div></a>
-                </li>
-                <li>
-                  <a href=""><div class="updatetitle">Delphini Worksession #4</div>
-                  <div class="updatedesc small">Tue, Apr 16 8:00 PM - 10:00 PM, 101 O'Brien</div>
-                  <div class="updatedesc">Last worksession!</div></a>
+                  <a href="{% url 'events:detail' event.pk %}"><div class="updatetitle">{{ event.name }}</div>
+                  <div class="updatedesc small">{{ event.view_datetime }}, {{ event.location }}</div>
+                  <div class="updatedesc">{{ event.tagline }}</div>
                 </li>
               </ul>
+             {% endfor %}
+             {% else %}
+             <p>There are no upcoming events at this time. Please check back later!</p>
+             {% endif %}
             </div>
           </div>
 {% endblock content %}
