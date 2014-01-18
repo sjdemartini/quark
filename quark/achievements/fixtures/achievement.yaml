@@ -230,6 +230,8 @@
     manual: False
     repeatable: False
     rank: 2.1
+    acquired_icon: images/achievements/attend025events.png
+    unacquired_icon: images/achievements/attend025events_g.png
 - pk: attend050events
   model: achievements.Achievement
   fields:
@@ -243,6 +245,8 @@
     manual: False
     repeatable: False
     rank: 2.2
+    acquired_icon: images/achievements/attend050events.png
+    unacquired_icon: images/achievements/attend050events_g.png
 - pk: attend078events
   model: achievements.Achievement
   fields:
@@ -256,6 +260,8 @@
     manual: False
     repeatable: False
     rank: 2.3
+    acquired_icon: images/achievements/attend078events.png
+    unacquired_icon: images/achievements/attend078events_g.png
 - pk: attend100events
   model: achievements.Achievement
   fields:
@@ -269,6 +275,8 @@
     manual: False
     repeatable: False
     rank: 2.4
+    acquired_icon: images/achievements/attend100events.png
+    unacquired_icon: images/achievements/attend100events_g.png
 - pk: attend150events
   model: achievements.Achievement
   fields:
@@ -282,6 +290,8 @@
     manual: False
     repeatable: False
     rank: 2.5
+    acquired_icon: images/achievements/attend150events.png
+    unacquired_icon: images/achievements/attend150events_g.png
 - pk: attend200events
   model: achievements.Achievement
   fields:
@@ -295,6 +305,8 @@
     manual: False
     repeatable: False
     rank: 2.6
+    acquired_icon: images/achievements/attend200events.png
+    unacquired_icon: images/achievements/attend200events_g.png
 - pk: attend300events
   model: achievements.Achievement
   fields:
@@ -321,6 +333,8 @@
     manual: False
     repeatable: False
     rank: 4.1
+    acquired_icon: images/achievements/attend_all_meetings.png
+    unacquired_icon: images/achievements/attend_all_meetings_g.png
 - pk: attend_all_big_socials
   model: achievements.Achievement
   fields:
@@ -334,6 +348,8 @@
     manual: False
     repeatable: False
     rank: 4.2
+    acquired_icon: images/achievements/attend_all_big_socials.png
+    unacquired_icon: images/achievements/attend_all_big_socials_g.png
 - pk: attend_all_bent_polishings
   model: achievements.Achievement
   fields:
@@ -347,6 +363,8 @@
     manual: False
     repeatable: False
     rank: 4.3
+    acquired_icon: images/achievements/attend_all_bent_polishings.gif
+    unacquired_icon: images/achievements/attend_all_bent_polishings_g.png
 - pk: attend_all_infosessions
   model: achievements.Achievement
   fields:
@@ -360,6 +378,8 @@
     manual: False
     repeatable: False
     rank: 4.4
+    acquired_icon: images/achievements/attend_all_infosessions.png
+    unacquired_icon: images/achievements/attend_all_infosessions_g.png
 - pk: attend_all_service
   model: achievements.Achievement
   fields:
@@ -373,6 +393,8 @@
     manual: False
     repeatable: False
     rank: 4.5
+    acquired_icon: images/achievements/attend_all_service.png
+    unacquired_icon: images/achievements/attend_all_service_g.png
 - pk: attend_all_efutures
   model: achievements.Achievement
   fields:
@@ -386,6 +408,8 @@
     manual: False
     repeatable: False
     rank: 4.6
+    acquired_icon: images/achievements/attend_all_efutures.png
+    unacquired_icon: images/achievements/attend_all_efutures_g.png
 - pk: attend_all_fun
   model: achievements.Achievement
   fields:
@@ -399,6 +423,8 @@
     manual: False
     repeatable: False
     rank: 4.7
+    acquired_icon: images/achievements/attend_all_fun.png
+    unacquired_icon: images/achievements/attend_all_fun_g.png
 - pk: attend_all_prodev
   model: achievements.Achievement
   fields:
@@ -412,6 +438,8 @@
     manual: False
     repeatable: False
     rank: 4.8
+    acquired_icon: images/achievements/attend_all_prodev.png
+    unacquired_icon: images/achievements/attend_all_prodev_g.png
 - pk: attend_each_type
   model: achievements.Achievement
   fields:
@@ -425,6 +453,8 @@
     manual: False
     repeatable: False
     rank: 4.9
+    acquired_icon: images/achievements/attend_each_type.png
+    unacquired_icon: images/achievements/attend_each_type_g.png
 - pk: attend_d15
   model: achievements.Achievement
   fields:
@@ -438,6 +468,8 @@
     manual: False
     repeatable: False
     rank: 8.1
+    acquired_icon: images/achievements/attend_d15.png
+    unacquired_icon: images/achievements/attend_d15_g.png
 - pk: attend_convention
   model: achievements.Achievement
   fields:
@@ -463,6 +495,8 @@
     manual: False
     repeatable: False
     rank: 12.1
+    acquired_icon: images/achievements/alphabet_attendance.png
+    unacquired_icon: images/achievements/alphabet_attendance_g.png
 - pk: berkeley_explosion
   model: achievements.Achievement
   fields:
@@ -475,3 +509,5 @@
     manual: False
     repeatable: False
     rank: 25.1
+    acquired_icon: images/achievements/berkeley_explosion.png
+    unacquired_icon: images/achievements/berkeley_explosion_g.png

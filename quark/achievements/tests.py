@@ -1,11 +1,18 @@
+import random
+import string
+
 from django.contrib.auth import get_user_model
 from django.test import TestCase
+from django.utils import timezone
 
 from quark.achievements.models import Achievement
 from quark.achievements.models import UserAchievement
 from quark.base.models import Officer
 from quark.base.models import OfficerPosition
 from quark.base.models import Term
+from quark.events.models import Event
+from quark.events.models import EventAttendance
+from quark.events.models import EventType
 
 
 class AchievementAssignmentTest(TestCase):
@@ -22,9 +29,9 @@ class AchievementAssignmentTest(TestCase):
         self.achievements = UserAchievement.objects.filter(
             user=self.sample_user)
 
-        self.fa2009 = Term.objects.get(term='fa', year='2009')
-        self.sp2010 = Term.objects.get(term='sp', year='2010')
-        self.fa2010 = Term.objects.get(term='fa', year='2010')
+        self.fa2009 = Term.objects.get(term=Term.FALL, year='2009')
+        self.sp2010 = Term.objects.get(term=Term.SPRING, year='2010')
+        self.fa2010 = Term.objects.get(term=Term.FALL, year='2010')
 
     def test_assignment(self):
         # test to see that assigning the achievement creates an achievement
@@ -101,6 +108,422 @@ class AchievementAssignmentTest(TestCase):
         self.assertEqual(self.achievements.filter(acquired=True).count(), 1)
 
 
+class EventAchievementsTest(TestCase):
+    fixtures = ['achievement.yaml',
+                'officer_position.yaml',
+                'term.yaml']
+
+    def setUp(self):
+        self.sample_user = get_user_model().objects.create_user(
+            username='test', password='test', email='test@tbp.berkeley.edu',
+            first_name="Test", last_name="Test")
+        self.achievements = UserAchievement.objects.filter(
+            user=self.sample_user)
+
+        self.sp2012 = Term.objects.get(term=Term.SPRING, year='2012')
+        self.fa2012 = Term.objects.get(term=Term.FALL, year='2012')
+        self.sp2013 = Term.objects.get(term=Term.SPRING, year='2013')
+        self.fa2013 = Term.objects.get(term=Term.FALL, year='2013')
+
+        self.bent, _ = EventType.objects.get_or_create(name="Bent Polishing")
+        self.big_social, _ = EventType.objects.get_or_create(name="Big Social")
+        self.prodev, _ = EventType.objects.get_or_create(
+            name="Professional Development")
+        self.service, _ = EventType.objects.get_or_create(
+            name="Community Service")
+        self.efutures, _ = EventType.objects.get_or_create(name="E Futures")
+        self.fun, _ = EventType.objects.get_or_create(name="Fun")
+        self.meeting, _ = EventType.objects.get_or_create(name="Meeting")
+        self.info, _ = EventType.objects.get_or_create(name="Infosession")
+
+    def create_event(self, event_type, name=None, term=None, attendance=True):
+        if name is None:
+            name = ''.join(
+                random.choice(string.ascii_uppercase) for x in range(6))
+        if term is None:
+            term = self.sp2013
+
+        event, _ = Event.objects.get_or_create(
+            name=name,
+            contact=self.sample_user,
+            term=term,
+            location="TBD",
+            event_type=event_type,
+            start_datetime=timezone.now(),
+            end_datetime=timezone.now(),
+            committee=OfficerPosition.objects.first())
+
+        if attendance:
+            EventAttendance.objects.get_or_create(event=event,
+                                                  user=self.sample_user)
+
+        return event
+
+    def create_many_events(self, number, event_type, term=None,
+                           attendance=True):
+        if term is None:
+            term = self.sp2013
+
+        events = [Event(
+            name='Event{:03d}'.format(i),
+            event_type=event_type,
+            term=term,
+            contact=self.sample_user,
+            location="TBD",
+            start_datetime=timezone.now(),
+            end_datetime=timezone.now(),
+            committee=OfficerPosition.objects.first())
+            for i in range(0, number)]
+
+        Event.objects.bulk_create(events)
+
+        if attendance:
+            created_events = Event.objects.order_by('-created')[:number]
+            attendances = [EventAttendance(user=self.sample_user, event=event)
+                           for event in created_events]
+            EventAttendance.objects.bulk_create(attendances)
+
+    def test_25_lifetime_events(self):
+        """Achievement for 25 lifetime events is obtained after 25th event.
+        """
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='attend025events').count(), 0)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='attend050events').count(), 0)
+
+        self.create_many_events(23, event_type=self.fun, term=self.sp2012)
+        self.create_event(event_type=self.fun, term=self.sp2012)
+
+        twentyfive_achievement = UserAchievement.objects.get(
+            achievement__pk='attend025events', user=self.sample_user)
+        self.assertFalse(twentyfive_achievement.acquired)
+        self.assertEqual(twentyfive_achievement.progress, 24)
+
+        self.create_event(event_type=self.fun, term=self.sp2012)
+
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='attend025events', acquired=True).count(), 1)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='attend050events', acquired=False).count(), 1)
+
+    def test_50_lifetime_events(self):
+        """Achievement for 50 lifetime events is obtained after 50th event.
+        """
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='attend050events').count(), 0)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='attend078events').count(), 0)
+
+        self.create_many_events(48, event_type=self.fun, term=self.sp2012)
+        self.create_event(event_type=self.fun, term=self.sp2012)
+
+        fifty_achievement = UserAchievement.objects.get(
+            achievement__pk='attend050events', user=self.sample_user)
+        self.assertFalse(fifty_achievement.acquired)
+        self.assertEqual(fifty_achievement.progress, 49)
+
+        self.create_event(event_type=self.fun, term=self.sp2012)
+
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='attend050events', acquired=True).count(), 1)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='attend078events', acquired=False).count(), 1)
+
+    def test_78_lifetime_events(self):
+        """Achievement for 78 lifetime events is obtained after the 78th event.
+        """
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='attend078events').count(), 0)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='attend100events').count(), 0)
+
+        self.create_many_events(76, event_type=self.fun, term=self.sp2012)
+        self.create_event(event_type=self.fun, term=self.sp2012)
+
+        seventyeight_achievement = UserAchievement.objects.get(
+            achievement__pk='attend078events', user=self.sample_user)
+        self.assertFalse(seventyeight_achievement.acquired)
+        self.assertEqual(seventyeight_achievement.progress, 77)
+
+        self.create_event(event_type=self.fun, term=self.sp2012)
+
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='attend078events', acquired=True).count(), 1)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='attend100events', acquired=False).count(), 1)
+
+    def test_100_lifetime_events(self):
+        """Achievement for 100 lifetime events is obtained after 100th event.
+        """
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='attend100events').count(), 0)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='attend150events').count(), 0)
+
+        self.create_many_events(98, event_type=self.fun, term=self.sp2012)
+        self.create_event(event_type=self.fun, term=self.sp2012)
+
+        hundred_achievement = UserAchievement.objects.get(
+            achievement__pk='attend100events', user=self.sample_user)
+        self.assertFalse(hundred_achievement.acquired)
+        self.assertEqual(hundred_achievement.progress, 99)
+
+        self.create_event(event_type=self.fun, term=self.sp2012)
+
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='attend100events', acquired=True).count(), 1)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='attend150events', acquired=False).count(), 1)
+
+    def test_150_lifetime_events(self):
+        """Achievement for 150 lifetime events is obtained after 150th event.
+        """
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='attend150events').count(), 0)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='attend200events').count(), 0)
+
+        self.create_many_events(148, event_type=self.fun, term=self.sp2012)
+        self.create_event(event_type=self.fun, term=self.sp2012)
+
+        onefifty_achievement = UserAchievement.objects.get(
+            achievement__pk='attend150events', user=self.sample_user)
+        self.assertFalse(onefifty_achievement.acquired)
+        self.assertEqual(onefifty_achievement.progress, 149)
+
+        self.create_event(event_type=self.fun, term=self.sp2012)
+
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='attend150events', acquired=True).count(), 1)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='attend200events', acquired=False).count(), 1)
+
+    def test_200_lifetime_events(self):
+        """Achievement for 200 lifetime events is obtained after 200th event.
+        """
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='attend200events').count(), 0)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='attend300events').count(), 0)
+
+        self.create_many_events(198, event_type=self.fun, term=self.sp2012)
+        self.create_event(event_type=self.fun, term=self.sp2012)
+
+        twohundred_achievement = UserAchievement.objects.get(
+            achievement__pk='attend200events', user=self.sample_user)
+        self.assertFalse(twohundred_achievement.acquired)
+        self.assertEqual(twohundred_achievement.progress, 199)
+
+        self.create_event(event_type=self.fun, term=self.sp2012)
+
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='attend200events', acquired=True).count(), 1)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='attend300events', acquired=False).count(), 1)
+
+    def test_300_lifetime_events(self):
+        """Achievement for 300 lifetime events is obtained after 300th events.
+        """
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='attend300events').count(), 0)
+
+        self.create_many_events(298, event_type=self.fun, term=self.sp2012)
+        self.create_event(event_type=self.fun, term=self.sp2012)
+
+        threehundred_achievement = UserAchievement.objects.get(
+            achievement__pk='attend300events', user=self.sample_user)
+        self.assertFalse(threehundred_achievement.acquired)
+        self.assertEqual(threehundred_achievement.progress, 299)
+
+        self.create_event(event_type=self.fun, term=self.sp2012)
+
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='attend300events', acquired=True).count(), 1)
+
+    def test_lifetime_events_with_different_terms(self):
+        """Achievements for lifetime events can be obtained by attending
+        events in multiple different semesters.
+        """
+        self.create_many_events(24, event_type=self.fun, term=self.sp2012)
+        self.create_event(event_type=self.fun, term=self.fa2012)
+
+        achievement = UserAchievement.objects.get(
+            achievement__pk='attend025events', user=self.sample_user)
+        self.assertTrue(achievement.acquired)
+        self.assertEqual(achievement.term, self.fa2012)
+
+    def test_lifetime_events_backfill(self):
+        """Achievements for lifetime event attendance are awarded for the 25th
+        event attended in real life, not the 25th object added to the DB.
+        """
+        self.create_many_events(23, event_type=self.bent, term=self.sp2013)
+        self.create_event(event_type=self.prodev, term=self.sp2013)
+        achievement = UserAchievement.objects.get(
+            achievement__pk='attend025events', user=self.sample_user)
+        self.assertEqual(achievement.progress, 24)
+
+        self.create_event(name='Event025',
+                          event_type=self.fun, term=self.sp2012)
+
+        achievement = UserAchievement.objects.get(
+            achievement__pk='attend025events', user=self.sample_user)
+
+        self.assertTrue(achievement.acquired)
+        self.assertEqual(achievement.term, self.sp2013)
+
+    def test_salad_bowl(self):
+        """The achievement for attending one event of each type in a semester
+        may be awarded after missing an event of one type if an event of the
+        same type is attended later in the semester.
+        """
+        self.create_event(name='Fun', event_type=self.fun, attendance=False)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='attend_each_type', acquired=True).count(), 0)
+
+        self.create_event(name='Bent', event_type=self.bent)
+        self.create_event(name='Service', event_type=self.service)
+        self.create_event(name='ProDev', event_type=self.prodev)
+        self.create_event(name='Meeting', event_type=self.meeting)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='attend_each_type', acquired=True).count(), 0)
+
+        self.create_event(name='Fun2', event_type=self.fun, attendance=True)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='attend_each_type', acquired=True).count(), 1)
+
+    def test_event_type_achievement(self):
+        """The achievement for attending all events of a certain type in one
+        semester can be awarded by attending all fun events, for example, in
+        a later semester after not attending all in a previous semester.
+        """
+        self.create_event(name='Fun1',
+                          event_type=self.fun,
+                          attendance=False,
+                          term=self.sp2012)
+        self.create_event(name='Fun2',
+                          event_type=self.fun,
+                          attendance=True,
+                          term=self.sp2012)
+
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='attend_all_fun', acquired=True).count(), 0)
+
+        self.create_event(name='Fun3',
+                          event_type=self.fun,
+                          attendance=True,
+                          term=self.fa2012)
+        achievement = UserAchievement.objects.get(
+            achievement__pk='attend_all_fun', user=self.sample_user)
+        self.assertTrue(achievement.acquired)
+        self.assertEqual(achievement.term, self.fa2012)
+
+    def test_d15_achievement(self):
+        """The achievement for attending District 15 Conference is given
+        for a member who attends an event titled D15.
+        """
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='attend_d15', acquired=True).count(), 0)
+
+        self.create_event(name="D16", event_type=self.meeting)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='attend_d15', acquired=True).count(), 0)
+
+        self.create_event(name="D15", event_type=self.meeting,
+                          attendance=False)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='attend_d15', acquired=True).count(), 0)
+
+        self.create_event(name="D15", event_type=self.meeting)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='attend_d15', acquired=True).count(), 1)
+
+    def test_d15_alt(self):
+        """The D15 achievement can also be given for attending an event titled
+        District 15 Conference.
+        """
+        self.create_event(name="District 15 Conference", event_type=self.fun)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='attend_d15', acquired=True).count(), 1)
+
+    def test_d15_alt2(self):
+        """The D15 achievement can also be given for attending an event that
+        includes the string 'D 15', such as D 15 Convention.
+        """
+        self.create_event(name="D 15 Convention", event_type=self.big_social)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='attend_d15', acquired=True).count(), 1)
+
+    def test_natl_convention_achievement(self):
+        """The achievement for attending National Convention is awarded for
+        attending an event where the title includes the phrase:
+        'National Convention'
+        """
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='attend_convention', acquired=True).count(), 0)
+
+        self.create_event(name="D15 Convention", event_type=self.fun)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='attend_convention', acquired=True).count(), 0)
+
+        self.create_event(name="National Convention", event_type=self.fun,
+                          attendance=False)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='attend_convention', acquired=True).count(), 0)
+
+        self.create_event(name="National Convention", event_type=self.fun)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='attend_convention', acquired=True).count(), 1)
+
+    def test_berkeley_explosion_achievement(self):
+        """The achievement for attending the Berkeley Explosion CM is awarded
+        only for attending an event titled exactly 'Candidate Meeting' in the
+        Fall 2013 term.
+        """
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='berkeley_explosion', acquired=True).count(), 0)
+
+        self.create_event(name="Candidate Meeting", event_type=self.meeting,
+                          term=self.sp2012)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='berkeley_explosion', acquired=True).count(), 0)
+
+        self.create_event(name="Candidate Meeting 2", event_type=self.meeting,
+                          term=self.fa2013)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='berkeley_explosion', acquired=True).count(), 0)
+
+        self.create_event(name="Candidate Meeting", event_type=self.meeting,
+                          term=self.fa2013, attendance=False)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='berkeley_explosion', acquired=True).count(), 0)
+
+        self.create_event(name="Candidate Meeting", event_type=self.meeting,
+                          term=self.fa2013, attendance=True)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='berkeley_explosion', acquired=True).count(), 1)
+
+    def test_alphabet_attendance_achievement(self):
+        """The achievement for attending events with all the letters of the
+        alphabet in the titles is awarded for such, ignoring capitalization.
+        """
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='alphabet_attendance', acquired=True).count(), 0)
+
+        self.create_event(name="abcdefghijklm", event_type=self.fun)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='alphabet_attendance', acquired=True).count(), 0)
+
+        self.create_event(name="NOPqrstuvwxyZ", event_type=self.meeting,
+                          attendance=False)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='alphabet_attendance', acquired=True).count(), 0)
+
+        self.create_event(name="noPqRstuvWxyz", event_type=self.info,
+                          attendance=True)
+        self.assertEqual(self.achievements.filter(
+            achievement__pk='alphabet_attendance', acquired=True).count(), 1)
+
+
 class OfficerAchievementsTest(TestCase):
     fixtures = ['achievement.yaml',
                 'term.yaml',
@@ -113,16 +536,16 @@ class OfficerAchievementsTest(TestCase):
         self.achievements = UserAchievement.objects.filter(
             user=self.sample_user)
 
-        self.sp2009 = Term.objects.get(term='sp', year=2009)
-        self.fa2009 = Term.objects.get(term='fa', year=2009)
-        self.sp2010 = Term.objects.get(term='sp', year=2010)
-        self.fa2010 = Term.objects.get(term='fa', year=2010)
-        self.sp2011 = Term.objects.get(term='sp', year=2011)
-        self.fa2011 = Term.objects.get(term='fa', year=2011)
-        self.sp2012 = Term.objects.get(term='sp', year=2012)
-        self.fa2012 = Term.objects.get(term='fa', year=2012)
-        self.sp2013 = Term.objects.get(term='sp', year=2013)
-        self.fa2013 = Term.objects.get(term='fa', year=2013)
+        self.sp2009 = Term.objects.get(term=Term.SPRING, year=2009)
+        self.fa2009 = Term.objects.get(term=Term.FALL, year=2009)
+        self.sp2010 = Term.objects.get(term=Term.SPRING, year=2010)
+        self.fa2010 = Term.objects.get(term=Term.FALL, year=2010)
+        self.sp2011 = Term.objects.get(term=Term.SPRING, year=2011)
+        self.fa2011 = Term.objects.get(term=Term.FALL, year=2011)
+        self.sp2012 = Term.objects.get(term=Term.SPRING, year=2012)
+        self.fa2012 = Term.objects.get(term=Term.FALL, year=2012)
+        self.sp2013 = Term.objects.get(term=Term.SPRING, year=2013)
+        self.fa2013 = Term.objects.get(term=Term.FALL, year=2013)
 
         self.house_leader = OfficerPosition.objects.get(
             short_name='house-leaders')
