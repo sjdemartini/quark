@@ -180,7 +180,7 @@ def assign_diffposition_achievements(instance, committee_terms):
 def assign_straight_to_the_top_achievement(instance, straight_to_the_top_term):
     straighttothetop = get_object_or_none(
         Achievement, short_name='straighttothetop')
-    if straighttothetop and straight_to_the_top_term:
+    if straighttothetop:
         straighttothetop.assign(instance.user, term=straight_to_the_top_term)
 
 models.signals.post_save.connect(officership_achievements, sender=Officer)

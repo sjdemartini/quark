@@ -128,7 +128,7 @@
     privacy: public
     manual: False
     repeatable: False
-    rank: 10.1
+    rank: 7.1
     acquired_icon: images/achievements/chair1committee.png
     unacquired_icon: images/achievements/chair1committee_g.png
 - pk: chair2committees
@@ -143,7 +143,7 @@
     privacy: public
     manual: False
     repeatable: False
-    rank: 10.2
+    rank: 7.2
 - pk: three_unique_positions
   model: achievements.Achievement
   fields:
@@ -171,8 +171,8 @@
     manual: False
     repeatable: False
     rank: 6.1
-    acquired_icon: images/achievements/twicesameposition.png
-    unacquired_icon: images/achievements/twicesameposition_g.png
+    acquired_icon: images/achievements/twice_same_position.png
+    unacquired_icon: images/achievements/twice_same_position_g.png
 - pk: thrice_same_position
   model: achievements.Achievement
   fields:
@@ -186,8 +186,8 @@
     manual: False
     repeatable: False
     rank: 6.2
-    acquired_icon: images/achievements/thricesameposition.png
-    unacquired_icon: images/achievements/thricesameposition_g.png
+    acquired_icon: images/achievements/thrice_same_position.png
+    unacquired_icon: images/achievements/thrice_same_position_g.png
 - pk: two_repeated_positions
   model: achievements.Achievement
   fields:
@@ -201,8 +201,8 @@
     manual: False
     repeatable: False
     rank: 6.3
-    acquired_icon: images/achievements/tworepeatedpositions.png
-    unacquired_icon: images/achievements/tworepeatedpositions_g.png
+    acquired_icon: images/achievements/two_repeated_positions.png
+    unacquired_icon: images/achievements/two_repeated_positions_g.png
 - pk: straighttothetop
   model: achievements.Achievement
   fields:
@@ -217,3 +217,261 @@
     rank: 11.2
     acquired_icon: images/achievements/straighttothetop.png
     unacquired_icon: images/achievements/straighttothetop_g.png
+- pk: attend025events
+  model: achievements.Achievement
+  fields:
+    name: Event Spree
+    description: Attend 25 TBP events
+    category: event
+    sequence: Attendance
+    points: 5
+    goal: 25
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 2.1
+- pk: attend050events
+  model: achievements.Achievement
+  fields:
+    name: Event Frenzy
+    description: Attend 50 TBP events
+    category: event
+    sequence: Attendance
+    points: 10
+    goal: 50
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 2.2
+- pk: attend078events
+  model: achievements.Achievement
+  fields:
+    name: Club 78 Platinum Member
+    description: Attend 78 TBP events
+    category: event
+    sequence: Attendance
+    points: 10
+    goal: 78
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 2.3
+- pk: attend100events
+  model: achievements.Achievement
+  fields:
+    name: Preventing Boredom
+    description: Attend 100 TBP events
+    category: event
+    sequence: Attendance
+    points: 15
+    goal: 100
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 2.4
+- pk: attend150events
+  model: achievements.Achievement
+  fields:
+    name: Approaching the Event Horizon
+    description: Attend 150 TBP events
+    category: event
+    sequence: Attendance
+    points: 15
+    goal: 150
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 2.5
+- pk: attend200events
+  model: achievements.Achievement
+  fields:
+    name: You Are A Bent
+    description: Attend 200 TBP events
+    category: event
+    sequence: Attendance
+    points: 20
+    goal: 200
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 2.6
+- pk: attend300events
+  model: achievements.Achievement
+  fields:
+    name: THIS. IS. TBP!
+    description: Attend 300 TBP events
+    category: event
+    sequence: Attendance
+    points: 30
+    goal: 300
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 2.7
+- pk: attend_all_meetings
+  model: achievements.Achievement
+  fields:
+    name: Generalissimo
+    description: Attend all meeting events in a semester
+    category: event
+    sequence: Event Type
+    points: 5
+    goal: 0
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 4.1
+- pk: attend_all_big_socials
+  model: achievements.Achievement
+  fields:
+    name: Socialist
+    description: Attend all big social events in a semester
+    category: event
+    sequence: Event Type
+    points: 5
+    goal: 0
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 4.2
+- pk: attend_all_bent_polishings
+  model: achievements.Achievement
+  fields:
+    name: Ooooh, Shiny
+    description: Attend all Bent polishing events in a semester
+    category: event
+    sequence: Event Type
+    points: 5
+    goal: 0
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 4.3
+- pk: attend_all_infosessions
+  model: achievements.Achievement
+  fields:
+    name: Unemployed
+    description: Attend all infosession events in a semester
+    category: event
+    sequence: Event Type
+    points: 20
+    goal: 0
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 4.4
+- pk: attend_all_service
+  model: achievements.Achievement
+  fields:
+    name: Call of Duty
+    description: Attend all service events in a semester
+    category: event
+    sequence: Event Type
+    points: 25
+    goal: 0
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 4.5
+- pk: attend_all_efutures
+  model: achievements.Achievement
+  fields:
+    name: E-Funtures
+    description: Attend all Engineering Futures events in a semester
+    category: event
+    sequence: Event Type
+    points: 25
+    goal: 0
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 4.6
+- pk: attend_all_fun
+  model: achievements.Achievement
+  fields:
+    name: Simply Not a Real Engineer
+    description: Attend all fun events in a semester
+    category: event
+    sequence: Event Type
+    points: 40
+    goal: 0
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 4.7
+- pk: attend_all_prodev
+  model: achievements.Achievement
+  fields:
+    name: MBA in Disguise
+    description: Attend all professional development events in a semester
+    category: event
+    sequence: Event Type
+    points: 15
+    goal: 0
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 4.8
+- pk: attend_each_type
+  model: achievements.Achievement
+  fields:
+    name: Salad Bowl
+    description: Attend at least one event of each type in a semester
+    category: event
+    sequence: Event Type
+    points: 15
+    goal: 0
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 4.9
+- pk: attend_d15
+  model: achievements.Achievement
+  fields:
+    name: Ambassador
+    description: Attend D15 Conference
+    category: event
+    sequence: Conference
+    points: 10
+    goal: 0
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 8.1
+- pk: attend_convention
+  model: achievements.Achievement
+  fields:
+    name: National Treasure
+    description: Attend National Convention
+    category: event
+    sequence: Conference
+    points: 10
+    goal: 0
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 8.2
+- pk: alphabet_attendance
+  model: achievements.Achievement
+  fields:
+    name: Alphabet Master
+    description: Attend events in a semester containing the letters A-Z in their titles
+    category: event
+    points: 15
+    goal: 0
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 12.1
+- pk: berkeley_explosion
+  model: achievements.Achievement
+  fields:
+    name: The Show Must Go On
+    description: Ignore warnMe and attend the Fall 2013 Candidate Meeting
+    category: event
+    points: 0
+    goal: 0
+    privacy: secret
+    manual: False
+    repeatable: False
+    rank: 25.1
