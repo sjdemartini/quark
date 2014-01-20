@@ -12,9 +12,9 @@
   <div id="nav">
     <ul>
       <li>
-        <a href="{# TODO #}">About</a>
+        <a href="{% url 'about' %}">About</a>
         <ul>
-          <li><a href="{# TODO #}">Contact Us</a></li>
+          <li><a href="{% url 'contact' %}">Contact Us</a></li>
           <li><a href="{# TODO #}">Eligibility</a></li>
           <li><a href="{% url 'project-reports:list' %}">Project Reports</a></li>
         </ul>
@@ -44,7 +44,7 @@
         </ul>
       </li>
       <li>
-        <a href="{# TODO #}">Industrial Relations</a>
+        <a href="{% url 'industry' %}">Industrial Relations</a>
         <ul>
           <li><a href="{# TODO #}">Company Sponsors</a></li>
           {% if perms.exams.change_resume %}

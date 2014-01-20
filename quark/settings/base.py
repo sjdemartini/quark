@@ -162,7 +162,7 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.transaction.TransactionMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
-    #'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
+    'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 ]
 
 ROOT_URLCONF = 'quark.urls'
@@ -178,7 +178,7 @@ DJANGO_CONTRIB_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
-    #'django.contrib.flatpages',
+    'django.contrib.flatpages',
     'django.contrib.messages',
     'django.contrib.sessions',
     'django.contrib.sites',

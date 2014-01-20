@@ -60,6 +60,14 @@ urlpatterns = patterns('',
                            namespace='vote')),
 )
 
+# Add flatpages URLs
+urlpatterns += patterns(
+    'django.contrib.flatpages.views',
+    url(r'^about/$', 'flatpage', {'url': '/about/'}, name='about'),
+    url(r'^contact/$', 'flatpage', {'url': '/contact/'}, name='contact'),
+    url(r'^industry/$', 'flatpage', {'url': '/industry/'}, name='industry'),
+)
+
 if settings.DEBUG:
     urlpatterns += staticfiles_urlpatterns()
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
