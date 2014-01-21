@@ -1,26 +1,13 @@
 import os
 
 from django.contrib.auth import get_user_model
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth.models import User as DefaultUser
-from django.core.exceptions import PermissionDenied
 from django.core.exceptions import ValidationError
 from django.test import TestCase
-from django.test.client import RequestFactory
 from django.test.utils import override_settings
-from mock import Mock
 
-from quark.accounts.decorators import candidate_required
-from quark.accounts.decorators import current_officer_required
-from quark.accounts.decorators import officer_required
-from quark.accounts.decorators import officer_types_required
 from quark.accounts.models import make_ldap_user
 from quark.accounts.models import LDAPUser
-from quark.base.models import Officer
-from quark.base.models import OfficerPosition
-from quark.base.models import Term
-from quark.candidates.models import Candidate
 from quark.qldap.utils import username_exists
 from quark.qldap.utils import delete_user
 
@@ -143,171 +130,6 @@ class CreateLDAPUserTestCase(TestCase):
         self.assertTrue(username_exists(self.username))
         user.delete()
         self.assertFalse(username_exists(self.username))
-
-
-class DecoratorsTest(TestCase):
-    old_term = None
-    term = None
-    old_position = None
-    position = None
-    it_chair = None
-    vpres = None
-
-    def setUp(self):
-        response = Mock(status_code=200)
-        self.view = Mock(return_value=response)
-
-        self.user = get_user_model().objects.create_user(
-            username='testuser',
-            email='test@tbp.berkeley.edu',
-            password='secretpass',
-            first_name='Test',
-            last_name='User')
-        self.factory = RequestFactory()
-        self.request = self.factory.get('/')
-        self.request.session = {}
-
-    def add_officer_positions(self, current=True):
-        self.old_term = Term(term=Term.SPRING, year=2012, current=False)
-        self.old_term.save()
-        self.term = Term(term=Term.FALL, year=2012, current=True)
-        self.term.save()
-        self.old_position = OfficerPosition(
-            short_name='IT',
-            long_name='Information Technology',
-            rank=2,
-            mailing_list='IT')
-        self.old_position.save()
-        self.it_chair = Officer(user=self.user, position=self.old_position,
-                                term=self.old_term, is_chair=True)
-        self.it_chair.save()
-        if current:
-            self.position = OfficerPosition(
-                short_name='VP',
-                long_name='Vice President',
-                rank=2,
-                mailing_list='VP')
-            self.position.save()
-            self.vpres = Officer(user=self.user, position=self.position,
-                                 term=self.term, is_chair=False)
-            self.vpres.save()
-
-    def test_not_logged_in(self):  # sanity check
-        decorated_view = login_required(self.view)
-        self.request.user = AnonymousUser()
-        response = decorated_view(self.request)
-
-        self.assertFalse(self.view.called)
-        self.assertEqual(response.status_code, 302)
-
-    def test_logged_in(self):  # sanity check
-        decorated_view = login_required(self.view)
-        self.request.user = self.user
-        response = decorated_view(self.request)
-
-        self.assertTrue(self.view.called)
-        self.assertEqual(response.status_code, 200)
-
-    def test_not_officer(self):
-        decorated_view = officer_required(self.view)
-        self.request.user = self.user
-        self.assertRaises(PermissionDenied, decorated_view, self.request)
-
-    def test_officer(self):
-        decorated_view = officer_required(self.view)
-        self.add_officer_positions()
-        self.request.user = self.user
-        response = decorated_view(self.request)
-
-        self.assertTrue(self.view.called)
-        self.assertEqual(response.status_code, 200)
-
-    def test_not_current_officer(self):
-        decorated_view = current_officer_required(self.view)
-        self.add_officer_positions(current=False)
-        self.request.user = self.user
-        self.assertRaises(PermissionDenied, decorated_view, self.request)
-
-    def test_current_officer(self):
-        decorated_view = current_officer_required(self.view)
-        self.add_officer_positions()
-        self.request.user = self.user
-        response = decorated_view(self.request)
-
-        self.assertTrue(self.view.called)
-        self.assertEqual(response.status_code, 200)
-
-    def test_not_has_officer_types(self):
-        decorator = officer_types_required(['vp'])
-        decorated_view = decorator(self.view)
-        self.add_officer_positions(current=False)
-        self.request.user = self.user
-        self.assertRaises(PermissionDenied, decorated_view, self.request)
-
-    def test_has_officer_types(self):
-        decorator = officer_types_required(['it'])
-        decorated_view = decorator(self.view)
-        self.add_officer_positions(current=False)
-        self.request.user = self.user
-        response = decorated_view(self.request)
-
-        self.assertTrue(self.view.called)
-        self.assertEqual(response.status_code, 200)
-
-    def test_not_has_current_officer_types(self):
-        decorator = officer_types_required(['it'], current=True)
-        decorated_view = decorator(self.view)
-        self.add_officer_positions()
-        self.request.user = self.user
-        self.assertRaises(PermissionDenied, decorated_view, self.request)
-
-    def test_has_current_officer_types(self):
-        decorator = officer_types_required(['execs'], current=True)
-        decorated_view = decorator(self.view)
-        self.add_officer_positions()
-        self.request.user = self.user
-        response = decorated_view(self.request)
-
-        self.assertTrue(self.view.called)
-        self.assertEqual(response.status_code, 200)
-
-    def test_exclude_officer_types(self):
-        decorator = officer_types_required(['it'], exclude=True)
-        decorated_view = decorator(self.view)
-        self.add_officer_positions()
-        self.request.user = self.user
-        self.assertRaises(PermissionDenied, decorated_view, self.request)
-
-    def test_exclude_current_officer_types(self):
-        decorator = officer_types_required(['vp'], current=True, exclude=True)
-        decorated_view = decorator(self.view)
-        self.add_officer_positions()
-        self.request.user = self.user
-        self.assertRaises(PermissionDenied, decorated_view, self.request)
-
-        decorator = officer_types_required(['it'], current=True, exclude=True)
-        decorated_view = decorator(self.view)
-        response = decorated_view(self.request)
-
-        self.assertTrue(self.view.called)
-        self.assertEqual(response.status_code, 200)
-
-    def test_not_candidate(self):
-        decorated_view = candidate_required(self.view)
-        self.request.user = self.user
-        self.assertRaises(PermissionDenied, decorated_view, self.request)
-
-    def test_candidate(self):
-        decorated_view = candidate_required(self.view)
-        self.term = Term(term=Term.SPRING, year=2012, current=True)
-        self.term.save()
-        candidate = Candidate(user=self.user, term=self.term)
-        candidate.save()
-        self.request.user = self.user
-        response = decorated_view(self.request)
-
-        self.assertTrue(self.view.called)
-        self.assertEqual(response.status_code, 200)
 
 
 @override_settings(AUTH_USER_MODEL='auth.User')
