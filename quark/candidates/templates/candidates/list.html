@@ -43,7 +43,7 @@
     <tbody>
     {% for candidate in candidates %}
     <tr>
-      {% with student_info=candidate.get_college_student_info %}
+      {% with student_info=candidate.user.collegestudentinfo %}
       {% with cand_user_profile=candidate.user.userprofile %}
       <td><a href="{% url 'candidates:edit' candidate.pk %}">{{ cand_user_profile.get_verbose_first_name }}</a></td>
       <td><a href="{% url 'candidates:edit' candidate.pk %}">{{ candidate.user.last_name }}</a></td>

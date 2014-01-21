@@ -97,8 +97,9 @@ class CandidateListView(TermParameterMixin, ListView):
         return super(CandidateListView, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
-        return Candidate.objects.select_related(
-            'user__userprofile').filter(term=self.display_term)
+        return Candidate.objects.filter(term=self.display_term).select_related(
+            'user__userprofile', 'user__collegestudentinfo').prefetch_related(
+            'user__collegestudentinfo__major')
 
 
 class CandidatePhotoView(UpdateView):

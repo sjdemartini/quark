@@ -14,7 +14,14 @@ from quark.user_profiles.models import StudentOrgUserProfile
 from quark.user_profiles.models import UserProfile
 
 
-class UserProfilesTest(TestCase):
+# TODO(sjdemartini): Add tests for LDAP-specific testing in methods that use
+# LDAP (like is_member)
+
+
+class UserInfoTestCase(TestCase):
+    """A TestCase which provides a useful setUp method for creating common
+    user info used in multiple test cases.
+    """
     def setUp(self):
         self.user_model = get_user_model()
 
@@ -30,10 +37,6 @@ class UserProfilesTest(TestCase):
         # object having a stale reference to their corresponding userprofile
         self.user = self.user_model.objects.get(pk=self.user.pk)
 
-        # There should be a one-to-one relation to a UserProfile created on
-        # User post-save
-        self.profile = self.user.userprofile
-
         self.term = Term(term=Term.SPRING, year=2013, current=True)
         self.term.save()
         self.term_old = Term(term=Term.SPRING, year=2012)
@@ -45,6 +48,14 @@ class UserProfilesTest(TestCase):
             rank=2,
             mailing_list='IT')
         self.committee.save()
+
+
+class UserProfilesTest(UserInfoTestCase):
+    def setUp(self):
+        super(UserProfilesTest, self).setUp()
+        # There should be a one-to-one relation to a UserProfile created on
+        # User post-save
+        self.profile = self.user.userprofile
 
     def test_user_post_save_profile_creation(self):
         # Test that a user profile is tied to the created user after the
@@ -130,24 +141,74 @@ class UserProfilesTest(TestCase):
         self.assertEqual(self.profile.get_verbose_first_name(),
                          '{} ({})'.format(preferred_name, self.first_name))
 
+    def test_is_candidate(self):
+        """Ensure that basic is_candidate usage works as expected.
 
-class StudentOrgUserProfilesTest(TestCase):
+        See tests for StudentOrgUserProfilesTest for more extensive testing.
+        """
+        # No Candidate objects created yet:
+        self.assertFalse(self.profile.is_candidate())
+
+        # Create Candidate for user in the current term:
+        Candidate(user=self.user, term=self.term).save()
+
+        # Should now be considered a candidate:
+        self.assertTrue(self.profile.is_candidate())
+
+    def test_is_member(self):
+        """Ensure that basic is_officer usage works as expected.
+
+        See tests for StudentOrgUserProfilesTest for more extensive testing.
+        """
+        student_org_profile, _ = StudentOrgUserProfile.objects.get_or_create(
+            user=self.user)
+
+        # User is not a member yet, since not recorded as initiated and not an
+        # officer:
+        self.assertFalse(self.profile.is_member())
+
+        # Mark in their StudentOrgUserProfile that they've initiated, which
+        # should qualify them as a member
+        student_org_profile.initiation_term = self.term_old
+        student_org_profile.save()
+        self.assertTrue(self.profile.is_member())
+
+    def test_is_officer(self):
+        """Ensure that basic is_officer usage works as expected.
+
+        See tests for StudentOrgUserProfilesTest for more extensive testing.
+        """
+        # No Officer objects created yet:
+        self.assertFalse(self.profile.is_officer())
+
+        # Create Officer for user in the current term:
+        Officer(user=self.user, position=self.committee, term=self.term).save()
+
+        # Should now be considered an officer:
+        self.assertTrue(self.profile.is_officer())
+
+
+class StudentOrgUserProfilesTest(UserInfoTestCase):
     def setUp(self):
+        super(StudentOrgUserProfilesTest, self).setUp()
         self.model = StudentOrgUserProfile
-
-        self.user = get_user_model().objects.create_user(
-            'test_user', 'it@tbp.berkeley.edu', 'testpw')
-        self.user.first_name = 'Edward'
-        self.user.last_name = 'Williams'
-        self.user.save()
-
         self.profile = self.model(user=self.user)
         self.profile.save()
 
-        self.term = Term(term=Term.SPRING, year=2013, current=True)
-        self.term.save()
-        self.term_old = Term(term=Term.SPRING, year=2012)
-        self.term_old.save()
+        self.house_leader = OfficerPosition(
+            short_name='house-leader',
+            long_name='House Leader (test)',
+            rank=3,
+            mailing_list='IT')
+        self.house_leader.save()
+
+        self.advisor_pos = OfficerPosition(
+            short_name='advisor',
+            long_name='Advisor (test)',
+            rank=4,
+            mailing_list='IT',
+            auxiliary=True)
+        self.advisor_pos.save()
 
     def test_is_candidate(self):
         # No Candidate objects created yet:
@@ -204,108 +265,24 @@ class StudentOrgUserProfilesTest(TestCase):
         self.assertTrue(self.profile.is_candidate(current=False))
         self.assertTrue(self.profile.is_candidate(current=True))
 
-    def test_get_first_term_as_candidate(self):
-        # No Candidate objects created yet:
-        self.assertFalse(self.profile.is_candidate())
-        self.assertIsNone(self.profile.get_first_term_as_candidate())
+    def test_is_member(self):
+        # User is not a member yet, since not recorded as initiated and not an
+        # officer:
+        self.assertFalse(self.profile.is_member())
 
-        # Create Candidate for user in a past term:
-        candidate = Candidate(user=self.user, term=self.term_old)
-        candidate.save()
-        self.assertEqual(self.profile.get_first_term_as_candidate(),
-                         self.term_old)
+        # Mark in their StudentOrgUserProfile that they've initiated, which
+        # should qualify them as a member
+        self.profile.initiation_term = self.term_old
+        self.profile.save()
+        self.assertTrue(self.profile.is_member())
 
-        # Create Candidate for user in current term, and past term should
-        # still be marked as first term as candidate:
-        candidate = Candidate(user=self.user, term=self.term)
-        candidate.save()
-        self.assertEqual(self.profile.get_first_term_as_candidate(),
-                         self.term_old)
-
-        # Create user who only has initiation term data and no Candidate
-        # objects:
-        temp_user = get_user_model().objects.create_user(
-            'tester', 'test@tbp.berkeley.edu', 'testpw')
-        temp_user.first_name = 'Bentley'
-        temp_user.last_name = 'Bent'
-        temp_user.save()
-
-        profile = self.model(user=temp_user)
-        profile.save()
-        self.assertIsNone(profile.get_first_term_as_candidate())
-
-        profile.initiation_term = self.term
-        profile.save()
-        self.assertEqual(profile.get_first_term_as_candidate(),
-                         self.term)
-
-    def test_tbp_profile_post_save(self):
-        """Tests whether creating and saving a StudentOrgUserProfile properly
-        ensures that a CollegeStudentInfo object exists for the user in the
-        post_save callback.
-        """
-        self.assertIsNotNone(get_object_or_none(CollegeStudentInfo,
-                                                user=self.user))
-
-
-class UserTypeMethodTesting(TestCase):
-    """Tests methods relating to determining what the user account is for.
-    For instance, tests whether the user is a TBP officer or member.
-    """
-    #TODO(sjdemartini): make this TestCase also test LDAP dependencies in these
-    #                   methods (e.g., is_officer LDAP group test)
-
-    def setUp(self):
-        self.user_model = get_user_model()
-        self.user = self.user_model.objects.create_user(
-            'test_user', 'it@tbp.berkeley.edu', 'testpw')
-        self.user.first_name = 'Edward'
-        self.user.last_name = 'Williams'
-        self.user.save()
-
-        self.profile = self.user.userprofile
-
-        self.committee = OfficerPosition(
-            short_name='it',
-            long_name='Information Technology (test)',
-            rank=2,
-            mailing_list='IT')
-        self.committee.save()
-
-        self.house_leader = OfficerPosition(
-            short_name='house-leader',
-            long_name='House Leader (test)',
-            rank=3,
-            mailing_list='IT')
-        self.house_leader.save()
-
-        self.advisor_pos = OfficerPosition(
-            short_name='advisor',
-            long_name='Advisor (test)',
-            rank=4,
-            mailing_list='IT',
-            auxiliary=True)
-        self.advisor_pos.save()
-
-        self.term = Term(term=Term.SPRING, year=2013, current=True)
-        self.term.save()
-        self.term_old = Term(term=Term.SPRING, year=2012)
-        self.term_old.save()
-
-    def test_is_candidate(self):
-        """Ensure that calling is_candidate works as expected.
-
-        See tests for StudentOrgUserProfile.is_candidate for more extensive
-        testing.
-        """
-        # No Candidate objects created yet:
-        self.assertFalse(self.profile.is_candidate())
-
-        # Create Candidate for user in the current term:
-        Candidate(user=self.user, term=self.term).save()
-
-        # Should now be considered a candidate:
-        self.assertTrue(self.profile.is_candidate())
+        # Remove the initiation term, and check that just being an officer
+        # also qualifies the user as a member
+        self.profile.initiation_term = None
+        self.profile.save()
+        self.assertFalse(self.profile.is_member())
+        Officer(user=self.user, position=self.committee, term=self.term).save()
+        self.assertTrue(self.profile.is_member())
 
     def test_is_officer(self):
         # Note that is_officer also tests the get_officer_positions() method
@@ -409,7 +386,7 @@ class UserTypeMethodTesting(TestCase):
                                    password='password',
                                    email='shyguy@tbp.berkeley.edu')
         new_user.save()
-        new_user_profile = new_user.userprofile
+        new_user_profile = self.model(user=new_user)
         self.assertEqual(
             list(self.profile.get_officer_positions()), [])
         self.assertEqual(
@@ -476,6 +453,49 @@ class UserTypeMethodTesting(TestCase):
             self.advisor_pos.short_name))
         self.assertFalse(self.profile.is_officer_position(
             self.advisor_pos.short_name, current=True))
+
+    def test_get_first_term_as_candidate(self):
+        # No Candidate objects created yet:
+        self.assertFalse(self.profile.is_candidate())
+        self.assertIsNone(self.profile.get_first_term_as_candidate())
+
+        # Create Candidate for user in a past term:
+        candidate = Candidate(user=self.user, term=self.term_old)
+        candidate.save()
+        self.assertEqual(self.profile.get_first_term_as_candidate(),
+                         self.term_old)
+
+        # Create Candidate for user in current term, and past term should
+        # still be marked as first term as candidate:
+        candidate = Candidate(user=self.user, term=self.term)
+        candidate.save()
+        self.assertEqual(self.profile.get_first_term_as_candidate(),
+                         self.term_old)
+
+        # Create user who only has initiation term data and no Candidate
+        # objects:
+        temp_user = get_user_model().objects.create_user(
+            'tester', 'test@tbp.berkeley.edu', 'testpw')
+        temp_user.first_name = 'Bentley'
+        temp_user.last_name = 'Bent'
+        temp_user.save()
+
+        profile = self.model(user=temp_user)
+        profile.save()
+        self.assertIsNone(profile.get_first_term_as_candidate())
+
+        profile.initiation_term = self.term
+        profile.save()
+        self.assertEqual(profile.get_first_term_as_candidate(),
+                         self.term)
+
+    def test_student_org_user_profile_post_save(self):
+        """Tests whether creating and saving a StudentOrgUserProfile properly
+        ensures that a CollegeStudentInfo object exists for the user in the
+        post_save callback.
+        """
+        self.assertIsNotNone(get_object_or_none(CollegeStudentInfo,
+                                                user=self.user))
 
 
 class FieldsTest(TestCase):

@@ -8,12 +8,15 @@ from localflavor.us.models import USStateField
 
 from quark.base.models import IDCodeMixin
 from quark.base.models import Major
+from quark.base.models import Officer
 from quark.base.models import OfficerPosition
 from quark.base.models import Term
 from quark.candidates.models import Candidate
 from quark.qldap import utils as ldap_utils
 from quark.shortcuts import disable_for_loaddata
-from quark.shortcuts import get_object_or_none
+
+
+USE_LDAP = getattr(settings, 'USE_LDAP', False)
 
 
 class UserProfile(models.Model):
@@ -168,10 +171,16 @@ class UserProfile(models.Model):
         return '{} {}.'.format(self.preferred_name, self.user.last_name[0])
 
     def get_college_student_info(self):
-        return get_object_or_none(CollegeStudentInfo, user=self.user)
+        try:
+            return self.user.collegestudentinfo
+        except CollegeStudentInfo.DoesNotExist:
+            return None
 
     def get_student_org_user_profile(self):
-        return get_object_or_none(StudentOrgUserProfile, user=self.user)
+        try:
+            return self.user.studentorguserprofile
+        except StudentOrgUserProfile.DoesNotExist:
+            return None
 
     def get_preferred_email(self):
         """Return the preferred email address of this user.
@@ -187,9 +196,8 @@ class UserProfile(models.Model):
         return self.user.email or self.alt_email or None
 
     # The following methods pertain to the user's student organization, and
-    # they are included as methods of the UserProfile for performance reasons,
-    # as they can be accessed easily, given that UserProfile is OneToOne with
-    # the user model.
+    # they are included as methods of the UserProfile for convenience reasons,
+    # as they can be accessed easily.
 
     def is_candidate(self, current=True):
         """Return True if this person is a candidate, False if initiated.
@@ -202,69 +210,22 @@ class UserProfile(models.Model):
 
     def is_member(self):
         """Return true if this person is a member of the organization."""
-        # TODO(sjdemartini): Gate all LDAP operations behind a setting, so
-        # that LDAP is only used if settings have LDAP enabled.
-        return (self.is_officer() or
-                ldap_utils.is_in_tbp_group(self.user.get_username(), 'members'))
+        profile = self.get_student_org_user_profile()
+        return profile.is_member() if profile else False
 
     def is_officer(self, current=False, exclude_aux=False):
         """Return True if this person is an officer in the organization.
-
-        If current=False, then the method returns True iff the person has ever
-        been an officer. If current=True, then the method returns True iff
-        the person is currently an officer.
-
-        If exclude_aux is True, then auxiliary positions (positions with
-        auxiliary=True) are not counted as officer positions.
         """
-        if current:
-            term = Term.objects.get_current_term()
+        profile = self.get_student_org_user_profile()
+        if profile:
+            return profile.is_officer(current=current, exclude_aux=exclude_aux)
         else:
-            # If registered as an officer in LDAP, then return true
-            # TODO(sjdemartini): Gate all LDAP operations behind a setting, so
-            # that LDAP is only used if settings have LDAP enabled.
-            if (not exclude_aux and
-                    ldap_utils.is_in_tbp_group(
-                    self.user.get_username(), 'officers')):
-                return True
-            term = None
-        officer_positions = self.get_officer_positions(term)
-        if exclude_aux:
-            officer_positions = officer_positions.exclude(auxiliary=True)
-        return officer_positions.exists()
-
-    def get_officer_positions(self, term=None):
-        """Return a query set of all officer positions held by this user in the
-        specified term, or in all terms if no term specified.
-
-        The order of the list is from oldest to newest term, and within a term,
-        from highest rank OfficerPosition (smallest number) to lowest rank.
-        """
-        if term:
-            officer_positions = OfficerPosition.objects.filter(
-                officer__user=self.user, officer__term=term)
-        else:
-            officer_positions = OfficerPosition.objects.filter(
-                officer__user=self.user)
-
-        return officer_positions.order_by('officer__term', 'rank')
-
-    def is_officer_position(self, position, current=False):
-        """Return True if the person has held this position.
-
-        If current=False, then the method returns True iff the person has ever
-        held the position. If current=True, then the method returns True iff
-        the person holds the position in the current term.
-        """
-        officers = self.user.officer_set.filter(position__short_name=position)
-        if current:
-            officers = officers.filter(term=Term.objects.get_current_term())
-        return officers.exists()
+            return False
 
 
 class CollegeStudentInfo(IDCodeMixin):
     """Information about a college student user."""
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, unique=True)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL)
     # Note that the student's University is encapsulated in the "major" field
     major = models.ManyToManyField(Major, null=True)
 
@@ -284,7 +245,7 @@ class CollegeStudentInfo(IDCodeMixin):
 
 class StudentOrgUserProfile(models.Model):
     """A user's information specific to the student organization."""
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, unique=True)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL)
 
     initiation_term = models.ForeignKey(
         Term, related_name='+', blank=True, null=True,
@@ -326,6 +287,75 @@ class StudentOrgUserProfile(models.Model):
                 user=self.user, term=current_term).exists()
         return Candidate.objects.filter(user=self.user).exists()
 
+    def is_member(self):
+        """Return True if this person is a current member of the organization.
+
+        Member status is indicated by having initiated, or by being an officer,
+        or by being in the LDAP member database (if LDAP is enabled).
+        """
+        if self.initiation_term is not None:
+            return True
+
+        is_officer = self.is_officer()
+        if USE_LDAP:
+            is_ldap_member = ldap_utils.is_in_tbp_group(
+                self.user.get_username(), 'members')
+            return is_officer or is_ldap_member
+        return is_officer
+
+    def is_officer(self, current=False, exclude_aux=False):
+        """Return True if this person is an officer in the organization.
+
+        If current=False, then the method returns True iff the person has ever
+        been an officer. If current=True, then the method returns True iff
+        the person is currently an officer.
+
+        If exclude_aux is True, then auxiliary positions (positions with
+        auxiliary=True) are not counted as officer positions.
+        """
+        if current:
+            term = Term.objects.get_current_term()
+        else:
+            # If registered as an officer in LDAP (and we don't need to exclude
+            # auxiliary positions), then return true
+            if (USE_LDAP and not exclude_aux and
+                    ldap_utils.is_in_tbp_group(
+                        self.user.get_username(), 'officers')):
+                return True
+            term = None
+        officer_positions = self.get_officer_positions(term)
+        if exclude_aux:
+            officer_positions = officer_positions.exclude(auxiliary=True)
+        return officer_positions.exists()
+
+    def get_officer_positions(self, term=None):
+        """Return a query set of all officer positions held by this user in the
+        specified term, or in all terms if no term specified.
+
+        The order of the list is from oldest to newest term, and within a term,
+        from highest rank OfficerPosition (smallest number) to lowest rank.
+        """
+        if term:
+            officer_positions = OfficerPosition.objects.filter(
+                officer__user=self.user, officer__term=term)
+        else:
+            officer_positions = OfficerPosition.objects.filter(
+                officer__user=self.user)
+
+        return officer_positions.order_by('officer__term', 'rank')
+
+    def is_officer_position(self, position, current=False):
+        """Return True if the person has held this position.
+
+        If current=False, then the method returns True iff the person has ever
+        held the position. If current=True, then the method returns True iff
+        the person holds the position in the current term.
+        """
+        officers = self.user.officer_set.filter(position__short_name=position)
+        if current:
+            officers = officers.filter(term=Term.objects.get_current_term())
+        return officers.exists()
+
     def get_first_term_as_candidate(self):
         """Return the Term this user was first a candidate.
 
@@ -341,7 +371,7 @@ class StudentOrgUserProfile(models.Model):
 
 
 @disable_for_loaddata
-def user_profile_post_save(sender, instance, created, **kwargs):
+def user_profile_creation_post_save(sender, instance, created, **kwargs):
     """Ensures that a UserProfile object exists for every user.
 
     Whenever a user is created, this callback performs a get_or_create()
@@ -358,6 +388,15 @@ def user_profile_post_save(sender, instance, created, **kwargs):
         profile.save()
 
 
+def student_org_creation_post_save(sender, instance, created, **kwargs):
+    """Ensure that StudentOrgUserProfiles exist when the sender is created.
+
+    Useful for ensuring a StudentOrgUserProfile exists for every Officer.
+    """
+    if created:
+        StudentOrgUserProfile.objects.get_or_create(user=instance.user)
+
+
 def student_org_user_profile_post_save(sender, instance, created, **kwargs):
     """Ensure that CollegeStudentInfo objects exist for every user with a
     StudentOrgUserProfile.
@@ -371,7 +410,10 @@ def student_org_user_profile_post_save(sender, instance, created, **kwargs):
 
 
 models.signals.post_save.connect(
-    user_profile_post_save, sender=get_user_model())
+    user_profile_creation_post_save, sender=get_user_model())
+
+models.signals.post_save.connect(
+    student_org_creation_post_save, sender=Officer)
 
 models.signals.post_save.connect(
     student_org_user_profile_post_save, sender=StudentOrgUserProfile)

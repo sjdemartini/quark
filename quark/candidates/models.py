@@ -85,11 +85,6 @@ class Candidate(models.Model):
         required = sum([x['required'] for x in progress])
         return {'completed': completed, 'required': required}
 
-    def get_college_student_info(self):
-        # Avoid circular dependency by importing here:
-        from quark.user_profiles.models import CollegeStudentInfo
-        return CollegeStudentInfo.objects.get(user=self.user)
-
     def __unicode__(self):
         return '{user} ({term})'.format(user=self.user, term=self.term)
 

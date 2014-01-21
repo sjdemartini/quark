@@ -26,7 +26,7 @@ No photo uploaded yet.
 </div>
 
 <h2>Candidate Information</h2>
-{% with student_info=candidate.get_college_student_info %}
+{% with student_info=candidate.user.collegestudentinfo %}
 <table class="spaced-out">
   <tr>
     <td><strong>Major</strong></td>
