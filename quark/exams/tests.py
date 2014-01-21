@@ -30,7 +30,7 @@ def make_test_exam(number):
 @override_settings(
     MEDIA_ROOT=os.path.join(settings.WORKSPACE_ROOT, 'media', 'tests'))
 class ExamTest(TestCase):
-    fixtures = ['site', 'test/course_instance.yaml']
+    fixtures = ['test/course_instance.yaml']
 
     def setUp(self):
         self.test_exam1 = make_test_exam(10000)

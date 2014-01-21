@@ -2,8 +2,9 @@
 Django settings for "quark" student organization website project.
 
 This file lists Django settings constant for development and production
-environments. Never import this directly unless you are sure you do not need
-the settings in the site- or env-specific settings files.
+environments. Never import this or any other settings file directly unless you
+are sure you do not need the settings in the site- or env-specific settings
+files.
 """
 
 import os
@@ -76,8 +77,7 @@ LANGUAGES = [
     ('en', 'English'),
 ]
 
-# ODD for dev (n), EVEN for production (n+1)
-# Make sure your dev/production site uses the correct SITE_ID
+# Set the SITE_ID to 1, since we only need one site
 SITE_ID = 1
 
 # If you set this to False, Django will make some optimizations so as not
@@ -181,7 +181,7 @@ DJANGO_CONTRIB_APPS = [
     'django.contrib.flatpages',
     'django.contrib.messages',
     'django.contrib.sessions',
-    'django.contrib.sites',
+    'django.contrib.sites',  # Necessary for flatpages
     'django.contrib.staticfiles',
 ]
 
@@ -222,11 +222,6 @@ THIRD_PARTY_APPS = [
 
 # This is the actual variable that django looks at.
 INSTALLED_APPS = DJANGO_CONTRIB_APPS + PROJECT_APPS + THIRD_PARTY_APPS
-
-# Mailman path
-MMPATH = '/usr/lib/mailman'
-if MMPATH not in sys.path:
-    sys.path.append(MMPATH)
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to

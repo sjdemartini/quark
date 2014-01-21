@@ -114,16 +114,17 @@ class EmailerView(FormView):
                                                             'None provided')))
 
         if send_spam_notice:
+            sender = 'root@{}'.format(settings.HOSTNAME)
             spamnotice = EmailMessage(
                 subject='[{source} spam] {subject}'.format(
                     source=self.form_id,
                     subject=form.cleaned_data['subject']),
-                body=('Help! We have been spammed by \"{email}\" from '
+                body=('Help! We have been spammed by "{email}" from '
                       '{ip_addr}!\n\n------------\n\n{message}'.format(
                           email=from_email,
                           ip_addr=ip_addr,
                           message=form.cleaned_data['message'])),
-                from_email='root@tbp.berkeley.edu',
+                from_email=sender,
                 to=to_email,
                 headers=headers)
             # server will return 500 error if spamnotice cannot be sent.
@@ -160,15 +161,17 @@ class EventEmailerView(EmailerView):
         self.initial = {
             'name': request.user.get_full_name(),
             'email': request.user.email,
-            'subject': u'[TBP] {}: Important announcement'.format(
-                self.event.name)}
+            'subject': '[{}] {}: Important announcement'.format(
+                settings.SITE_TAG, self.event.name)}
 
         event_id = kwargs['event_id']
         self.event = get_object_or_404(Event, pk=event_id)  # same as above
         if not self.event.can_user_view(request.user):
             raise PermissionDenied
         self.signedup_list = self.event.eventsignup_set.order_by('name')
-        self.cc_email = [self.event.committee.short_name + '@tbp.berkeley.edu']
+        self.cc_email = [
+            '{}@{}'.format(self.event.committee.mailing_list, settings.HOSTNAME)
+        ]
         return super(EventEmailerView, self).dispatch(request, *args, **kwargs)
 
     def form_valid(self, form, **kwargs):
@@ -265,17 +268,18 @@ class HelpdeskEmailerView(EmailerView):
         # only assign to stars members
         officers = Officer.objects.filter(
             term=Term.objects.get_current_term(),
-            position__short_name="stars")
+            position__short_name='stars')
 
         if officers:  # if officers non-empty
             # select a random officer. we have enough that double assignments
             # shouldn't happen very often.
             assignee = random.choice(officers)
-            assigning_to = ['{}@tbp.berkeley.edu'.format(
-                assignee.user.get_username())]
+            assigning_to = [
+                '{}@{}'.format(assignee.user.get_username(), settings.HOSTNAME)
+            ]
             assigning_body = (
                 'HelpdeskQ has automatically assigned {officer} as the point '
-                'person for the helpdesk question with subject \"{subject}\". '
+                'person for the helpdesk question with subject "{subject}". '
                 'Please compile a response for this question within 48 '
                 'hours. This is a random assignment among STARS committee '
                 'members. Other officers should continue to contribute '
@@ -295,10 +299,11 @@ class HelpdeskEmailerView(EmailerView):
                 'was still sent to all officers.')
 
         assigning_body += form.cleaned_data['message']
+        sender = 'helpdeskq@{}'.format(settings.HOSTNAME)
         assigning_message = EmailMessage(
             subject=form.cleaned_data['subject'],
             body=assigning_body,
-            from_email='helpdeskq@tbp.berkeley.edu',
+            from_email=sender,
             to=assigning_to,
             cc=[settings.HELPDESK_ADDRESS],
             headers=headers)
@@ -307,6 +312,8 @@ class HelpdeskEmailerView(EmailerView):
 
     def handle_confirmation(self, form, from_email):
         # cc address might be an innocent bystander's if it's spam
+        sender = '"{} Helpdesk" <{}>'.format(
+            settings.SITE_TAG, settings.HELPDESK_ADDRESS)
         ccmessage = EmailMessage(
             subject='[Helpdesk] ' + form.cleaned_data['subject'],
             body=('Hi {name},\n\nYour question has been submitted.\n\nSomeone'
@@ -314,7 +321,7 @@ class HelpdeskEmailerView(EmailerView):
                   '\n\n------------\n\n{question}'.format(
                       name=form.cleaned_data['name'],
                       question=form.cleaned_data['message'])),
-            from_email='"TBP Helpdesk" <{}>'.format(settings.HELPDESK_ADDRESS),
+            from_email=sender,
             to=[from_email],)
         # sending is nonessential due to confirmation page
         ccmessage.send(fail_silently=True)

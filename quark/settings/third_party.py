@@ -1,7 +1,14 @@
 """Settings for 3rd Party Apps used by Quark"""
 import os
+import sys
 
 from quark.settings.base import WORKSPACE_ROOT
+
+
+# Mailman path
+MMPATH = '/usr/lib/mailman'
+if MMPATH not in sys.path:
+    sys.path.append(MMPATH)
 
 
 # Set up SASS (SCSS) compression for django-compressor

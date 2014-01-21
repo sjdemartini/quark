@@ -28,7 +28,7 @@ STAGING_DB_NAME="${PROJ_NAME}_staging"
 LOCK_FILE="deploy.lock"
 LOCK_SIG="deploy.sig"
 
-VENV_PATH="/home/tbp/virtualenv/django15"
+VENV_PATH="/home/tbp/virtualenv/django16"
 
 # TODO(flieee): Use Gerrit. Need to set up public key for www-data. ugh.
 GIT_REPO_URL="file:///var/git/quark.git"

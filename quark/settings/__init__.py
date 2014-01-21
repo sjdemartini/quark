@@ -2,6 +2,6 @@
 Entry point for Quark settings
 """
 
-# Use the TBP site by default
+# Use the base settings by default
 # pylint: disable=W0401
-from quark.settings.tbp import *
+from quark.settings.base import *

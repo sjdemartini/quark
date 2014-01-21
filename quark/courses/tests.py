@@ -20,8 +20,6 @@ def make_test_department():
 
 
 class CoursesTestCase(TestCase):
-    fixtures = ['site']
-
     def setUp(self):
         self.dept_cs = Department(
             long_name='Computer Science',

@@ -1,4 +1,3 @@
-from django.core.exceptions import ImproperlyConfigured
 from django.core.management.base import CommandError
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -22,23 +21,17 @@ class DevServerTest(TestCase):
             self.assertNotEqual(offset, 999)
 
     def test_port(self):
-        self.assertEqual(self.server.get_port('wli', 'tbp'), 8080)
-        self.assertEqual(self.server.get_port('wli', 'pie'), 9080)
-        self.assertEqual(self.server.get_port('flieee', 'tbp'), 8085)
-        self.assertEqual(self.server.get_port('flieee', 'pie'), 9085)
+        self.assertEqual(self.server.get_port('wli'), 8080)
+        self.assertEqual(self.server.get_port('flieee'), 8085)
 
-    def test_default_ports(self):
-        self.assertEqual(self.server.get_port('', 'tbp'), 8999)
-        self.assertEqual(self.server.get_port('', 'pie'), 9999)
-
-    def test_no_port(self):
-        self.assertRaises(KeyError, self.server.get_port, '', 'asdf')
+    def test_default_port(self):
+        self.assertEqual(self.server.get_port(''), 8999)
 
     def test_ip_all(self):
         self.assertEqual(self.server.ip, '0.0.0.0')
 
     def test_ip_localhost(self):
-        local_server = DevServer(username='foo', server='tbp', localhost=True)
+        local_server = DevServer(username='foo', localhost=True)
         self.assertEqual(local_server.ip, 'localhost')
 
     @patch('django.core.management.ManagementUtility')
@@ -102,13 +95,6 @@ class DevCommandTest(TestCase):
 
     def test_handle_fail_too_many_args(self):
         self.assertRaises(CommandError, self.command.handle, 'foo')
-
-    @override_settings(SITE_NAME='bad')
-    def test_run_bad_server(self):
-        """A bad server name (set by SITE_NAME) raises an ImproperlyConfigured
-        error before a KeyError
-        """
-        self.assertRaises(ImproperlyConfigured, self.command.handle)
 
 
 class CreateDevDBTest(TestCase):

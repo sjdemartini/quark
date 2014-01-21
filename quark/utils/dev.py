@@ -3,16 +3,17 @@ from django.core.management import execute_from_command_line
 
 class DevServer(object):
     DEFAULT_IP = '0.0.0.0'
-    PORTS = {
-        'tbp': 8000,
-        'pie': 9000,
-    }
+
+    # The port number to which an offset is added depending on the user
+    PORT = 8000
+
+    # The default port offset, if a user is not found in the OFFSETS below
     DEFAULT_OFFSET = 999
 
     # The value for this dict is the port and should be a number between 80 and
-    # 998 To add a new person and port: add the username and port into the dict
-    # Please pick the next available number. These numbers are increased by
-    # 8000 if using the tbp server or 9000 for pie
+    # 998. These numbers are added to the PORT value above.
+    # To add a new person and port: include their username and port offset in
+    # the dict. Please pick the next available number.
     OFFSETS = {
         'wli': 80,
         'flieee': 85,
@@ -47,23 +48,19 @@ class DevServer(object):
         # Please do not use port 999 since it is the shared port
     }
 
-    def __init__(self, username=None, server='tbp', localhost=False):
+    def __init__(self, username=None, localhost=False):
         # pylint: disable=C0103
         self.ip = 'localhost' if localhost else DevServer.DEFAULT_IP
-        self.port = self.get_port(username, server)
+        self.port = self.get_port(username)
 
-    def get_port(self, username, server_name, verbose=True):
+    def get_port(self, username, verbose=True):
         """
-        Given a username, and server name (Currently tbp or pie), returns the
-        corresponding port number using a dictionary lookup. If the look up
-        fails, returns a shared port. The port is also set as the current port
-        for the object instance.
+        Given a username, return the corresponding port number using a
+        dictionary lookup. If the lookup fails, returns a shared port. The port
+        is also set as the current port for the object instance.
         """
-        if server_name not in DevServer.PORTS:
-            raise KeyError('Invalid server name: "%s"' % server_name)
         offset = DevServer.OFFSETS.get(username, DevServer.DEFAULT_OFFSET)
-        self.port = DevServer.PORTS.get(server_name)
-        self.port += offset
+        self.port = DevServer.PORT + offset
         if verbose:
             if offset == DevServer.DEFAULT_OFFSET:
                 print 'WARNING: Using shared port: %d' % self.port

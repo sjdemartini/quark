@@ -22,6 +22,6 @@ DATABASES = {
     }
 }
 
-# This only goes here because there's no HTTPS support in dev
+# HTTPS support in production
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True

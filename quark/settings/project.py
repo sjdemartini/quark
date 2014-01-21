@@ -5,22 +5,33 @@ Note: The values given here are intended for development. A production
 environment would overwrite these. The base and site-specific settings files
 must not overwrite these.
 """
-"""Settings introduced by Quark"""
 import ldap
 import quark_keys
 
+# Custom setting used to include a short tag for the site in relevant content
+# (like automatic email subject lines):
+SITE_TAG = 'TBP'
 
-# TODO(nitishp) Add actual emails (noiro was missing them too...)
+HOSTNAME = 'tbp.berkeley.edu'
+
+ALLOWED_HOSTS = [HOSTNAME]
+
+DEFAULT_FROM_EMAIL = 'webmaster@' + HOSTNAME
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+
+# An email address for receiving test emails
+TEST_ADDRESS = 'test@' + HOSTNAME
+
 # Emailer stuff
 ENABLE_HELPDESKQ = False
 
-RESUMEQ_CC_ADDRESS = 'test@tbp.berkeley.edu'
+RESUMEQ_CC_ADDRESS = TEST_ADDRESS
 
 # Email addresses
-HELPDESK_ADDRESS = 'test@tbp.berkeley.edu'
-INDREL_ADDRESS = 'test@tbp.berkeley.edu'
-IT_ADDRESS = 'test@tbp.berkeley.edu'
-STARS_ADDRESS = 'test@tbp.berkeley.edu'
+HELPDESK_ADDRESS = TEST_ADDRESS
+INDREL_ADDRESS = TEST_ADDRESS
+IT_ADDRESS = TEST_ADDRESS
+STARS_ADDRESS = TEST_ADDRESS
 
 # Should we cc people who ask us questions?
 HELPDESK_CC_ASKER = False
@@ -29,15 +40,15 @@ HELPDESK_CC_ASKER = False
 HELPDESK_SEND_SPAM_NOTICE = True
 INDREL_SEND_SPAM_NOTICE = True
 # where?
-HELPDESK_NOTICE_TO = 'test@tbp.berkeley.edu'
-INDREL_NOTICE_TO = 'test@tbp.berkeley.edu'
+HELPDESK_NOTICE_TO = TEST_ADDRESS
+INDREL_NOTICE_TO = TEST_ADDRESS
 
 # Do we send messages known to be spam?
 HELPDESK_SEND_SPAM = False
 INDREL_SEND_SPAM = False
 # where?
-HELPDESK_SPAM_TO = 'test@tbp.berkeley.edu'
-INDREL_SPAM_TO = 'test@tbp.berkeley.edu'
+HELPDESK_SPAM_TO = TEST_ADDRESS
+INDREL_SPAM_TO = TEST_ADDRESS
 
 # YouTube Secret Stuff
 YT_USERNAME = 'BerkeleyTBP'

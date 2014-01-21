@@ -1,10 +1,5 @@
 - fields:
-    name: TBP Development
-    domain: http://tbp.berkeley.edu:8999
-  model: sites.Site
-  pk: 1
-- fields:
     name: TBP
     domain: https://tbp.berkeley.edu
   model: sites.Site
-  pk: 2
+  pk: 1

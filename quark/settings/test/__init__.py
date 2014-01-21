@@ -19,15 +19,13 @@ DATABASES = {
 # same apps as what the full website will have)
 
 # We don't need to test these apps.
-BLACKLISTED_APPS = ['django_evolution', 'django.contrib.flatpages', 'south',
-                    'debug_toolbar']
+BLACKLISTED_APPS = ['django_evolution', 'south', 'debug_toolbar']
 for app in BLACKLISTED_APPS:
     if app in INSTALLED_APPS:
         INSTALLED_APPS.remove(app)
 
 # These middleware classes mess up testing.
 BLACKLISTED_MIDDLEWARE = [
-    'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware'
 ]
 for middleware in BLACKLISTED_MIDDLEWARE:
