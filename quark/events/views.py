@@ -12,6 +12,7 @@ from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.views.decorators.http import require_GET
 from django.views.decorators.http import require_POST
 from django.views.generic import CreateView
 from django.views.generic import DetailView
@@ -121,12 +122,13 @@ class EventUpdateView(UpdateView):
 
 
 class EventDetailView(DetailView):
-    """View for event details and signing up for events."""
+    """View for event details and signing up for events (GET requests)."""
     pk_url_kwarg = 'event_pk'
     model = Event
     template_name = 'events/detail.html'
     object = None  # The event object being fetched for the DetailView
 
+    @method_decorator(require_GET)
     def dispatch(self, *args, **kwargs):
         self.object = self.get_object()
         # If this user can't view the current event, redirect to login if they
@@ -166,8 +168,6 @@ class EventDetailView(DetailView):
             # sign up, don't supply a signup form.
             context['form'] = None
         else:
-            extra_kwargs = {'max_guests': self.object.max_guests_per_person,
-                            'needs_drivers': self.object.needs_drivers}
             if self.request.user.is_authenticated():
                 try:
                     signup = EventSignUp.objects.get(
@@ -175,16 +175,16 @@ class EventDetailView(DetailView):
                     if signup.unsignup:
                         # If the user has unsigned up, provide a new signup
                         # form
-                        context['form'] = EventSignUpForm(**extra_kwargs)
+                        context['form'] = EventSignUpForm(self.object)
                     else:
                         context['form'] = EventSignUpForm(
-                            instance=signup, **extra_kwargs)
+                            self.object, instance=signup)
                 except EventSignUp.DoesNotExist:
                     context['form'] = EventSignUpForm(
-                        initial={'name': self.request.user.get_full_name()},
-                        **extra_kwargs)
+                        self.object,
+                        initial={'name': self.request.user.get_full_name()})
             else:
-                context['form'] = EventSignUpAnonymousForm(**extra_kwargs)
+                context['form'] = EventSignUpAnonymousForm(self.object)
 
         context['user_signed_up'] = signup is not None and not signup.unsignup
 
@@ -211,12 +211,14 @@ class EventDetailView(DetailView):
 
 
 class EventSignUpView(AjaxFormResponseMixin, FormView):
-    """Handles the form action for signing up for events."""
+    """Handles the form action for signing up for events (POST requests)."""
     # TODO(sjdemartini): Handle various scenarios for failed signups. For
     # instance, no more spots left, not allowed to bring x number of guests,
     # etc.
     event = None  # The event that this sign-up corresponds to
+    object = None  # The event signup object
 
+    @method_decorator(require_POST)
     def dispatch(self, *args, **kwargs):
         self.event = get_object_or_404(Event, pk=self.kwargs['event_pk'])
         # A user cannot sign up unless they have permission to do so
@@ -230,41 +232,18 @@ class EventSignUpView(AjaxFormResponseMixin, FormView):
         else:
             return EventSignUpAnonymousForm
 
-    def get_form(self, *args, **kwargs):
-        form = super(EventSignUpView, self).get_form(*args, **kwargs)
-        form.instance.event = self.event
-        return form
-
     def get_form_kwargs(self, **kwargs):
-        """Set the number of max guests in the form."""
+        """Set the event and the user in the form."""
         kwargs = super(EventSignUpView, self).get_form_kwargs(**kwargs)
-        kwargs['max_guests'] = self.event.max_guests_per_person
-        kwargs['needs_drivers'] = self.event.needs_drivers
+        kwargs['event'] = self.event
+        kwargs['user'] = self.request.user
         return kwargs
 
     def form_valid(self, form):
-        """Only save a new object if a signup does not already exist for this
-        user. Otherwise, just update the existing object.
-        """
-        # Get the form instance, not yet saved to the database:
-        obj = form.save(commit=False)
-
-        if self.request.user.is_authenticated():
-            signup, created = EventSignUp.objects.get_or_create(
-                event=self.event, user=self.request.user)
-            signup.user = self.request.user
-        else:
-            signup, created = EventSignUp.objects.get_or_create(
-                event=self.event, email=obj.email)
-
-        # Copy over values from form instance to signup object in database:
-        signup.name = obj.name
-        signup.num_guests = obj.num_guests
-        signup.driving = obj.driving
-        signup.comments = obj.comments
-        signup.email = obj.email
-        signup.unsignup = False
-        signup.save()
+        """Check whether the signup was created or updated."""
+        self.object = form.save(commit=False)
+        created = self.object.pk is None
+        self.object.save()
 
         if created:
             msg = 'Signup successful!'
@@ -272,7 +251,7 @@ class EventSignUpView(AjaxFormResponseMixin, FormView):
             msg = 'Signup updated!'
 
         messages.success(self.request, msg)
-        return super(EventSignUpView, self).form_valid(form)
+        return self.render_to_json_response()
 
     def get_success_url(self):
         return self.event.get_absolute_url()

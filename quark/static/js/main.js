@@ -192,15 +192,15 @@ var formErrorMsgClass = 'form-errors';
  * is used to indicate that the error is applied to the entire form, rather
  * than a specific field.
  */
-function show_form_errors(errors) {
+function showFormErrors(form, errors) {
   // Apply focus to the first field that has an error
   var isFocused = false;
   $.each(errors, function(key, value) {
     // Iterate over the errors list, which maps field names to errors
     if (key === '__all__') {
-      add_error_message(value[0], self);
+      addErrorMessage(value[0], form);
     } else {
-      apply_form_field_errors(key, value, !isFocused);
+      applyFormFieldErrors(key, value, !isFocused);
       isFocused = true;
     }
   });
@@ -210,7 +210,7 @@ function show_form_errors(errors) {
 /**
  * Apply a list of errors (or a single error) to a form fieldname.
  */
-function apply_form_field_errors(fieldname, errors, shouldFocus) {
+function applyFormFieldErrors(fieldname, errors, shouldFocus) {
   var input = $('#id_' + fieldname);
   if (shouldFocus) {
     input.focus();
@@ -218,40 +218,42 @@ function apply_form_field_errors(fieldname, errors, shouldFocus) {
   var container = input.parents('.form-entry');
   container.addClass(formErrorClass);
 
-  var error_container = $('<div></div>').addClass(formErrorMsgClass);
-  var error_list = $('<ul class="errorlist"></ul>');
+  var errorContainer = $('<div></div>').addClass(formErrorMsgClass);
+  var errorList = $('<ul class="errorlist"></ul>');
   // For convenience and consistency, make sure "errors" is an array, so that
   // a for-each loop can be used to add error messages
   if (! $.isArray(errors)) {
     errors = [errors];
   }
   $.each(errors, function(index, error) {
-    error_list.append($('<li class="error"></li>').text(error));
+    errorList.append($('<li class="error"></li>').text(error));
   });
-  error_container.append(error_list);
-  error_container.insertAfter(input);
+  errorContainer.append(errorList);
+  errorContainer.insertAfter(input);
 }
 
 
 /**
- * Apply a general message above a form element on the current page.
+ * Apply a general message inside a form element on the current page.
  *
  * @param message is the error message that should be displayed.
  * @param form is the form, above which the error message will be added.
  */
-function add_error_message(message, form) {
+function addErrorMessage(message, form) {
   var msg = $('<div></div>').addClass('message error').text(message);
-  $(form).before(msg);
+  $(form).prepend(msg);
 }
 
 
 /**
- * Clear error markup on form fields. Useful for when a form is resubmitted.
+ * Clear error markup on a form. Useful for when a form is resubmitted.
  */
-function clear_form_field_errors(form) {
+function clearFormFieldErrors(form) {
   var fieldsWithErrors = $('.' + formErrorClass, $(form));
   // Remove the error class from the form fields with errors
   fieldsWithErrors.removeClass(formErrorClass);
   // Remove the error messages from those fields
   $('.' + formErrorMsgClass, fieldsWithErrors).remove();
+  // Remove general error messages applied to the form:
+  $('.message.error', $(form)).remove();
 }

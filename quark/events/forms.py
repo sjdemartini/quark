@@ -6,6 +6,7 @@ from quark.base.forms import ChosenTermMixin
 from quark.events.models import Event
 from quark.events.models import EventSignUp
 from quark.project_reports.models import ProjectReport
+from quark.shortcuts import get_object_or_none
 from quark.user_profiles.fields import UserCommonNameChoiceField
 
 
@@ -97,6 +98,8 @@ class EventSignUpForm(forms.ModelForm):
         min_value=0, max_value=100, initial=0,
         label='How many people fit in your car, including yourself '
               '(0 if not driving)')
+    event = None
+    user = None
 
     class Meta(object):
         model = EventSignUp
@@ -107,10 +110,12 @@ class EventSignUpForm(forms.ModelForm):
             'comments': forms.Textarea(attrs={'rows': 4})
         }
 
-    def __init__(self, *args, **kwargs):
-        needs_drivers = kwargs.pop('needs_drivers', False)
-        max_guests = kwargs.pop('max_guests', None)
+    def __init__(self, event, *args, **kwargs):
+        self.event = event
+        self.user = kwargs.pop('user', None)
         super(EventSignUpForm, self).__init__(*args, **kwargs)
+
+        max_guests = self.event.max_guests_per_person
         if max_guests:
             self.fields['num_guests'] = forms.IntegerField(
                 min_value=0, max_value=max_guests, initial=0,
@@ -120,13 +125,45 @@ class EventSignUpForm(forms.ModelForm):
             # Hide the num_guests field from the form
             self.fields['num_guests'].widget = forms.HiddenInput()
 
-        if not needs_drivers:
+        if not self.event.needs_drivers:
             # Hide the driving field if the event doesn't need drivers
             self.fields['driving'].widget = forms.HiddenInput()
 
-    # TODO(sjdemartini): Perform separate validation to ensure that the event
-    # has enough space for the user and his guests, considering whether the
-    # user is editing an existing signup or creating a new signup.
+    def clean(self):
+        """Check the signup limit has not been exceeded."""
+        # pylint: disable=w0201
+        cleaned_data = super(EventSignUpForm, self).clean()
+        num_guests = cleaned_data.get('num_guests')
+        num_rsvps = self.event.get_num_rsvps()
+
+        # Get the previous signup if it exists
+        if self.user.is_authenticated():
+            signup = get_object_or_none(
+                EventSignUp, event=self.event, user=self.user)
+        else:
+            signup = get_object_or_none(
+                EventSignUp, event=self.event, email=cleaned_data.get('email'))
+
+        # If the user has signed up previously and not unsigned up, subtract
+        # the user and the number of guests from the total number of rsvps
+        if signup and not signup.unsignup:
+            num_rsvps -= (1 + signup.num_guests)
+
+        # Add the user and the number of guests to the total number of rsvps
+        # and check that it is less than the signup limit
+        if (1 + num_guests + num_rsvps) > self.event.signup_limit:
+            raise forms.ValidationError('There are not enough spots left.')
+
+        # Only save a new object if a signup does not already exist for this
+        # user. Otherwise, just update the existing object.
+        if signup:
+            self.instance = signup
+
+        self.instance.event = self.event
+        self.instance.unsignup = False
+        if self.user.is_authenticated():
+            self.instance.user = self.user
+        return cleaned_data
 
 
 class EventSignUpAnonymousForm(EventSignUpForm):
@@ -136,7 +173,7 @@ class EventSignUpAnonymousForm(EventSignUpForm):
     class Meta(EventSignUpForm.Meta):
         fields = ('name', 'email', 'comments', 'driving', 'num_guests')
 
-    def __init__(self, *args, **kwargs):
-        super(EventSignUpAnonymousForm, self).__init__(*args, **kwargs)
+    def __init__(self, event, *args, **kwargs):
+        super(EventSignUpAnonymousForm, self).__init__(event, *args, **kwargs)
         self.fields['name'].required = True
         self.fields['email'].required = True

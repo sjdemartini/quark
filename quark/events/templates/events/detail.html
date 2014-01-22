@@ -12,7 +12,7 @@ $(function() {
     var url = self.attr('action');
     // Clear the form of any existing errors (useful on re-submitting the form,
     // so that prior errors are cleared):
-    clear_form_field_errors(self);
+    clearFormFieldErrors(self);
     req = $.ajax({
       url: url,
       type: self.attr('method'),
@@ -25,7 +25,7 @@ $(function() {
     req.fail(function(data, textStatus, jqXHR) {
       // The form errors will be in the "data" key of the response
       var errors = $.parseJSON(data.responseText).data;
-      show_form_errors(errors);
+      showFormErrors(self, errors);
     });
   });
   $('#unsignup-form').submit(function(e) {
@@ -33,7 +33,7 @@ $(function() {
     var self = $(this);
     // Clear the signup form (since it is used for unsignup) of any existing
     // errors
-    clear_form_field_errors('#signup-form');
+    clearFormFieldErrors('#signup-form');
     req = $.ajax({
       url: self.attr('action'),
       type: self.attr('method'),
@@ -46,7 +46,7 @@ $(function() {
     req.fail(function(data, textStatus, jqXHR) {
       // The form errors will be in the "data" key of the response
       var errors = $.parseJSON(data.responseText).data;
-      show_form_errors(errors);
+      showFormErrors(self, errors);
     });
   });
 });
