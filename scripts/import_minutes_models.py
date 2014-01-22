@@ -17,6 +17,7 @@ def import_minutes():
     models = get_json_data('minutes.minutes.json')
     for model in models:
         fields = model['fields']
+        pk = model['pk']
 
         # Determine the meeting type based off the name
         name = fields['name']
@@ -27,8 +28,8 @@ def import_minutes():
         else:
             meeting_type = Minutes.OTHER
 
-        minutes, _ = Minutes.objects.get_or_create(
-            pk=model['pk'],
+        Minutes.objects.get_or_create(
+            pk=pk,
             name=name,
             date=fields['date'],
             term=Term.objects.get(pk=SEMESTER_TO_TERM[fields['semester']]),
@@ -38,6 +39,13 @@ def import_minutes():
             author=user_model.objects.get(pk=fields['poster']))
 
         # Convert the naive datetime into an aware datetime
-        updated = parser.parse(fields['updated'])
-        minutes.updated = make_aware(updated, timezone)
-        minutes.save()
+        timestamp = make_aware(parser.parse(fields['updated']), timezone)
+
+        # Get a queryset of the single object so that update can be called,
+        # which doesn't call save and allows fields with auto_now=True to be
+        # overridden
+        minutes = Minutes.objects.filter(pk=pk)
+        # Set created and updated equal to timestamp because in noiro there
+        # is no created field and timestamp is updated whenever the object is
+        # updated
+        minutes.update(created=timestamp, updated=timestamp)

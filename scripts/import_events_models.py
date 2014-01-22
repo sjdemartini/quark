@@ -70,8 +70,10 @@ def import_event_sign_ups():
     models = get_json_data('events.eventsignup.json')
     for model in models:
         fields = model['fields']
+        pk = model['pk']
+
         event_sign_up, _ = EventSignUp.objects.get_or_create(
-            pk=model['pk'],
+            pk=pk,
             event=Event.objects.get(pk=fields['event']),
             name=fields['name'],
             driving=fields['driving'],
@@ -81,18 +83,22 @@ def import_event_sign_ups():
 
         if fields['person']:
             event_sign_up.user = user_model.objects.get(pk=fields['person'])
+        event_sign_up.save()
 
         try:
             # Try to convert the naive datetime into an aware datetime, which
             # may fail because of daylight savings time creating ambiguity for
             # some timestamps
             timestamp = make_aware(parser.parse(fields['timestamp']), timezone)
-            event_sign_up.timestamp = timestamp
+
+            # Get a queryset of the single object so that update can be called,
+            # which doesn't call save and allows fields with auto_now=True to be
+            # overridden
+            event_sign_up = EventSignUp.objects.filter(pk=pk)
+            event_sign_up.update(timestamp=timestamp)
         except AmbiguousTimeError:
             print('ERROR: Could not import timestamp for {}'.format(
                 event_sign_up))
-
-        event_sign_up.save()
 
 
 def import_event_attendances():
