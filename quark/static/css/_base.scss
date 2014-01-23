@@ -18,9 +18,10 @@ $form-input-width: (100% - $form-label-width - $form-sep);
 $link-blue: #0000ad;
 $dark-blue: #3e3e83;
 $gold: #c7aa36;
+$gray: #808080;
+$medium-gray: #ccc;
 $light-gray: #eee;
 $ultra-light-gray: #fafafa;
-$medium-gray: #ccc;
 
 $error-bg-color: #fdd;
 $error-border-color: #f99;
@@ -54,7 +55,7 @@ $success-border-color: #5c5;
 
 @mixin background-gray {
   background: {
-    color: gray;
+    color: $gray;
     image: url(../images/gray_texture.jpg);
   }
 }

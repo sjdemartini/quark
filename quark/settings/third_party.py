@@ -50,6 +50,12 @@ THUMBNAIL_ALIASES = {
             'size': (40, 40),
             'autocrop': True,
             'crop': 'smart'
+        },
+        'officericon': {
+            'size': (150, 150),
+            'autocrop': True,
+            'crop': 'smart',
+            'quality': 90
         }
     },
 }

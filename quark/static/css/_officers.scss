@@ -1,0 +1,92 @@
+/* _offiers.scss */
+
+.officers-section {
+  h3 {
+    padding: 6px 12px;
+    color: black;
+    @include background-light;
+    border-radius: 0 0 2px 2px;
+    border-top: 2px solid $dark-blue;
+    border-bottom: 1px solid $gray;
+
+    span {
+      float: right;
+      display: inline-table;
+      font-weight: 300;
+      @include respond-to(small) {
+        float: none;
+        display: block;
+      }
+    }
+  }
+  .officers-card {
+    margin: 4px 0 10px 0;
+    @include clearfix;
+
+    .officers-name {
+      text-align: right;
+      font-weight: 300;
+
+      span {
+        float: left;
+        font-weight: 400;
+        @include respond-to(small) {
+          float: none;
+          display: block;
+        }
+      }
+      &:after {
+        clear: right;
+        content: ' ';
+        display: block;
+      }
+    }
+    .officers-img {
+      margin: 0 10px 10px 0;
+      width: 150px;
+      height: 150px;
+      float: left;
+      @include respond-to(small) {
+        margin-bottom: 0;
+        width: 120px;
+        height: 120px;
+      }
+
+      img {
+        width: 150px;
+        height: 150px;
+        @include respond-to(small) {
+          width: 120px;
+          height: 120px;
+        }
+      }
+    }
+    .officers-chair-banner-wrapper {
+      @include absolute-position($bottom: -1px, $right: -1px, $width: 85px,
+        $height: 88px);
+      overflow: hidden;
+    }
+    .officers-chair-banner {
+      color: $gold;
+      text-align: center;
+      @include experimental(transform, rotate(-45deg));
+      position: relative;
+      left: -5px;
+      top: 44px;
+      width: 120px;
+      padding: 5px 0;
+      background-color: $dark-blue;
+      @include box-shadow(0px 0px 3px rgba(0, 0, 0, 0.3));
+    }
+    .officers-bio {
+      display: table;
+      @include respond-to(small) {
+        width: 100%;
+      }
+
+      p {
+        margin: 0.7em 0;
+      }
+    }
+  }
+}

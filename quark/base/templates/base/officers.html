@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load markup thumbnail %}
+
+{% block content %}
+<h1>
+  {% block title %}Officers{% endblock title %}
+</h1>
+
+{% include 'term_selection.html' %}
+{% regroup officers by position as positions %}
+{% for position in positions %}
+  <div class="officers-section">
+    <h3>
+      {{ position.grouper }}
+      <span>{{ position.grouper.mailing_list }}@tbp</span>
+    </h3>
+    {% for officer in position.list %}
+      <div class="officers-card">
+        <div class="officers-img">
+          <img src="{{ officer.user.userprofile.picture|thumbnail_url:'officericon' }}"
+            alt="{{ officer.user.userprofile.get_common_name }}">
+          {% if officer.is_chair %}
+            <div class="officers-chair-banner-wrapper">
+              <div class="officers-chair-banner">Chair</div>
+            </div>
+          {% endif %}
+        </div>
+        <div class="officers-name">
+          <span>{{ officer.user.userprofile.get_common_name }}</span>
+          {{ officer.user.get_username }}@tbp
+        </div>
+        <div class="officers-bio">
+          {{ officer.user.userprofile.get_student_org_user_profile.bio|markdown }}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endfor %}
+
+{% endblock %}

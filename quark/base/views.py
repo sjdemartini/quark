@@ -1,6 +1,8 @@
+from django.views.generic import ListView
 from django.shortcuts import render
 from django.views.generic.base import TemplateView
 
+from quark.base.models import Officer
 from quark.base.models import Term
 from quark.events.models import Event
 
@@ -61,3 +63,14 @@ class TermParameterMixin(object):
         # ordered from current to oldest
         context['terms'] = Term.objects.get_terms(reverse=True)
         return context
+
+
+class OfficersView(TermParameterMixin, ListView):
+    context_object_name = 'officers'
+    model = Officer
+    template_name = "base/officers.html"
+
+    def get_queryset(self):
+        return Officer.objects.filter(term=self.display_term).order_by(
+            'position__rank', '-is_chair').select_related(
+            'user__userprofile', 'officer_position')
