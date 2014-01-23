@@ -80,9 +80,9 @@
       width: 80%;
     }
     @include respond-to(small) {
-      margin-left: 5%;
-      margin-right: 5%;
-      width: 90%;
+      margin-left: 2.5%;
+      margin-right: 2.5%;
+      width: 95%;
     }
     li {
       padding-bottom: 10px;
@@ -112,16 +112,13 @@
   color: #000;
 }
 
-/* SLIDESHOW */
+// Slideshow
 #slideshow-slides {
   background-color: #444;
   float: left;
   overflow: hidden;
   @include border-radius(4px);
   @include box-shadow(0 1px 5px rgba(0, 0, 0, 0.2));
-  &:hover {
-    @include box-shadow(0 3px 10px rgba(0, 0, 0, 0.4));
-  }
   width: 60%;
   margin: 15px 1.667%;
   @include respond-to(medium) {
@@ -129,8 +126,38 @@
     margin: 15px 10% 0 10%;
   }
   @include respond-to(small) {
-    width: 90%;
-    margin: 15px 5% 0 5%;
+    width: 95%;
+    margin: 15px 2.5% 0 2.5%;
+  }
+
+  // Hide the slideshow buttons unless the mouse hovers over the slideshow
+  .slideshow-button {
+    width: 48px;
+    height: 48px;
+    @include respond-to(small) {
+      width: 32px;
+      height: 32px;
+    }
+    background-color: #fff;
+    position: absolute;
+    opacity: 0;
+    transition: all 125ms ease-in;
+    border-radius: 48px;
+    font-size: 30px;
+    text-align: center;
+    -webkit-touch-callout: none;
+    @include experimental(user-select, none);
+  }
+
+  &:hover {
+    @include box-shadow(0 3px 10px rgba(0, 0, 0, 0.4));
+    .slideshow-button {
+      opacity: 0.2;
+    }
+    // Hovering over the buttons themselves makes them fully opaque
+    .slideshow-button:hover {
+      opacity: 1;
+    }
   }
 }
 
@@ -158,66 +185,42 @@
   }
 }
 
+$slideshow-button-top-gap: 65px;
+$slideshow-button-side-gap: 15px;
+
 #slideshow-left {
-  top: 15px;
-  left: 15px;
+  top: $slideshow-button-top-gap;
+  left: $slideshow-button-side-gap;
+}
+
+#slideshow-left-arrow,
+#slideshow-right-arrow {
+  border: 18px solid transparent;
+  top: 5px;
+  @include respond-to(small) {
+    border: 10px solid transparent;
+  }
+  width: 0;
+  height: 0;
 }
 
 #slideshow-left-arrow {
-  // needs to be in front of border-right-color
-  border: 18px solid transparent;
-  top: 5px;
   right: 7px;
   @include respond-to(small) {
-    border: 10px solid transparent;
-    top: 5px;
     right: 2px;
   }
-}
-#slideshow-left-arrow {
-  width: 0;
-  height: 0;
   border-right-color: #000;
 }
 
 #slideshow-right {
-  top: 15px;
-  right: 15px;
+  top: $slideshow-button-top-gap;
+  right: $slideshow-button-side-gap;
 }
 
 #slideshow-right-arrow {
-  // needs to be in front of border-left-color
-  border: 18px solid transparent;
   left: 18px;
-  top: 5px;
   @include respond-to(small) {
-    border: 10px solid transparent;
     left: 12px;
   }
-}
-#slideshow-right-arrow {
-  width: 0;
-  height: 0;
   border-left-color: #000;
-}
-
-.slideshow-button {
-  width: 48px;
-  height: 48px;
-  @include respond-to(small) {
-    width: 32px;
-    height: 32px;
-  }
-  background-color: #fff;
-  position: absolute;
-  opacity: 0.2;
-  transition: all 125ms ease-in;
-  border-radius: 48px;
-  font-size: 30px;
-  text-align: center;
-  -webkit-touch-callout: none;
-  @include experimental(user-select, none);
-  &:hover {
-    opacity: 1;
-  }
 }
