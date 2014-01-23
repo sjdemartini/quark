@@ -13,11 +13,11 @@
   {% csrf_token %}
   {% include 'form.html' %}
 
-  <input type="submit" value="Log in" />
-  <input type="hidden" name="next" value="{{ next }}" />
+  <input type="submit" value="Log In">
+  <input type="hidden" name="next" value="{% if next %}{{ next }}{% else %}{% url 'home' %}{% endif %}">
 </form>
 
-<p>Forgot your password? <a href="{#TODO: {% url accounts:password-reset %} #}">Reset it</a>!</p>
+<p>Forgot your password? <a href="{% url 'accounts:password-reset' %}">Reset it</a>!</p>
 {% settings_assign 'IT_ADDRESS' as it_addr %}
 <p>Are you a member without an account? Request one by emailing IT at <a href="mailto:{{ it_addr }}">{{ it_addr }}</a>.</p>
 

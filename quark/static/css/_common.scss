@@ -228,17 +228,11 @@ div {
   .form-entry {
     & > label,
     & > legend {
-      width: $form-label-width / 2;
       text-align: left;
-      @include respond-to(small-med) {
-        width: 100%;
-      }
+      width: 100%;
     }
     .form-input {
-      width: $form-input-width + ($form-label-width / 2);
-      @include respond-to(small-med) {
-        width: 100%;
-      }
+      width: 100%;
     }
     &.form-entry-required label:after {
       // Don't denote required fields, since this form is meant to be simple

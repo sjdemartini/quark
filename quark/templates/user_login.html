@@ -29,7 +29,7 @@
         <li><a href="{% url 'resumes:edit' %}">Edit Resume</a></li>
         {% endif %}
 
-        <li><a href="{% url 'accounts:change-password' %}">Change Password</a></li>
+        <li><a href="{% url 'accounts:password-change' %}">Change Password</a></li>
 
         <li><a href="{% url 'events:individual-attendance' user.get_username %}">Attendance</a></li>
       </ul>

@@ -1,6 +1,14 @@
 from django import forms
 from django.conf import settings
 from django.contrib.auth import forms as auth_forms
+from django.contrib.auth import get_user_model
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.sites.models import get_current_site
+from django.core.mail import send_mail
+from django.db.models import Q
+from django.template import loader
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 
 from quark.accounts.models import make_ldap_user
 from quark.qldap import utils as ldap_utils
@@ -59,7 +67,7 @@ class MakeLDAPUserMixin(object):
     """
     def __init__(self, *args, **kwargs):
         super(MakeLDAPUserMixin, self).__init__(*args, **kwargs)
-        if USE_LDAP:
+        if USE_LDAP and self.user:
             make_ldap_user(self.user)
 
 
@@ -74,3 +82,77 @@ class PasswordChangeForm(SetPasswordForm, auth_forms.PasswordChangeForm):
 class AdminPasswordChangeForm(MakeLDAPUserMixin,
                               auth_forms.AdminPasswordChangeForm):
     pass
+
+
+class PasswordResetForm(forms.Form):
+    """A form for users to enter their username or email address and have a
+    password reset email sent to them.
+
+    Unlike the standard password reset form, note that this form accepts both
+    username and email address, rather than just email address.
+
+    The save method is primarily copied from django.contrib.auth.forms
+    PasswordResetForm, though this reset-form allows for sending reset emails to
+    users that have unusable passwords (as might be the case if passwords are
+    only stored in LDAP). This is deliberately allowed, since the
+    SetPasswordForm (used at the page linked to by the reset email) takes into
+    account LDAP users, as needed. Also, while the Django form will send emails
+    to multiple users if they all have the same email address on file, if
+    multiple users are found here (due to having users with colliding email
+    addresses), a validation error is raised.
+    """
+    username_or_email = forms.CharField(label='Username or email address')
+    user_cache = None  # A cached user object, found during validation process
+
+    def clean_username_or_email(self):
+        entry = self.cleaned_data['username_or_email']
+
+        # The username is case-sensitive, but the email address is not:
+        lookup = Q(username__exact=entry) | Q(email__iexact=entry)
+
+        user_model = get_user_model()
+        try:
+            self.user_cache = user_model._default_manager.get(
+                lookup, is_active=True)
+        except user_model.DoesNotExist:
+            raise forms.ValidationError('Sorry, this user doesn\'t exist.')
+        except user_model.MultipleObjectsReturned:
+            raise forms.ValidationError('Unable to find distinct user.')
+        return entry
+
+    def save(self, domain_override=None,
+             subject_template_name='registration/password_reset_subject.txt',
+             email_template_name='accounts/password_reset_email.html',
+             use_https=False, token_generator=default_token_generator,
+             from_email=None, request=None):
+        """
+        Generate a one-use only link for resetting password and send it to the
+        user.
+
+        Use as defaults the built-in Django password_reset_subject template and
+        the custom password_reset_email template.
+        """
+        if not domain_override:
+            current_site = get_current_site(request)
+            site_name = current_site.name
+            domain = current_site.domain
+        else:
+            site_name = domain = domain_override
+
+        # Get the user selected in the clean method:
+        user = self.user_cache
+
+        context = {
+            'email': user.email,
+            'domain': domain,
+            'site_name': site_name,
+            'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+            'user': user,
+            'token': token_generator.make_token(user),
+            'protocol': 'https' if use_https else 'http',
+        }
+        subject = loader.render_to_string(subject_template_name, context)
+        # Email subject *must not* contain newlines
+        subject = ''.join(subject.splitlines())
+        email = loader.render_to_string(email_template_name, context)
+        send_mail(subject, email, from_email, [user.email])
