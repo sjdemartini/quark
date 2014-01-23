@@ -1,58 +1,83 @@
 {% load ancestor %}
-{% url 'events:list' as events %}
+
 <div id="navigation-container">
   {# The nav-menubar is used on mobile to expand the nav options #}
   <div id="nav-menubar">
-    <a id="nav-menubar-open">
+    <div class="nav-menubar-content">
       Menu
-      <i class="fa fa-bars nav-menubar-icon"></i>
-    </a>
+      <div class="nav-menubar-icon">
+        <i class="fa fa-bars"></i>
+      </div>
+    </div>
   </div>
 
-  <div id="nav">
+  <nav>
+    {% spaceless %}
     <ul>
       <li>
-        <a href="{% url 'about' %}">About</a>
+        {% url 'about' as about_url %}
+        {% url 'contact' as contact_url %}
+        {% url 'eligibility' as eligibility_url %}
+        {% url 'project-reports:list' as proj_reports_url %}
+        <a href="{{ about_url }}" class="{% ancestor about_url %} {% ancestor proj_reports_url %}">About</a>
         <ul>
-          <li><a href="{% url 'contact' %}">Contact Us</a></li>
-          <li><a href="{# TODO #}">Eligibility</a></li>
-          <li><a href="{% url 'project-reports:list' %}">Project Reports</a></li>
+          <li><a href="{{ contact_url }}" class="{% ancestor contact_url %}">Contact Us</a></li>
+          <li><a href="{{ eligibility_url }}" class="{% ancestor eligibility_url %}">Eligibility</a></li>
+          <li><a href="{{ proj_reports_url }}" class="{% ancestor proj_reports_url %}">Project Reports</a></li>
         </ul>
       </li>
+
       <li>
-        <a href="{# TODO #}">People</a>
+        {% url 'officers' as officers_url %}
+        {% url 'committees' as committees_url %}
+        {% url 'past-presidents:list' as past_pres_url %}
+        <a href="{{ officers_url }}" class="{% ancestor officers_url %} {% ancestor past_pres_url %}">People</a>
         <ul>
-          <li><a href="{% url 'officers' %}">Officers</a></li>
+          <li><a href="{{ officers_url }}" class="{% ancestor officers_url %}">Officers</a></li>
+          <li><a href="{{ committees_url }}" class="{% ancestor committees_url %}">Committees</a></li>
+          <li><a href="{{ past_pres_url }}" class="{% ancestor past_pres_url %}">Past Presidents</a></li>
         </ul>
       </li>
-      <li class="{% ancestor events %}">
-      <a href="{{ events }}">Events</a>
+
+      <li>
+        {% url 'events:list' as events_url %}
+        {% url 'events:calendar' as events_cal_url %}
+        <a href="{{ events_url }}" class="{% ancestor events_url %}">Events</a>
         <ul>
-          <li><a href="{% url 'events:calendar' %}">Events Calendar</a></li>
+          <li><a href="{{ events_url }}"{% if request.path == events_url %} class="selected"{% endif %}>Events List</a></li>
+          <li><a href="{{ events_cal_url }}" class="{% ancestor events_cal_url %}">Events Calendar</a></li>
           <li><a href="{# TODO #}">Ad-Hoc Events</a></li>
         </ul>
       </li>
+
       <li>
-        <a href="{# TODO #}">Student Resources</a>
+        {% url 'student-resources' as students_url %}
+        {% url 'courses:course-department-list' as courses_url %}
+        {% url 'courses:instructor-department-list' as instructors_url %}
+        {% url 'exams:review' as exam_review_url %}
+        <a href="{{ students_url }}" class="{% ancestor students_url %} {% ancestor courses_url %}">Student Resources</a>
         <ul>
-          <li><a href="{% url 'courses:course-department-list' %}">Exams And Course Surveys</a></li>
-          <li><a href="{% url 'courses:instructor-department-list' %}">Instructor Ratings</a></li>
+          <li><a href="{{ courses_url }}"{% if request.path == courses_url %} class="selected"{% endif %}>Exams And Course Surveys</a></li>
+          <li><a href="{{ instructors_url }}" class="{% ancestor instructors_url %}">Instructor Ratings</a></li>
           {% if perms.exams.change_exam %}
-          <li><a href="{% url 'exams:review' %}">Exam Review</a></li>
+          <li><a href="{{ exam_review_url }}" class="{% ancestor exam_review_url %}">Exam Review</a></li>
           {% endif %}
           <li><a href="{# TODO #}">Helpdesk</a></li>
         </ul>
       </li>
+
       <li>
-        <a href="{% url 'industry' %}">Industrial Relations</a>
+        {% url 'industry' as industry_url %}
+        {% url 'resumes:list' as resumes_url %}
+        <a href="{{ industry_url }}" class="{% ancestor industry_url %}">Industrial Relations</a>
         <ul>
           <li><a href="{# TODO #}">Company Sponsors</a></li>
-          {% if perms.exams.change_resume %}
-          <li><a href="{# TODO #}">Resume Admin</a></li>
+          {% if perms.resumes.change_resume %}
+          <li><a href="{{ resumes_url }}" class="{% ancestor resumes_url %}">Resume Management</a></li>
           {% endif %}
-          <li><a href="{# TODO #}">Helpdesk</a></li>
         </ul>
       </li>
     </ul>
-  </div>
+    {% endspaceless %}
+  </nav>
 </div>

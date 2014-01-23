@@ -31,8 +31,10 @@
   {% if perms.exams.change_exam %}
   <li><a href="{% url 'exams:review' %}">Exam Files Management</a></li>
   {% endif %}
+  {% if perms.resumes.change_resume %}
+  <li><a href="{% url 'resumes:list' %}">Resume Management</a></li>
+  {% endif %}
   <li><a href="/mailman/listinfo/">Public Mailing Lists</a> (<a href="{% url 'mailing-lists:list' %}">Manage All Lists</a>)</li>
-  {# TODO(sjdemartini): Add link for resume review #}
 </ul>
 
 <h2>Candidate Tools</h2>

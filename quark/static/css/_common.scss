@@ -448,7 +448,7 @@ blockquote {
 }
 
 // BASE LAYOUT
-#header {
+header {
   @include background-light;
   margin: auto;
 
@@ -711,106 +711,68 @@ blockquote {
   @include background-gray;
 }
 
+// Navigation menu toggler (expands/collapses the nav links for narrow viewport)
 #nav-menubar {
   border-bottom: 1px solid #333;
   border-top: 1px solid #f2f2f2;
+  color: #fff;
+  cursor: pointer;
   display: none;
   font-size: 1.225em;
   padding: 10px 5%;
+  text-decoration: none;
+  @include transition(all 125ms ease-in);
 
   @include respond-to(medium) {
     display: block;
   }
 
-  #nav-menubar-open {
+  .nav-menubar-content {
+    position: relative;
+  }
+
+  .nav-menubar-icon {
     color: #fff;
     cursor: pointer;
-    text-decoration: none;
-    transition: all 125ms ease-in;
-
-    &:hover {
-      color: #000;
-    }
-
-    .nav-menubar-icon {
-      background: #444;
-      color: #fff;
-      cursor: pointer;
-      float: right;
-      font-size: 21px;
-      height: 14px;
-      padding: {
-        top: 4px;
-        right: 7px;
-        bottom: 10px;
-        left: 7px;
-      }
-      transition: all 125ms ease-in;
-      width: 18px;
-      @include border-radius(5px);
-
-      &:hover {
-        background: #222;
-      }
-    }
+    font-size: 21px;
+    position: absolute;
+    right: 0;
+    top: 0;
   }
 }
 
-#nav,
+nav,
 #subnav {
   max-width: none;
   text-align: center;
 
   li {
     display: inline;
+
+    @include respond-to(medium) {
+      display: block;
+    }
   }
 }
 
-#nav {
+// Height for top-level nav links (with non-large viewport):
+$nav-link-height: 38px;
+// Light and dark transparent overlays to use for nav links:
+$background-light-overlay: rgba(255, 255, 255, 0.3);
+$background-dark-overlay: rgba(0, 0, 0, 0.15);
+
+nav {
   border-bottom: 1px solid #333;
   border-top: 1px solid #f2f2f2;
   display: block;
 
   @include respond-to(medium) {
     // Initially hide the nav options for narrower viewports. JS will open the
-    // nav and close the nav as needed. Hiding the #nav options by default
+    // nav and close the nav as needed. Hiding the nav options by default
     // ensures that when the page loads with a narrow viewport, the nav doesn't
     // start open and suddenly collapse when the JS runs.
     display: none;
-    height: initial;
     text-align: left;
-
-    .nav-child-arrow-container {
-      background: #444;
-      cursor: pointer;
-      display: inline-block;
-      float: right;
-      height: 28px;
-      margin: 4px;
-      margin-right: 5%;
-      position: relative;
-      width: 32px;
-      z-index: 80;
-      @include border-radius(5px);
-
-      &:hover {
-        background: #222;
-      }
-    }
-
-    .nav-child-arrow {
-      border: 10px solid transparent;
-      border-top-color: #fff;
-      height: 0;
-      margin: 6px;
-      margin-top: 10px;
-      width: 0;
-    }
-  }
-
-  li {
-    position: relative;
-    // necessary for submenu positioning
   }
 
   ul {
@@ -824,11 +786,8 @@ blockquote {
     }
 
     ul {
-      border: {
-        left: 1px solid #333;
-        right: 1px solid #333;
-        bottom: 1px solid #333;
-      }
+      border: 1px solid #333;
+      border-top: 0;
       display: block;
       font-size: .85em;
       height: 0;
@@ -840,44 +799,59 @@ blockquote {
       position: absolute;
       text-align: left;
       top: 100%;
-      transition: all 125ms ease-in;
       z-index: 80;
       @include background-gray;
       @include border-bottom-radius(3px);
+      @include transition(all 125ms ease-in);
 
       @include respond-to(medium) {
         border: 0;
-        border-left: 13px solid rgba(0, 0, 0, 0.4);
         height: auto;
-        margin: 0 5%;
+        margin: 0;
         opacity: 1;
         position: static;
-        transition: none;
         @include border-radius(0);
+        @include transition(none);
+      }
+
+      li {
+        display: block;
+        position: relative;
+        top: 100%;
+        width: 215px;
+
+        @include respond-to(medium) {
+          background-color: $background-dark-overlay;
+          width: 100%;
+
+          &:hover {
+            // Make sure the link hover looks the same as the nav ul li elements
+            // by removing the ul ul li background color on hover
+            background: none;
+          }
+        }
+      }
+
+      a {
+        display: block;
+        @include transition(all 125ms);
+
+        @include respond-to(medium) {
+          // Increase the horizontal margins on submenu items to differentiate
+          // them
+          padding-left: 7%;
+          padding-right: 7%;
+        }
       }
     }
 
-    li:hover > ul {
-      height: auto;
-      opacity: 1;
-    }
+    li {
+      position: relative;  // Necessary for submenu positioning
 
-    ul li {
-      display: block;
-      float: none;
-      position: relative;
-      top: 100%;
-      width: 215px;
-
-      @include respond-to(medium) {
-        background: rgba(0, 0, 0, 0.28);
-        width: 100%;
-
-        &:hover {
-          // Make sure the link hover looks the same as the nav ul li elements
-          // by removing the ul ul li background color on hover
-          background: none;
-        }
+      &:hover > ul {
+        // Show the dropdown submenus
+        height: auto;
+        opacity: 1;
       }
     }
   }
@@ -889,44 +863,80 @@ blockquote {
     font-weight: 400;
     padding: 10px 27px;
     text-decoration: none;
-    transition: all 125ms ease-in;
+    @include box-sizing(border-box);
+    @include transition(all 125ms ease-in);
 
     @include respond-to(medium) {
       display: block;
       padding: 6px 5%;
     }
 
-    &:active,
-    &:hover,
-    .selected {
-      background-color: rgba(255, 255, 255, 0.2);  // white transparent overlay
+    &.selected {
       color: #000;
+      font-weight: 600;
+
+      // For large viewport, highlight the selected nav link.
+      @include respond-to(large-only) {
+        background-color: rgba(255, 255, 255, 0.15);
+      }
+    }
+
+    &:active,
+    &:hover {
+      background-color: $background-light-overlay !important;
+      color: #000;
+      text-decoration: none;
+    }
+  }
+
+  // Top-level links (does not include submenu links)
+  & > ul > li > a {
+    @include respond-to(medium) {
+      height: $nav-link-height;
     }
 
     &.selected {
-      font-weight: 600;
-    }
-  }
-
-  ul ul a {
-    display: block;
-    transition: all 125ms;
-  }
-
-  @include respond-to(large-only) {
-    .selected > a {
-      background-color: rgba(255, 255, 255, 0.2);  // white transparent overlay
-      color: #000;
-      font-weight: 600;
-      text-decoration: none;
+      // For large viewport and top-level links, highlight the selected nav link
+      // using a lighter overlay than for links that will be in dropdown menus.
+      @include respond-to(large-only) {
+        background-color: rgba(255, 255, 255, .23);
+      }
     }
   }
 }
 
 .nav-child-arrow-container {
-  // Ensure arrow container hidden. Necessary for cross-browser compatibility.
-  // This container is used only for narrow viewports.
+  // Ensure arrow container hidden by default. The container is used only for
+  // narrow viewports.
   display: none;
+
+  @include respond-to(medium) {
+    background-color: $background-dark-overlay;
+    cursor: pointer;
+    display: table;
+    height: $nav-link-height;
+    margin: 0;
+    position: absolute;
+    right: 0;
+    text-align: center;
+    top: 0;
+    width: 65px;
+    z-index: 80;
+
+    &:hover {
+      background-color: $background-light-overlay;
+    }
+
+    .nav-child-arrow {
+      display: table-cell;
+      font-size: 25px;
+      vertical-align: middle;
+
+      &.fa-caret-right {
+        padding-left: 3px;
+      }
+    }
+  }
 }
 
 #subnav {
@@ -1026,7 +1036,7 @@ $footer-total-height: ($footer-font-size / 1em) * (
   height: $footer-total-height + 2em;
 }
 
-#footer {
+footer {
   background-color: $light-gray;
   border-top: $footer-border-size solid #999;
   color: #666;
@@ -1034,18 +1044,19 @@ $footer-total-height: ($footer-font-size / 1em) * (
   height: $footer-height;
   padding: $footer-vertical-pad 0;
   @include box-shadow(inset 0 30px 30px -30px #999);
+
   a {
     color: #33c;
+  }
+
+  p {
+    margin: .5em 0;
   }
 }
 
 #footer-focus {
   margin: auto;
   max-width: 1000px;
-}
-
-#footer p {
-  margin: .5em 0;
 }
 
 #socialmedia {

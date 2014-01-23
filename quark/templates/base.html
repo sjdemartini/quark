@@ -33,7 +33,7 @@
     {# TODO(sjdemartini): fill in all URLs for links as they are created #}
     <div id="wrapper" class="{% block wrapper_class %}{% endblock wrapper_class %}">
       {% block header %}
-      <div id="header">
+      <header>
         <div id="header-focus">
           {% include '_user_login.html' %}
 
@@ -44,7 +44,7 @@
             <a href="{% url 'home' %}" id="logo-overlay"></a>
           </div>
         </div><!-- end header-focus -->
-      </div><!-- end header -->
+      </header>
       {% endblock header %}
 
       {% block nav %}{% include '_nav.html' %}{% endblock nav %}
@@ -61,7 +61,7 @@
       </div>
     </div><!-- end wrapper-->
 
-    <div id="footer">
+    <footer>
       <div id="footer-focus">
       {% block footer %}
         <div id="socialmedia">
@@ -76,7 +76,7 @@
         </div>
       {% endblock footer %}
       </div>
-    </div>
+    </footer>
 
     {# TODO(sjdemartini): Google analytics #}
 

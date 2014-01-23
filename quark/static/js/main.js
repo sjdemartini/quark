@@ -36,7 +36,7 @@ $(function() {
       $(selector).stop(true, true).slideToggle(time);
     }
 
-    var nav = $('#nav');  // The nav bar
+    var nav = $('nav');  // The nav bar
 
     // wasNarrow refers to whether the window width (viewport) was narrow in
     // the previous call to the navResize function. Note that this is necessary
@@ -59,9 +59,9 @@ $(function() {
 
       // Add buttons used for expanding sub-menus of parent navigation elements:
       var subMenuButton = $('<div class="nav-child-arrow-container">' +
-        '<div class="nav-child-arrow"></div></div>');
-      // Add to the parent of the submenu the submenu toggle button:
-      subMenu.parent().prepend(subMenuButton);
+        '<div class="nav-child-arrow fa fa-caret-right"></div></div>');
+      // Add the child arrow container before the submenu list:
+      subMenu.before(subMenuButton);
 
       // Get the actual HTML element for the subMenuButton:
       var subMenuButtonElem = subMenuButton.get(0);
@@ -79,8 +79,16 @@ $(function() {
       // Similarly, add to this element a pointer to the subMenuButton:
       this.menuButton = subMenuButtonElem;
 
+      // Add an on-click handler for expanding/collapsing the submenu
       subMenuButton.on('click', function(event) {
         event.preventDefault();
+
+        // Toggle the arrow direction
+        var arrow = $(this).children('.nav-child-arrow');
+        arrow.toggleClass('fa-caret-right');
+        arrow.toggleClass('fa-caret-down');
+
+        // Toggle expanding/collapsing the submenu
         heightToggle(this.subMenu);
         this.closedSubMenu = !this.closedSubMenu;
       });
