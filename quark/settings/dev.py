@@ -46,6 +46,13 @@ DATABASES = {
     }
 }
 
+# Check X-Forwarded-Protocol for http protocol so that request.is_secure()
+# returns the correct value when dev server is behind a proxy.
+# Make sure proxy config sets this header correctly:
+#  nginx:
+#    proxy_set_header X-Forwarded-Protocol $scheme;
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
+
 # Custom dev cookie session ID
 SESSION_COOKIE_NAME =  'quark_dev_%s_sid' % _user
 
