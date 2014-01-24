@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% load markup %}
+
 {# Make the home page not have a specific title. #}
 {% block title %}{% endblock title %}
 {% block title_separator %}{% endblock title_separator %}
@@ -32,12 +34,12 @@
             <div id="slideshow-slides">
               <ul>
                 {% for news_item in news_list %}
-                  <li id="slide-{{ forloop.counter0 }}" class="slide">
-                    <img src="{{ news_item.image.url }}">
-                    <div class="slide-info">
-                      {{ news_item.blurb }}
-                    </div>
-                  </li>
+                <li id="slide-{{ forloop.counter0 }}" class="slide">
+                  <img src="{{ news_item.image.url }}">
+                  <div class="slide-info">
+                    {{ news_item.blurb|markdown }}
+                  </div>
+                </li>
                 {% endfor %}
               </ul>
               <div id="slideshow-left" class="slideshow-button">

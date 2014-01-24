@@ -36,9 +36,6 @@ body,
 div {
   margin: 0;
   padding: 0;
-  position: relative;
-  // IE fix; also fixes jQuery autocomplete layout issue in which the inserted
-  // div's position is absolute
 }
 
 // Table styling
@@ -416,6 +413,7 @@ blockquote {
     margin: auto;
     max-width: 1000px;
     height: 70px;
+    position: relative;
   }
 }
 
@@ -692,6 +690,7 @@ blockquote {
       width: 32px;
       height: 28px;
       display: inline-block;
+      position: relative;
       background: #444;
       @include border-radius(5px);
       margin: 4px;

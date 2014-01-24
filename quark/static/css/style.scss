@@ -16,26 +16,29 @@
 
 
 ///// Feature Specific Setup /////
-// _achievements.scss - css for the achievement app
+// _slideshow.scss - the jQuery slideshow
+@import "slideshow";
+
+// _achievements.scss - achievements app
 @import "achievements";
 
-// _candidates.scss - css for the candidates app
+// _candidates.scss - candidates app
 @import "candidates";
 
-// _events.scss - css for the events app
+// _events.scss - events app
 @import "events";
 
-// _exams.scss - css for the exams app
+// _exams.scss - exams app
 @import "exams";
 
-// _leaderboard.scss - css for the leaderboard (e.g., achievements leaderboard)
+// _leaderboard.scss - leaderboard (e.g., achievements leaderboard)
 @import "leaderboard";
 
-// _newsreel.scss - css for the newsreel app
+// _newsreel.scss - newsreel app
 @import "newsreel";
 
-// _officers.scss - css for the officers list
+// _officers.scss - officers list
 @import "officers";
 
-// _profiles.scss - css for user profiles
+// _profiles.scss - user profiles
 @import "profiles";

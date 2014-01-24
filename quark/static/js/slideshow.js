@@ -1,42 +1,55 @@
-// slideshow(selector)
-// Initiates a slideshow in the given spot
-// selector - the identifier of the element that contains the slideshow
-// options - dictionary of options
+/**
+ * Initiate a slideshow using the given selector and options, at the location
+ * of the selected element.
+ *
+ * @param selector is the identifier of the element that contains the slideshow
+ *  elements
+ * @param options is the dictionary of options
+ */
 var slideshow = function(selector, options) {
-  // isString(s)
-  // Helper function to check if a string
-  // s - thing to check
-  // returns true or false
-  var isString = function(s) {
-    return jQuery.type( s ) === 'string';
-  };
-  // isNumber(s)
-  // Helper function to check if a number
-  // s - thing to check
-  // returns true or false
-  var isNumber = function(s) {
-    return jQuery.type( s ) === 'number';
-  };
-  // isBoolean(s)
-  // Helper function to check if a boolean
-  // s - thing to check
-  // returns true or false
-  var isBoolean = function(s) {
-    return jQuery.type( s ) === 'boolean';
-  };
-  // makePositiveInt(s)
-  // Helper function to make a number a positive integer
-  // s - thing to round and make positive
-  // returns positive integer
-  var makePositiveInt = function(s) {
-    return Math.round( Math.abs( s ) );
-  };
-  // centerAndResize(img, w, h)
-  // Helper function to center and resize a absolutely position thing in an area
-  // img - jQuery selected thing
-  // w - width of area
-  // h - height of area
-  var centerAndResize = function(img, w, h) {
+  /**
+   * Return true if the given value is a string.
+   * @param s is the value to check
+   * @returns a boolean value for whether s is a string
+   */
+  function isString(s) {
+    return jQuery.type(s) === 'string';
+  }
+
+  /**
+   * Return true if the given value is a number.
+   * @param s is the value to check
+   * @returns a boolean value for whether s is a number
+   */
+  function isNumber(s) {
+    return jQuery.type(s) === 'number';
+  }
+
+  /**
+   * Return true if the given value is a boolean.
+   * @param s is the value to check
+   * @returns a boolean value for whether s is a boolean
+   */
+  function isBoolean(s) {
+    return jQuery.type(s) === 'boolean';
+  }
+
+  /**
+   * Make a number a positive integer.
+   * @param s is the value to round and make positive
+   * @returns a positive integer representation of s
+   */
+  function makePositiveInt(s) {
+    return Math.round(Math.abs(s));
+  }
+
+  /**
+   * Center and resize an absolutely-position element in an area.
+   * @param img is the jQuery object that is to be centered and resized
+   * @parma w is the width of the new area
+   * @param h is the height of the new area
+   */
+  function centerAndResize(img, w, h) {
     img.css('width', '');
     img.css('height', '');
     var ih = img.height(), iw = img.width();
@@ -55,8 +68,7 @@ var slideshow = function(selector, options) {
       img.css('left',  Math.floor((w - (h * iw / ih)) / 2));
       img.css('top', '0');
     }
-  };
-
+  }
 
   // Validate selector argument
   if (!(isString(selector))) {
@@ -66,7 +78,7 @@ var slideshow = function(selector, options) {
   }
 
   // Checks options
-  if (!(jQuery.type( options ) === 'object'))
+  if (!(jQuery.type(options) === 'object'))
     options = {};
   // The slide container id (can be different than the first argument)
   if (!(isString(options.slideContainer)))
@@ -126,6 +138,7 @@ var slideshow = function(selector, options) {
     console.error('slideshow.js: not able to find the container');
     return;
   }
+
   // Which slide is being showed
   var indexOn = options.firstSlideIndex;
   // Which slide is being transitioned to or -1 if not transitioning
@@ -154,40 +167,42 @@ var slideshow = function(selector, options) {
 
   // Only animate if there is more than one slide
   if (slidesCount > 1) {
-    // switchTo(index)
-    // Helper function to switch between two slides
-    // index - index of the slide to switch to
-    var switchTo = function(index) {
+    /**
+     * Switch to a new slide.
+     * @parama index is the index of the slide to switch to
+     */
+    function switchTo(index) {
       // Verify index within range
-      if (index < 0)
+      if (index < 0) {
         index = slidesCount - 1;
-      else if (index >= slidesCount)
+      } else if (index >= slidesCount) {
         index = 0;
+      }
       indexTo = index;
+      updateDimensions();
 
-      // Make the Info class disappear
-      slides[indexOn].find(options.slideInfoClass).fadeTo(options.fadeTime, 0);
-      slides[index].find(options.slideInfoClass).fadeTo(0, 0);
-      slides[index].find(options.slideInfoClass).fadeTo(options.fadeTime, 1);
-
-      // Fade the slides
+      // Fade to transition the slides
       slides[indexOn].fadeOut(options.fadeTime);
-      slides[index].fadeIn(options.fadeTime, function() {
+      slides[indexTo].fadeIn(options.fadeTime, function() {
         // This gets executed after the fading is done.
-        indexOn = index;
+        if (indexTo >= 0) {
+          // As a protective measure, only reset indexOn if indexTo is a valid
+          // value:
+          indexOn = indexTo;
+        }
         indexTo = -1;
         if (!hover) {
           currentTimeout = setTimeout(function() {
-              switchTo(indexOn + 1);
-            }, options.waitTime);
-          }
-        });
-    };
+            switchTo(indexOn + 1);
+          }, options.waitTime);
+        }
+      });
+    }
 
     // Start the wait until the next switch
     var currentTimeout = setTimeout(function() {
-        switchTo(indexOn + 1);
-      }, options.waitTime);
+      switchTo(indexOn + 1);
+    }, options.waitTime);
 
     // Disable the timeout on hover
     if (options.hoverPause) {
@@ -224,25 +239,55 @@ var slideshow = function(selector, options) {
     }
   }
 
-  // Ensure dimensions of slideshow and set image dimensions
-  var setWidth = function() {
-    var w = $(options.slideContainer).innerWidth();
-    var h = w * options.dimensionsRatio;
 
-    // Center and resize the slide images
-    if (options.centerAndResize) {
-      centerAndResize(slides[indexOn].find('img'), w, h);
-      if (indexTo != -1 && indexTo != indexOn) {
-        centerAndResize(slides[indexTo].find('img'), w, h);
+  var setDimensionsId;
+  /**
+   * Ensure dimensions of slideshow and its images are correct.
+   */
+  function updateDimensions() {
+    // Update the width using the setDimensions function, but cancel any
+    // existing calls to setDimensions, as it will be overwritten anyway
+    function setDimensions() {
+      var w = $(options.slideContainer).innerWidth();
+      var h = w * options.dimensionsRatio;
+
+      // Check if we are in the middle of transitioning between slides, useful
+      // to know if the next image should also be centered and resized and what
+      // height the container should be
+      var isTransitioning = (indexTo != -1) && (indexTo != indexOn);
+
+      // Center and resize the slide images
+      if (options.centerAndResize) {
+        centerAndResize(slides[indexOn].find('img'), w, h);
+        if (isTransitioning) {
+          centerAndResize(slides[indexTo].find('img'), w, h);
+        }
       }
+
+      if (options.addInfoHeight) {
+        var slideIndex;
+        if (isTransitioning) {
+          slideIndex = indexTo;
+        } else {
+          slideIndex = indexOn;
+        }
+        var infoH = $(options.slideInfoClass).eq(slideIndex).outerHeight(true);
+        h += infoH;
+      }
+      $(options.slideContainer).css('height', h);
     }
 
-    if (options.addInfoHeight) {
-      var infoH = $(options.slideInfoClass).outerHeight(true);
-      h += infoH;
-    }
-    $(options.slideContainer).css('height', String(h));
-    setTimeout(setWidth, 15);
-  };
-  setWidth();
+    // Stop any setDimensions call currently running and then call setDimensions
+    clearTimeout(setDimensionsId);
+    setDimensionsId = setTimeout(setDimensions, 0);
+  }
+
+  // Set a window resize event to ensure that the slideshow displays correctly
+  // when the browser window is resized
+  $(window).resize(function() {
+    updateDimensions();
+  });
+
+  // Initialize the size by calling updateDimensions
+  updateDimensions();
 };
