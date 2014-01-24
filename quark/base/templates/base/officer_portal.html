@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% load settings_values %}
+
+{% block title %}Officer Portal{% endblock title %}
+
+{% block intro %}
+<h1>Officer Portal</h1>
+{% endblock intro %}
+
+{% block content %}
+{# TODO(sjdemartini): Restrict pages with proper permissions barriers #}
+
+{# TODO(sjdemartini): Add a list of pending project reports to tell users to finish them #}
+
+<h2>Officer Resources</h2>
+<ul>
+  <li><a href="/officer/library/">Officer Wiki</a></li>
+  <li><a href="/officer/library/Officer_Meeting_Agenda">Officer Meeting Agenda</a></li>
+  <li><a href="{% url 'project-reports:list' %}">Project Reports</a></li>
+  <li><a href="{% url 'minutes:list' %}">Meeting Minutes</a></li>
+  <li><a href="/officer/mail/">Webmail Interface</a></li>
+  {# TODO(sjdemartini): Add link for officer contact list and member database #}
+</ul>
+
+<h2>Administrative Tools</h2>
+<ul>
+  {% if perms.newsreel.change_news %}
+  <li><a href="{% url 'newsreel:list' %}">Newsreel Management</a></li>
+  {% endif %}
+  {% if perms.exams.change_exam %}
+  <li><a href="{% url 'exams:review' %}">Exam Files Management</a></li>
+  {% endif %}
+  <li><a href="/mailman/listinfo/">Public Mailing Lists</a> (<a href="{% url 'mailing-lists:list' %}">Manage All Lists</a>)</li>
+  {# TODO(sjdemartini): Add link for resume review #}
+</ul>
+
+<h2>Candidate Tools</h2>
+<ul>
+  {# TODO: Add candidate eligibility registration once created #}
+  {% if perms.candidates.change_candidate %}
+  <li><a href="{% url 'candidates:list' %}">Candidate Admin</a></li>
+  {% endif %}
+  {% if perms.candidates.change_candidaterequirement %}
+  <li><a href="{% url 'candidates:edit-requirements' %}">Edit Candidate Requirements</a></li>
+  {% endif %}
+  {# TODO(sjdemartini): Add links for Candidate houses and house list #}
+</ul>
+
+<h2>Contact IT</h2>
+{% settings_assign 'IT_ADDRESS' as it_addr %}
+<ul>
+  <li>Email IT at <a href="mailto:{{ it_addr }}">{{ it_addr }}</a></li>
+  <li><a href="/trac/">Introduction</a></li>
+  <li><a href="/trac/newticket">Make IT Request or Bug Report</a></li>
+  <li><a href="/trac/report/1">View active IT Requests and Bug Reports</a></li>
+</ul>
+{% endblock content %}

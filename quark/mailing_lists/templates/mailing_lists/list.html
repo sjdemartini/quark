@@ -10,6 +10,7 @@
 
 {% block content %}
 <p><strong>Number of Mailing Lists</strong>: {{ mailing_lists|length }}</p>
+{% if mailing_lists %}
 <table class="footable stylized boardered">
   <thead>
     <tr>
@@ -30,4 +31,7 @@
     {% endfor %}
   </tbody>
 </table>
+{% else %}
+<p>No mailing lists found.</p>
+{% endif %}
 {% endblock content%}

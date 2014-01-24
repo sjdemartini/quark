@@ -65,7 +65,7 @@ class TermParameterMixin(object):
         return context
 
 
-class OfficersView(TermParameterMixin, ListView):
+class OfficersListView(TermParameterMixin, ListView):
     context_object_name = 'officers'
     model = Officer
     template_name = "base/officers.html"

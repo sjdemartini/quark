@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}IT Tools{% endblock title %}
+
+{% block intro %}
+<h1>IT Tools</h1>
+{% endblock intro %}
+
+{% block content %}
+<ul class="tools">
+  <li><a href="{% url 'admin:index' %}">Django Admin</a></li>
+  <li><a href="/gerrit/">Gerrit Code Review</a></li>
+  <li><a href="/jenkins/">Jenkins</a> (Automated Build Testing)</li>
+  <li><a href="/trac/">Trac</a></li>
+  <li><a href="/phpmyadmin/">phpMyAdmin</a> (MySQL database helper)</li>
+  <li><a href="/phpldapadmin/">phpLDAPadmin</a> (User database)</li>
+  <li><a href="/~christandiono/stats_git/">GIT stats</a></li>
+</ul>
+{% endblock content %}

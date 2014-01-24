@@ -22,9 +22,6 @@
       <ul class="dropdown">
         <li><a href="{% url 'user-profiles:edit' %}">Edit Your Info</a></li>
 
-        {# TODO: forwarding email permissions check here #}
-        <li><a href="{#TODO#}">Forwarding Email</a></li>
-
         {% if perms.resumes.add_resume %}
         <li><a href="{% url 'resumes:edit' %}">Edit Resume</a></li>
         {% endif %}
@@ -42,24 +39,26 @@
       </a>
       <ul class="dropdown">
         {% if is_officer %}
-        <li><a href="{#TODO#}">Officer Portal</a></li>
+        <li><a href="{% url 'officer-portal' %}">Officer Portal</a></li>
+        {% endif %}
+
+        {% if perms.candidates.change_candidate %}
         <li><a href="{% url 'candidates:list' %}">Candidate Admin</a></li>
         {% endif %}
 
         {% if is_member and not is_officer %}
         {# Give members access to Minutes via "Tools". Officers have portal. #}
-        <li><a href="{#TODO#}">Meeting Minutes</a></li>
+        <li><a href="{% url 'minutes:list' %}">Meeting Minutes</a></li>
         {% endif %}
 
         {% if is_candidate %}
         <li><a href="{% url 'candidates:portal' %}">Candidate Portal</a></li>
         {% endif %}
 
-        <li><a href="{#TODO#}">Procrastination</a></li>
+        <li><a href="{% url 'procrastination' %}">Procrastination</a></li>
 
-        {% if user_profile.is_IT %}
-        {# TODO: create is_IT method somewhere or enforce user permissions another way here #}
-        <li><a href="{#TODO#}">IT Tools</a></li>
+        {% if user.is_staff %}
+        <li><a href="{% url 'it-tools' %}">IT Tools</a></li>
         {% endif %}
       </ul>
     </li>

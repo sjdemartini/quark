@@ -5,15 +5,14 @@ from django.conf.urls import url
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-from django.views.generic import TemplateView
-
-from quark.base.views import HomePageView
 
 
 admin.autodiscover()
 
+
 urlpatterns = patterns('',
-    url(r'^$', HomePageView.as_view(), name='home'),
+    url(r'^', include('quark.base.urls',
+                      app_name='base')),
     url(r'^accounts/', include('quark.accounts.urls',
                                app_name='accounts',
                                namespace='accounts')),
@@ -45,9 +44,6 @@ urlpatterns = patterns('',
     url(r'^newsreel/', include('quark.newsreel.urls',
                                app_name='newsreel',
                                namespace='newsreel')),
-    url(r'^officers/', include('quark.base.urls',
-                               app_name='officers',
-                               namespace='officers')),
     url(r'^past-presidents/', include('quark.past_presidents.urls',
                                       app_name='past_presidents',
                                       namespace='past-presidents')),
@@ -57,6 +53,9 @@ urlpatterns = patterns('',
     url(r'^project-reports/', include('quark.project_reports.urls',
                                       app_name='project_reports',
                                       namespace='project-reports')),
+    url(r'^quote-board/', include('quark.quote_board.urls',
+                                  app_name='quote_board',
+                                  namespace='quote-board')),
     url(r'^resume/', include('quark.resumes.urls',
                              app_name='resumes',
                              namespace='resumes')),
