@@ -1,5 +1,9 @@
+from pytz import timezone as tz
+from datetime import datetime
 from datetime import timedelta
+import vobject
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
@@ -9,6 +13,7 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.db.models import Count
 from django.db.models import Sum
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.decorators import method_decorator
@@ -41,7 +46,7 @@ class EventListView(TermParameterMixin, ListView):
 
     The show_all boolean parameter (default false) is taken from a show_all URL
     get request parameter. When true, the queryset includes all events from the
-    display_term. Note that the show_all paramater can be passed as a keyword
+    display_term. Note that the show_all parameter can be passed as a keyword
     argument to the view in the as_view() method.
     """
     context_object_name = 'events'
@@ -531,3 +536,85 @@ class LeaderboardListView(TermParameterMixin, ListView):
                                     'factor': factor,
                                     'rank': rank})
         return leader_list
+
+
+def ical(request, event_pk=None):
+    """Return an ICS file for the given event,
+    or for all events if no event specified.
+
+    If a "term" URL parameter is given and no event is provided,
+    the view returns all events for that term
+    """
+    cal = vobject.iCalendar()
+
+    cal.add('calscale').value = 'Gregorian'
+    cal.add('X-WR-TIMEZONE').value = 'America/Los_Angeles'
+    cal.add('X-WR-CALNAME').value = 'TBP Events'
+    cal.add('X-WR-CALDESC').value = 'TBP Events'
+
+    vtimezone = cal.add('vtimezone')
+    vtimezone.add('tzid').value = "America/Los_Angeles"
+    vtimezone.add('X-LIC-LOCATION').value = "America/Los_Angeles"
+    dst = vtimezone.add('daylight')
+    dst.add('tzoffsetfrom').value = '-0800'
+    dst.add('tzoffsetto').value = '-0700'
+    dst.add('tzname').value = 'PDT'
+    dst.add('dtstart').value = datetime(
+        1970, 3, 8, 2, 0, 0, 0, tz('US/Pacific'))  # '19700308T020000'
+    dst.add('rrule').value = 'FREQ=YEARLY;BYMONTH=3;BYDAY=2SU'
+    std = vtimezone.add('standard')
+    std.add('tzoffsetfrom').value = '-0700'
+    std.add('tzoffsetto').value = '-0800'
+    std.add('tzname').value = 'PST'
+    std.add('dtstart').value = datetime(
+        1970, 11, 1, 2, 0, 0, 0, tz('US/Pacific'))  # '19701101T020000'
+    std.add('rrule').value = 'FREQ=YEARLY;BYMONTH=11;BYDAY=1SU'
+
+    # TODO(giovanni): Add user authorization
+    if event_pk is None:    # i.e., if we want all events
+        filename = 'events.ics'
+        term = request.GET.get('term', '')
+        events = Event.objects.get_user_viewable(
+            request.user).filter(cancelled=False)
+        if term:
+            term_obj = Term.objects.get_by_url_name(term)
+            events = events.filter(term=term_obj)
+        for event in events:
+            add_event_to_ical(event, cal)
+    else:    # i.e., we want a specific event
+        filename = 'event.ics'
+        event = Event.objects.get(pk=event_pk)
+        add_event_to_ical(event, cal)
+
+    response = HttpResponse(cal.serialize(), mimetype='text/calendar')
+    response['Filename'] = filename  # IE needs this
+    response['Content-Disposition'] = 'attachment; filename=' + filename
+    return response
+
+
+def add_event_to_ical(event, cal):
+    """Helper method used by the ical methods.
+
+    Takes in event and cal where:
+    event is the actual event object
+    cal is the ical object
+    """
+    ical_event = cal.add('vevent')
+    name = event.name
+    if event.restriction == Event.MEMBER:
+        name += " (Members Only)"
+    elif event.restriction == Event.OFFICER:
+        name += " (Officers Only)"
+    ical_event.add('summary').value = name
+    ical_event.add('location').value = event.location
+    event_url = 'https://{}{}'.format(settings.HOSTNAME,
+                                      event.get_absolute_url())
+    if event.description:
+        description = u'{}\n\n{}'.format(event.description,
+                                         event_url)
+    else:
+        description = event_url
+    ical_event.add('description').value = description
+    ical_event.add('dtstart').value = event.start_datetime
+    ical_event.add('dtend').value = event.end_datetime
+    ical_event.add('uid').value = str(event.id)

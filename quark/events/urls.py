@@ -11,6 +11,7 @@ from quark.events.views import EventListView
 from quark.events.views import EventSignUpView
 from quark.events.views import event_unsignup
 from quark.events.views import EventUpdateView
+from quark.events.views import ical
 from quark.events.views import IndividualAttendanceListView
 from quark.events.views import LeaderboardListView
 
@@ -35,4 +36,6 @@ urlpatterns = patterns(
     url(r'^calendar/$', EventListView.as_view(show_all=True,
         template_name='events/calendar.html'), name='calendar'),
     url(r'^leaderboard/$', LeaderboardListView.as_view(), name='leaderboard'),
+    url(r'^events.ics$', ical, name='ical'),
+    url(r'^(?P<event_pk>\d+)/event.ics$', ical, name='event-ical'),
 )

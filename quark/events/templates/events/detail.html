@@ -77,7 +77,7 @@ $(function() {
 <dl class="event-info">
   <dt>When</dt>
     <dd>
-      <div>{{ event.view_datetime }} (<a href="{# TODO: {% url 'event:ical' event.pk %} #}">iCal</a>)</div>
+      <div>{{ event.view_datetime }} (<a href="{% url 'events:event-ical' event.pk %}">iCal</a>)</div>
       {% if user.is_authenticated %}
       <div>
         (<em>{% if perms.events.add_eventattendance %}<a href="{{ event_attendance_url }}">Attendance</a>{% else %}Attendance{% endif %}
