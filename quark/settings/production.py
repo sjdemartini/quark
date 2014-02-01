@@ -10,9 +10,6 @@ ADMINS = (
 )
 MANAGERS = ADMINS
 
-# Only use LDAP in production
-USE_LDAP = True
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -21,6 +18,9 @@ DATABASES = {
         'PASSWORD': quark_keys.PROD_DB_PASSWORD,
     }
 }
+
+# Only use LDAP in production/staging
+USE_LDAP = True
 
 # HTTPS support in production
 CSRF_COOKIE_SECURE = True

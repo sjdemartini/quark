@@ -23,6 +23,7 @@ LOG="deploy.log"
 WWW_USER="www-data"
 PROJ_NAME="quark"
 STAGING_DB_NAME="${PROJ_NAME}_staging"
+STAGING_URL="/${PROJ_NAME}-staging"
 
 # Locking variables
 LOCK_FILE="deploy.lock"
@@ -41,26 +42,28 @@ UWSGI_DST="${UWSGI_PATH}/apps-enabled"
 if [ ${STAGING} -eq 1 ]; then
     DEPLOY_ENV="/var/www/dev"
     # Actual config file name is like tbp.quark.ini or tbp.quark_dev.ini
-    UWSGI_CONFS="*.${PROJ_NAME}_dev.ini"
-    UWSGI_SOCKETS="/var/run/uwsgi/*.${PROJ_NAME}_dev.sock"
+    UWSGI_CONF="${PROJ_NAME}_dev.ini"
+    UWSGI_SOCKETS="/var/run/uwsgi/${PROJ_NAME}_dev.sock"
     QUARK_ENV="staging"
 else
     DEPLOY_ENV="/var/www"
-    UWSGI_CONFS="*.${PROJ_NAME}.ini"
-    UWSGI_SOCKETS="/var/run/uwsgi/*.${PROJ_NAME}.sock"
+    UWSGI_CONF="${PROJ_NAME}.ini"
+    UWSGI_SOCKETS="/var/run/uwsgi/${PROJ_NAME}.sock"
     QUARK_ENV="production"
 fi
+
+DEPLOY_PATH="${DEPLOY_ENV}/${PROJ_NAME}"
 export QUARK_ENV
 
 
 setup() {
     # No locks yet. Be careful only one person is ininitializing the repository
-    DEPLOY_PATH="${DEPLOY_ENV}/${PROJ_NAME}"
     echo -n "Setting up ${PROJ_NAME} in ${DEPLOY_PATH}... "
     mkdir -p ${DEPLOY_ENV}
     # Clone a new repo (and submodules) if necessary
     if [ ! -d ${DEPLOY_PATH} ]; then
         git clone --recursive --quiet ${GIT_REPO_URL} ${DEPLOY_PATH}
+        git submodule init
     fi
     cd ${DEPLOY_PATH}
     echo "done"
@@ -89,6 +92,7 @@ deploy() {
     fi
     echo "Deploying Release ${TAG}"
     git checkout ${TAG}
+    git submodule update
 
     # TODO(flieee): Set up dynamic multi-site settings instead
 
@@ -98,8 +102,23 @@ deploy() {
 
     ${VENV_PATH}/bin/python manage.py updatedb
 
+    # Cleanup old compiled .py[co] files
+    find ${DEPLOY_PATH} -name "*.py[co]" -type f -delete
+
+    # Generate local settings for staging
+    if [ ${STAGING} -eq 1 ]; then
+        cat << EOM > ${DEPLOY_PATH}/quark/settings_local.py
+FORCE_SCRIPT_NAME = '${STAGING_URL}'
+STATIC_URL = '${STAGING_URL}/static/'
+MEDIA_URL = '${STAGING_URL}/media/'
+EOM
+    fi
+
     # Quietly compile as .pyo
     ${VENV_PATH}/bin/python -Om compileall -q ${PROJ_NAME}
+
+    # Update uwsgi config files
+    cp -av ${DEPLOY_PATH}/uwsgi/${UWSGI_CONF} ${UWSGI_SRC}/${UWSGI_CONF}
 
     # Log deploy timestamp and user
     echo "${TAG} deployed by ${SUDO_USER} at `date`" >> $LOG
@@ -108,15 +127,15 @@ deploy() {
 enable_server() {
     echo -n "Enabling the server... "
     # Placing a copy in apps-enabled will enable the instance in uWSGI
-    rm -f ${UWSGI_DST}/${UWSGI_CONFS}
-    ln -s ${UWSGI_SRC}/${UWSGI_CONFS} ${UWSGI_DST}
+    rm -f ${UWSGI_DST}/${UWSGI_CONF}
+    ln -s ${UWSGI_SRC}/${UWSGI_CONF} ${UWSGI_DST}
     echo "done"
 }
 
 disable_server() {
     echo -n "Disabling server... "
     # Remove the config from apps-enabled and clean up the socket to disable
-    rm -f ${UWSGI_DST}/${UWSGI_CONFS} ${UWSGI_SOCKETS}
+    rm -f ${UWSGI_DST}/${UWSGI_CONF} ${UWSGI_SOCKETS}
     echo "done"
 }
 
@@ -171,6 +190,6 @@ if [ ${STAGING} -eq 1 ]; then
     echo "Please stop the staging webserver after you are done testing"
     echo "It can be stopped by running the following command:"
     echo -n " sudo -u www-data rm -f ${UWSGI_SOCKETS}"
-    echo " ${UWSGI_DST}/${UWSGI_CONFS}"
+    echo " ${UWSGI_DST}/${UWSGI_CONF}"
 fi
 # Cleanup handled by trap
