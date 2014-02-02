@@ -28,11 +28,11 @@ python manage.py jenkins \
 jenkins_status=$?
 
 # Check if pylint is perfect (error code should not be 0: grep shouldn't find any lines with .py)
-grep -q ".py" reports/pylint.report
+grep -q "\.py" reports/pylint.report
 pylint_status=$?
 
 # Check if pep8 is perfect (error code should not be 0: grep shouldn't find any lines with .py)
-grep -q ".py" reports/pep8.report
+grep -q "\.py" reports/pep8.report
 pep8_status=$?
 
 success=$(($jenkins_status != 0 || $pylint_status == 0 || $pep8_status == 0))
