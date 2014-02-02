@@ -73,4 +73,4 @@ class OfficersView(TermParameterMixin, ListView):
     def get_queryset(self):
         return Officer.objects.filter(term=self.display_term).order_by(
             'position__rank', '-is_chair').select_related(
-            'user__userprofile', 'officer_position')
+            'user__userprofile', 'user__studentorguserprofile', 'position')
