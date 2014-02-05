@@ -159,7 +159,6 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.doc.XViewMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.transaction.TransactionMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',

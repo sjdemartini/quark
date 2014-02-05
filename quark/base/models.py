@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.db import models
+from django.db import transaction
 from django.utils import timezone
 
 
@@ -140,7 +141,7 @@ class Term(models.Model):
         other term's current bit to false, and then update our own. We can
         allow a case where there is NO current term. Infinite recursion cannot
         happen since updates only happen for objects with current=True.
-        TODO(wli): Is this threadsafe? Do we need transactions?
+        TODO(wli): Is this threadsafe? Does transaction.atomic() work properly?
         """
         if self.term == Term.UNKNOWN and self.year == 0:
             return
@@ -157,10 +158,13 @@ class Term(models.Model):
         # pylint: disable=W0201
         self.id = self.year * 10 + self.__term_as_int()
 
-        if self.current:
-            Term.objects.filter(current=True).exclude(id=self.id).update(
-                current=False)
-        super(Term, self).save(*args, **kwargs)
+        # Failed transactions will be rolled back, but will not catch errors
+        with transaction.atomic():
+            if self.current:
+                Term.objects.filter(current=True).exclude(
+                    id=self.id).update(current=False)
+            super(Term, self).save(*args, **kwargs)
+            self.update_term_officer_groups()
 
     def verbose_name(self):
         """Returns the verbose name of this object in this form: Fall 2012."""
@@ -223,6 +227,22 @@ class Term(models.Model):
             other = Term(year=timezone.now().year,
                          term=Term.UNKNOWN)
         return not self.__lt__(other)
+
+    def update_term_officer_groups(self):
+        """Ensure that if the term being saved is set as the "current" term,
+        all groups that are specific to the current term are updated.
+        """
+        if self.current:
+            # Clear out all existing "current term" groups, since the new
+            # current term is being saved here.
+            groups = Group.objects.filter(name__contains='Current')
+            for group in groups:
+                group.user_set.clear()
+
+            # Update groups for all officers from this new current term
+            officers = Officer.objects.filter(term=self)
+            for officer in officers:
+                officer._add_user_to_officer_groups()
 
     class Meta(object):
         ordering = ('id',)
@@ -366,23 +386,6 @@ class Officer(models.Model):
         self.user.groups.remove(*stale_groups)
 
 
-def term_post_save(sender, instance, *args, **kwargs):
-    """Ensure that if the term being saved is set as the "current" term, all
-    groups that are specific to the current term are updated.
-    """
-    if instance.current:
-        # Clear out all existing "current term" groups, since the new current
-        # term is being saved here.
-        groups = Group.objects.filter(name__contains='Current')
-        for group in groups:
-            group.user_set.clear()
-
-        # Get all officers from this new current term and update their groups
-        officers = Officer.objects.filter(term=instance)
-        for officer in officers:
-            officer._add_user_to_officer_groups()
-
-
 def officer_post_save(sender, instance, *args, **kwargs):
     """Ensure that the user for a new Officer object is added to the
     corresponding auth groups.
@@ -397,6 +400,5 @@ def officer_post_delete(sender, instance, *args, **kwargs):
     instance._remove_user_from_officer_groups()
 
 
-models.signals.post_save.connect(term_post_save, sender=Term)
 models.signals.post_save.connect(officer_post_save, sender=Officer)
 models.signals.post_delete.connect(officer_post_delete, sender=Officer)
