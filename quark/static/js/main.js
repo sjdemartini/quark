@@ -1,8 +1,36 @@
 $(function() {
+  // Initialize constants
+  var WIDTH_SMALL = 0;
+  var WIDTH_SMALL_MED = 1;
+  var WIDTH_MEDIUM = 2;
+  var WIDTH_WIDE = 3;
+
   // Call the setup functions defined below:
   setupNav();
   setupDropdowns();
+  setupLoginBar();
   setupForms();
+
+  /**
+   * Returns the proper constant based on the current screen state by detecting
+   * whether certain test divs are visible.
+   *
+   * Note that this function ensures consistency with the CSS media-queries,
+   * rather than calculating viewport width using JS, which may be
+   * inconsistent.
+   */
+  function getScreenWidth() {
+    if (!$('#width-test-small').is(':visible')) {
+      return WIDTH_SMALL;
+    }
+    if (!$('#width-test-small-med').is(':visible')) {
+      return WIDTH_SMALL_MED;
+    }
+    if (!$('#width-test-medium').is(':visible')) {
+      return WIDTH_MEDIUM;
+    }
+    return WIDTH_WIDE;
+  }
 
 
   /**
@@ -10,19 +38,6 @@ $(function() {
    * as showing or hiding the nav elements).
    */
   function setupNav() {
-    /**
-     * Return true if the viewport is within the medium viewport.
-     */
-    function isNarrow() {
-      // Detect whether the browser is "narrow" (not wide viewport) by seeing
-      // if the nav menubar is visible. If so, then the viewport is narrow
-      // (since the menubar is only shown for narrow viewports).
-      // Note that this method ensure consistency with the CSS media-queries,
-      // rather than calculating viewport width using JS, which may be
-      // inconsistent.
-      return $('#nav-menubar').is(':visible');
-    }
-
     /**
      * Toggle the height of an element.
      *
@@ -96,7 +111,7 @@ $(function() {
 
     // Function to ensure proper display when resizing of page occurs
     function navResize() {
-      if (!isNarrow()) {
+      if (getScreenWidth() == WIDTH_WIDE) {
         // Wide viewport
         if (wasNarrow) {
           // First, hide all submenu elements, since they were taken out of the
@@ -157,9 +172,49 @@ $(function() {
     $('.dropdown-title').click(function(event) {
       var thisDropdown = $(this).next();
       $('.dropdown').not(thisDropdown).hide();
-      thisDropdown.toggle();
+      // If the style attribute is block (not the computed style)
+      if (thisDropdown[0].style.display == 'block') {
+        thisDropdown.hide();
+      } else {
+        thisDropdown.show();
+      }
       // Prevent the click from propagating to the document body
       event.stopPropagation();
+    });
+  }
+
+
+  /**
+   * Setup login bar behavior for small screens.
+   */
+  function setupLoginBar() {
+    // Insert the login bars
+    var loginNarrow = $('<div id="login-narrow"></div>');
+    $('#login').after(loginNarrow);
+
+    // Get the current login dropdowns and loop through them
+    var loginMenus = $('#login>ul>li>ul');
+    loginMenus.each(function() {
+      var menu = $(this);
+      var inside = menu.clone();
+      var slide = $('<div>');
+      slide.append(inside);
+
+      // Remove the dropdown class from the duplicated menu and then hide it
+      inside.removeClass('dropdown')
+        .removeAttr('style');
+      slide.hide();
+
+      // Add to the new bar
+      loginNarrow.append(slide);
+
+      // Get the button that controls the dropdown and make it toggle
+      menu.parent().find('.dropdown-title').click(function() {
+        $('#login-narrow>div').not(slide).hide(300);
+        slide.stop(true, true).toggle(300);
+        // Prevent the click from propagating to the document body
+        event.stopPropagation();
+      });
     });
   }
 

@@ -448,26 +448,38 @@ blockquote {
 }
 
 // BASE LAYOUT
+$header-height: 70px;
+
 header {
   @include background-light;
   margin: auto;
 
   #header-focus {
-    height: 70px;
+    height: $header-height;
     margin: auto;
     max-width: 1000px;
     position: relative;
+
+    @include respond-to(small) { height: auto; }
   }
 }
 
 // Logo
+#logo-group {
+  @include respond-to(small) { height: 42px; }
+}
+
 #logo-link {
   border: 0;
 
   #logo {
     @include absolute-position(5px, 5px, $width:60px, $height:60px);
+
     @include respond-to(small) {
-      @include absolute-position(5px, 35px, $width:30px, $height:30px);
+      position: relative;
+      top: 3px;
+      width: 30px;
+      height: 30px;
     }
   }
 
@@ -478,7 +490,9 @@ header {
     white-space: nowrap;
     @include absolute-position(75px, 5px);
     @include respond-to(small) {
-      @include absolute-position(40px, 27px);
+      position: relative;
+      left: 10px;
+      top: 1px;
     }
   }
 
@@ -496,10 +510,11 @@ header {
 
 #logo-overlay {
   z-index: 1;
-  @include absolute-position(0, $width: 260px, $height: 65px);
-
+  @include absolute-position(0, $width: 260px, $height: $header-height);
   @include respond-to(small) {
-    @include absolute-position(0, $width: 220px, $height: 65px);
+    // 28px is the height of #login, which is a function of font-size.
+    @include absolute-position(0, $width: 220px,
+        $height: $header-height - 28px);
   }
 }
 
@@ -514,7 +529,7 @@ header {
   z-index: 100;  // Raise above logo-group
 
   @include respond-to(small) {
-    width: 100%;
+    float: none;
     background: $ultra-light-gray;  // In case rgba not supported
     background: rgba(255, 255, 255, 0.5);
     border-bottom: 1px solid #ccc;
@@ -638,6 +653,7 @@ header {
     @include respond-to(small) {
       right: -70px;
       margin-top: 5px;
+      display: none !important;
     }
 
     // Add an updward triange/arrow above the dropdown (where the :after element
@@ -702,6 +718,33 @@ header {
     color: #fff !important;
     font-size: 35px !important;
     line-height: 40px !important;
+  }
+}
+
+#login-narrow {
+  display: none;
+}
+
+@include respond-to(small) {
+  #login-narrow {
+    background: $ultra-light-gray;  // In case rgba not supported
+    background: rgba(255, 255, 255, 0.5);
+    display: inherit;
+    margin-top: 0;
+
+    >div {
+      border-bottom: 1px solid #ccc;
+      padding: 10px;
+
+      li {
+        padding: 4px;
+
+        &:hover {
+          background: $medium-gray;
+          cursor: pointer;
+        }
+      }
+    }
   }
 }
 
@@ -1077,4 +1120,22 @@ footer {
 #copyright {
   margin: 0 15px;
   text-align: left;
+}
+
+#width-test-small {
+  @include respond-to(small) {
+    display: none;
+  }
+}
+
+#width-test-small-med {
+  @include respond-to(small-med) {
+    display: none;
+  }
+}
+
+#width-test-medium {
+  @include respond-to(medium) {
+    display: none;
+  }
 }
