@@ -1,6 +1,8 @@
 import datetime
 
 from django.contrib.auth import get_user_model
+from django.core.urlresolvers import reverse
+from django.test import Client
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils import timezone
@@ -301,6 +303,43 @@ class EventTest(EventTesting):
 
         # TODO(sjdemartini): add tests for members once UserProfile.is_member
         # is not purely LDAP-dependent
+
+    def test_user_multiple_sign_ups(self):
+        """Multiple signups don't create multiple instances of EventSignUp."""
+        # Create event
+        start_time = timezone.now()
+        end_time = start_time + datetime.timedelta(hours=2)
+        event = self.create_event(start_time, end_time,
+                                  restriction=Event.PUBLIC)
+        event.signup_limit = 2
+        event.save()
+        self.assertIsNotNone(event.pk)
+
+        self.assertTrue(event.can_user_sign_up(self.user))
+        # Set up client
+        cli = Client()
+        self.assertTrue(cli.login(
+            username=self.user.username, password='testofficerpw'))
+
+        signup_url = reverse('events:signup', kwargs={'event_pk': event.pk})
+        signup_data = {'num_guests': 0, 'driving': 0, 'unsignup': False}
+        self.assertEqual(0, EventSignUp.objects.filter(event=event).count())
+
+        # Sign-up once. Ensure success
+        response_1 = cli.post(signup_url, signup_data, follow=True)
+        self.assertEqual(200, response_1.status_code)
+        self.assertEqual(1, EventSignUp.objects.filter(event=event).count())
+        r1_get = cli.get('/')
+        self.assertEqual('Signup successful!',
+                         str(list(r1_get.context['messages'])[0]))
+
+        # Sign-up twice. Ensure update
+        response_2 = cli.post(signup_url, signup_data, follow=True)
+        self.assertEqual(200, response_2.status_code)
+        self.assertEqual(1, EventSignUp.objects.filter(event=event).count())
+        r2_get = cli.get('/')
+        self.assertEqual('Signup updated!',
+                         str(list(r2_get.context['messages'])[0]))
 
     def test_list_date(self):
         start_time = datetime.datetime(2015, 3, 14, 9, 26, 53, 59)
