@@ -1,11 +1,15 @@
 import re
 
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils import timezone
 
 from quark.base.models import OfficerPosition
 from quark.base.models import Term
+from quark.notifications.models import Notification
+from quark.shortcuts import get_object_or_none
 
 
 class ProjectReport(models.Model):
@@ -71,6 +75,9 @@ class ProjectReport(models.Model):
             self.first_completed_at = None
         super(ProjectReport, self).save(*args, **kwargs)
 
+    def get_absolute_url(self):
+        return reverse('project-reports:detail', args=(self.pk,))
+
     def word_count(self):
         text = [self.description, self.purpose, self.organization, self.cost,
                 self.problems, self.results]
@@ -79,4 +86,36 @@ class ProjectReport(models.Model):
     class Meta(object):
         ordering = ('-date',)
 
-    # TODO(giovanni): Implement user_notification when UserNotification is up
+
+def project_report_notification(sender, instance, created, **kwargs):
+    """Clear the notification if it exists for the project report when it is
+    completed.
+    """
+    if instance.complete:
+        notification = get_object_or_none(
+            Notification,
+            user=instance.author,
+            content_type=ContentType.objects.get_for_model(ProjectReport),
+            object_pk=instance.pk)
+        if notification:
+            notification.cleared = True
+            notification.save()
+
+
+def project_report_notification_delete(sender, instance, **kwargs):
+    """Delete the notification if it exists for the project report when it is
+    deleted.
+    """
+    notification = get_object_or_none(
+        Notification,
+        user=instance.author,
+        content_type=ContentType.objects.get_for_model(ProjectReport),
+        object_pk=instance.pk)
+    if notification:
+        notification.delete()
+
+
+models.signals.post_save.connect(
+    project_report_notification, sender=ProjectReport)
+models.signals.post_delete.connect(
+    project_report_notification_delete, sender=ProjectReport)

@@ -86,7 +86,8 @@
       </div>
     </div>
 
-  {# TODO(sjdemartini): add in js for user notifications #}
+  {% block notifications %}{% include '_notifications.html' %}{% endblock notifications %}
+
   {# TODO(sjdemartini): Google analytics #}
 
   <!--Page finished rendering {% now 'r' %}-->

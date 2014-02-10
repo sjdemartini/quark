@@ -1,0 +1,75 @@
+/* _notifications.scss */
+@import 'base';
+
+#notifications {
+  max-width: 100%;
+  padding-right: 32px;
+  position: absolute;
+  right: 0;
+  top: 48px;
+  width: 330px;
+  z-index: 999;
+  @include box-sizing(border-box);
+
+  .fa-times {
+    vertical-align: top;
+  }
+
+  .notification-title {
+    font-weight: bold;
+    margin: 0;
+  }
+
+  .notification-text {
+    display: inline-block;
+    font-size: 0.8em;
+    margin: 0 0 0 6px;
+
+    p {
+      margin: 0;
+      max-width: 100%;
+      width: 200px;
+    }
+  }
+}
+
+.notification {
+  background-color: #fff;
+  border: 1px solid #000;
+  clear: left;
+  margin: 8px;
+  margin-bottom: 16px;
+  padding: 8px;
+  @include border-radius(6px);
+
+  a {
+    color: #000;
+    text-decoration: none;
+  }
+
+  img {
+    display: inline-block;
+    height: 40px;
+    vertical-align: top;
+    width: 40px;
+  }
+
+  &.positive {
+    background-color: #a2d5f1;
+    border: 1px solid #6991da;
+  }
+
+  &.negative {
+    background-color: #ffc1c1;
+    border: 1px solid #c10;
+  }
+}
+
+.hide-notification {
+  float: right;
+
+  &:hover {
+    cursor: pointer;
+  }
+}
+

@@ -12,7 +12,7 @@ class ProjectReportForm(ChosenTermMixin, forms.ModelForm):
     area = chosen_forms.ChosenChoiceField(
         choices=ProjectReport.PROJECT_AREA_CHOICES)
     author = UserCommonNameChoiceField()
-    officer_list = UserCommonNameChoiceField(required=False)
+    officer_list = UserCommonNameMultipleChoiceField(required=False)
     candidate_list = UserCommonNameMultipleChoiceField(required=False)
     member_list = UserCommonNameMultipleChoiceField(required=False)
 

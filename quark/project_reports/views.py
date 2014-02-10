@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import permission_required
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView
 from django.views.generic import DeleteView
@@ -16,6 +16,7 @@ from quark.project_reports.models import ProjectReport
 
 class ProjectReportCreateView(CreateView):
     form_class = ProjectReportForm
+    success_url = reverse_lazy('project_reports:list')
     template_name = 'project_reports/add.html'
 
     @method_decorator(login_required)
@@ -31,14 +32,12 @@ class ProjectReportCreateView(CreateView):
         return {'author': self.request.user,  # usable since login_required
                 'term': current_term.id if current_term else None}
 
-    def get_success_url(self):
-        return reverse('project-reports:list')
-
 
 class ProjectReportDeleteView(DeleteView):
     context_object_name = 'project_report'
     model = ProjectReport
     pk_url_kwarg = 'pr_pk'
+    success_url = reverse_lazy('project_reports:list')
     template_name = 'project_reports/delete.html'
 
     @method_decorator(login_required)
@@ -48,9 +47,6 @@ class ProjectReportDeleteView(DeleteView):
     def dispatch(self, *args, **kwargs):
         return super(ProjectReportDeleteView, self).dispatch(
             *args, **kwargs)
-
-    def get_success_url(self):
-        return reverse('project-reports:list')
 
 
 class ProjectReportDetailView(DetailView):
@@ -74,10 +70,6 @@ class ProjectReportEditView(UpdateView):
     def dispatch(self, *args, **kwargs):
         return super(ProjectReportEditView, self).dispatch(
             *args, **kwargs)
-
-    def get_success_url(self):
-        return reverse('project-reports:detail',
-                       kwargs={'pr_pk': self.object.pk})
 
 
 class ProjectReportListView(TermParameterMixin, ListView):

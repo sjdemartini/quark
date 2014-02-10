@@ -1,0 +1,39 @@
+{% load static %}
+
+{% if notifications %}
+<div id="notifications">
+  {% for notification in notifications %}
+  <div class="notification {{ notification.status }}">
+    <div class="hide-notification" data-clear-url="{% url 'notifications:clear' notification.pk %}">
+      <i class="fa fa-times"></i>
+    </div>
+    {% if notification.image_url %}
+    {% if notification.url %}
+    <a href="{{ notification.url }}"><img src="{% static notification.image_url %}" alt="{{ notification.subtitle }}"></a>
+    {% else %}
+    <img src="{% static notification.image_url %}" alt="{{ notification.subtitle }}">
+    {% endif %}
+    {% endif %}
+    <div class="notification-text">
+      <p class="notification-title">{{ notification.title }}</p>
+      <p>
+        {% if notification.url %}
+        <a href="{{ notification.url }}">{{ notification.subtitle }}</a>
+        {% else %}
+        {{ notification.subtitle }}
+        {% endif %}
+      </p>
+      <p><em>{{ notification.description }}</em></p>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<script>
+$('.hide-notification').click(function(event) {
+  var $this = $(this);
+  var clearURL = $this.data('clear-url');
+  $.post(clearURL).always($this.parent().fadeOut());
+});
+</script>

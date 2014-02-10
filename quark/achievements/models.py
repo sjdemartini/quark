@@ -1,7 +1,11 @@
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+from django.core.urlresolvers import reverse
 from django.db import models
 
 from quark.base.models import Term
+from quark.notifications.models import Notification
+from quark.shortcuts import get_object_or_none
 
 
 class Achievement(models.Model):
@@ -27,7 +31,7 @@ class Achievement(models.Model):
     )
 
     short_name = models.CharField(
-        max_length=32, db_index=True,
+        max_length=32, db_index=True, unique=True,
         help_text='A short name to be used to search for the achievement in '
                   'the database.')
 
@@ -98,6 +102,9 @@ class Achievement(models.Model):
 
     def __unicode__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse('achievements:detail', args=(self.short_name,))
 
     def assign(self, user, acquired=True, progress=0, term=None, data='',
                assigner=None):
@@ -187,3 +194,38 @@ class UserAchievement(models.Model):
     def __unicode__(self):
         return '{} - {}'.format(self.user.get_full_name(),
                                 self.achievement.name)
+
+
+def achievement_notification(sender, instance, created, **kwargs):
+    """Create a notification if the user achievement has been acquired."""
+    if instance.acquired:
+        achievement = instance.achievement
+        Notification.objects.get_or_create(
+            user=instance.user,
+            status=Notification.POSITIVE,
+            content_type=ContentType.objects.get_for_model(UserAchievement),
+            object_pk=instance.pk,
+            title='Achievement Unlocked',
+            subtitle=achievement.name,
+            description=achievement.description,
+            image_url=unicode(achievement.icon_filename),
+            url=achievement.get_absolute_url())
+
+
+def achievement_notification_delete(sender, instance, **kwargs):
+    """Delete the notification if it exists for the user achievement if it is
+    deleted.
+    """
+    notification = get_object_or_none(
+        Notification,
+        user=instance.user,
+        content_type=ContentType.objects.get_for_model(UserAchievement),
+        object_pk=instance.pk)
+    if notification:
+        notification.delete()
+
+
+models.signals.post_save.connect(
+    achievement_notification, sender=UserAchievement)
+models.signals.post_delete.connect(
+    achievement_notification_delete, sender=UserAchievement)

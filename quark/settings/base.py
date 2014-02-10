@@ -156,6 +156,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.request',
     'django.core.context_processors.media',
     'django.core.context_processors.static',
+    'quark.notifications.context_processors.notifications',
 )
 
 MIDDLEWARE_CLASSES = [
@@ -205,6 +206,7 @@ PROJECT_APPS = [
     'quark.mailing_lists',
     'quark.minutes',
     'quark.newsreel',
+    'quark.notifications',
     'quark.past_presidents',
     'quark.project_reports',
     'quark.qldap',
