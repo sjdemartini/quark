@@ -25,7 +25,7 @@ $(function() {
 {% block content %}
 {% if perms.newsreel.add_news %}
 <p>
-  <a href="{# TODO(sjdemartini): Add view for adding news items #}" class="btn">
+  <a href="{% url 'newsreel:add' %}" class="btn">
     <i class="icon-plus"></i> News Item
   </a>
 </p>
@@ -45,8 +45,8 @@ page in order from top to bottom.
     <h3>
       {{ news.title }}
       <span class="options">
-        {% if perms.newsreel.change_news %}<a href="{# TODO #}"><i class="icon-edit icon-border" title="Edit"></i></a>{% endif %}
-        {% if perms.newsreel.delete_news %}<a href="{# TODO #}"><i class="icon-trash" title="Delete"></i></a>{% endif %}
+        {% if perms.newsreel.change_news %}<a href="{% url 'newsreel:edit' news.pk %}"><i class="icon-edit icon-border" title="Edit"></i></a>{% endif %}
+        {% if perms.newsreel.delete_news %}<a href="{% url 'newsreel:delete' news.pk %}"><i class="icon-trash" title="Delete"></i></a>{% endif %}
       </span>
     </h3>
     <p class="subtext">Added on {{ news.created }}{% if perms.newsreel.change_news %} | Updated on {{ news.updated }}{% endif %}</p>

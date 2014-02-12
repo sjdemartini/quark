@@ -5,6 +5,7 @@ from django.views.generic.base import TemplateView
 from quark.base.models import Officer
 from quark.base.models import Term
 from quark.events.models import Event
+from quark.newsreel.models import News
 
 
 class HomePageView(TemplateView):
@@ -14,6 +15,7 @@ class HomePageView(TemplateView):
         context = super(HomePageView, self).get_context_data(**kwargs)
         context['event_list'] = Event.objects.get_user_viewable(
             self.request.user).get_upcoming()[:3]
+        context['news_list'] = News.objects.all()[:5]
         return context
 
 

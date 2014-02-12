@@ -28,34 +28,17 @@
 {% endblock subheader %}
 
 {% block content %}
-{# TODO(sjdemartini): make this content dynamic. currently static test content #}
           <div id="slideshow">
             <div id="slideshow-slides">
               <ul>
-                <li id="slide-0" class="slide">
-                  <img src="http://www.placehold.it/700x600"/>
-                  <div class="slide-info">
-                    Test 1  Test 1  Test 1  Test 1  Test 1  Test 1  Test 1  Test 1  Test 1  Test 1  Test 1  Test 1  Test 1
-                  </div>
-                </li>
-                <li id="slide-1" class="slide">
-                  <img src="http://www.placehold.it/600x400"/>
-                  <div class="slide-info">
-                    Test 2
-                  </div>
-                </li>
-                <li id="slide-2" class="slide">
-                  <img src="http://www.placehold.it/300x200"/>
-                  <div class="slide-info">
-                    Test 3
-                  </div>
-                </li>
-                <li id="slide-3" class="slide">
-                  <img src="http://www.placehold.it/350x150"/>
-                  <div class="slide-info">
-                    Test 4
-                  </div>
-                </li>
+                {% for news_item in news_list %}
+                  <li id="slide-{{ forloop.counter0 }}" class="slide">
+                    <img src="{{ news_item.image.url }}">
+                    <div class="slide-info">
+                      {{ news_item.blurb }}
+                    </div>
+                  </li>
+                {% endfor %}
               </ul>
               <div id="slideshow-left" class="slideshow-button">
                 <div id="slideshow-left-arrow"></div>
