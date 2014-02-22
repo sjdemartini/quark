@@ -6,12 +6,12 @@
  * may be conditionally loaded depending on whether they are needed.
  */
 $(function(){
-  var dateField = $(".vDateField");
+  var dateField = $('.vDateField');
   if (dateField.length > 0) {
     dateField.datepicker({dateFormat: 'yy-mm-dd'});
   }
 
-  var timeField = $(".vTimeField");
+  var timeField = $('.vTimeField');
   if (timeField.length > 0) {
     timeField.timepicker();
   }

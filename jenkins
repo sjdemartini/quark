@@ -30,6 +30,8 @@ git submodule update
 #   1. The tests must pass.
 #   2. pylint must be perfect, as evidenced by no lines with ".py" in the report.
 #   3. pep8 must be perfect, as evidenced by no lines with ".py" in the report.
+#   4. jshint must be perfect, as evidenced by no lines with "file" in the xml
+#      output
 # All other lint errors are not taken into consideration for the +/- Verified
 # flag. Jenkins will report the other lint errors in pretty graphs though.
 
@@ -53,7 +55,11 @@ pylint_status=$?
 grep -q "\.py" reports/pep8.report
 pep8_status=$?
 
-success=$(($jenkins_status != 0 || $pylint_status == 0 || $pep8_status == 0))
+# Check if jshint is perfect (error code should not be 0: grep shouldn't find any lines with file)
+grep -q "file" reports/jshint.xml
+jshint_status=$?
+
+success=$(($jenkins_status != 0 || $pylint_status == 0 || $pep8_status == 0 || $jshint_status == 0 ))
 
 if [[ $success == 0 ]]; then
     echo -e "\nEverything looks good!"
@@ -74,6 +80,27 @@ else
         cat reports/pep8.report
     else
         echo -e "\nNo pep8 violations."
+    fi
+
+    if [[ $jshint_status == 0 ]]; then
+        echo -e "\nJSHINT VIOLATIONS"
+        echo "================================================================"
+        # Parse which files had errors, and run jshint on them to get a nice
+        # print-out of the errors. (The XML representation of the report is not
+        # very human-friendly.)
+        pattern="file name=\"(.*)\""
+        cat reports/jshint.xml | while read line
+        do
+            [[ $line =~ $pattern ]]
+            if [[ ${BASH_REMATCH[0]} ]]
+            then
+                echo "${BASH_REMATCH[1]} violations:"
+                jshint "${BASH_REMATCH[1]}"
+                echo
+            fi
+        done
+    else
+        echo -e "\nNo jshint violations."
     fi
 
     echo -e "\nPlease fix all errors before doing git review!"

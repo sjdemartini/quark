@@ -7,65 +7,70 @@
 {% block title_separator %}{% endblock title_separator %}
 
 {% block head %}{% load static %}
-    <script src="{% static 'js/slideshow.js' %}"></script>
-    <script>
-      $(document).ready(function() {
-        slideshow("#slideshow", { addInfoHeight: true });
-      });
-    </script>
+{% if news_list %}
+<script src="{% static 'js/slideshow.js' %}"></script>
+<script>
+  $(function() {
+    $('#slideshow').slideshow({
+      addInfoHeight: true
+    });
+  });
+</script>
+{% endif %}
 {% endblock head %}
 
 {# Add a class to make the background of whole page match that of the header #}
 {% block wrapper_class %}home-background{% endblock wrapper_class %}
 
 {% block subheader %}
-      <div id="banner">
-        <div id="banner-focus">
-          <div id="banner-text">
-            <h1>Tau Beta Pi, California Alpha Chapter</h1>
-            <h3>Tau Beta Pi is the oldest national engineering honor society in the country, and one of the most nationally recognized societies. TBP stresses scholarship, personal character, and service to the profession, community, and college. We offer many student resources, including a test bank, infosessions, and resume workshops.</h3>
-          </div>
-        </div>
-      </div>
+<div id="banner">
+  <div id="banner-focus">
+    <div id="banner-text">
+      <h1>Tau Beta Pi, California Alpha Chapter</h1>
+      <h3>Tau Beta Pi is the oldest national engineering honor society in the country, and one of the most nationally recognized societies. TBP stresses scholarship, personal character, and service to the profession, community, and college. We offer many student resources, including a test bank, infosessions, and resume workshops.</h3>
+    </div>
+  </div>
+</div>
 {% endblock subheader %}
 
 {% block content %}
-          <div id="slideshow">
-            <div id="slideshow-slides">
-              <ul>
-                {% for news_item in news_list %}
-                <li id="slide-{{ forloop.counter0 }}" class="slide">
-                  <img src="{{ news_item.image.url }}">
-                  <div class="slide-info">
-                    {{ news_item.blurb|markdown }}
-                  </div>
-                </li>
-                {% endfor %}
-              </ul>
-              <div id="slideshow-left" class="slideshow-button">
-                <div id="slideshow-left-arrow"></div>
-              </div>
-              <div id="slideshow-right" class="slideshow-button">
-                <div id="slideshow-right-arrow"></div>
-              </div>
-            </div>
-          </div>
-          <div id="updates">
-            <div>
-              <a href="{% url 'events:list' %}"><h2>Upcoming events</h2></a>
-              {% if event_list %}
-              {% for event in event_list %}
-              <ul>
-                <li>
-                  <a href="{% url 'events:detail' event.pk %}"><div class="updatetitle">{{ event.name }}</div>
-                  <div class="updatedesc small">{{ event.view_datetime }}, {{ event.location }}</div>
-                  <div class="updatedesc">{{ event.tagline }}</div>
-                </li>
-              </ul>
-             {% endfor %}
-             {% else %}
-             <p>There are no upcoming events at this time. Please check back later!</p>
-             {% endif %}
-            </div>
-          </div>
+{% if news_list %}
+{# Only show the slideshow block if there are news items to show #}
+<div id="slideshow">
+  <ul>
+    {% for news_item in news_list %}
+    <li id="slide-{{ forloop.counter0 }}" class="slide">
+      <img src="{{ news_item.image.url }}">
+      <div class="slide-info">
+        {{ news_item.blurb|markdown }}
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  <div id="slideshow-left" class="slideshow-button">
+    <div id="slideshow-left-arrow"></div>
+  </div>
+  <div id="slideshow-right" class="slideshow-button">
+    <div id="slideshow-right-arrow"></div>
+  </div>
+</div>
+{% endif %}
+<div id="updates">
+  <div>
+    <a href="{% url 'events:list' %}"><h2>Upcoming events</h2></a>
+    {% if event_list %}
+    {% for event in event_list %}
+    <ul>
+      <li>
+        <a href="{% url 'events:detail' event.pk %}"><div class="updatetitle">{{ event.name }}</div>
+        <div class="updatedesc small">{{ event.view_datetime }}, {{ event.location }}</div>
+        <div class="updatedesc">{{ event.tagline }}</div>
+      </li>
+    </ul>
+   {% endfor %}
+   {% else %}
+   <p>There are no upcoming events at this time. Please check back later!</p>
+   {% endif %}
+  </div>
+</div>
 {% endblock content %}

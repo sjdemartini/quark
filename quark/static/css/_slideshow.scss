@@ -1,7 +1,7 @@
 /* _slideshow.scss */
 // Styles for the jQuery slideshow
-#slideshow-slides {
-  background-color: #444;
+#slideshow {
+  background-color: #eee;
   position: relative;
   overflow: hidden;
   @include border-radius(4px);
@@ -43,11 +43,12 @@
       opacity: 1;
     }
   }
+
+  img {
+    @include absolute-position(0px, 0px, $width:100%);
+  }
 }
 
-#slideshow img {
-  @include absolute-position(0px, 0px, $width:100%);
-}
 
 .slide {
   width: 100%;

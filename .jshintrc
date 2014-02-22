@@ -1,0 +1,17 @@
+{
+  "browser": true,  // Allow browser global variables (like document and window)
+  "camelcase": true,
+  "curly": true,
+  "freeze": true,
+  "immed": true,
+  "indent": 2,  // Require 2-space indentation
+  "jquery": true,  // Allow jQuery global variables
+  "latedef": "nofunc",  // Don't allow variables to be used before they're defined
+  "maxlen": 80,
+  "newcap": true,
+  "noempty": true,
+  "quotmark": "single",
+  "trailing": true,
+  "undef": true,
+  "unused": true
+}
