@@ -29,18 +29,31 @@ COMPRESS_OUTPUT_DIR = ''
 
 
 # Jenkins integration.
+# TODO(sjdemartini): Figure out a logical way to use csslint, despite using SCSS
+# syntax and files. For instance, add a CSSLINT_CHECKED_FILES list that points
+# to a compiled CSS file, just for basic lint checking. Or find a linter that
+# works with SCSS.
 JENKINS_TASKS = (
-    'django_jenkins.tasks.django_tests',
-    'django_jenkins.tasks.run_csslint',
-    # TODO(wli): re-enable jshint when it stops crashing.
-    # 'django_jenkins.tasks.run_jshint',
+    #'django_jenkins.tasks.run_csslint',
+    'django_jenkins.tasks.run_jshint',
     'django_jenkins.tasks.run_pep8',
     'django_jenkins.tasks.run_pylint',
     'django_jenkins.tasks.run_sloccount',
     'django_jenkins.tasks.with_coverage',
 )
 
+PEP8_RCFILE = os.path.join(WORKSPACE_ROOT, '.pep8rc')
 PYLINT_RCFILE = os.path.join(WORKSPACE_ROOT, '.pylintrc')
+
+# TODO(sjdemartini): change static files directory structure to move third party
+# JS into subdirectory, so that our own files can be in static/js, and others
+# can be more easily distinguished. Then change the path below to be
+# static/js/*.js to automatically lint all of (and only) our own files.
+JSHINT_CHECKED_FILES = [
+    os.path.join(WORKSPACE_ROOT, 'quark', 'static', 'js', 'main.js'),
+    os.path.join(WORKSPACE_ROOT, 'quark', 'static', 'js', 'slideshow.js'),
+    os.path.join(WORKSPACE_ROOT, 'quark', 'static', 'js', 'visual_datetime.js')
+]
 
 
 # Set up aliases for easy-thumbnails

@@ -54,7 +54,7 @@ DATABASES = {
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
 
 # Custom dev cookie session ID
-SESSION_COOKIE_NAME =  'quark_dev_%s_sid' % _user
+SESSION_COOKIE_NAME = 'quark_dev_%s_sid' % _user
 
 # Always show the Django Debug Toolbar on dev. By default, the Debug Toolbar
 # would only be shown when DEBUG=True and the request is from an IP listed in

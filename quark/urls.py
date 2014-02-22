@@ -10,7 +10,8 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 admin.autodiscover()
 
 
-urlpatterns = patterns('',
+urlpatterns = patterns(
+    '',
     url(r'^', include('quark.base.urls',
                       app_name='base')),
     url(r'^accounts/', include('quark.accounts.urls',

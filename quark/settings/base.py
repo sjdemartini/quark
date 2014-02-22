@@ -128,8 +128,8 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
-    # django-compressor file finder
+    #'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    # django-compressor file finder:
     'compressor.finders.CompressorFinder',
 )
 
@@ -262,7 +262,7 @@ try:
     from quark.settings.third_party import *
 except ImportError as err:
     # If the file doesn't exist, print a warning message but do not fail.
-    print('WARNING: %s' % str(err))
+    print 'WARNING: %s' % str(err)
 
 
 ###############################################################################
@@ -278,4 +278,4 @@ elif __quark_env__ == 'staging':
 elif __quark_env__ == 'production':
     from quark.settings.production import *
 else:
-    print('WARNING: Invalid value for QUARK_ENV: %s' % __quark_env__)
+    print 'WARNING: Invalid value for QUARK_ENV: %s' % __quark_env__
