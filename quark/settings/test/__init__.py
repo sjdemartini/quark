@@ -1,6 +1,4 @@
-"""
-Default settings for running jenkins
-"""
+"""Default settings for running tests via jenkins."""
 
 # pylint: disable=W0401,W0614
 from quark.settings import *

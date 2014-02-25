@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Note: when the string "build" is passed in as the first argument to the
+# jenkins script, run the full suite of jenkins tasks. Otherwise, only run
+# jenkins tasks that would be needed to pass a build.
+
 # Don't run me as root!
 if [[ `id --user` == "0" ]]; then
     echo "Do not run jenkins as root."
@@ -9,11 +13,18 @@ fi
 # Use virtualenv with Django-1.6 installed.
 source /home/tbp/virtualenv/django16/bin/activate
 
+# Go to directory of the script
+pushd $(dirname $0) > /dev/null
+
 # Clean up compiled python files
 find . -type f -name "*.py[co]" -delete
 
-# Go to directory of the script
-pushd $(dirname $0) > /dev/null
+# Remove old build reports:
+rm reports/*
+
+# First ensure we have up-to-date submodules, as some may be required for tests:
+git submodule init
+git submodule update
 
 # The following conditions must be true for jenkins to return true:
 #   1. The tests must pass.
@@ -21,7 +32,16 @@ pushd $(dirname $0) > /dev/null
 #   3. pep8 must be perfect, as evidenced by no lines with ".py" in the report.
 # All other lint errors are not taken into consideration for the +/- Verified
 # flag. Jenkins will report the other lint errors in pretty graphs though.
-python manage.py jenkins --settings=quark.settings.test
+
+# For full builds, pass in the "build" argument, which ensures that all desired
+# jenkins tasks are run
+if [[ $1 == 'build' ]]; then
+    test_settings=quark.settings.test
+else
+    test_settings=quark.settings.test.local
+fi
+python manage.py jenkins --settings=$test_settings
+
 # Error code should be 0 (no errors)
 jenkins_status=$?
 
