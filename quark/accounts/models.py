@@ -154,6 +154,7 @@ class LDAPUser(get_user_model()):
         ldap_utils.set_password(self.get_username(), raw_password)
 
     def set_unusable_password(self):
+        super(LDAPUser, self).set_unusable_password()
         ldap_utils.set_password(self.get_username(), None)
 
 

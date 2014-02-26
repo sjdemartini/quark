@@ -10,6 +10,7 @@ from django.contrib.auth.views import password_reset_complete
 from django.contrib.auth.views import password_reset_confirm
 from django.contrib.auth.views import password_reset_done
 
+from quark.accounts.forms import AuthenticationForm
 from quark.accounts.forms import PasswordChangeForm
 from quark.accounts.forms import PasswordResetForm
 from quark.accounts.forms import SetPasswordForm
@@ -22,6 +23,7 @@ urlpatterns = patterns(
     '',
     url(r'^login/$', login,
         {'template_name': 'accounts/login.html',
+         'authentication_form': AuthenticationForm,
          'current_app': app_name},
         name='login'),
     url(r'^logout/$', logout,

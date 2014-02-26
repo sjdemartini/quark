@@ -332,7 +332,7 @@ class HelpdeskEmailerView(EmailerView):
 
 
 class CompanyEmailerView(EmailerView):
-    template_name = 'indrel/contact.html'
+    template_name = 'companies/contact.html'
     form_id = 'CompanyContact'
     check_spam = False
 

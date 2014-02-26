@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Companies{% endblock title %}
+
+{% block intro %}
+<h1>Companies</h1>
+{% endblock intro %}
+
+{% block content %}
+{# TODO(sjdemartini): Add link/button for page for creating companies, once that is possible #}
+{% if companies %}
+<ul>
+{% for company in companies %}
+  <li>
+    {% comment %}
+    TODO(sjdemartini): Add more relevant data (logo, number of reps, expiration
+    date, etc.) for each company
+    {% endcomment %}
+    <a href="{% url 'companies:detail' company.pk %}">{{ company.name }}</a>
+  </li>
+</ul>
+{% endfor %}
+{% else %}
+<p>No companies have been added.</p>
+{% endif %}
+{% endblock content %}

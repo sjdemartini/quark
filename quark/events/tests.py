@@ -2,7 +2,6 @@ import datetime
 
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
-from django.test import Client
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils import timezone
@@ -316,9 +315,7 @@ class EventTest(EventTesting):
         self.assertIsNotNone(event.pk)
 
         self.assertTrue(event.can_user_sign_up(self.user))
-        # Set up client
-        cli = Client()
-        self.assertTrue(cli.login(
+        self.assertTrue(self.client.login(
             username=self.user.username, password='testofficerpw'))
 
         signup_url = reverse('events:signup', kwargs={'event_pk': event.pk})
@@ -326,18 +323,18 @@ class EventTest(EventTesting):
         self.assertEqual(0, EventSignUp.objects.filter(event=event).count())
 
         # Sign-up once. Ensure success
-        response_1 = cli.post(signup_url, signup_data, follow=True)
+        response_1 = self.client.post(signup_url, signup_data, follow=True)
         self.assertEqual(200, response_1.status_code)
         self.assertEqual(1, EventSignUp.objects.filter(event=event).count())
-        r1_get = cli.get('/')
+        r1_get = self.client.get('/')
         self.assertEqual('Signup successful!',
                          str(list(r1_get.context['messages'])[0]))
 
         # Sign-up twice. Ensure update
-        response_2 = cli.post(signup_url, signup_data, follow=True)
+        response_2 = self.client.post(signup_url, signup_data, follow=True)
         self.assertEqual(200, response_2.status_code)
         self.assertEqual(1, EventSignUp.objects.filter(event=event).count())
-        r2_get = cli.get('/')
+        r2_get = self.client.get('/')
         self.assertEqual('Signup updated!',
                          str(list(r2_get.context['messages'])[0]))
 

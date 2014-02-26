@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ company.name }}{% endblock title %}
+
+{% block intro %}
+<h1>{{ company.name }}</h1>
+{% endblock intro %}
+
+{% block content %}
+<div><img src="{{ company.logo.url }}"></div>
+<div>
+  {{ company.website|urlize }}
+</div>
+<div>
+  Account creation date: {{ company.created }}
+</div>
+<div>
+  Account subscription expiration date: {{ company.expiration_date }}
+</div>
+{% comment %}
+TODO(sjdemartini): Add more relevant content here (like details on each of the
+representatives for the company (e.g., their usernames, when the last logged in,
+etc.)
+{% endcomment %}
+{% endblock content %}

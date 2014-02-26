@@ -1,0 +1,155 @@
+import datetime
+
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
+from django.core import mail
+from django.core.urlresolvers import reverse
+from django.test import TestCase
+from freezegun import freeze_time
+
+from quark.companies.forms import CompanyRepCreationForm
+from quark.companies.models import Company
+from quark.companies.models import CompanyRep
+
+
+class CompanyTest(TestCase):
+    @freeze_time('2015-03-14')
+    def test_company_is_expired(self):
+        """Make sure is_expired properly indicates expiration."""
+        today = datetime.date.today()
+
+        # Make the company's expiration in the past:
+        expiration = today - datetime.timedelta(days=1)
+        company = Company(name='Test Company', expiration_date=expiration)
+        company.save()
+        self.assertTrue(company.is_expired())
+
+    @freeze_time('2015-03-14')
+    def test_company_is_not_expired(self):
+        """Make sure is_expired properly indicates non-expiration."""
+        today = datetime.date.today()
+
+        # Make the company's expiration date weeks in the future:
+        expiration = today + datetime.timedelta(weeks=5)
+        company = Company(name='Test Company', expiration_date=expiration)
+        company.save()
+        self.assertFalse(company.is_expired())
+
+        # Move the expiration date to today, which should be the final
+        # non-expired day:
+        expiration = today
+        company.expiration_date = expiration
+        company.save()
+        self.assertFalse(company.is_expired())
+
+
+class CompanyFormsTest(TestCase):
+    def setUp(self):
+        expiration = datetime.date.today() + datetime.timedelta(weeks=5)
+        self.company = Company(name='Test Company', expiration_date=expiration)
+        self.company.save()
+
+        self.user_model = get_user_model()
+
+    def test_company_rep_creation_form(self):
+        """Ensure that the company rep creation form works to create a new user
+        and the corresponding CompanyRep object.
+        """
+        rep_attrs = {
+            'username': 'repuser',
+            'email': 'testrep@example.com',
+            'first_name': 'Jane',
+            'last_name': 'Doe',
+            'company': self.company.pk
+        }
+        form = CompanyRepCreationForm(rep_attrs)
+        self.assertTrue(form.is_valid())
+        form.save()
+
+        # Check that a user was created with the appropriate attributes and
+        # an unusable password:
+        rep_user = self.user_model.objects.get(username=rep_attrs['username'])
+        self.assertEquals(rep_user.get_username(), rep_attrs['username'])
+        self.assertEquals(rep_user.email, rep_attrs['email'])
+        self.assertEquals(rep_user.first_name, rep_attrs['first_name'])
+        self.assertEquals(rep_user.last_name, rep_attrs['last_name'])
+        self.assertEquals(rep_user.last_name, rep_attrs['last_name'])
+        self.assertFalse(rep_user.has_usable_password())
+
+        # Check that the CompanyRep was created correctly:
+        rep = rep_user.companyrep
+        self.assertEquals(rep.company, self.company)
+
+
+class CompanyViewsTest(TestCase):
+    """Test the companies views."""
+    def setUp(self):
+        expiration = datetime.date.today() + datetime.timedelta(weeks=5)
+        self.company = Company(name='Test Company', expiration_date=expiration)
+        self.company.save()
+
+        self.user_model = get_user_model()
+
+        # Create a user who has permissions for companies and company reps
+        self.user = self.user_model.objects.create_user(
+            username='testuser',
+            email='it@tbp.berkeley.edu',
+            password='password',
+            first_name='John',
+            last_name='Superuser')
+
+        company_content_type = ContentType.objects.get_for_model(Company)
+        rep_content_type = ContentType.objects.get_for_model(CompanyRep)
+        company_add_permission = Permission.objects.get(
+            content_type=company_content_type, codename='add_company')
+        company_change_permission = Permission.objects.get(
+            content_type=company_content_type, codename='change_company')
+        rep_add_permission = Permission.objects.get(
+            content_type=rep_content_type, codename='add_companyrep')
+        rep_change_permission = Permission.objects.get(
+            content_type=rep_content_type, codename='change_companyrep')
+        self.user.user_permissions.add(
+            company_add_permission, company_change_permission,
+            rep_add_permission, rep_change_permission)
+
+    def test_company_rep_create_view(self):
+        """Ensure that the user can create a company rep successfully, and that
+        the company rep receives a password reset email.
+        """
+        self.assertTrue(self.client.login(
+            username=self.user.username, password='password'))
+        create_rep_url = reverse('companies:create-rep')
+        rep_data = {
+            'username': 'testrepuser',
+            'email': 'testrep@example.com',
+            'first_name': 'Jane',
+            'last_name': 'Doe',
+            'company': self.company.pk
+        }
+        # Make sure there are currently no company reps and that no emails have
+        # been sent
+        self.assertFalse(CompanyRep.objects.exists())
+        self.assertEqual(len(mail.outbox), 0)
+
+        # Create the rep using the view
+        response = self.client.post(create_rep_url, rep_data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response, 'Successfully created a new company rep account')
+        self.assertContains(response, rep_data['username'])
+        self.assertContains(response, self.company.name)
+
+        # Check that the rep account was successfully created
+        rep_user = self.user_model.objects.get(username=rep_data['username'])
+        self.assertEquals(rep_user.companyrep, CompanyRep.objects.get())
+        self.assertEquals(rep_user.companyrep.company, self.company)
+
+        # Check the sent email to ensure the company rep received an email for
+        # setting their password
+        self.assertEqual(len(mail.outbox), 1)
+        email = mail.outbox[0]
+        self.assertEqual(email.to, [rep_user.email])
+
+        # Make sure the email contains a password reset link:
+        self.assertIn('accounts/password/reset', email.body)

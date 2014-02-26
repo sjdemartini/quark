@@ -11,6 +11,7 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
 from quark.accounts.models import make_ldap_user
+from quark.companies.models import CompanyRep
 from quark.qldap import utils as ldap_utils
 
 
@@ -40,15 +41,17 @@ class UserCreationForm(UserFormMixin, auth_forms.UserCreationForm):
         return username
 
     def save(self, commit=True):
-        user = super(UserCreationForm, self).save(commit=False)
+        # Call the ModelForm save method directly, since we are overriding the
+        # Django UserCreationForm save() functionality here
+        user = forms.ModelForm.save(self, commit=False)
         if USE_LDAP:
             # Create an entry in LDAP for this new user:
             ldap_utils.create_user(
-                user.get_username(), self.cleaned_data["password1"], user.email,
+                user.get_username(), self.cleaned_data['password1'], user.email,
                 user.first_name, user.last_name)
             # Use the LDAPUser proxy model for this object
             make_ldap_user(user)
-        user.set_password(self.cleaned_data["password1"])
+        user.set_password(self.cleaned_data['password1'])
         if commit:
             user.save()
         return user
@@ -56,6 +59,40 @@ class UserCreationForm(UserFormMixin, auth_forms.UserCreationForm):
 
 class UserChangeForm(UserFormMixin, auth_forms.UserChangeForm):
     pass
+
+
+class AuthenticationForm(auth_forms.AuthenticationForm):
+    """An AuthenticationForm that takes into account Company users."""
+    def clean(self):
+        """Performs the usual clean steps and also ensures that Company users
+        and their Company's account expiration are taken into consideration.
+
+        First, call the superclass method (which notably checks the password
+        correctness and whether the given User is "active"). Then, if the user
+        corresponds to a company representative account, this method performs
+        the additional confirmation that the company account has not expired,
+        raising a ValidationError if so.
+        """
+        cleaned_data = super(AuthenticationForm, self).clean()
+
+        # TODO(sjdemartini): Move this logic to confirm_login_allowed once
+        # upgraded Django 1.7
+        try:
+            # Try to get a company account for the given user
+            company_rep = self.user_cache.companyrep
+        except CompanyRep.DoesNotExist:
+            # If the user is not a company, allow login
+            return cleaned_data
+
+        if company_rep.company.is_expired():
+            raise forms.ValidationError(
+                ('{}\'s subscription to this website has expired. '
+                 'Please contact {} to arrange account renewal.'.format(
+                     company_rep.company.name, settings.INDREL_ADDRESS)),
+                code='expired'
+            )
+
+        return cleaned_data
 
 
 class MakeLDAPUserMixin(object):
