@@ -16,7 +16,7 @@ p {
 }
 
 a img {
-  border: none;
+  border: 0;
 }
 
 ul,
@@ -165,6 +165,7 @@ div {
   .form-entry {
     margin: 1em 0;
     padding: 0 0.5em;
+    position: relative;
     @include clearfix;
     @include respond-to(small-med) {
       margin-top: 1.3em;  // Increase the top margin with narrow viewport
