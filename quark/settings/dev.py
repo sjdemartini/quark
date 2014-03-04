@@ -63,15 +63,15 @@ DEBUG_TOOLBAR_CONFIG = {
     'SHOW_TOOLBAR_CALLBACK': 'quark.settings.third_party.show_toolbar'
 }
 
-# NOTE: It is highly recommended that you copy settings_local_template.py (in
-# the quark directory) to a new file settings_local.py (to be put in the same
-# directory). This will allow you to use HTTPS for your dev server. See
-# settings_local_template.py for further clarification and instruction.
+# NOTE: It is highly recommended that you copy quark/settings/local.py.template
+# to a new file quark/settings/local.py. After making necessary changes to the
+# local.py file, you will be able to use HTTPS for your dev server. See
+# quark/settings/local.py.template for further clarification and instruction.
 
 # Import any local settings
 try:
     # pylint: disable=F0401,W0401,W0614
-    from quark.settings_local import *
+    from quark.settings.local import *
 except ImportError:
     # Ignore if there's no local settings file
     pass

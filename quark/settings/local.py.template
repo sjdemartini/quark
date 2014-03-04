@@ -1,4 +1,4 @@
-# Copy this file to quark/settings_local.py and make the necessary changes
+# Copy this file to quark/settings/local.py and make the necessary changes
 # noted below in order to use HTTPS for your dev server.
 
 # When using the nginx proxy, the dev server available at

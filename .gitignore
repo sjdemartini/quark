@@ -3,7 +3,7 @@
 .*.swp
 .*.swo
 *~
-settings_local.py
+quark/settings/local.py
 docs
 /reports/
 /media/
