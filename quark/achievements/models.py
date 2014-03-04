@@ -84,14 +84,11 @@ class Achievement(models.Model):
         help_text=('The rank of the achievement, for the display order. The '
                    'higher the number, the lower down on the page it shows.'))
 
-    acquired_icon = models.ImageField(
-        blank=True, upload_to='images/achievements',
-        help_text='Icon filepaths are defined through the fixtures, and icons '
-                  'should never be uploaded through admin.')
-    unacquired_icon = models.ImageField(
-        blank=True, upload_to='images/achievements',
-        help_text='Icon filepaths are defined through the fixtures, and icons '
-                  'should never be uploaded through admin.')
+    icon_filename = models.CharField(
+        max_length=128, blank=True,
+        help_text=('The image file for the achievement icon, which should be '
+                   'located in quark/static/images/achievements.'))
+
     icon_creator = models.ForeignKey(
         settings.AUTH_USER_MODEL, blank=True, null=True,
         help_text='The creator of the icon used for this achievement.')

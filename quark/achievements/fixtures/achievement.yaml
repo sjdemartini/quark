@@ -11,8 +11,7 @@
     manual: False
     repeatable: False
     rank: 1.1
-    acquired_icon: images/achievements/officersemester01.png
-    unacquired_icon: images/achievements/officersemester01_g.png
+    icon_filename: 'images/achievements/officersemester01.png'
 - pk: officersemester02
   model: achievements.Achievement
   fields:
@@ -26,8 +25,7 @@
     manual: False
     repeatable: False
     rank: 1.2
-    acquired_icon: images/achievements/officersemester02.png
-    unacquired_icon: images/achievements/officersemester02_g.png
+    icon_filename: 'images/achievements/officersemester02.png'
 - pk: officersemester03
   model: achievements.Achievement
   fields:
@@ -41,8 +39,7 @@
     manual: False
     repeatable: False
     rank: 1.3
-    acquired_icon: images/achievements/officersemester03.png
-    unacquired_icon: images/achievements/officersemester03_g.png
+    icon_filename: 'images/achievements/officersemester03.png'
 - pk: officersemester04
   model: achievements.Achievement
   fields:
@@ -56,8 +53,7 @@
     manual: False
     repeatable: False
     rank: 1.4
-    acquired_icon: images/achievements/officersemester04.png
-    unacquired_icon: images/achievements/officersemester04_g.png
+    icon_filename: 'images/achievements/officersemester04.png'
 - pk: officersemester05
   model: achievements.Achievement
   fields:
@@ -71,8 +67,7 @@
     manual: False
     repeatable: False
     rank: 1.5
-    acquired_icon: images/achievements/officersemester05.png
-    unacquired_icon: images/achievements/officersemester05_g.png
+    icon_filename: 'images/achievements/officersemester05.png'
 - pk: officersemester06
   model: achievements.Achievement
   fields:
@@ -86,8 +81,7 @@
     manual: False
     repeatable: False
     rank: 1.6
-    acquired_icon: images/achievements/officersemester06.png
-    unacquired_icon: images/achievements/officersemester06_g.png
+    icon_filename: 'images/achievements/officersemester06.png'
 - pk: officersemester07
   model: achievements.Achievement
   fields:
@@ -101,8 +95,7 @@
     manual: False
     repeatable: False
     rank: 1.7
-    acquired_icon: images/achievements/officersemester07.png
-    unacquired_icon: images/achievements/officersemester07_g.png
+    icon_filename: 'images/achievements/officersemester07.png'
 - pk: officersemester08
   model: achievements.Achievement
   fields:
@@ -129,8 +122,7 @@
     manual: False
     repeatable: False
     rank: 7.1
-    acquired_icon: images/achievements/chair1committee.png
-    unacquired_icon: images/achievements/chair1committee_g.png
+    icon_filename: 'images/achievements/chair1committee.png'
 - pk: chair2committees
   model: achievements.Achievement
   fields:
@@ -156,8 +148,7 @@
     manual: False
     repeatable: False
     rank: 5.1
-    acquired_icon: images/achievements/three_unique_positions.png
-    unacquired_icon: images/achievements/three_unique_positions_g.png
+    icon_filename: 'images/achievements/three_unique_positions.png'
 - pk: twice_same_position
   model: achievements.Achievement
   fields:
@@ -171,8 +162,7 @@
     manual: False
     repeatable: False
     rank: 6.1
-    acquired_icon: images/achievements/twice_same_position.png
-    unacquired_icon: images/achievements/twice_same_position_g.png
+    icon_filename: 'images/achievements/twice_same_position.png'
 - pk: thrice_same_position
   model: achievements.Achievement
   fields:
@@ -186,8 +176,7 @@
     manual: False
     repeatable: False
     rank: 6.2
-    acquired_icon: images/achievements/thrice_same_position.png
-    unacquired_icon: images/achievements/thrice_same_position_g.png
+    icon_filename: 'images/achievements/thrice_same_position.png'
 - pk: two_repeated_positions
   model: achievements.Achievement
   fields:
@@ -201,8 +190,7 @@
     manual: False
     repeatable: False
     rank: 6.3
-    acquired_icon: images/achievements/two_repeated_positions.png
-    unacquired_icon: images/achievements/two_repeated_positions_g.png
+    icon_filename: 'images/achievements/two_repeated_positions.png'
 - pk: straighttothetop
   model: achievements.Achievement
   fields:
@@ -215,8 +203,7 @@
     manual: False
     repeatable: False
     rank: 11.2
-    acquired_icon: images/achievements/straighttothetop.png
-    unacquired_icon: images/achievements/straighttothetop_g.png
+    icon_filename: 'images/achievements/straighttothetop.png'
 - pk: attend025events
   model: achievements.Achievement
   fields:
@@ -230,8 +217,7 @@
     manual: False
     repeatable: False
     rank: 2.1
-    acquired_icon: images/achievements/attend025events.png
-    unacquired_icon: images/achievements/attend025events_g.png
+    icon_filename: 'images/achievements/attend025events.png'
 - pk: attend050events
   model: achievements.Achievement
   fields:
@@ -245,8 +231,7 @@
     manual: False
     repeatable: False
     rank: 2.2
-    acquired_icon: images/achievements/attend050events.png
-    unacquired_icon: images/achievements/attend050events_g.png
+    icon_filename: 'images/achievements/attend050events.png'
 - pk: attend078events
   model: achievements.Achievement
   fields:
@@ -260,8 +245,7 @@
     manual: False
     repeatable: False
     rank: 2.3
-    acquired_icon: images/achievements/attend078events.png
-    unacquired_icon: images/achievements/attend078events_g.png
+    icon_filename: 'images/achievements/attend078events.png'
 - pk: attend100events
   model: achievements.Achievement
   fields:
@@ -275,8 +259,7 @@
     manual: False
     repeatable: False
     rank: 2.4
-    acquired_icon: images/achievements/attend100events.png
-    unacquired_icon: images/achievements/attend100events_g.png
+    icon_filename: 'images/achievements/attend100events.png'
 - pk: attend150events
   model: achievements.Achievement
   fields:
@@ -290,8 +273,7 @@
     manual: False
     repeatable: False
     rank: 2.5
-    acquired_icon: images/achievements/attend150events.png
-    unacquired_icon: images/achievements/attend150events_g.png
+    icon_filename: 'images/achievements/attend150events.png'
 - pk: attend200events
   model: achievements.Achievement
   fields:
@@ -305,8 +287,7 @@
     manual: False
     repeatable: False
     rank: 2.6
-    acquired_icon: images/achievements/attend200events.png
-    unacquired_icon: images/achievements/attend200events_g.png
+    icon_filename: 'images/achievements/attend200events.png'
 - pk: attend300events
   model: achievements.Achievement
   fields:
@@ -333,8 +314,7 @@
     manual: False
     repeatable: False
     rank: 4.1
-    acquired_icon: images/achievements/attend_all_meetings.png
-    unacquired_icon: images/achievements/attend_all_meetings_g.png
+    icon_filename: 'images/achievements/attend_all_meetings.png'
 - pk: attend_all_big_socials
   model: achievements.Achievement
   fields:
@@ -348,8 +328,7 @@
     manual: False
     repeatable: False
     rank: 4.2
-    acquired_icon: images/achievements/attend_all_big_socials.png
-    unacquired_icon: images/achievements/attend_all_big_socials_g.png
+    icon_filename: 'images/achievements/attend_all_big_socials.png'
 - pk: attend_all_bent_polishings
   model: achievements.Achievement
   fields:
@@ -363,8 +342,7 @@
     manual: False
     repeatable: False
     rank: 4.3
-    acquired_icon: images/achievements/attend_all_bent_polishings.gif
-    unacquired_icon: images/achievements/attend_all_bent_polishings_g.png
+    icon_filename: 'images/achievements/attend_all_bent_polishings.gif'
 - pk: attend_all_infosessions
   model: achievements.Achievement
   fields:
@@ -378,8 +356,7 @@
     manual: False
     repeatable: False
     rank: 4.4
-    acquired_icon: images/achievements/attend_all_infosessions.png
-    unacquired_icon: images/achievements/attend_all_infosessions_g.png
+    icon_filename: 'images/achievements/attend_all_infosessions.png'
 - pk: attend_all_service
   model: achievements.Achievement
   fields:
@@ -393,8 +370,7 @@
     manual: False
     repeatable: False
     rank: 4.5
-    acquired_icon: images/achievements/attend_all_service.png
-    unacquired_icon: images/achievements/attend_all_service_g.png
+    icon_filename: 'images/achievements/attend_all_service.png'
 - pk: attend_all_efutures
   model: achievements.Achievement
   fields:
@@ -408,8 +384,7 @@
     manual: False
     repeatable: False
     rank: 4.6
-    acquired_icon: images/achievements/attend_all_efutures.png
-    unacquired_icon: images/achievements/attend_all_efutures_g.png
+    icon_filename: 'images/achievements/attend_all_efutures.png'
 - pk: attend_all_fun
   model: achievements.Achievement
   fields:
@@ -423,8 +398,7 @@
     manual: False
     repeatable: False
     rank: 4.7
-    acquired_icon: images/achievements/attend_all_fun.png
-    unacquired_icon: images/achievements/attend_all_fun_g.png
+    icon_filename: 'images/achievements/attend_all_fun.png'
 - pk: attend_all_prodev
   model: achievements.Achievement
   fields:
@@ -438,8 +412,7 @@
     manual: False
     repeatable: False
     rank: 4.8
-    acquired_icon: images/achievements/attend_all_prodev.png
-    unacquired_icon: images/achievements/attend_all_prodev_g.png
+    icon_filename: 'images/achievements/attend_all_prodev.png'
 - pk: attend_each_type
   model: achievements.Achievement
   fields:
@@ -453,8 +426,7 @@
     manual: False
     repeatable: False
     rank: 4.9
-    acquired_icon: images/achievements/attend_each_type.png
-    unacquired_icon: images/achievements/attend_each_type_g.png
+    icon_filename: 'images/achievements/attend_each_type.png'
 - pk: attend_d15
   model: achievements.Achievement
   fields:
@@ -468,8 +440,7 @@
     manual: False
     repeatable: False
     rank: 8.1
-    acquired_icon: images/achievements/attend_d15.png
-    unacquired_icon: images/achievements/attend_d15_g.png
+    icon_filename: 'images/achievements/attend_d15.png'
 - pk: attend_convention
   model: achievements.Achievement
   fields:
@@ -495,8 +466,7 @@
     manual: False
     repeatable: False
     rank: 12.1
-    acquired_icon: images/achievements/alphabet_attendance.png
-    unacquired_icon: images/achievements/alphabet_attendance_g.png
+    icon_filename: 'images/achievements/alphabet_attendance.png'
 - pk: berkeley_explosion
   model: achievements.Achievement
   fields:
@@ -509,5 +479,4 @@
     manual: False
     repeatable: False
     rank: 25.1
-    acquired_icon: images/achievements/berkeley_explosion.png
-    unacquired_icon: images/achievements/berkeley_explosion_g.png
+    icon_filename: 'images/achievements/berkeley_explosion.png'

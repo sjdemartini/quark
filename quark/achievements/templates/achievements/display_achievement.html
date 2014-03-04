@@ -12,12 +12,7 @@ is secret and not also unlocked by the page viewer.
     <img src="{% get_static_prefix %}images/achievements/hidden.jpg"/>
     {% else %}
     <a href="{% url 'achievements:detail' achievement.short_name %}">
-      {# TODO(natebailey): Use css for grayscale-ing unaqcuired icons. #}
-      {% if unacquired %}
-      <img src="{% get_static_prefix %}{% firstof achievement.unacquired_icon 'images/missing.jpg' %}"/>
-      {% else %}
-      <img src="{% get_static_prefix %}{% firstof achievement.acquired_icon 'images/missing.jpg' %}"/>
-      {% endif %}
+      <img{% if unacquired %} class="grayscale"{% endif %} src="{% get_static_prefix %}{% firstof achievement.icon_filename 'images/missing.jpg' %}">
     </a>
     {% endif %}
   </div>

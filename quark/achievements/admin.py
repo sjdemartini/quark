@@ -7,7 +7,7 @@ from quark.achievements.models import UserAchievement
 class AchievementAdmin(admin.ModelAdmin):
     fields = (
         'name', 'description', 'points', 'goal', 'privacy', 'manual', 'rank',
-        'acquired_icon', 'unacquired_icon', 'icon_creator', 'sequence',
+        'icon_filename', 'icon_creator', 'sequence',
         'category')
     search_fields = ('name', 'points')
     list_filter = ('privacy', 'manual', 'repeatable')
