@@ -32,6 +32,7 @@ from quark.candidates.forms import ChallengeForm
 from quark.candidates.forms import ChallengeVerifyFormSet
 from quark.candidates.forms import ManualCandidateRequirementForm
 from quark.events.models import EventAttendance
+from quark.events.models import EventSignUp
 from quark.events.models import EventType
 from quark.exams.models import Exam
 from quark.shortcuts import get_object_or_none
@@ -49,16 +50,28 @@ class CandidateContextMixin(ContextMixin):
         context['candidate'] = candidate
 
         attended_events = {}
+        signed_up_events = {}
         event_types = EventType.objects.values_list('name', flat=True)
         for event_type in event_types:
             attended_events[event_type] = []
+            signed_up_events[event_type] = []
         attendances = EventAttendance.objects.select_related(
             'event__event_type').filter(
             user=candidate.user, event__term=candidate.term)
+        signups = EventSignUp.objects.select_related(
+            'event__event_type').filter(
+            user=candidate.user, event__term=candidate.term,
+            unsignup=False).exclude(event__in=attendances.values_list(
+            'event', flat=True))
         for attendance in attendances:
             attended_events[
                 attendance.event.event_type.name].append(attendance.event)
-        context['events'] = attended_events
+        for signup in signups:
+            signed_up_events[
+                signup.event.event_type.name].append(signup.event)
+
+        context['attended_events'] = attended_events
+        context['signed_up_events'] = signed_up_events
 
         requested_challenges = {}
         challenge_types = ChallengeType.objects.values_list('name', flat=True)

@@ -17,11 +17,15 @@
 {% include 'candidates/_individual_portal_progress.html' with entry=entry %}
 <ul>
   {% with event_type=entry.requirement.eventcandidaterequirement.event_type.name %}
-  {% for event in events|get_item:event_type %}
-  <li>{{ event.name }}</li>
-  {% empty %}
-  No {{ event_type }} events attended.
+  {% for event in attended_events|get_item:event_type %}
+  <li><strong>{{ event.name }}</strong></li>
   {% endfor %}
+  {% for event in signed_up_events|get_item:event_type %}
+  <li>{{ event.name }}</li>
+  {% endfor %}
+  {% if attended_events|get_item:event_type|length == 0 and signed_up_events|get_item:event_type|length == 0 %}
+  No signups or attendance for {{ event_type }} events.
+  {% endif %}
   {% endwith %}
 </ul>
 {% empty %}
