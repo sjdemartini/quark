@@ -467,10 +467,11 @@ blockquote {
 #login {
   float: right;
   font-size: .9em;
-  margin-top: 13px;
-  z-index: 100;  // Raise above logo-group
-  text-align: right;
   font-weight: 400;
+  margin-top: 13px;
+  position: relative;
+  text-align: right;
+  z-index: 100;  // Raise above logo-group
   @include respond-to(small) {
     width: 100%;
     background: $ultra-light-gray;  // In case rgba not supported
