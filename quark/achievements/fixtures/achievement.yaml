@@ -1,6 +1,7 @@
-- pk: officersemester01
+- pk: null
   model: achievements.Achievement
   fields:
+    short_name: officersemester01
     name: I'll Make a Man Out of You
     description: Be an officer for one semester.
     category: elections
@@ -12,9 +13,10 @@
     repeatable: False
     rank: 1.1
     icon_filename: 'images/achievements/officersemester01.png'
-- pk: officersemester02
+- pk: null
   model: achievements.Achievement
   fields:
+    short_name: officersemester02
     name: Welcome Back
     description: Be an officer for two semesters.
     category: elections
@@ -26,9 +28,10 @@
     repeatable: False
     rank: 1.2
     icon_filename: 'images/achievements/officersemester02.png'
-- pk: officersemester03
+- pk: null
   model: achievements.Achievement
   fields:
+    short_name: officersemester03
     name: Try, Try, Try
     description: Be an officer for three semesters.
     category: elections
@@ -40,9 +43,10 @@
     repeatable: False
     rank: 1.3
     icon_filename: 'images/achievements/officersemester03.png'
-- pk: officersemester04
+- pk: null
   model: achievements.Achievement
   fields:
+    short_name: officersemester04
     name: Back In My Day
     description: Be an officer for four semesters.
     category: elections
@@ -54,9 +58,10 @@
     repeatable: False
     rank: 1.4
     icon_filename: 'images/achievements/officersemester04.png'
-- pk: officersemester05
+- pk: null
   model: achievements.Achievement
   fields:
+    short_name: officersemester05
     name: God Walking Amongst Mere Mortals
     description: Be an officer for five semesters.
     category: elections
@@ -68,9 +73,10 @@
     repeatable: False
     rank: 1.5
     icon_filename: 'images/achievements/officersemester05.png'
-- pk: officersemester06
+- pk: null
   model: achievements.Achievement
   fields:
+    short_name: officersemester06
     name: Flawless Victory
     description: Be an officer for six semesters.
     category: elections
@@ -82,9 +88,10 @@
     repeatable: False
     rank: 1.6
     icon_filename: 'images/achievements/officersemester06.png'
-- pk: officersemester07
+- pk: null
   model: achievements.Achievement
   fields:
+    short_name: officersemester07
     name: Unfrigginbelievable
     description: Be an officer for seven semesters.
     category: elections
@@ -96,9 +103,10 @@
     repeatable: False
     rank: 1.7
     icon_filename: 'images/achievements/officersemester07.png'
-- pk: officersemester08
+- pk: null
   model: achievements.Achievement
   fields:
+    short_name: officersemester08
     name: I'm Too Old For This Stuff
     description: Be an officer for eight semesters.
     category: elections
@@ -109,9 +117,10 @@
     manual: False
     repeatable: False
     rank: 1.8
-- pk: chair1committee
+- pk: null
   model: achievements.Achievement
   fields:
+    short_name: chair1committee
     name: Don't Sit On Me
     description: Be the chair of a committee.
     category: elections
@@ -123,9 +132,10 @@
     repeatable: False
     rank: 7.1
     icon_filename: 'images/achievements/chair1committee.png'
-- pk: chair2committees
+- pk: null
   model: achievements.Achievement
   fields:
+    short_name: chair2committees
     name: Loveseat
     description: Chair two different committees.
     category: elections
@@ -136,9 +146,10 @@
     manual: False
     repeatable: False
     rank: 7.2
-- pk: three_unique_positions
+- pk: null
   model: achievements.Achievement
   fields:
+    short_name: three_unique_positions
     name: Jack of Many Trades
     description: Hold three or more different officer positions.
     category: elections
@@ -149,9 +160,10 @@
     repeatable: False
     rank: 5.1
     icon_filename: 'images/achievements/three_unique_positions.png'
-- pk: twice_same_position
+- pk: null
   model: achievements.Achievement
   fields:
+    short_name: twice_same_position
     name: Double Tap
     description: Be the same officer position twice in a row.
     category: elections
@@ -163,9 +175,10 @@
     repeatable: False
     rank: 6.1
     icon_filename: 'images/achievements/twice_same_position.png'
-- pk: thrice_same_position
+- pk: null
   model: achievements.Achievement
   fields:
+    short_name: thrice_same_position
     name: Hat Trick
     description: Be the same officer position thrice in a row.
     category: elections
@@ -177,9 +190,10 @@
     repeatable: False
     rank: 6.2
     icon_filename: 'images/achievements/thrice_same_position.png'
-- pk: two_repeated_positions
+- pk: null
   model: achievements.Achievement
   fields:
+    short_name: two_repeated_positions
     name: Double Double
     description: Hold two different officer positions twice in a row.
     category: elections
@@ -191,9 +205,10 @@
     repeatable: False
     rank: 6.3
     icon_filename: 'images/achievements/two_repeated_positions.png'
-- pk: straighttothetop
+- pk: null
   model: achievements.Achievement
   fields:
+    short_name: straighttothetop
     name: Straight to the Top
     description: Become VP in 2 semesters or President in 3.
     category: elections
@@ -204,9 +219,10 @@
     repeatable: False
     rank: 11.2
     icon_filename: 'images/achievements/straighttothetop.png'
-- pk: attend025events
+- pk: null
   model: achievements.Achievement
   fields:
+    short_name: attend025events
     name: Event Spree
     description: Attend 25 TBP events
     category: event
@@ -218,9 +234,10 @@
     repeatable: False
     rank: 2.1
     icon_filename: 'images/achievements/attend025events.png'
-- pk: attend050events
+- pk: null
   model: achievements.Achievement
   fields:
+    short_name: attend050events
     name: Event Frenzy
     description: Attend 50 TBP events
     category: event
@@ -232,9 +249,10 @@
     repeatable: False
     rank: 2.2
     icon_filename: 'images/achievements/attend050events.png'
-- pk: attend078events
+- pk: null
   model: achievements.Achievement
   fields:
+    short_name: attend078events
     name: Club 78 Platinum Member
     description: Attend 78 TBP events
     category: event
@@ -246,9 +264,10 @@
     repeatable: False
     rank: 2.3
     icon_filename: 'images/achievements/attend078events.png'
-- pk: attend100events
+- pk: null
   model: achievements.Achievement
   fields:
+    short_name: attend100events
     name: Preventing Boredom
     description: Attend 100 TBP events
     category: event
@@ -260,9 +279,10 @@
     repeatable: False
     rank: 2.4
     icon_filename: 'images/achievements/attend100events.png'
-- pk: attend150events
+- pk: null
   model: achievements.Achievement
   fields:
+    short_name: attend150events
     name: Approaching the Event Horizon
     description: Attend 150 TBP events
     category: event
@@ -274,9 +294,10 @@
     repeatable: False
     rank: 2.5
     icon_filename: 'images/achievements/attend150events.png'
-- pk: attend200events
+- pk: null
   model: achievements.Achievement
   fields:
+    short_name: attend200events
     name: You Are A Bent
     description: Attend 200 TBP events
     category: event
@@ -288,9 +309,10 @@
     repeatable: False
     rank: 2.6
     icon_filename: 'images/achievements/attend200events.png'
-- pk: attend300events
+- pk: null
   model: achievements.Achievement
   fields:
+    short_name: attend300events
     name: THIS. IS. TBP!
     description: Attend 300 TBP events
     category: event
@@ -301,9 +323,10 @@
     manual: False
     repeatable: False
     rank: 2.7
-- pk: attend_all_meetings
+- pk: null
   model: achievements.Achievement
   fields:
+    short_name: attend_all_meetings
     name: Generalissimo
     description: Attend all meeting events in a semester
     category: event
@@ -315,9 +338,10 @@
     repeatable: False
     rank: 4.1
     icon_filename: 'images/achievements/attend_all_meetings.png'
-- pk: attend_all_big_socials
+- pk: null
   model: achievements.Achievement
   fields:
+    short_name: attend_all_big_socials
     name: Socialist
     description: Attend all big social events in a semester
     category: event
@@ -329,9 +353,10 @@
     repeatable: False
     rank: 4.2
     icon_filename: 'images/achievements/attend_all_big_socials.png'
-- pk: attend_all_bent_polishings
+- pk: null
   model: achievements.Achievement
   fields:
+    short_name: attend_all_bent_polishings
     name: Ooooh, Shiny
     description: Attend all Bent polishing events in a semester
     category: event
@@ -343,9 +368,10 @@
     repeatable: False
     rank: 4.3
     icon_filename: 'images/achievements/attend_all_bent_polishings.gif'
-- pk: attend_all_infosessions
+- pk: null
   model: achievements.Achievement
   fields:
+    short_name: attend_all_infosessions
     name: Unemployed
     description: Attend all infosession events in a semester
     category: event
@@ -357,9 +383,10 @@
     repeatable: False
     rank: 4.4
     icon_filename: 'images/achievements/attend_all_infosessions.png'
-- pk: attend_all_service
+- pk: null
   model: achievements.Achievement
   fields:
+    short_name: attend_all_service
     name: Call of Duty
     description: Attend all service events in a semester
     category: event
@@ -371,9 +398,10 @@
     repeatable: False
     rank: 4.5
     icon_filename: 'images/achievements/attend_all_service.png'
-- pk: attend_all_efutures
+- pk: null
   model: achievements.Achievement
   fields:
+    short_name: attend_all_efutures
     name: E-Funtures
     description: Attend all Engineering Futures events in a semester
     category: event
@@ -385,9 +413,10 @@
     repeatable: False
     rank: 4.6
     icon_filename: 'images/achievements/attend_all_efutures.png'
-- pk: attend_all_fun
+- pk: null
   model: achievements.Achievement
   fields:
+    short_name: attend_all_fun
     name: Simply Not a Real Engineer
     description: Attend all fun events in a semester
     category: event
@@ -399,9 +428,10 @@
     repeatable: False
     rank: 4.7
     icon_filename: 'images/achievements/attend_all_fun.png'
-- pk: attend_all_prodev
+- pk: null
   model: achievements.Achievement
   fields:
+    short_name: attend_all_prodev
     name: MBA in Disguise
     description: Attend all professional development events in a semester
     category: event
@@ -413,9 +443,10 @@
     repeatable: False
     rank: 4.8
     icon_filename: 'images/achievements/attend_all_prodev.png'
-- pk: attend_each_type
+- pk: null
   model: achievements.Achievement
   fields:
+    short_name: attend_each_type
     name: Salad Bowl
     description: Attend at least one event of each type in a semester
     category: event
@@ -427,9 +458,10 @@
     repeatable: False
     rank: 4.9
     icon_filename: 'images/achievements/attend_each_type.png'
-- pk: attend_d15
+- pk: null
   model: achievements.Achievement
   fields:
+    short_name: attend_d15
     name: Ambassador
     description: Attend D15 Conference
     category: event
@@ -441,9 +473,10 @@
     repeatable: False
     rank: 8.1
     icon_filename: 'images/achievements/attend_d15.png'
-- pk: attend_convention
+- pk: null
   model: achievements.Achievement
   fields:
+    short_name: attend_convention
     name: National Treasure
     description: Attend National Convention
     category: event
@@ -454,9 +487,10 @@
     manual: False
     repeatable: False
     rank: 8.2
-- pk: alphabet_attendance
+- pk: null
   model: achievements.Achievement
   fields:
+    short_name: alphabet_attendance
     name: Alphabet Master
     description: Attend events in a semester containing the letters A-Z in their titles
     category: event
@@ -467,9 +501,10 @@
     repeatable: False
     rank: 12.1
     icon_filename: 'images/achievements/alphabet_attendance.png'
-- pk: berkeley_explosion
+- pk: null
   model: achievements.Achievement
   fields:
+    short_name: berkeley_explosion
     name: The Show Must Go On
     description: Ignore warnMe and attend the Fall 2013 Candidate Meeting
     category: event
@@ -480,9 +515,10 @@
     repeatable: False
     rank: 25.1
     icon_filename: 'images/achievements/berkeley_explosion.png'
-- pk: oots
+- pk: null
   model: achievements.Achievement
   fields:
+    short_name: oots
     name: Brush Your Teeth
     description: Officer of the Semester
     category: awards
@@ -493,9 +529,10 @@
     repeatable: False
     rank: 20.1
     icon_filename: 'images/achievements/oots.png'
-- pk: cots
+- pk: null
   model: achievements.Achievement
   fields:
+    short_name: cots
     name: Teacher's Pet
     description: Candidate of the Semester
     category: awards
@@ -506,9 +543,10 @@
     repeatable: False
     rank: 20.2
     icon_filename: 'images/achievements/cots.png'
-- pk: mots
+- pk: null
   model: achievements.Achievement
   fields:
+    short_name: mots
     name: You Really Didn't Have To
     description: Member of the Semester
     category: awards

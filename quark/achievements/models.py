@@ -27,7 +27,7 @@ class Achievement(models.Model):
     )
 
     short_name = models.CharField(
-        max_length=32, db_index=True, primary_key=True,
+        max_length=32, db_index=True,
         help_text='A short name to be used to search for the achievement in '
                   'the database.')
 

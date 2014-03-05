@@ -18,12 +18,15 @@ from quark.achievements.models import UserAchievement
 class AchievementDetailView(DetailView):
     context_object_name = 'achievement'
     model = Achievement
-    pk_url_kwarg = 'achievement_short_name'
     template_name = 'achievements/achievement_detail.html'
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super(AchievementDetailView, self).dispatch(*args, **kwargs)
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(
+            short_name=self.kwargs['achievement_short_name'])
 
     def get_context_data(self, **kwargs):
         context = super(AchievementDetailView, self).get_context_data(**kwargs)

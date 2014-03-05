@@ -23,7 +23,7 @@ class AchievementAssignmentTest(TestCase):
             username='test', password='test', email='test@tbp.berkeley.edu',
             first_name="Test", last_name="Test")
         self.achievement, _ = Achievement.objects.get_or_create(
-            name='test_achievement', pk='test',
+            name='test_achievement', short_name='test',
             description='test', points=0, goal=0, privacy='public',
             category='feats')
         self.achievements = UserAchievement.objects.filter(
@@ -37,39 +37,39 @@ class AchievementAssignmentTest(TestCase):
         # test to see that assigning the achievement creates an achievement
         # object in the database
         self.assertEqual(self.achievements.filter(
-            achievement__pk='test').count(), 0)
-        Achievement.objects.get(pk='test').assign(
+            achievement__short_name='test').count(), 0)
+        Achievement.objects.get(short_name='test').assign(
             self.sample_user, acquired=False)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='test').count(), 1)
+            achievement__short_name='test').count(), 1)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='test', acquired=True).count(), 0)
+            achievement__short_name='test', acquired=True).count(), 0)
 
         self.assertEqual(self.achievements.filter(
-            achievement__pk='test', acquired=True).count(), 0)
-        Achievement.objects.get(pk='test').assign(
+            achievement__short_name='test', acquired=True).count(), 0)
+        Achievement.objects.get(short_name='test').assign(
             self.sample_user, acquired=True)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='test', acquired=True).count(), 1)
+            achievement__short_name='test', acquired=True).count(), 1)
 
     def test_update(self):
         # test to see that an achievement can be reset to not acquired and
         # that progress can be updated successfully
-        Achievement.objects.get(pk='test').assign(
+        Achievement.objects.get(short_name='test').assign(
             self.sample_user, acquired=True)
-        Achievement.objects.get(pk='test').assign(
+        Achievement.objects.get(short_name='test').assign(
             self.sample_user, acquired=False, progress=1)
 
         self.assertEqual(self.achievements.filter(
-            achievement__pk='test', acquired=True).count(), 0)
+            achievement__short_name='test', acquired=True).count(), 0)
 
-        Achievement.objects.get(pk='test').assign(
+        Achievement.objects.get(short_name='test').assign(
             self.sample_user, acquired=False, progress=2)
 
         self.assertEqual(self.achievements.filter(
-            achievement__pk='test', acquired=True).count(), 0)
+            achievement__short_name='test', acquired=True).count(), 0)
         user_achievement = UserAchievement.objects.get(
-            achievement__pk='test', user=self.sample_user)
+            achievement__short_name='test', user=self.sample_user)
         self.assertEqual(user_achievement.progress, 2)
 
     def test_first_term_stays_with_achievement(self):
@@ -77,16 +77,16 @@ class AchievementAssignmentTest(TestCase):
         # semesters will keep the term as the first term in which the user
         # obtained it.
 
-        Achievement.objects.get(pk='test').assign(
+        Achievement.objects.get(short_name='test').assign(
             self.sample_user, acquired=False, term=self.fa2009)
-        Achievement.objects.get(pk='test').assign(
+        Achievement.objects.get(short_name='test').assign(
             self.sample_user, acquired=True, term=self.sp2010)
 
         # since the first achievement was just progress, the term will
         # be the first term where it was acquired - spring 2010
         self.assertEqual(self.achievements.filter(term=self.sp2010).count(), 1)
 
-        Achievement.objects.get(pk='test').assign(
+        Achievement.objects.get(short_name='test').assign(
             self.sample_user, acquired=True, term=self.fa2010)
         # since the achievement has already been acquired earlier, it
         # should retain the original term
@@ -97,10 +97,10 @@ class AchievementAssignmentTest(TestCase):
         # test to ensure that after receiving an achievement it will not be
         # overwritten if progress is obtained in a different semester
 
-        Achievement.objects.get(pk='test').assign(
+        Achievement.objects.get(short_name='test').assign(
             self.sample_user, acquired=True, term=self.sp2010)
 
-        Achievement.objects.get(pk='test').assign(
+        Achievement.objects.get(short_name='test').assign(
             self.sample_user, acquired=False, progress=1, term=self.fa2010)
         # since the achievement was acquired in a previous semester, it should
         # not be overwritten by progress acquired in another term
@@ -187,158 +187,171 @@ class EventAchievementsTest(TestCase):
         """Achievement for 25 lifetime events is obtained after 25th event.
         """
         self.assertEqual(self.achievements.filter(
-            achievement__pk='attend025events').count(), 0)
+            achievement__short_name='attend025events').count(), 0)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='attend050events').count(), 0)
+            achievement__short_name='attend050events').count(), 0)
 
         self.create_many_events(23, event_type=self.fun, term=self.sp2012)
         self.create_event(event_type=self.fun, term=self.sp2012)
 
         twentyfive_achievement = UserAchievement.objects.get(
-            achievement__pk='attend025events', user=self.sample_user)
+            achievement__short_name='attend025events', user=self.sample_user)
         self.assertFalse(twentyfive_achievement.acquired)
         self.assertEqual(twentyfive_achievement.progress, 24)
 
         self.create_event(event_type=self.fun, term=self.sp2012)
 
         self.assertEqual(self.achievements.filter(
-            achievement__pk='attend025events', acquired=True).count(), 1)
+            achievement__short_name='attend025events',
+            acquired=True).count(), 1)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='attend050events', acquired=False).count(), 1)
+            achievement__short_name='attend050events',
+            acquired=False).count(), 1)
 
     def test_50_lifetime_events(self):
         """Achievement for 50 lifetime events is obtained after 50th event.
         """
         self.assertEqual(self.achievements.filter(
-            achievement__pk='attend050events').count(), 0)
+            achievement__short_name='attend050events').count(), 0)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='attend078events').count(), 0)
+            achievement__short_name='attend078events').count(), 0)
 
         self.create_many_events(48, event_type=self.fun, term=self.sp2012)
         self.create_event(event_type=self.fun, term=self.sp2012)
 
         fifty_achievement = UserAchievement.objects.get(
-            achievement__pk='attend050events', user=self.sample_user)
+            achievement__short_name='attend050events', user=self.sample_user)
         self.assertFalse(fifty_achievement.acquired)
         self.assertEqual(fifty_achievement.progress, 49)
 
         self.create_event(event_type=self.fun, term=self.sp2012)
 
         self.assertEqual(self.achievements.filter(
-            achievement__pk='attend050events', acquired=True).count(), 1)
+            achievement__short_name='attend050events',
+            acquired=True).count(), 1)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='attend078events', acquired=False).count(), 1)
+            achievement__short_name='attend078events',
+            acquired=False).count(), 1)
 
     def test_78_lifetime_events(self):
         """Achievement for 78 lifetime events is obtained after the 78th event.
         """
         self.assertEqual(self.achievements.filter(
-            achievement__pk='attend078events').count(), 0)
+            achievement__short_name='attend078events').count(), 0)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='attend100events').count(), 0)
+            achievement__short_name='attend100events').count(), 0)
 
         self.create_many_events(76, event_type=self.fun, term=self.sp2012)
         self.create_event(event_type=self.fun, term=self.sp2012)
 
         seventyeight_achievement = UserAchievement.objects.get(
-            achievement__pk='attend078events', user=self.sample_user)
+            achievement__short_name='attend078events', user=self.sample_user)
         self.assertFalse(seventyeight_achievement.acquired)
         self.assertEqual(seventyeight_achievement.progress, 77)
 
         self.create_event(event_type=self.fun, term=self.sp2012)
 
         self.assertEqual(self.achievements.filter(
-            achievement__pk='attend078events', acquired=True).count(), 1)
+            achievement__short_name='attend078events',
+            acquired=True).count(), 1)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='attend100events', acquired=False).count(), 1)
+            achievement__short_name='attend100events',
+            acquired=False).count(), 1)
 
     def test_100_lifetime_events(self):
         """Achievement for 100 lifetime events is obtained after 100th event.
         """
         self.assertEqual(self.achievements.filter(
-            achievement__pk='attend100events').count(), 0)
+            achievement__short_name='attend100events').count(), 0)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='attend150events').count(), 0)
+            achievement__short_name='attend150events').count(), 0)
 
         self.create_many_events(98, event_type=self.fun, term=self.sp2012)
         self.create_event(event_type=self.fun, term=self.sp2012)
 
         hundred_achievement = UserAchievement.objects.get(
-            achievement__pk='attend100events', user=self.sample_user)
+            achievement__short_name='attend100events', user=self.sample_user)
         self.assertFalse(hundred_achievement.acquired)
         self.assertEqual(hundred_achievement.progress, 99)
 
         self.create_event(event_type=self.fun, term=self.sp2012)
 
         self.assertEqual(self.achievements.filter(
-            achievement__pk='attend100events', acquired=True).count(), 1)
+            achievement__short_name='attend100events',
+            acquired=True).count(), 1)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='attend150events', acquired=False).count(), 1)
+            achievement__short_name='attend150events',
+            acquired=False).count(), 1)
 
     def test_150_lifetime_events(self):
         """Achievement for 150 lifetime events is obtained after 150th event.
         """
         self.assertEqual(self.achievements.filter(
-            achievement__pk='attend150events').count(), 0)
+            achievement__short_name='attend150events').count(), 0)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='attend200events').count(), 0)
+            achievement__short_name='attend200events').count(), 0)
 
         self.create_many_events(148, event_type=self.fun, term=self.sp2012)
         self.create_event(event_type=self.fun, term=self.sp2012)
 
         onefifty_achievement = UserAchievement.objects.get(
-            achievement__pk='attend150events', user=self.sample_user)
+            achievement__short_name='attend150events', user=self.sample_user)
         self.assertFalse(onefifty_achievement.acquired)
         self.assertEqual(onefifty_achievement.progress, 149)
 
         self.create_event(event_type=self.fun, term=self.sp2012)
 
         self.assertEqual(self.achievements.filter(
-            achievement__pk='attend150events', acquired=True).count(), 1)
+            achievement__short_name='attend150events',
+            acquired=True).count(), 1)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='attend200events', acquired=False).count(), 1)
+            achievement__short_name='attend200events',
+            acquired=False).count(), 1)
 
     def test_200_lifetime_events(self):
         """Achievement for 200 lifetime events is obtained after 200th event.
         """
         self.assertEqual(self.achievements.filter(
-            achievement__pk='attend200events').count(), 0)
+            achievement__short_name='attend200events').count(), 0)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='attend300events').count(), 0)
+            achievement__short_name='attend300events').count(), 0)
 
         self.create_many_events(198, event_type=self.fun, term=self.sp2012)
         self.create_event(event_type=self.fun, term=self.sp2012)
 
         twohundred_achievement = UserAchievement.objects.get(
-            achievement__pk='attend200events', user=self.sample_user)
+            achievement__short_name='attend200events', user=self.sample_user)
         self.assertFalse(twohundred_achievement.acquired)
         self.assertEqual(twohundred_achievement.progress, 199)
 
         self.create_event(event_type=self.fun, term=self.sp2012)
 
         self.assertEqual(self.achievements.filter(
-            achievement__pk='attend200events', acquired=True).count(), 1)
+            achievement__short_name='attend200events',
+            acquired=True).count(), 1)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='attend300events', acquired=False).count(), 1)
+            achievement__short_name='attend300events',
+            acquired=False).count(), 1)
 
     def test_300_lifetime_events(self):
         """Achievement for 300 lifetime events is obtained after 300th events.
         """
         self.assertEqual(self.achievements.filter(
-            achievement__pk='attend300events').count(), 0)
+            achievement__short_name='attend300events').count(), 0)
 
         self.create_many_events(298, event_type=self.fun, term=self.sp2012)
         self.create_event(event_type=self.fun, term=self.sp2012)
 
         threehundred_achievement = UserAchievement.objects.get(
-            achievement__pk='attend300events', user=self.sample_user)
+            achievement__short_name='attend300events', user=self.sample_user)
         self.assertFalse(threehundred_achievement.acquired)
         self.assertEqual(threehundred_achievement.progress, 299)
 
         self.create_event(event_type=self.fun, term=self.sp2012)
 
         self.assertEqual(self.achievements.filter(
-            achievement__pk='attend300events', acquired=True).count(), 1)
+            achievement__short_name='attend300events',
+            acquired=True).count(), 1)
 
     def test_lifetime_events_with_different_terms(self):
         """Achievements for lifetime events can be obtained by attending
@@ -348,7 +361,7 @@ class EventAchievementsTest(TestCase):
         self.create_event(event_type=self.fun, term=self.fa2012)
 
         achievement = UserAchievement.objects.get(
-            achievement__pk='attend025events', user=self.sample_user)
+            achievement__short_name='attend025events', user=self.sample_user)
         self.assertTrue(achievement.acquired)
         self.assertEqual(achievement.term, self.fa2012)
 
@@ -359,14 +372,14 @@ class EventAchievementsTest(TestCase):
         self.create_many_events(23, event_type=self.bent, term=self.sp2013)
         self.create_event(event_type=self.prodev, term=self.sp2013)
         achievement = UserAchievement.objects.get(
-            achievement__pk='attend025events', user=self.sample_user)
+            achievement__short_name='attend025events', user=self.sample_user)
         self.assertEqual(achievement.progress, 24)
 
         self.create_event(name='Event025',
                           event_type=self.fun, term=self.sp2012)
 
         achievement = UserAchievement.objects.get(
-            achievement__pk='attend025events', user=self.sample_user)
+            achievement__short_name='attend025events', user=self.sample_user)
 
         self.assertTrue(achievement.acquired)
         self.assertEqual(achievement.term, self.sp2013)
@@ -378,18 +391,21 @@ class EventAchievementsTest(TestCase):
         """
         self.create_event(name='Fun', event_type=self.fun, attendance=False)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='attend_each_type', acquired=True).count(), 0)
+            achievement__short_name='attend_each_type',
+            acquired=True).count(), 0)
 
         self.create_event(name='Bent', event_type=self.bent)
         self.create_event(name='Service', event_type=self.service)
         self.create_event(name='ProDev', event_type=self.prodev)
         self.create_event(name='Meeting', event_type=self.meeting)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='attend_each_type', acquired=True).count(), 0)
+            achievement__short_name='attend_each_type',
+            acquired=True).count(), 0)
 
         self.create_event(name='Fun2', event_type=self.fun, attendance=True)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='attend_each_type', acquired=True).count(), 1)
+            achievement__short_name='attend_each_type',
+            acquired=True).count(), 1)
 
     def test_event_type_achievement(self):
         """The achievement for attending all events of a certain type in one
@@ -406,14 +422,14 @@ class EventAchievementsTest(TestCase):
                           term=self.sp2012)
 
         self.assertEqual(self.achievements.filter(
-            achievement__pk='attend_all_fun', acquired=True).count(), 0)
+            achievement__short_name='attend_all_fun', acquired=True).count(), 0)
 
         self.create_event(name='Fun3',
                           event_type=self.fun,
                           attendance=True,
                           term=self.fa2012)
         achievement = UserAchievement.objects.get(
-            achievement__pk='attend_all_fun', user=self.sample_user)
+            achievement__short_name='attend_all_fun', user=self.sample_user)
         self.assertTrue(achievement.acquired)
         self.assertEqual(achievement.term, self.fa2012)
 
@@ -422,20 +438,20 @@ class EventAchievementsTest(TestCase):
         for a member who attends an event titled D15.
         """
         self.assertEqual(self.achievements.filter(
-            achievement__pk='attend_d15', acquired=True).count(), 0)
+            achievement__short_name='attend_d15', acquired=True).count(), 0)
 
         self.create_event(name="D16", event_type=self.meeting)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='attend_d15', acquired=True).count(), 0)
+            achievement__short_name='attend_d15', acquired=True).count(), 0)
 
         self.create_event(name="D15", event_type=self.meeting,
                           attendance=False)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='attend_d15', acquired=True).count(), 0)
+            achievement__short_name='attend_d15', acquired=True).count(), 0)
 
         self.create_event(name="D15", event_type=self.meeting)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='attend_d15', acquired=True).count(), 1)
+            achievement__short_name='attend_d15', acquired=True).count(), 1)
 
     def test_d15_alt(self):
         """The D15 achievement can also be given for attending an event titled
@@ -443,7 +459,7 @@ class EventAchievementsTest(TestCase):
         """
         self.create_event(name="District 15 Conference", event_type=self.fun)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='attend_d15', acquired=True).count(), 1)
+            achievement__short_name='attend_d15', acquired=True).count(), 1)
 
     def test_d15_alt2(self):
         """The D15 achievement can also be given for attending an event that
@@ -451,7 +467,7 @@ class EventAchievementsTest(TestCase):
         """
         self.create_event(name="D 15 Convention", event_type=self.big_social)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='attend_d15', acquired=True).count(), 1)
+            achievement__short_name='attend_d15', acquired=True).count(), 1)
 
     def test_natl_convention_achievement(self):
         """The achievement for attending National Convention is awarded for
@@ -459,20 +475,24 @@ class EventAchievementsTest(TestCase):
         'National Convention'
         """
         self.assertEqual(self.achievements.filter(
-            achievement__pk='attend_convention', acquired=True).count(), 0)
+            achievement__short_name='attend_convention',
+            acquired=True).count(), 0)
 
         self.create_event(name="D15 Convention", event_type=self.fun)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='attend_convention', acquired=True).count(), 0)
+            achievement__short_name='attend_convention',
+            acquired=True).count(), 0)
 
         self.create_event(name="National Convention", event_type=self.fun,
                           attendance=False)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='attend_convention', acquired=True).count(), 0)
+            achievement__short_name='attend_convention',
+            acquired=True).count(), 0)
 
         self.create_event(name="National Convention", event_type=self.fun)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='attend_convention', acquired=True).count(), 1)
+            achievement__short_name='attend_convention',
+            acquired=True).count(), 1)
 
     def test_berkeley_explosion_achievement(self):
         """The achievement for attending the Berkeley Explosion CM is awarded
@@ -480,48 +500,57 @@ class EventAchievementsTest(TestCase):
         Fall 2013 term.
         """
         self.assertEqual(self.achievements.filter(
-            achievement__pk='berkeley_explosion', acquired=True).count(), 0)
+            achievement__short_name='berkeley_explosion',
+            acquired=True).count(), 0)
 
         self.create_event(name="Candidate Meeting", event_type=self.meeting,
                           term=self.sp2012)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='berkeley_explosion', acquired=True).count(), 0)
+            achievement__short_name='berkeley_explosion',
+            acquired=True).count(), 0)
 
         self.create_event(name="Candidate Meeting 2", event_type=self.meeting,
                           term=self.fa2013)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='berkeley_explosion', acquired=True).count(), 0)
+            achievement__short_name='berkeley_explosion',
+            acquired=True).count(), 0)
 
         self.create_event(name="Candidate Meeting", event_type=self.meeting,
                           term=self.fa2013, attendance=False)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='berkeley_explosion', acquired=True).count(), 0)
+            achievement__short_name='berkeley_explosion',
+            acquired=True).count(), 0)
 
         self.create_event(name="Candidate Meeting", event_type=self.meeting,
                           term=self.fa2013, attendance=True)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='berkeley_explosion', acquired=True).count(), 1)
+            achievement__short_name='berkeley_explosion',
+            acquired=True).count(), 1)
 
     def test_alphabet_attendance_achievement(self):
         """The achievement for attending events with all the letters of the
         alphabet in the titles is awarded for such, ignoring capitalization.
         """
         self.assertEqual(self.achievements.filter(
-            achievement__pk='alphabet_attendance', acquired=True).count(), 0)
+            achievement__short_name='alphabet_attendance',
+            acquired=True).count(), 0)
 
         self.create_event(name="abcdefghijklm", event_type=self.fun)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='alphabet_attendance', acquired=True).count(), 0)
+            achievement__short_name='alphabet_attendance',
+            acquired=True).count(), 0)
 
         self.create_event(name="NOPqrstuvwxyZ", event_type=self.meeting,
                           attendance=False)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='alphabet_attendance', acquired=True).count(), 0)
+            achievement__short_name='alphabet_attendance',
+            acquired=True).count(), 0)
 
         self.create_event(name="noPqRstuvWxyz", event_type=self.info,
                           attendance=True)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='alphabet_attendance', acquired=True).count(), 1)
+            achievement__short_name='alphabet_attendance',
+            acquired=True).count(), 1)
 
 
 class OfficerAchievementsTest(TestCase):
@@ -563,42 +592,52 @@ class OfficerAchievementsTest(TestCase):
     def test_number_of_officer_semesters(self):
         # first officer semester
         self.assertEqual(self.achievements.filter(
-            achievement__pk='officersemester01').count(), 0)
+            achievement__short_name='officersemester01').count(), 0)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='officersemester08').count(), 0)
+            achievement__short_name='officersemester08').count(), 0)
         self.create_officer(self.sample_user, self.historian, self.sp2009)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='officersemester01').count(), 1)
+            achievement__short_name='officersemester01').count(), 1)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='officersemester08').count(), 1)
+            achievement__short_name='officersemester08').count(), 1)
 
         self.assertEqual(self.achievements.filter(
-            achievement__pk='officersemester01', acquired=True).count(), 1)
+            achievement__short_name='officersemester01',
+            acquired=True).count(), 1)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='officersemester02', acquired=True).count(), 0)
+            achievement__short_name='officersemester02',
+            acquired=True).count(), 0)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='officersemester03', acquired=True).count(), 0)
+            achievement__short_name='officersemester03',
+            acquired=True).count(), 0)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='officersemester04', acquired=True).count(), 0)
+            achievement__short_name='officersemester04',
+            acquired=True).count(), 0)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='officersemester05', acquired=True).count(), 0)
+            achievement__short_name='officersemester05',
+            acquired=True).count(), 0)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='officersemester06', acquired=True).count(), 0)
+            achievement__short_name='officersemester06',
+            acquired=True).count(), 0)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='officersemester07', acquired=True).count(), 0)
+            achievement__short_name='officersemester07',
+            acquired=True).count(), 0)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='officersemester08', acquired=True).count(), 0)
+            achievement__short_name='officersemester08',
+            acquired=True).count(), 0)
 
     def test_second_officer_term(self):
         # second officer semester gets second achievement
         self.create_officer(self.sample_user, self.historian, self.sp2009)
         self.create_officer(self.sample_user, self.vicepres, self.fa2009)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='officersemester02', acquired=True).count(), 1)
+            achievement__short_name='officersemester02',
+            acquired=True).count(), 1)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='officersemester03', acquired=True).count(), 0)
+            achievement__short_name='officersemester03',
+            acquired=True).count(), 0)
         threeachievement = UserAchievement.objects.get(
-            achievement__pk='officersemester03', user=self.sample_user)
+            achievement__short_name='officersemester03', user=self.sample_user)
         self.assertEqual(threeachievement.progress, 2)
 
     def test_multiple_positions_same_semester(self):
@@ -606,24 +645,29 @@ class OfficerAchievementsTest(TestCase):
         self.create_officer(self.sample_user, self.historian, self.fa2009)
         self.create_officer(self.sample_user, self.infotech, self.fa2009)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='officersemester01', acquired=True).count(), 1)
+            achievement__short_name='officersemester01',
+            acquired=True).count(), 1)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='officersemester02', acquired=True).count(), 0)
+            achievement__short_name='officersemester02',
+            acquired=True).count(), 0)
         fiveachievement = UserAchievement.objects.get(
-            achievement__pk='officersemester05', user=self.sample_user)
+            achievement__short_name='officersemester05', user=self.sample_user)
         self.assertEqual(fiveachievement.progress, 1)
 
     def test_chair_semester(self):
         # being chair gives chair1committee
         self.create_officer(self.sample_user, self.historian, self.sp2009)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='chair1committee', acquired=True).count(), 0)
+            achievement__short_name='chair1committee', acquired=True).count(),
+            0)
 
         self.create_officer(self.sample_user, self.infotech, self.sp2009, True)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='chair1committee', acquired=True).count(), 1)
+            achievement__short_name='chair1committee', acquired=True).count(),
+            1)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='chair2committees', acquired=False).count(), 1)
+            achievement__short_name='chair2committees',
+            acquired=False).count(), 1)
 
     def test_2_different_chair_semesters(self):
         # being chair of 2 different cmmitteees gives chair2committees
@@ -631,28 +675,33 @@ class OfficerAchievementsTest(TestCase):
                             True)
         self.create_officer(self.sample_user, self.infotech, self.fa2009, True)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='chair2committees', acquired=True).count(), 1)
+            achievement__short_name='chair2committees',
+            acquired=True).count(), 1)
 
     def test_twice_chair_of_same_committee(self):
         # being chair of the same committee twice doesn't give chair2committees
         self.create_officer(self.sample_user, self.infotech, self.fa2009, True)
         self.create_officer(self.sample_user, self.infotech, self.sp2010, True)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='chair2committees', acquired=True).count(), 0)
+            achievement__short_name='chair2committees',
+            acquired=True).count(), 0)
 
     def test_three_diff_positions(self):
         # having three different officer positions confers the achievement
         self.create_officer(self.sample_user, self.infotech, self.fa2009)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='three_unique_positions', acquired=True).count(), 0)
+            achievement__short_name='three_unique_positions',
+            acquired=True).count(), 0)
 
         self.create_officer(self.sample_user, self.historian, self.sp2010)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='three_unique_positions', acquired=True).count(), 0)
+            achievement__short_name='three_unique_positions',
+            acquired=True).count(), 0)
 
         self.create_officer(self.sample_user, self.vicepres, self.fa2010)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='three_unique_positions', acquired=True).count(), 1)
+            achievement__short_name='three_unique_positions',
+            acquired=True).count(), 1)
 
     def test_three_same_positions(self):
         # having some repeats within the 3 does not confer achievement
@@ -660,32 +709,39 @@ class OfficerAchievementsTest(TestCase):
         self.create_officer(self.sample_user, self.infotech, self.sp2010)
         self.create_officer(self.sample_user, self.vicepres, self.fa2010)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='three_unique_positions', acquired=True).count(), 0)
+            achievement__short_name='three_unique_positions',
+            acquired=True).count(), 0)
 
         self.create_officer(self.sample_user, self.vicepres, self.sp2011)
         self.create_officer(self.sample_user, self.infotech, self.fa2011)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='three_unique_positions', acquired=True).count(), 0)
+            achievement__short_name='three_unique_positions',
+            acquired=True).count(), 0)
 
         self.create_officer(self.sample_user, self.historian, self.sp2012)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='three_unique_positions', acquired=True).count(), 1)
+            achievement__short_name='three_unique_positions',
+            acquired=True).count(), 1)
 
     def test_two_and_three_in_a_row(self):
         # being the same position 3x in a row confers both achievements
         self.create_officer(self.sample_user, self.infotech, self.sp2009)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='twice_same_position', acquired=True).count(), 0)
+            achievement__short_name='twice_same_position',
+            acquired=True).count(), 0)
 
         self.create_officer(self.sample_user, self.infotech, self.fa2009)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='twice_same_position', acquired=True).count(), 1)
+            achievement__short_name='twice_same_position',
+            acquired=True).count(), 1)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='thrice_same_position', acquired=True).count(), 0)
+            achievement__short_name='thrice_same_position',
+            acquired=True).count(), 0)
 
         self.create_officer(self.sample_user, self.infotech, self.sp2010)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='thrice_same_position', acquired=True).count(), 1)
+            achievement__short_name='thrice_same_position',
+            acquired=True).count(), 1)
 
     def test_broken_streaks(self):
         # an officer being the same position thrice but not in a row does
@@ -693,32 +749,39 @@ class OfficerAchievementsTest(TestCase):
         self.create_officer(self.sample_user, self.infotech, self.sp2009)
         self.create_officer(self.sample_user, self.historian, self.fa2009)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='twice_same_position', acquired=True).count(), 0)
+            achievement__short_name='twice_same_position',
+            acquired=True).count(), 0)
 
         self.create_officer(self.sample_user, self.infotech, self.sp2010)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='twice_same_position', acquired=True).count(), 0)
+            achievement__short_name='twice_same_position',
+            acquired=True).count(), 0)
 
         self.create_officer(self.sample_user, self.infotech, self.fa2010)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='twice_same_position', acquired=True).count(), 1)
+            achievement__short_name='twice_same_position',
+            acquired=True).count(), 1)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='thrice_same_position', acquired=True).count(), 0)
+            achievement__short_name='thrice_same_position',
+            acquired=True).count(), 0)
 
     def test_multiple_streaks(self):
         # an officer being two positions each twice in a row gets it
         self.create_officer(self.sample_user, self.infotech, self.sp2009)
         self.create_officer(self.sample_user, self.infotech, self.fa2009)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='two_repeated_positions', acquired=True).count(), 0)
+            achievement__short_name='two_repeated_positions',
+            acquired=True).count(), 0)
 
         self.create_officer(self.sample_user, self.historian, self.sp2010)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='two_repeated_positions', acquired=True).count(), 0)
+            achievement__short_name='two_repeated_positions',
+            acquired=True).count(), 0)
 
         self.create_officer(self.sample_user, self.historian, self.fa2010)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='two_repeated_positions', acquired=True).count(), 1)
+            achievement__short_name='two_repeated_positions',
+            acquired=True).count(), 1)
 
     def test_same_committee_two_different_streaks(self):
         # two repeated positions need to be different positions
@@ -728,28 +791,33 @@ class OfficerAchievementsTest(TestCase):
         self.create_officer(self.sample_user, self.infotech, self.fa2010)
         self.create_officer(self.sample_user, self.infotech, self.sp2011)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='two_repeated_positions', acquired=True).count(), 0)
+            achievement__short_name='two_repeated_positions',
+            acquired=True).count(), 0)
 
     def test_straight_to_the_top_vp(self):
         # becoming vp in 2 semesters gives this achievement
         self.create_officer(self.sample_user, self.historian, self.sp2009)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='straighttothetop', acquired=True).count(), 0)
+            achievement__short_name='straighttothetop',
+            acquired=True).count(), 0)
 
         self.create_officer(self.sample_user, self.vicepres, self.fa2009)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='straighttothetop', acquired=True).count(), 1)
+            achievement__short_name='straighttothetop',
+            acquired=True).count(), 1)
 
     def test_straight_to_the_top_pres(self):
         # becoming pres in 3 semesters also gives this achievement
         self.create_officer(self.sample_user, self.historian, self.sp2009)
         self.create_officer(self.sample_user, self.historian, self.fa2009)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='straighttothetop', acquired=True).count(), 0)
+            achievement__short_name='straighttothetop',
+            acquired=True).count(), 0)
 
         self.create_officer(self.sample_user, self.president, self.sp2010)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='straighttothetop', acquired=True).count(), 1)
+            achievement__short_name='straighttothetop',
+            acquired=True).count(), 1)
 
     def test_late_to_the_top(self):
         # becoming vp after 2 semesters or pres after 3 does not give it
@@ -757,8 +825,10 @@ class OfficerAchievementsTest(TestCase):
         self.create_officer(self.sample_user, self.historian, self.fa2009)
         self.create_officer(self.sample_user, self.vicepres, self.sp2010)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='straighttothetop', acquired=True).count(), 0)
+            achievement__short_name='straighttothetop',
+            acquired=True).count(), 0)
 
         self.create_officer(self.sample_user, self.president, self.fa2010)
         self.assertEqual(self.achievements.filter(
-            achievement__pk='straighttothetop', acquired=True).count(), 0)
+            achievement__short_name='straighttothetop',
+            acquired=True).count(), 0)
