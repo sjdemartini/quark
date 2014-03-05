@@ -1,44 +1,44 @@
 // The main scss file to be compiled to css for the website
 
 // normalize.css - css to reduce browser-specific quirks (i.e., reset css)
-@import "normalize";
+@import 'normalize';
 
 // _common.scss - css that is common to every page (e.g. the navigation bar)
-@import "common";
+@import 'common';
 
 // _fontawesome.scss -- css that produces icons
-@import "fontawesome/fontawesome";
+@import 'fontawesome/fontawesome';
 
 
 ///// Page Specific Setup /////
 // _home.scss - css for the main page
-@import "home";
+@import 'home';
 
 
 ///// Feature Specific Setup /////
 // _slideshow.scss - the jQuery slideshow
-@import "slideshow";
+@import 'slideshow';
 
 // _achievements.scss - achievements app
-@import "achievements";
+@import 'achievements';
 
 // _candidates.scss - candidates app
-@import "candidates";
+@import 'candidates';
 
 // _events.scss - events app
-@import "events";
+@import 'events';
 
 // _exams.scss - exams app
-@import "exams";
+@import 'exams';
 
 // _leaderboard.scss - leaderboard (e.g., achievements leaderboard)
-@import "leaderboard";
+@import 'leaderboard';
 
 // _newsreel.scss - newsreel app
-@import "newsreel";
+@import 'newsreel';
 
 // _officers.scss - officers list
-@import "officers";
+@import 'officers';
 
 // _profiles.scss - user profiles
-@import "profiles";
+@import 'profiles';

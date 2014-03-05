@@ -2,7 +2,7 @@
 // Defines the styles common to most of the site, like essential layouts,
 // typography, forms, navigation styles, and more
 
-@import "base";
+@import 'base';
 
 // BASIC STYLING
 html,
@@ -93,11 +93,11 @@ div {
 // convention), since footable by default uses up arrow when currently in
 // descending order (and down for ascending). They are reversed below.
 .footable > thead > tr > th.footable-sorted > span.footable-sort-indicator:before {
-  content: "\e012" !important;
+  content: '\e012' !important;
 }
 
 .footable > thead > tr > th.footable-sorted-desc > span.footable-sort-indicator:before {
-  content: "\e013" !important;
+  content: '\e013' !important;
 }
 
 
@@ -276,7 +276,7 @@ div {
     }
   }
 
-  input[type="submit"],
+  input[type='submit'],
   .form-input-message {
     margin-left: 0;
   }

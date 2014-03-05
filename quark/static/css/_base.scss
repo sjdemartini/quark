@@ -1,7 +1,7 @@
 // Defines variables and custom mixins. Useful for importing into all other
 // scss files except _compass.scss (which this file imports).
 
-@import "compass";
+@import 'compass';
 
 // Variables
 // Breakpoint widths:
@@ -60,8 +60,8 @@ $success-border-color: #5c5;
   }
 }
 
-@mixin absolute-position($left: "", $top: "", $right: "", $bottom: "",
-    $width: "", $height: "") {
+@mixin absolute-position($left: '', $top: '', $right: '', $bottom: '',
+    $width: '', $height: '') {
   position: absolute;
   left: unquote($left);
   top: unquote($top);
@@ -76,7 +76,7 @@ $success-border-color: #5c5;
 // prevents the height from not including floated elements.
 @mixin clearfix {
   &:after {
-    content: ".";
+    content: '.';
     display: block;
     height: 0;
     clear: both;
