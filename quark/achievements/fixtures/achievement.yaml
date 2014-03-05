@@ -480,3 +480,42 @@
     repeatable: False
     rank: 25.1
     icon_filename: 'images/achievements/berkeley_explosion.png'
+- pk: oots
+  model: achievements.Achievement
+  fields:
+    name: Brush Your Teeth
+    description: Officer of the Semester
+    category: awards
+    points: 30
+    goal: 0
+    privacy: public
+    manual: True
+    repeatable: False
+    rank: 20.1
+    icon_filename: 'images/achievements/oots.png'
+- pk: cots
+  model: achievements.Achievement
+  fields:
+    name: Teacher's Pet
+    description: Candidate of the Semester
+    category: awards
+    points: 30
+    goal: 0
+    privacy: public
+    manual: True
+    repeatable: False
+    rank: 20.2
+    icon_filename: 'images/achievements/cots.png'
+- pk: mots
+  model: achievements.Achievement
+  fields:
+    name: You Really Didn't Have To
+    description: Member of the Semester
+    category: awards
+    points: 30
+    goal: 0
+    privacy: public
+    manual: True
+    repeatable: False
+    rank: 20.3
+    icon_filename: 'images/achievements/mots.png'

@@ -1,11 +1,16 @@
+from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import permission_required
+from django.core.urlresolvers import reverse_lazy
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView
+from django.views.generic import FormView
 from django.views.generic import ListView
 
+from quark.achievements.forms import UserAchievementForm
 from quark.achievements.models import Achievement
 from quark.achievements.models import UserAchievement
 
@@ -98,6 +103,35 @@ class LeaderboardListView(ListView):
                                     'factor': factor,
                                     'rank': rank})
         return leader_list
+
+
+class UserAchievementAssignView(FormView):
+    """Provide an interface for the viewer to assign achievements to users."""
+    form_class = UserAchievementForm
+    model = UserAchievement
+    success_url = reverse_lazy('achievements:assign')
+    template_name = 'achievements/assign.html'
+
+    @method_decorator(login_required)
+    @method_decorator(
+        permission_required('achievements.add_userachievement',
+                            raise_exception=True))
+    def dispatch(self, *args, **kwargs):
+        return super(UserAchievementAssignView, self).dispatch(*args, **kwargs)
+
+    def form_valid(self, form):
+        form.save(assigner=self.request.user)
+        achievement = form.cleaned_data.get('achievement')
+        users = form.cleaned_data.get('users')
+
+        users_namestring = ', '.join(
+            [user.userprofile.get_common_name() for user in users])
+
+        messages.success(
+            self.request,
+            'Achievement {achievement} assigned to {names}'.format(
+                achievement=achievement.name, names=users_namestring))
+        return super(UserAchievementAssignView, self).form_valid(form)
 
 
 class UserAchievementListView(ListView):

@@ -99,7 +99,8 @@ class Achievement(models.Model):
     def __unicode__(self):
         return self.name
 
-    def assign(self, user, acquired=True, progress=0, term=None):
+    def assign(self, user, acquired=True, progress=0, term=None, data='',
+               assigner=None):
         """Assign this achievements to a user."""
         if term is None:
             term = Term.objects.get_current_term()
@@ -112,16 +113,21 @@ class Achievement(models.Model):
 
         if user_achievement.acquired is False:
             # if the achievement has not already been acquired by this user, set
-            # the user achievement's progress, term, and acquisition state
+            # the user achievement's progress, term, acquisition state, who the
+            # assigner is, and additional data provided by the assigner
             user_achievement.acquired = acquired
             user_achievement.progress = progress
             user_achievement.term = term
+            user_achievement.data = data
+            user_achievement.assigner = assigner
             user_achievement.save()
         elif acquired is False and user_achievement.term == term:
             # if the achievement has already been acquired but is being set
             # to unacquired in the same term, it gets overridden
             user_achievement.acquired = acquired
             user_achievement.progress = progress
+            user_achievement.data = data
+            user_achievement.assigner = None
             user_achievement.save()
 
         return True
