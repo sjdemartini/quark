@@ -10,6 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
+from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.db.models import Count
 from django.db.models import Sum
@@ -17,6 +18,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.utils.html import format_html
 from django.views.decorators.http import require_GET
 from django.views.decorators.http import require_POST
 from django.views.generic import CreateView
@@ -71,6 +73,11 @@ class EventListView(TermParameterMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super(EventListView, self).get_context_data(**kwargs)
         context['show_all'] = self.show_all
+        if not self.request.user.is_authenticated():
+            login_message = format_html(u'Please <a href="{}">log in</a>! Some '
+                                        'events may not be visible.',
+                                        reverse('accounts:login'))
+            messages.info(self.request, login_message)
         return context
 
 

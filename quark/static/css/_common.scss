@@ -329,6 +329,11 @@ div {
     border: 1px solid $error-border-color;
   }
 
+  &.info {
+    background: $info-bg-color;
+    border: 1px solid $info-border-color;
+  }
+
   .fa-times {
     cursor: pointer;
     float: right;

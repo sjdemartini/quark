@@ -30,6 +30,10 @@ $error-text-color: #f00;
 $success-bg-color: #dfd;
 $success-border-color: #5c5;
 
+$info-bg-color: #ffffb2;
+$info-border-color: #ffff4d;
+
+
 // Mixins
 @mixin respond-to($media) {
   @if $media == small {
