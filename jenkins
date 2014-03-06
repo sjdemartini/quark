@@ -28,10 +28,13 @@ git submodule update
 
 # The following conditions must be true for jenkins to return true:
 #   1. The tests must pass.
-#   2. pylint must be perfect, as evidenced by no lines with ".py" in the report.
+#   2. pylint must be perfect, as evidenced by no lines with ".py" in the
+#      report.
 #   3. pep8 must be perfect, as evidenced by no lines with ".py" in the report.
 #   4. jshint must be perfect, as evidenced by no lines with "file" in the xml
 #      output
+#   5. scss-lint must be perfect, as evidenced by no lines with "file" in the
+#      xml output
 # All other lint errors are not taken into consideration for the +/- Verified
 # flag. Jenkins will report the other lint errors in pretty graphs though.
 
@@ -44,22 +47,34 @@ else
 fi
 python manage.py jenkins --settings=$test_settings
 
+# Run scss-lint and save it in an XML report:
+scss-lint quark/static/css/*.scss --config .scss-lint.yml --format XML \
+    > reports/csslint.report
+
 # Error code should be 0 (no errors)
 jenkins_status=$?
 
-# Check if pylint is perfect (error code should not be 0: grep shouldn't find any lines with .py)
+# Check if pylint is perfect (error code should not be 0: grep shouldn't find
+# any lines with .py)
 grep -q "\.py" reports/pylint.report
 pylint_status=$?
 
-# Check if pep8 is perfect (error code should not be 0: grep shouldn't find any lines with .py)
+# Check if pep8 is perfect (error code should not be 0: grep shouldn't find any
+# lines with .py)
 grep -q "\.py" reports/pep8.report
 pep8_status=$?
 
-# Check if jshint is perfect (error code should not be 0: grep shouldn't find any lines with file)
+# Check if jshint is perfect (error code should not be 0: grep shouldn't find
+# any lines with file)
 grep -q "file" reports/jshint.xml
 jshint_status=$?
 
-success=$(($jenkins_status != 0 || $pylint_status == 0 || $pep8_status == 0 || $jshint_status == 0 ))
+# Check if css linting is perfect (error code should not be 0; grep shouldn't
+# find any lines with file)
+grep -q "file" reports/csslint.report
+csslint_status=$?
+
+success=$(($jenkins_status != 0 || $pylint_status == 0 || $pep8_status == 0 || $jshint_status == 0 || $csslint_status == 0))
 
 if [[ $success == 0 ]]; then
     echo -e "\nEverything looks good!"
@@ -88,19 +103,26 @@ else
         # Parse which files had errors, and run jshint on them to get a nice
         # print-out of the errors. (The XML representation of the report is not
         # very human-friendly.)
-        pattern="file name=\"(.*)\""
-        cat reports/jshint.xml | while read line
-        do
-            [[ $line =~ $pattern ]]
-            if [[ ${BASH_REMATCH[0]} ]]
-            then
-                echo "${BASH_REMATCH[1]} violations:"
-                jshint "${BASH_REMATCH[1]}"
-                echo
-            fi
-        done
+        grep -Po '<file name="\K(.*?)(?=">)' reports/jshint.xml | xargs jshint
     else
         echo -e "\nNo jshint violations."
+    fi
+
+    if [[ $csslint_status == 0 ]]; then
+        echo -e "\nSCSS-LINT VIOLATIONS"
+        echo "================================================================"
+        # Parse which files had errors, and run scss-lint on them to get a nice
+        # print-out of the errors. (The XML representation of the report is not
+        # very human-friendly.)
+        grep -Po "<file name='\K(.*?)(?='>)" reports/csslint.report \
+            | xargs scss-lint -c .scss-lint.yml
+
+        # Replace all relative paths in the XML report with absolute paths,
+        # since jenkins needs absolute paths for displaying errors:
+        curr_dir=$(pwd)
+        sed -i "s@<file name='@<file name='${curr_dir}/@g" reports/csslint.report
+    else
+        echo -e "\nNo scss-lint violations."
     fi
 
     echo -e "\nPlease fix all errors before doing git review!"

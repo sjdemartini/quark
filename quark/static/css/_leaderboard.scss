@@ -2,30 +2,37 @@
 @import 'base';
 
 .leaderboard {
-  margin: 0 0 25px 0;
+  margin: 0 0 25px;
+
   .name {
     color: #000;
     display: inline-block;
     padding: 0.075em 1%;
     vertical-align: top;
     width: 25%;
+
     &.self {
       font-weight: bold;
     }
+
     a {
       color: #000;
     }
+
     &.odd {
       background-color: #aaa;
     }
+
     &.even {
       background-color: $light-gray;
     }
   }
+
   .count {
     display: inline-block;
     padding-right: 0.5em;
   }
+
   .count-container {
     border-radius: 0 0.5em 0.5em 0;
     color: #fff;
@@ -33,18 +40,22 @@
     padding-bottom: 0.15em;
     text-align: right;
     vertical-align: top;
+
     &.odd {
       background-color: #71b7e6;
     }
+
     &.even {
       background-color: #9bceed;
     }
   }
+
   @include respond-to(small) {
     .name {
       height: auto;
       width: 70%;
     }
+
     .count-container {
       /* !important is needed to override inline HTML style specifying width */
       width: 25% !important;

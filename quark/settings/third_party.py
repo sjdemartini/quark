@@ -29,18 +29,16 @@ COMPRESS_OUTPUT_DIR = ''
 
 
 # Jenkins integration.
-# TODO(sjdemartini): Figure out a logical way to use csslint, despite using SCSS
-# syntax and files. For instance, add a CSSLINT_CHECKED_FILES list that points
-# to a compiled CSS file, just for basic lint checking. Or find a linter that
-# works with SCSS.
 JENKINS_TASKS = (
-    #'django_jenkins.tasks.run_csslint',
     'django_jenkins.tasks.run_jshint',
     'django_jenkins.tasks.run_pep8',
     'django_jenkins.tasks.run_pylint',
     'django_jenkins.tasks.run_sloccount',
     'django_jenkins.tasks.with_coverage',
 )
+# Note that SCSS linting is run directly from the jenkins script, since it
+# is a different linter than standard csslint and requires options not
+# supported by django-jenkins
 
 PEP8_RCFILE = os.path.join(WORKSPACE_ROOT, '.pep8rc')
 PYLINT_RCFILE = os.path.join(WORKSPACE_ROOT, '.pylintrc')

@@ -2,84 +2,95 @@
 
 .officers-section {
   h3 {
-    padding: 6px 12px;
-    color: black;
-    @include background-light;
-    border-radius: 0 0 2px 2px;
-    border-top: 2px solid $dark-blue;
     border-bottom: 1px solid $gray;
+    border-top: 2px solid $dark-blue;
+    color: black;
+    padding: 6px 12px;
+    @include background-light;
+    @include border-radius(0 0 2px 2px);
 
     span {
-      float: right;
       display: inline-table;
+      float: right;
       font-weight: 300;
+
       @include respond-to(small) {
         float: none;
         display: block;
       }
     }
   }
+
   .officers-card {
-    margin: 4px 0 10px 0;
+    margin: 4px 0 10px;
     @include clearfix;
 
     .officers-name {
-      text-align: right;
       font-weight: 300;
+      text-align: right;
 
       span {
         float: left;
         font-weight: 400;
+
         @include respond-to(small) {
           float: none;
           display: block;
         }
       }
+
       &:after {
         clear: right;
         content: ' ';
         display: block;
       }
     }
+
     .officers-img {
+      float: left;
+      height: 150px;
       margin: 0 10px 10px 0;
       width: 150px;
-      height: 150px;
-      float: left;
+
       @include respond-to(small) {
+        height: 120px;
         margin-bottom: 0;
         width: 120px;
-        height: 120px;
       }
 
       img {
-        width: 150px;
         height: 150px;
+        width: 150px;
+
         @include respond-to(small) {
-          width: 120px;
           height: 120px;
+          width: 120px;
         }
       }
     }
+
     .officers-chair-banner-wrapper {
+      overflow: hidden;
       @include absolute-position($bottom: -1px, $right: -1px, $width: 85px,
         $height: 88px);
-      overflow: hidden;
     }
+
     .officers-chair-banner {
+      background-color: $dark-blue;
       color: $gold;
-      text-align: center;
-      @include experimental(transform, rotate(-45deg));
-      position: relative;
       left: -5px;
+      padding: 5px 0;
+      position: relative;
+      text-align: center;
       top: 44px;
       width: 120px;
-      padding: 5px 0;
-      background-color: $dark-blue;
-      @include box-shadow(0px 0px 3px rgba(0, 0, 0, 0.3));
+      @include box-shadow(0 0 3px rgba(0, 0, 0, 0.3));
+      @include experimental(transform, rotate(-45deg));
     }
+
     .officers-bio {
       display: table;
+
       @include respond-to(small) {
         width: 100%;
       }

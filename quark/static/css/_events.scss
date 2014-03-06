@@ -5,18 +5,18 @@
 
 // Define colors associated with event types, which can be used to consistently
 // apply color styling to different events
-$event-advising-color: #FFFFFC;
-$event-bentpolish-color: #FF99FF;
-$event-bigsocial-color: #F59678;
-$event-efutures-color: #FFEEAA;
-$event-fun-color: #C4FF9C;
-$event-general-color: #FFFFFF;
-$event-house-color: #9DBB61;
-$event-infosession-color: #FFFFFE;
-$event-mandatory-color: #00FFFF;
-$event-meeting-color: #96DBFF;
-$event-prodev-color: #FFCC66;
-$event-service-color: #FFFF00;
+$event-advising-color: #fffffc;
+$event-bentpolish-color: #f9f;
+$event-bigsocial-color: #f59678;
+$event-efutures-color: #fea;
+$event-fun-color: #c4ff9c;
+$event-general-color: #fff;
+$event-house-color: #9dbb61;
+$event-infosession-color: #fffffe;
+$event-mandatory-color: #0ff;
+$event-meeting-color: #96dbff;
+$event-prodev-color: #fc6;
+$event-service-color: #ff0;
 
 // Apply a background-color. The shade depends on whether the event has the
 // event-row or past-event class (or neither). Useful for making the background
@@ -24,51 +24,63 @@ $event-service-color: #FFFF00;
 // color, or for making past events appear grayed-out.
 @mixin event-type-color($color) {
   background-color: $color;
+
   &.event-row {
-    // Mix the $color with #FFF (white) to lighten the color shade
-    background-color: mix($color, #FFF, 40%);
+    // Mix the $color with #fff (white) to lighten the color shade
+    background-color: mix($color, #fff, 40%);
   }
+
   .past-event &,
   &.past-event {
-    // Mix the $color with #DDD (gray) to gray out the color
-    background-color: mix($color, #DDD, 35%);
+    // Mix the $color with #ddd (gray) to gray out the color
+    background-color: mix($color, #ddd, 35%);
   }
 }
 
 .event-type {
   // Set the default background color for the event type as white
-  @include event-type-color(#FFF);
+  @include event-type-color(#fff);
 
   &.advising {
     @include event-type-color($event-advising-color);
   }
+
   &.bent-polishing {
     @include event-type-color($event-bentpolish-color);
   }
+
   &.big-social {
     @include event-type-color($event-bigsocial-color);
   }
+
   &.e-futures {
     @include event-type-color($event-efutures-color);
   }
+
   &.fun {
     @include event-type-color($event-fun-color);
   }
+
   &.general {
     @include event-type-color($event-general-color);
   }
+
   &.house {
     @include event-type-color($event-house-color);
   }
+
   &.infosession {
     @include event-type-color($event-infosession-color);
   }
+
   &.mandatory {
     @include event-type-color($event-mandatory-color);
   }
+
   &.professional-development {
     @include event-type-color($event-prodev-color);
   }
+
   &.community-service {
     @include event-type-color($event-service-color);
   }
@@ -76,7 +88,7 @@ $event-service-color: #FFFF00;
 
 // Color the entire row for a past event as a light gray
 tr.past-event {
-  background-color: #FAFAFA;
+  background-color: #fafafa;
 }
 
 .google-cal {
@@ -97,18 +109,20 @@ tr.past-event {
 
 .signup-list {
   li {
-    display: inline-block;
     background: $ultra-light-gray;
     border: 1px solid #eee;
-    @include border-radius(3px);
-    margin-right: 5px;
+    display: inline-block;
     margin-bottom: 5px;
+    margin-right: 5px;
     padding: 3px;
     vertical-align: middle;
     width: 31%;
+    @include border-radius(3px);
+
     @include respond-to(medium) {
       width: 46%;
     }
+
     @include respond-to(small) {
       width: 100%;
     }
@@ -116,6 +130,7 @@ tr.past-event {
     .signup-pic {
       display: table-cell;
       padding-right: 5px;
+
       img {
         display: block;
       }
@@ -154,6 +169,7 @@ tr.past-event {
 // Calendar display of events
 #calendar {
   margin-top: 1em;
+
   div {
     position: static;
   }
@@ -168,23 +184,27 @@ tr.past-event {
 
 .attendance-group {
   float: left;
-  width: 30%;
   margin: 10px;
+  width: 30%;
+
   @include respond-to(medium) {
     width: 45%;
   }
+
   @include respond-to(small) {
     margin: 0;
     width: 100%;
   }
 
   ul > li {
-    padding: 5px;
     border: 1px dashed #ddd;
     border-bottom: 0;
+    padding: 5px;
+
     &:last-child {
       border-bottom: 1px dashed #ddd;
     }
+
     @include respond-to(small) {
       // Increase vertical padding to make it more of a touch target
       padding: {
@@ -195,12 +215,12 @@ tr.past-event {
   }
 }
 
-$attended-highlight: #FF8;
+$attended-highlight: #ff8;
 
 .checkable {
   &:hover {
-    cursor: pointer;
     background-color: $success-bg-color;
+    cursor: pointer;
   }
 }
 

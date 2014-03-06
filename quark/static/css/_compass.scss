@@ -24,17 +24,17 @@ $experimental-support-for-khtml        : false !default;
   $official : true
 ) {
   @if $webkit  and $experimental-support-for-webkit
-    { -webkit-#{$property} : $value; }
+    { -webkit-#{$property}: $value; }
   @if $khtml   and $experimental-support-for-khtml
-    {  -khtml-#{$property} : $value; }
+    {  -khtml-#{$property}: $value; }
   @if $moz     and $experimental-support-for-mozilla
-    {    -moz-#{$property} : $value; }
+    {    -moz-#{$property}: $value; }
   @if $ms      and $experimental-support-for-microsoft
-    {     -ms-#{$property} : $value; }
+    {     -ms-#{$property}: $value; }
   @if $o       and $experimental-support-for-opera
-    {      -o-#{$property} : $value; }
+    {      -o-#{$property}: $value; }
   @if $official
-    {         #{$property} : $value; }
+    {         #{$property}: $value; }
 }
 
 // Copied from _border-radius.scss
@@ -132,11 +132,11 @@ $default-border-radius: 5px !default;
 
 // Copied from _box-shadow.scss
 // The default color for box shadows
-$default-box-shadow-color: #333333 !default;
+$default-box-shadow-color: #333 !default;
 // The default horizontal offset. Positive is to the right.
-$default-box-shadow-h-offset: 0px !default;
+$default-box-shadow-h-offset: 0 !default;
 // The default vertical offset. Positive is down.
-$default-box-shadow-v-offset: 0px !default;
+$default-box-shadow-v-offset: 0 !default;
 // The default blur length.
 $default-box-shadow-blur: 5px !default;
 // The default spread length.

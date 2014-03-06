@@ -39,7 +39,8 @@ div {
 }
 
 // Table styling
-.spaced-out {
+.spaced-out,
+.stylized {
   th,
   td {
     padding: 5px;
@@ -53,7 +54,6 @@ div {
 
 // Create a table style that matches styles of the rest of the site
 .stylized {
-  @extend .spaced-out;
   margin: 10px 0;
   width: 100%;
 
@@ -105,15 +105,18 @@ div {
 // btn and btn-group adapted from Bootstrap
 .btn {
   border: solid 1px #adadad;
-  padding: 0.45em 0.7em;
   display: inline-block;
-  @include border-radius(0.2em);
+  padding: 0.45em 0.7em;
   text-decoration: none;
+
+  @include border-radius(0.2em);
+
   &.selected,
   &:hover {
     background-color: #ebebeb;
     text-decoration: none;
   }
+
   &:active {
     @include box-shadow(inset 0 3px 5px rgba(0, 0, 0, 0.125));
   }
@@ -121,9 +124,9 @@ div {
 
 // Small button:
 .btn-sm {
-  padding: 0.35em 0.55em;
   font-size: 0.9em;
   line-height: 1em;
+  padding: 0.35em 0.55em;
   @include border-radius(0.15em);
 }
 
@@ -131,23 +134,26 @@ div {
   @include clearfix;
 
   & > .btn {
+    float: left;
+    margin-left: -1px;
     padding-bottom: 0.35em;
     padding-top: 0.35em;
     position: relative;
-    float: left;
-    margin-left: -1px;
   }
 
   & > .btn:first-child {
     margin-left: 0;
   }
+
   & > .btn:first-child:not(:last-child) {
     border-bottom-right-radius: 0;
     border-top-right-radius: 0;
   }
+
   & > .btn:not(:first-child):not(:last-child) {
     border-radius: 0;
   }
+
   & > .btn:last-child:not(:first-child) {
     border-bottom-left-radius: 0;
     border-top-left-radius: 0;
@@ -173,13 +179,14 @@ div {
 
     & > label,
     & > legend {
-      width: $form-label-width;
-      text-align: right;
       float: left;
+      text-align: right;
+      width: $form-label-width;
 
       @include respond-to(medium) {
         text-align: left;
       }
+
       @include respond-to(small-med) {
         width: 100%;
         float: none;
@@ -188,8 +195,9 @@ div {
 
     // Container for input fields and their associated help-text and errors:
     .form-input {
-      width: $form-input-width;
       float: right;
+      width: $form-input-width;
+
       @include respond-to(small-med) {
         width: 100%;
         float: none;
@@ -215,18 +223,19 @@ div {
       .help-text,
       .form-errors {
         display: block;
-        margin-top: 2px;
         font-size: 0.9em;
+        margin-top: 2px;
       }
     }
 
     &.form-entry-required > label:after {
       // Append an asterisk after labels for required fields
-      content: '*';
       color: #f00;
+      content: '*';
       font-size: 75%;
       margin-left: 5px;
       position: absolute;
+
       @include respond-to(large-only) {
         // Since the large viewport has labels right-aligned, the asterisk
         // should be positioned to the top of text, whereas for left-aligned
@@ -236,8 +245,8 @@ div {
     }
 
     &.form-entry-error {
-      padding: 0.5em;
       background: $error-bg-color;
+      padding: 0.5em;
       @include border-radius(0.3em);
     }
   }
@@ -245,18 +254,20 @@ div {
   input[type=submit],
   .form-input-message {
     margin-left: $form-label-width + $form-sep;
+
     @include respond-to(small-med) {
       margin-left: 0;
     }
   }
 
   input[type=submit] {
-    background-color: #fff;
     @extend .btn;
+    background-color: #fff;
   }
+
   .form-input-message {
-    margin-top: 0.3em;
     margin-bottom: 0.3em;
+    margin-top: 0.3em;
   }
 }
 
@@ -267,9 +278,11 @@ div {
       text-align: left;
       width: 100%;
     }
+
     .form-input {
       width: 100%;
     }
+
     &.form-entry-required label:after {
       // Don't denote required fields, since this form is meant to be simple
       content: '';
@@ -288,8 +301,8 @@ div {
 }
 
 #pagination {
-  text-align: center;
   font-size: 0.9em;
+  text-align: center;
 }
 
 .error,
@@ -302,28 +315,34 @@ div {
   @include border-radius(0.3em);
   color: #000;
   font-weight: 400;
-  padding: 0.5em;
-  margin-top: 0.5em;
   margin-bottom: 0.5em;
+  margin-top: 0.5em;
+  padding: 0.5em;
+
   &.success {
     background: $success-bg-color;
     border: 1px solid $success-border-color;
   }
+
   &.error {
     background: $error-bg-color;
     border: 1px solid $error-border-color;
   }
 
   .icon-remove {
-    float: right;
     cursor: pointer;
+    float: right;
   }
 }
 
 .grayscale {
-  -webkit-filter: grayscale(100%); // Chrome 19+, Safari 6+, iOS Safari 6+
-  filter: url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\'><filter id=\'grayscale\'><feColorMatrix type=\'matrix\' values=\'0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0\'/></filter></svg>#grayscale"); // Firefox 10+, Firefox on Android
-  filter: gray; // IE6-9
+  -moz-filter: grayscale(100%);
+  -ms-filter: grayscale(100%);
+  -o-filter: grayscale(100%);
+  -webkit-filter: grayscale(100%);  // Chrome 19+, Safari 6+, iOS Safari 6+
+  filter: grayscale(100%);
+  filter: url("data:image/svg+xml;utf8,<svg%20xmlns=\'http://www.w3.org/2000/svg\'><filter%20id=\'grayscale\'><feColorMatrix%20type=\'matrix\'%20values=\'0.3333%200.3333%200.3333%200%200%200.3333%200.3333%200.3333%200%200%200.3333%200.3333%200.3333%200%200%200%200%200%201%200\'/></filter></svg>#grayscale");  // Firefox 10+, Firefox on Android
+  filter: gray; // IE 6-9
 }
 
 /* TYPOGRAPHY */
@@ -332,34 +351,41 @@ body {
     family: 'Open Sans', Arial, Helvetica, sans-serif;
     weight: 300;
   }
+
   a {
     color: $link-blue;
     text-decoration: none;
+
     &:hover {
       text-decoration: underline;
     }
   }
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-weight: 400;
 }
 
 h1 {
-  font-size: 1.875em;
   color: $dark-blue;
+  font-size: 1.875em;
   margin: 0.67em 0 0.34em;
 }
 
 h2 {
-  font-size: 1.5em;
   color: $gold;
+  font-size: 1.5em;
   margin: 0.83em 0 0.42em;
 }
 
 h3 {
-  font-size: 1.2em;
   color: #666;
+  font-size: 1.2em;
   margin: 1em 0 0.5em;
 }
 
@@ -388,8 +414,8 @@ h6 {
 }
 
 pre {
-  white-space: pre-wrap;
   font-family: monospace;
+  white-space: pre-wrap;
 }
 
 b,
@@ -417,16 +443,16 @@ blockquote {
   margin: auto;
 
   #header-focus {
+    height: 70px;
     margin: auto;
     max-width: 1000px;
-    height: 70px;
     position: relative;
   }
 }
 
 // Logo
 #logo-link {
-  border: none;
+  border: 0;
 
   #logo {
     @include absolute-position(5px, 5px, $width:60px, $height:60px);
@@ -447,17 +473,21 @@ blockquote {
   }
 
   #logo-location {
-    @include absolute-position(78px, 42px);
+    display: inline;
     font-size: 16px;
     white-space: nowrap;
-    display: inline;
-    @include respond-to(small) { display: none; }
+    @include absolute-position(78px, 42px);
+
+    @include respond-to(small) {
+      display: none;
+    }
   }
 }
 
 #logo-overlay {
   z-index: 1;
   @include absolute-position(0, $width: 260px, $height: 65px);
+
   @include respond-to(small) {
     @include absolute-position(0, $width: 220px, $height: 65px);
   }
@@ -472,6 +502,7 @@ blockquote {
   position: relative;
   text-align: right;
   z-index: 100;  // Raise above logo-group
+
   @include respond-to(small) {
     width: 100%;
     background: $ultra-light-gray;  // In case rgba not supported
@@ -487,6 +518,7 @@ blockquote {
     display: inline-block;
     margin-right: 5px;
     vertical-align: middle;
+
     @include respond-to(medium) {
       display: none;
     }
@@ -498,6 +530,7 @@ blockquote {
 
   .profile-user-icon {
     display: none;
+
     @include respond-to(medium) {
       display: inherit;
     }
@@ -514,10 +547,12 @@ blockquote {
 
   a {
     color: #000;
+
     &:hover {
       color: $link-blue;
       text-decoration: none;
     }
+
     & > span {
       // Remove text labels below small-medium width
       @include respond-to(small-med) {
@@ -533,13 +568,15 @@ blockquote {
 
     $login-height: 40px;
     $login-height-mobile: 27px;
+
     & > li {
       display: inline-block;
       height: $login-height;
-      position: relative;
-      vertical-align: middle;
       margin-right: 30px;
+      position: relative;
       text-align: left;
+      vertical-align: middle;
+
       @include respond-to(small) {
         height: $login-height-mobile;
         margin-right: 40px;
@@ -553,6 +590,7 @@ blockquote {
         font-weight: 600;
         // Force text to be middle-aligned since same height as parent:
         line-height: $login-height;
+
         @include respond-to(small) {
           line-height: $login-height-mobile;
         }
@@ -569,22 +607,24 @@ blockquote {
 
   ul.dropdown {
     background-color: #fff;
+    border: 1px solid #000;
     display: none;
     margin-top: 5px;
-    min-width: 120px;
     max-width: 180px;
+    min-width: 120px;
     padding: 5px 10px;
     z-index: 100;
-    border: 1px solid #000;
     @include border-radius(.3em);
-    @include box-shadow(0 0 0.4em rgba(0, 0, 0, 0.3), inset 0 0 0 black);
+    @include box-shadow(0 0 0.4em rgba(0, 0, 0, 0.3), inset 0 0 0 #000);
     @include absolute-position($top: 100%, $right: -11px);
+
     // Make the dropdowns shift to the right of where it normally would be at
     // narrower viewports to ensure its lined up and onscreen
     @include respond-to(small-med) {
       right: -28px;
       margin-top: 0;
     }
+
     @include respond-to(small) {
       right: -70px;
       margin-top: 5px;
@@ -592,22 +632,25 @@ blockquote {
 
     // Add an updward triange/arrow above the dropdown (where the :after element
     // is the triangle, the :before element is used as its border):
-    &:after, &:before {
-      content: '';
-      display: block;
+    &:after,
+    &:before {
       border-style: solid;
       border-width: 9px;
+      content: '';
+      display: block;
       @include absolute-position($top: -17px, $right: 30px, $width: 0,
         $height: 0);
       @include respond-to(small) {
         right: 80px;
       }
     }
+
     &:after {
-      border-color: transparent transparent #fff transparent;
+      border-color: transparent transparent #fff;
     }
+
     &:before {
-      border-color: transparent transparent #000 transparent;
+      border-color: transparent transparent #000;
       top: -18px;
     }
 
@@ -620,6 +663,7 @@ blockquote {
         display: block;
         margin: 0 -10px;  // Extend link to the edges of the dropdown container
         padding: 3px 10px;
+
         &:hover {
           background-color: $light-gray;
         }
@@ -630,14 +674,14 @@ blockquote {
 
 // If a user's photo hasn't been uploaded, the default icon is used instead:
 .user-default-avatar {
-  height: 40px;
-  width: 40px;
-  text-align: center;
   background: $medium-gray;
+  height: 40px;
+  text-align: center;
+  width: 40px;
 
   .icon-user {
-    font-size: 35px !important;
     color: #fff !important;
+    font-size: 35px !important;
     line-height: 40px !important;
   }
 }
@@ -649,37 +693,43 @@ blockquote {
 }
 
 #nav-menubar {
-  display: none;
-  @include respond-to(medium) { display: block; }
-  border-top: 1px solid #f2f2f2;
   border-bottom: 1px solid #333;
-  padding: 10px 5%;
+  border-top: 1px solid #f2f2f2;
+  display: none;
   font-size: 1.225em;
+  padding: 10px 5%;
+
+  @include respond-to(medium) {
+    display: block;
+  }
 
   #nav-menubar-open {
     color: #fff;
     cursor: pointer;
     text-decoration: none;
     transition: all 125ms ease-in;
+
     &:hover {
       color: #000;
     }
+
     .nav-menubar-icon {
+      background: #444;
       color: #fff;
+      cursor: pointer;
       float: right;
-      height: 14px;
-      width: 18px;
       font-size: 21px;
+      height: 14px;
       padding: {
         top: 4px;
         right: 7px;
         bottom: 10px;
         left: 7px;
       }
-      background: #444;
-      @include border-radius(5px);
       transition: all 125ms ease-in;
-      cursor: pointer;
+      width: 18px;
+      @include border-radius(5px);
+
       &:hover {
         background: #222;
       }
@@ -691,12 +741,15 @@ blockquote {
 #subnav {
   max-width: none;
   text-align: center;
+
   li {
     display: inline;
   }
 }
 
 #nav {
+  border-bottom: 1px solid #333;
+  border-top: 1px solid #f2f2f2;
   display: block;
 
   @include respond-to(medium) {
@@ -709,34 +762,31 @@ blockquote {
     text-align: left;
 
     .nav-child-arrow-container {
-      float: right;
-      width: 32px;
-      height: 28px;
-      display: inline-block;
-      position: relative;
       background: #444;
-      @include border-radius(5px);
+      cursor: pointer;
+      display: inline-block;
+      float: right;
+      height: 28px;
       margin: 4px;
       margin-right: 5%;
+      position: relative;
+      width: 32px;
       z-index: 80;
-      cursor: pointer;
+      @include border-radius(5px);
+
       &:hover {
         background: #222;
       }
     }
+
     .nav-child-arrow {
       border: 10px solid transparent;
       border-top-color: #fff;
-      width: 0;
       height: 0;
       margin: 6px;
       margin-top: 10px;
+      width: 0;
     }
-  }
-
-  border: {
-    top: 1px solid #f2f2f2;
-    bottom: 1px solid #333;
   }
 
   li {
@@ -748,57 +798,62 @@ blockquote {
     list-style-type: none;
     margin: 0;
     padding: 10px 0;
+
     @include respond-to(medium) {
       padding: 0;
       top: 0;
     }
 
     ul {
-      @include background-gray;
-      display: block;
-      top: 100%;
-      left: 0;
-      z-index: 80;
-      @include border-bottom-radius(3px);
-      padding: 0;
-      margin-top: 11px;
-      text-align: left;
-      font-size: .85em;
-      overflow: hidden;
-      opacity: 0;
-      height: 0;
-      position: absolute;
-      transition: all 125ms ease-in;
       border: {
         left: 1px solid #333;
         right: 1px solid #333;
         bottom: 1px solid #333;
       }
+      display: block;
+      font-size: .85em;
+      height: 0;
+      left: 0;
+      margin-top: 11px;
+      opacity: 0;
+      overflow: hidden;
+      padding: 0;
+      position: absolute;
+      text-align: left;
+      top: 100%;
+      transition: all 125ms ease-in;
+      z-index: 80;
+      @include background-gray;
+      @include border-bottom-radius(3px);
 
       @include respond-to(medium) {
-        opacity: 1;
+        border: 0;
+        border-left: 13px solid rgba(0, 0, 0, 0.4);
         height: auto;
-        position: static;
         margin: 0 5%;
+        opacity: 1;
+        position: static;
         transition: none;
         @include border-radius(0);
-        border: none;
-        border-left: 13px solid rgba(0,0,0,0.4);
       }
     }
+
     li:hover > ul {
-      opacity: 1;
       height: auto;
+      opacity: 1;
     }
+
     ul li {
+      display: block;
       float: none;
       position: relative;
-      display: block;
       top: 100%;
       width: 215px;
+
       @include respond-to(medium) {
-        width: 100%;
         background: rgba(0, 0, 0, 0.28);
+        width: 100%;
+
         &:hover {
           // Make sure the link hover looks the same as the nav ul li elements
           // by removing the ul ul li background color on hover
@@ -807,39 +862,44 @@ blockquote {
       }
     }
   }
+
   a {
     color: #fff;
+    display: inline;
     font-size: 1.175em;
     font-weight: 400;
+    padding: 10px 27px;
     text-decoration: none;
     transition: all 125ms ease-in;
-    &:active, &:hover, .selected {
-      color: #000;
-      background-color: rgba(255,255,255, 0.2);
-      // white transparent overlay
-    }
-    &.selected {
-      font-weight: 600;
-    }
 
-    display: inline;
-    padding: 10px 27px;
     @include respond-to(medium) {
       display: block;
       padding: 6px 5%;
     }
+
+    &:active,
+    &:hover,
+    .selected {
+      background-color: rgba(255, 255, 255, 0.2);  // white transparent overlay
+      color: #000;
+    }
+
+    &.selected {
+      font-weight: 600;
+    }
   }
+
   ul ul a {
     display: block;
     transition: all 125ms;
   }
+
   @include respond-to(large-only) {
     .selected > a {
+      background-color: rgba(255, 255, 255, 0.2);  // white transparent overlay
       color: #000;
-      text-decoration: none;
-      background-color: rgba(255, 255, 255, 0.2);
-      // white transparent overlay
       font-weight: 600;
+      text-decoration: none;
     }
   }
 }
@@ -854,10 +914,12 @@ blockquote {
   background-color: $light-gray;
   border-bottom: 1px solid gray;
   @include box-shadow(inset 0 0 5px #999);
+
   a {
     color: #333;
     font-size: 1em;
     padding: 5px 15px;
+
     &:hover,
     &.selected {
       background-color: #fff;
@@ -865,22 +927,26 @@ blockquote {
       text-decoration: none;
       @include border-radius(.3em);
     }
+
     &.selected {
       font-weight: 600;
     }
   }
+
   @include respond-to(large-only) {
     .selected > a {
-       background-color: #fff;
-       color: #000;
-       text-decoration: none;
-       @include border-radius(.3em);
-       font-weight: 600;
+      background-color: #fff;
+      color: #000;
+      font-weight: 600;
+      text-decoration: none;
+      @include border-radius(.3em);
     }
   }
+
   @include respond-to(medium) {
     display: none;
   }
+
   ul {
     list-style-type: none;
     margin: 0;
@@ -901,16 +967,16 @@ blockquote {
 
 #bubble {
   background-color: #fff;
-  margin: 15px;
-  overflow: hidden;
-  padding: 15px 15px 15px;
-  @include border-bottom-radius(1em);
   border: {
     bottom: 1px solid #bbb;
     right: 1px solid #bbb;
     top: 1px solid #ddd;
     left: 1px solid #ddd;
   }
+  margin: 15px;
+  overflow: hidden;
+  padding: 15px;
+  @include border-bottom-radius(1em);
 }
 
 // wrapper with :after element used to make footer stick to bottom of window.
@@ -926,8 +992,8 @@ $footer-total-height: ($footer-font-size / 1em) * (
     $footer-height + 2*$footer-vertical-pad + $footer-border-size);
 
 #wrapper {
-  min-height: 100%;
   margin-bottom: -$footer-total-height;
+  min-height: 100%;
 }
 
 #wrapper:after {
@@ -969,14 +1035,15 @@ $footer-total-height: ($footer-font-size / 1em) * (
 }
 
 .sm-facebook {
-  font-size: 29px;
   color: #4c66a4;
+  font-size: 29px;
+
   &:link {
     text-decoration: none;
   }
 }
 
 #copyright {
-  text-align: left;
   margin: 0 15px;
+  text-align: left;
 }

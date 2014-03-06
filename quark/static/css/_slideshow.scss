@@ -2,27 +2,29 @@
 // Styles for the jQuery slideshow
 #slideshow {
   background-color: #eee;
-  position: relative;
   overflow: hidden;
+  position: relative;
   @include border-radius(4px);
   @include box-shadow(0 1px 5px rgba(0, 0, 0, 0.2));
 
   .slideshow-button {
-    width: 48px;
-    height: 48px;
-    @include respond-to(small) {
-      width: 38px;
-      height: 38px;
-    }
     background-color: #fff;
-    position: absolute;
-    transition: all 125ms ease-in;
     border-radius: 48px;
     font-size: 30px;
+    height: 48px;
+    opacity: 0.2;
+    position: absolute;
     text-align: center;
     -webkit-touch-callout: none;
+    transition: all 125ms ease-in;
+    width: 48px;
     @include experimental(user-select, none);
-    opacity: 0.2;
+
+    @include respond-to(small) {
+      height: 38px;
+      width: 38px;
+    }
+
     @include respond-to(large-only) {
       // At large viewports, hide the slideshow buttons unless the mouse hovers
       // over the slideshow. (This is not enabled at smaller viewports to
@@ -33,11 +35,13 @@
 
   &:hover {
     @include box-shadow(0 3px 10px rgba(0, 0, 0, 0.4));
+
     // Hovering over the slideshow ensures the buttons are slightly opaque and
     // visible
     .slideshow-button {
       opacity: 0.2;
     }
+
     // Hovering over the buttons themselves makes them fully opaque
     .slideshow-button:hover {
       opacity: 1;
@@ -45,26 +49,27 @@
   }
 
   img {
-    @include absolute-position(0px, 0px, $width:100%);
+    @include absolute-position(0, 0, $width:100%);
   }
 }
 
 
 .slide {
-  width: 100%;
   height: 100%;
+  width: 100%;
 }
 
 .slide-info {
   background: #fff;
-  @include box-shadow(0 3px 10px rgba(0, 0, 0, 0.4));
-  position: absolute;
   bottom: 0%;
   box-sizing: border-box;
-  width: 100%;
-  padding: 5px;
-  @include border-bottom-radius(4px);
   min-height: 55px;
+  padding: 5px;
+  position: absolute;
+  width: 100%;
+  @include border-bottom-radius(4px);
+  @include box-shadow(0 3px 10px rgba(0, 0, 0, 0.4));
+
   @include respond-to(small) {
     min-height: 80px;
   }
@@ -74,39 +79,42 @@ $slideshow-button-top-gap: 65px;
 $slideshow-button-side-gap: 15px;
 
 #slideshow-left {
-  top: $slideshow-button-top-gap;
   left: $slideshow-button-side-gap;
+  top: $slideshow-button-top-gap;
 }
 
 #slideshow-left-arrow,
 #slideshow-right-arrow {
-  width: 0;
-  height: 0;
-  top: 5px;
-  position: relative;
   border: 18px solid transparent;
+  height: 0;
+  position: relative;
+  top: 5px;
+  width: 0;
+
   @include respond-to(small) {
     border: 14px solid transparent;
   }
 }
 
 #slideshow-left-arrow {
+  border-right-color: #000;
   right: 7px;
+
   @include respond-to(small) {
     right: 6px;
   }
-  border-right-color: #000;
 }
 
 #slideshow-right {
-  top: $slideshow-button-top-gap;
   right: $slideshow-button-side-gap;
+  top: $slideshow-button-top-gap;
 }
 
 #slideshow-right-arrow {
+  border-left-color: #000;
   left: 18px;
+
   @include respond-to(small) {
     left: 16px;
   }
-  border-left-color: #000;
 }

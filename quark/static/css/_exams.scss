@@ -3,11 +3,11 @@
 
 // Exam iframe preview
 .exam-preview {
+  height: 500px;
+  margin-top: 30px;
+  width: 100%;
+
   @include respond-to(medium) {
     display: none;
   }
-
-  width: 100%;
-  height: 500px;
-  margin-top: 30px;
 }

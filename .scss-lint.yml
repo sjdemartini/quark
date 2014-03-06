@@ -1,0 +1,21 @@
+# Don't lint the normalize file, since it is third-party CSS:
+exclude: 'quark/static/css/_normalize.scss'
+
+linters:
+  ColorKeyword:
+    enabled: false  # Allow the standard color names
+
+  Comment:
+    enabled: false  # Don't always require "//" style comments
+
+  DuplicateProperty:
+    enabled: false  # Don't throw an error for a duplicate property
+
+  LeadingZero:
+    enabled: false  # Allow decimal numbers to have a leading zero
+
+  PlaceholderInExtend:
+    enabled: false  # Don't require placeholder selectors for @extend syntax
+
+  SelectorDepth:
+    max_depth: 6

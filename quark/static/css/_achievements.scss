@@ -4,9 +4,11 @@
 // User Achievement List Page
 .achievements-list.locked {
   color: #888;
+
   .points {
     display: none;
   }
+
   .type {
     display: none;
   }
@@ -14,47 +16,59 @@
 
 .achievement {
   padding: 0.5%;
+
   .icon {
     display: inline-block;
     padding: 0 2% 0 0;
+
     img {
-      width: 64px;
       height: 64px;
+      width: 64px;
     }
+
     @include respond-to(small) {
       display: none;
     }
   }
+
   .info {
     display: inline-block;
     vertical-align: top;
     width: 40%;
+
     a {
       color: inherit;
     }
+
     .name {
-      font-weight: bold;
       font-size: 1.1em;
+      font-weight: bold;
+
       @include respond-to(small) {
-       font-size: 1em;
+        font-size: 1em;
       }
     }
+
     .description {
       font-size: 0.9em;
     }
+
     @include respond-to(small) {
       width: 60%;
     }
   }
+
   .metadata {
     float: right;
     text-align: center;
-    width: 30%;
     vertical-align: top;
+    width: 30%;
+
     @include respond-to(small) {
-      float: none;
       display: inline-block;
+      float: none;
       text-align: right;
+
       .type {
         display: none;
       }
@@ -69,25 +83,30 @@
 /* Achievement Progress Bars */
 
 .progress-bar-container {
-  border: 1px solid #000;
   background-color: #aaa;
-  width: 100%;
+  border: 1px solid #000;
   display: inline-block;
+  width: 100%;
+
   .progress-bar {
-    float: left;
-    border-right: 1px solid #888;
     background-color: rgb(95, 230, 20);
+    border-right: 1px solid #888;
+    float: left;
+
     .progress {
       color: #000;
       font-weight: 400;
+
       @include respond-to(small) {
         display: none;
       }
     }
+
     @include respond-to(small) {
       height: 1em;
     }
   }
+
   @include respond-to(small) {
     height: 1em;
     vertical-align: bottom;

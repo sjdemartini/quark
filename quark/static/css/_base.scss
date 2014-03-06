@@ -49,14 +49,14 @@ $success-border-color: #5c5;
 @mixin background-light {
   background: {
     color: $light-gray;
-    image: url(../images/gray_light_texture.jpg);
+    image: url('../images/gray_light_texture.jpg');
   }
 }
 
 @mixin background-gray {
   background: {
     color: $gray;
-    image: url(../images/gray_texture.jpg);
+    image: url('../images/gray_texture.jpg');
   }
 }
 
@@ -76,10 +76,10 @@ $success-border-color: #5c5;
 // prevents the height from not including floated elements.
 @mixin clearfix {
   &:after {
+    clear: both;
     content: '.';
     display: block;
     height: 0;
-    clear: both;
     visibility: hidden;
   }
 }
