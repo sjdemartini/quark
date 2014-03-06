@@ -32,7 +32,7 @@ class LDAPUserManager(BaseUserManager):
                 first_name=first_name,
                 last_name=last_name,
                 **extra_fields)
-            user.set_unusable_password()
+            super(self.model, user).set_unusable_password()
             user.save()
             return user
         else:
@@ -83,9 +83,15 @@ class LDAPUser(auth.get_user_model()):
     def check_password(self, raw_password):
         return ldap_utils.check_password(self.get_username(), raw_password)
 
+    def has_usable_password(self):
+        return ldap_utils.has_usable_password(self.get_username())
+
     def set_password(self, raw_password):
-        self.set_unusable_password()
+        super(LDAPUser, self).set_unusable_password()
         ldap_utils.set_password(self.get_username(), raw_password)
+
+    def set_unusable_password(self):
+        ldap_utils.set_password(self.get_username(), None)
 
 
 def make_ldap_user(user):

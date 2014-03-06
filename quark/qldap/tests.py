@@ -50,6 +50,7 @@ class LDAPTestCase(TestCase):
         self.assertIsNotNone(utils.initialize())
 
     def test_create_new_user(self):
+        """Can properly create new user"""
         self.assertFalse(utils.username_exists(self.new_user))
         self.assertTrue(utils.create_user(self.new_user, self.password,
                                           self.email,
@@ -66,18 +67,49 @@ class LDAPTestCase(TestCase):
         self.assertFalse(utils.username_exists('www-data'))
 
     def test_create_existing_user(self):
+        """Don't create new user if username already exists"""
         self.assertTrue(utils.username_exists(self.user))
         self.assertFalse(utils.create_user(self.user, self.password,
                                            self.email,
                                            self.first_name, self.last_name))
 
     def test_change_password(self):
+        """Can change password, and authenticate with new password"""
         new_password = 'reallybadpassword'
         self.assertTrue(utils.check_password(self.user, self.password))
         self.assertTrue(utils.set_password(self.user, new_password))
         self.assertTrue(utils.check_password(self.user, new_password))
+        self.assertTrue(utils.has_usable_password(self.user))
+
+    def test_empty_incorrect_password(self):
+        """Check authentication fails with empty or None password"""
+        self.assertTrue(utils.has_usable_password(self.user))
+        self.assertFalse(utils.check_password(self.user, ''))
+        self.assertFalse(utils.check_password(self.user, None))
+
+    def test_unusable_password_none(self):
+        """Setting None as unusable password disables auth"""
+        new_password = None
+        self.assertTrue(utils.has_usable_password(self.user))
+        self.assertTrue(utils.check_password(self.user, self.password))
+        self.assertTrue(utils.set_password(self.user, new_password))
+        self.assertFalse(utils.check_password(self.user, self.password))
+        self.assertFalse(utils.check_password(self.user, new_password))
+        self.assertFalse(utils.has_usable_password(self.user))
+
+    def test_unusable_password_empty(self):
+        """Setting empty string as unusable password disables auth"""
+        new_password = ''
+        self.assertTrue(utils.has_usable_password(self.user))
+        self.assertTrue(utils.check_password(self.user, self.password))
+        self.assertTrue(utils.set_password(self.user, new_password))
+        self.assertFalse(utils.check_password(self.user, self.password))
+        self.assertFalse(utils.check_password(self.user, new_password))
+        self.assertFalse(utils.has_usable_password(self.user))
 
     def test_rename_user(self):
+        """Checks rename_user handles bad username properly and only renames
+        successfully if new username is valid"""
         invalid_name = (False, 'Invalid username. %s' % (
             settings.USERNAME_HELPTEXT))
         correct = (True, 'User %s renamed to %s' % (self.user, self.new_user))
@@ -97,6 +129,7 @@ class LDAPTestCase(TestCase):
         self.assertTrue(utils.username_exists(self.new_user))
 
     def test_clear_group_of_names(self):
+        """Test GroupOfNames modification"""
         self.assertTrue(utils.group_exists(self.group_of_names))
         # Ensure the there is only 1 member in the group (which should be the
         # default user), since this group is a groupOfNames object, requiring
@@ -119,6 +152,7 @@ class LDAPTestCase(TestCase):
             len(utils.get_group_members(self.group_of_names)) == 1)
 
     def test_clear_posix_group(self):
+        """Test PosixGroup modification"""
         self.assertTrue(utils.group_exists(self.posix_group))
         # Ensure that there are no members in the group (posixGroup has no
         # minimum number of members, so there should be no members upon
@@ -137,6 +171,8 @@ class LDAPTestCase(TestCase):
         self.assertTrue(len(utils.get_group_members(self.posix_group)) == 0)
 
     def test_valid_username_regex(self):
+        """Test USERNAME_REGEX against valid, too-short, too-long, and
+        number-prefixed usernames"""
         # Valid name
         self.assertIsNotNone(utils.USERNAME_REGEX.match('zak'))
         # Too short
@@ -151,6 +187,8 @@ class LDAPTestCase(TestCase):
     @override_settings(USE_LDAP=True)
     @override_settings(DEBUG=True)
     def test_backend_auth(self):
+        """Test backend can authenticate user properly and gives appropriate
+        permissions to newly created user for an existing ldap user"""
         self.assertTrue(utils.mod_user_group(
             self.user, self.super_group, action=MOD_ADD))
         client = Client()

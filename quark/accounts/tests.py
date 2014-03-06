@@ -22,7 +22,7 @@ class UserModelTest(TestCase):
         self.assertRaises(NameError, get_user_model)
 
 
-@override_settings(AUTH_USER_MODEL='accounts.LDAPUser')
+@override_settings(AUTH_USER_MODEL='auth.User')
 class CreateLDAPUserTestCase(TestCase):
     def setUp(self):
         self.model = LDAPUser
@@ -90,9 +90,11 @@ class CreateLDAPUserTestCase(TestCase):
         self.assertEqual(user.first_name, self.first_name)
         self.assertEqual(user.last_name, self.last_name)
 
-        # check_password should work, but the Django user password should be
-        # unusable, since password only stored in LDAP
+        # check_password and has_usable_password should work
+        self.assertFalse(get_user_model().has_usable_password(user))
+        self.assertTrue(user.has_usable_password())
         self.assertTrue(user.check_password(self.password))
+        user.set_unusable_password()
         self.assertFalse(user.has_usable_password())
 
         # Verify LDAP utilities

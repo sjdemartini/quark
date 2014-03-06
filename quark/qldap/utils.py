@@ -5,15 +5,25 @@ import hashlib
 import hmac
 import ldap
 import os
+import random
 import re
+import string
 
 from django.conf import settings
+from django.contrib.auth.hashers import UNUSABLE_PASSWORD_PREFIX
+from django.contrib.auth.hashers import UNUSABLE_PASSWORD_SUFFIX_LENGTH
 from django.core.mail import mail_admins
+from django.utils.crypto import get_random_string
 from django.utils.encoding import smart_bytes
 
 
 # Compile username validator, or match all if not set.
 USERNAME_REGEX = re.compile(settings.VALID_USERNAME or '')
+
+# Use salted SHA1 LDAP passwords
+LDAP_HASH_PREFIX = '{SSHA}'
+# OpenLDAP salt must be 4 bytes
+LDAP_SALT_LENGTH = 4
 
 
 # smart_bytes is used to convert unicode to byte strings for python-ldap.
@@ -62,8 +72,9 @@ def create_user(username, password, email, first_name, last_name):
     Creates a new user in the People LDAP tree.
     Returns True on success, False otherwise (including errors)
     """
-    # All fields are required. Fails if any are empty
-    if not (username and password and email and first_name and last_name):
+    # All fields except password are required. Fails if any are empty.
+    # password is allowed to be '' or None for unusable passwords
+    if not (username and email and first_name and last_name):
         return False
 
     # Username must pass regex
@@ -295,13 +306,15 @@ def check_password(username, password):
     """
     Returns True if (unhashed) password matches the user's password in LDAP.
     This authenticates using LDAP bind. Upon a successful bind, it will
-    upgrade an MD5 hash to SHA1 if applicable.
+    upgrade an MD5 hash to salted SHA1 (SSHA) if applicable.
     """
     ldap_handle = initialize()
     if ldap_handle is None:
         return False
 
     # don't allow blank username or password
+    # This is important because a binding with a blank password can be
+    # interpreted as an anonymous bind, which would succeed when it should not.
     if username and password:
         username = smart_bytes(username)
         password = smart_bytes(password)
@@ -330,12 +343,43 @@ def check_password(username, password):
                             ('Non-standard password results for %s in'
                              'check_password') % username)
             # Automatically update password to new hash algorithm
-            if '{SHA1}' not in pw_result[0][1]['userPassword'][0]:
+            if LDAP_HASH_PREFIX not in pw_result[0][1]['userPassword'][0]:
                 set_password(username, password)
             return True
     else:
         # Bad username or password
         return False
+
+
+def has_usable_password(username):
+    """
+    Gets the user's password entry from LDAP.
+    Returns False if it's an unusable password, or encounters LDAP errors
+    """
+    ldap_handle = initialize()
+    if ldap_handle is None:
+        return False
+
+    username = smart_bytes(username)
+    try:
+        entry = ldap_handle.search_s(
+            settings.LDAP_BASE['PEOPLE'],
+            settings.LDAP['SCOPE'],
+            '(uid=%s)' % username,
+            ['userPassword'])
+    except ldap.LDAPError:
+        return False
+    entry_len = len(entry)
+    if entry_len != 1:
+        mail_admins('LDAP Anomaly Detected',
+                    'Found %d userPassword attributes for %s ' % (
+                        entry_len,
+                        username))
+    # Invalid search result. Each search result must be a 2-tuple
+    if len(entry[0]) != 2:
+        return False
+    pw_hash = get_property(entry[0][1], 'userPassword')
+    return pw_hash and UNUSABLE_PASSWORD_PREFIX not in pw_hash
 
 
 def get_property(attributes, key, index=0):
@@ -359,15 +403,33 @@ def encode(secret, data):
 
 def obfuscate(password):
     """
-    Hashes a password using SHA1 algorithm.
+    Hashes a password using (salted) SHA1 algorithm.
+    Also converts password to byte string before processing.
+    A None or '' password is considered unusable.
+    Unusable passwords will be corrupted with a UNUSABLE_PASSWORD_PREFIX and
+    instead hash a random password.
     OpenLDAP 2.4.x only supports SHA1. Would be nice if they supported
     an algorithm that is more secure.
     """
-    salt = os.urandom(4)
+    hash_prefix = LDAP_HASH_PREFIX
+    # Set unusable password if None or empty string
+    if not password:
+        hash_prefix += UNUSABLE_PASSWORD_PREFIX
+        password = get_random_string(
+            length=UNUSABLE_PASSWORD_SUFFIX_LENGTH,
+            allowed_chars=string.printable)
+    try:
+        salt = os.urandom(LDAP_SALT_LENGTH)
+    except NotImplementedError:
+        salt = ''.join(
+            [chr(random.randint(0, 255)) for _ in range(LDAP_SALT_LENGTH)])
     hmsg = hashlib.new('sha1')
+    # openldap SSHA uses this format:
+    # '{SSHA}' + b64encode(sha1_digest('secret' + 'salt') + 'salt')
     hmsg.update(smart_bytes(password))
     hmsg.update(salt)
-    return '{SSHA}' + base64.b64encode(hmsg.digest() + salt)
+    pw_hash = base64.b64encode(hmsg.digest() + salt)
+    return smart_bytes(hash_prefix + pw_hash)
 
 
 def is_group_member(username, group):
