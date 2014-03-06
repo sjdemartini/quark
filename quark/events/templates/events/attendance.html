@@ -45,7 +45,7 @@ $(function() {
         attendee.text(ui.item.label);
         // Add a loading icon spinner to this entry:
         attendee.append(
-            $('<i class="icon-spinner icon-spin loading" ' +
+            $('<i class="fa fa-spinner fa-spin loading" ' +
               'style="display: none"></i>')
         );
         $('#members-list').prepend(attendee);
@@ -82,7 +82,7 @@ $(function() {
 
     // Get the user's pk (by not including the "user_" prefix of the id)
     var pk = self.attr('id').slice(5);
-    var spinner = $('.icon-spinner', self);
+    var spinner = $('.fa-spinner', self);
     spinner.show();
     var ajaxReq;
     if (self.hasClass('checkable')) {

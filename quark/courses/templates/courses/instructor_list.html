@@ -15,11 +15,11 @@
     <a href="{{ instructor.get_absolute_url }}">{{ instructor.last_name_first }}</a>
     {% if perms.courses.change_instructor %}
     &ndash; <a href="{% url 'courses:edit-instructor' instructor.pk %}" title="Edit">
-      <i class="icon-edit"></i> Edit</a>
+      <i class="fa fa-pencil-square-o"></i> Edit</a>
     {% endif %}
     {% if perms.courses.delete_instructor %}
     | <a href="{% url 'courses:delete-instructor' instructor.pk %}" title="Delete">
-      <i class="icon-trash"></i> Delete</a>
+      <i class="fa fa-trash-o"></i> Delete</a>
     {% endif %}
   </li>
   {% endfor %}

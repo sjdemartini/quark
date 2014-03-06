@@ -71,7 +71,7 @@ footable.
         </td>
         <td>
           <a href="{% url 'resumes:download-user' resume.user.pk %}">
-            <i class="icon-download-alt" title="Download"></i>
+            <i class="fa fa-download" title="Download"></i>
           </a>
         </td>
         <td data-value="{{ resume.updated|date:'U' }}">
@@ -81,9 +81,9 @@ footable.
         {% with is_candidate=resume.user.userprofile.is_candidate %}
         <td data-value="{{ is_candidate|yesno:'1,0' }}">
         {% if is_candidate %}
-          <i class="icon-ok" title="Yes"></i>
+          <i class="fa fa-check" title="Yes"></i>
         {% else %}
-          <i class="icon-ban-circle" title="No"></i>
+          <i class="fa fa-ban" title="No"></i>
         {% endif %}
         </td>
         {% endwith %}

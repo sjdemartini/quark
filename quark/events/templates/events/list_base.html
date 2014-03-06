@@ -11,12 +11,12 @@
 <p>
 {% if perms.events.add_event %}
   <a href="{% url 'events:add' %}" class="btn">
-    <i class="icon-plus"></i> Event
+    <i class="fa fa-plus"></i> Event
   </a>
 {% endif %}
 {% if user.is_authenticated %}
   <a href="{% url 'events:leaderboard' %}" class="btn">
-    <i class="icon-bar-chart"></i> Leaderboard</a>
+    <i class="fa fa-bar-chart-o"></i> Leaderboard</a>
   {# TODO(sjdemartini): add links for event admin #}
 {% endif %}
 </p>

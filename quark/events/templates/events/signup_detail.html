@@ -24,12 +24,12 @@ display, and displays signup info depending on the request user's permissions.
 
     <div class="signup-info">
       {% if event.needs_drivers and signup.driving != 0 %}
-        <i class="icon-road"></i>&nbsp;<span class="signup-driving"><strong>+{{ signup.driving }}</strong> Ride{{ signup.driving|pluralize }}</span>
+        <i class="fa fa-road"></i>&nbsp;<span class="signup-driving"><strong>+{{ signup.driving }}</strong> Ride{{ signup.driving|pluralize }}</span>
         {% if signup.num_guests %} &nbsp;&bull;&nbsp; {% endif %}
       {% endif %}
 
       {% if signup.num_guests %}
-        <i class="icon-group"></i>&nbsp;<span class="signup-guests">{{ signup.num_guests }} guest{{ signup.num_guests|pluralize }}</span>
+        <i class="fa fa-users"></i>&nbsp;<span class="signup-guests">{{ signup.num_guests }} guest{{ signup.num_guests|pluralize }}</span>
       {% endif %}
     </div>
 

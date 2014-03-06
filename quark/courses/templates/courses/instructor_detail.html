@@ -14,11 +14,11 @@
 {% block content %}
 {% if perms.courses.change_instructor %}
 <a href="{% url 'courses:edit-instructor' instructor.pk %}" class="btn">
-  <i class="icon-edit"></i> Edit</a>
+  <i class="fa fa-pencil-square-o"></i> Edit</a>
 {% endif %}
 {% if perms.courses.delete_instructor %}
 <a href="{% url 'courses:delete-instructor' instructor.pk %}" class="btn">
-  <i class="icon-trash"></i> Delete</a>
+  <i class="fa fa-trash-o"></i> Delete</a>
 {% endif %}
 
 <h2>Average Rating: {{ total_prof_ratings_avg }}</h2>

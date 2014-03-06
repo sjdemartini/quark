@@ -50,11 +50,11 @@ footable.
       <td>{{ exam.term.year }}</td>
       <td>
         <a href="{% url 'exams:download' exam_pk=exam.pk %}">
-          <i class="icon-download-alt"></i> Download</a>
+          <i class="fa fa-download"></i> Download</a>
       </td>
       <td>
         <a href="{% url 'exams:flag' exam_pk=exam.pk %}">
-          <i class="icon-flag"></i> Flag</a>
+          <i class="fa fa-flag"></i> Flag</a>
         {% if permission %}
         (<a href="{{ exam.get_absolute_url }}">{{ exam.flags }}</a>)
         {% endif %}
@@ -62,15 +62,15 @@ footable.
       {% if permission %}
       <td data-value="{{ exam.verified }}">
         {% if exam.verified %}
-        <i class="icon-ok success" title="Yes"></i>
+        <i class="fa fa-check success" title="Yes"></i>
         {% else %}
-        <i class="icon-remove error" title="No"></i>
+        <i class="fa fa-times error" title="No"></i>
         {% endif %}
       <td>
         <a href="{{ exam.get_absolute_url }}" title="Edit">
-          <i class="icon-edit"></i></a>
+          <i class="fa fa-pencil-square-o"></i></a>
         | <a href="{% url 'exams:delete' exam_pk=exam.pk %}" title="Delete">
-          <i class="icon-trash"></i></a>
+          <i class="fa fa-trash-o"></i></a>
       </td>
       {% endif %}
     </tr>

@@ -329,7 +329,7 @@ div {
     border: 1px solid $error-border-color;
   }
 
-  .icon-remove {
+  .fa-times {
     cursor: pointer;
     float: right;
   }
@@ -536,12 +536,12 @@ blockquote {
     }
   }
 
-  [class^='icon-'] {
+  [class*='fa-'] {
     font-size: 20px;
     vertical-align: middle;
   }
 
-  .icon-signin {
+  .fa-sign-in {
     margin-right: 4px;
   }
 
@@ -602,7 +602,7 @@ blockquote {
   .login-arrow {
     font-size: 15px;
     position: relative;
-    top: -3px;
+    top: -5px;
   }
 
   ul.dropdown {
@@ -679,7 +679,7 @@ blockquote {
   text-align: center;
   width: 40px;
 
-  .icon-user {
+  .fa-user {
     color: #fff !important;
     font-size: 35px !important;
     line-height: 40px !important;

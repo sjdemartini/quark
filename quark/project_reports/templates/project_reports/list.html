@@ -18,7 +18,7 @@ Project Reports ({% if display_term %}{{ display_term_name }}{% else %}All{% end
   {% url 'project-reports:list' as list_prs %}
   {% include 'term_selection.html' with url_base=list_prs %}
   <a href="{% url 'project-reports:list-all' %}" class="btn">
-    <i class="icon-tasks"></i> List All
+    <i class="fa fa-tasks"></i> List All
   </a>
 {% endif %}
 </p>
@@ -26,7 +26,7 @@ Project Reports ({% if display_term %}{{ display_term_name }}{% else %}All{% end
 {% if perms.project_reports.add_projectreport %}
 <p>
   <a href="{% url 'project-reports:add' %}" class="btn">
-    <i class="icon-plus"></i> New Report
+    <i class="fa fa-plus"></i> New Report
   </a>
 </p>
 {% endif %}

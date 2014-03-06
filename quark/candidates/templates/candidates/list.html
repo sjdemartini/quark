@@ -15,20 +15,20 @@
 
 <div>
   <a href="{% url 'candidates:edit-requirements' %}" class="btn">
-    <i class="icon-wrench"></i> Edit Requirements
+    <i class="fa fa-wrench"></i> Edit Requirements
   </a>
   <a href="{% url 'candidates:challenges' %}" class="btn">
-    <i class="icon-trophy"></i> Candidate Challenges
+    <i class="fa fa-trophy"></i> Candidate Challenges
   </a>
   <a href="{% url 'candidates:initiation' %}" class="btn">
-    <i class="icon-check"></i> Candidate Initiation
+    <i class="fa fa-check-square-o"></i> Candidate Initiation
   </a>
 </div>
 
 <div>
   {% if candidates %}
   <p><strong>Number of candidates</strong>: {{ candidates|length }}</p>
-  <i class="icon-ok"></i> = receives texts
+  <i class="fa fa-check"></i> = receives texts
   <table class="footable stylized bordered">
     <thead>
       <tr>
@@ -66,7 +66,7 @@
       <td>
         <a href="tel:{{ cand_user_profile.cell_phone }}">{{ cand_user_profile.cell_phone }}</a>
         {% if cand_user_profile.receive_text %}
-        <i class="icon-ok"></i>
+        <i class="fa fa-check"></i>
         {% endif %}
       </td>
       <td><a href="mailto:{{ candidate.user.email }}">{{ candidate.user.email }}</a></td>

@@ -95,7 +95,7 @@ function initiateCandidate(event) {
       <input type="checkbox" class="initiated-checkbox"
         name="{{ candidate.pk }}" onclick="initiateCandidate(event)"
         {% if candidate.initiated %}checked{% endif %}>
-      <i class="icon-spinner icon-spin loading" style="display: none"></i>
+      <i class="fa fa-spinner fa-spin loading" style="display: none"></i>
     </td>
     {% endwith progress %}
 

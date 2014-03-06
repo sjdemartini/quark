@@ -11,5 +11,5 @@ default alt text on the image (the user's common name).
 {% if user_profile.picture %}
   <img class="user-picture-avatar" src="{{ user_profile.picture|thumbnail_url:'avatar' }}" alt="{{ alt_text|default:user_profile.get_common_name }}">
 {% else %}
-  <div class="user-default-avatar"><i class="icon-user"></i></div>
+  <div class="user-default-avatar"><i class="fa fa-user"></i></div>
 {% endif %}
