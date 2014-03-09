@@ -6,7 +6,7 @@
   {% block title %}Officers{% endblock title %}
 </h1>
 
-{% include 'term_selection.html' %}
+{% include '_term_selection.html' %}
 {% regroup officers by position as positions %}
 {% for position in positions %}
   <div class="officers-section">

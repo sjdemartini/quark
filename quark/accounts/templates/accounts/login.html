@@ -11,7 +11,7 @@
 {% block content %}
 <form method="post" action="{{ request.path }}" class="form-narrow">
   {% csrf_token %}
-  {% include 'form.html' %}
+  {% include '_form.html' %}
 
   <input type="submit" value="Log In">
   <input type="hidden" name="next" value="{% if next %}{{ next }}{% else %}{% url 'home' %}{% endif %}">

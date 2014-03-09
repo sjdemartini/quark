@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block intro %}
-{% include 'term_selection.html' with float_right=True %}
+{% include '_term_selection.html' with float_right=True %}
 <h1>
 {% block title %}
 {% if not show_all %}Upcoming {% endif %}{{ display_term_name }} Events

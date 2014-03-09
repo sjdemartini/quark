@@ -14,11 +14,11 @@ NOTE: Only requirements that require more than zero credits will be displayed in
   {% csrf_token %}
   {{ form.management_form }}
 
-  {% include 'candidates/individual_requirement.html' with display_req_type='Event' entries=req_types.event %}
-  {% include 'candidates/individual_requirement.html' with display_req_type='Challenge' entries=req_types.challenge %}
-  {% include 'candidates/individual_requirement.html' with display_req_type='Exam File' entries=req_types.exam %}
-  {% include 'candidates/individual_requirement.html' with display_req_type='Resume' entries=req_types.resume %}
-  {% include 'candidates/individual_requirement.html' with display_req_type='Manual' entries=req_types.manual %}
+  {% include 'candidates/_individual_requirement.html' with display_req_type='Event' entries=req_types.event %}
+  {% include 'candidates/_individual_requirement.html' with display_req_type='Challenge' entries=req_types.challenge %}
+  {% include 'candidates/_individual_requirement.html' with display_req_type='Exam File' entries=req_types.exam %}
+  {% include 'candidates/_individual_requirement.html' with display_req_type='Resume' entries=req_types.resume %}
+  {% include 'candidates/_individual_requirement.html' with display_req_type='Manual' entries=req_types.manual %}
   <a href="{% url 'candidates:add-requirement' %}">Add manual requirement</a>
 
   <p>

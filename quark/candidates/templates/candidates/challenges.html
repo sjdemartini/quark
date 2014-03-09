@@ -7,11 +7,11 @@
 {% endblock intro %}
 
 {% block head %}
-{% include 'footable.html' %}
+{% include '_footable.html' %}
 {% endblock head %}
 
 {% block content %}
-{% include 'term_selection.html' %}
+{% include '_term_selection.html' %}
 
 <form method="post" class="form-narrow">
   {% csrf_token %}

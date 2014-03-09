@@ -25,7 +25,7 @@
     {{ form.media.css }}
     {% endcompress %}
 
-    {% block jquery %}{% include 'jquery.html' %}{% endblock jquery %}
+    {% block jquery %}{% include '_jquery.html' %}{% endblock jquery %}
 
     {% compress js %}
     <script src="{% static 'js/main.js' %}"></script>
@@ -43,7 +43,7 @@
       {% block header %}
       <div id="header">
         <div id="header-focus">
-          {% include 'user_login.html' %}
+          {% include '_user_login.html' %}
 
           <div id="logo-group">
             <a href="{% url 'home' %}" id="logo-link"><img src="{% static 'images/bent_circle.png' %}" id="logo" alt="Bent Logo">
@@ -55,14 +55,14 @@
       </div><!-- end header -->
       {% endblock header %}
 
-      {% block nav %}{% include 'nav.html' %}{% endblock nav %}
+      {% block nav %}{% include '_nav.html' %}{% endblock nav %}
       {% block subheader %}{% endblock subheader %}
 
       <div id="container">
         <div id="content" style="{% block content_style %}{% endblock content_style %}">
         {% block intro %}{# Used for page headers/titles, etc. #}{% endblock intro %}
 
-        {% block messages %}{% include 'messages.html' %}{% endblock messages %}
+        {% block messages %}{% include '_messages.html' %}{% endblock messages %}
 
         {% block content %}{# Used for the rest of the page content #}{% endblock content %}
         </div>

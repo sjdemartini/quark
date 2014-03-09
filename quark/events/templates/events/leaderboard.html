@@ -5,7 +5,7 @@
 {% endblock intro %}
 
 {% block content %}
-{% include 'term_selection.html' %}
+{% include '_term_selection.html' %}
 
 <ul class="leaderboard">
   {% for entry in leader_list %}
@@ -25,5 +25,5 @@
   {% endfor %}
 </ul>
 
-{% include 'pagination.html' %}
+{% include '_pagination.html' %}
 {% endblock content %}

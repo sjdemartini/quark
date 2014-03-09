@@ -7,11 +7,11 @@
 {% endblock intro %}
 
 {% block head %}
-{% include 'footable.html' with include_sort=True %}
+{% include '_footable.html' with include_sort=True %}
 {% endblock head %}
 
 {% block content %}
-{% include 'term_selection.html' %}
+{% include '_term_selection.html' %}
 
 <div>
   <a href="{% url 'candidates:edit-requirements' %}" class="btn">

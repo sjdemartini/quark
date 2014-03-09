@@ -3,7 +3,7 @@
 {% load static settings_values %}
 
 {% block head %}
-{% include 'footable.html' with include_sort=True include_filter=True %}
+{% include '_footable.html' with include_sort=True include_filter=True %}
 <script>
   $(function() {
     $('.clear-filter').click(function(eventObj) {

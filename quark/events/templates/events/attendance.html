@@ -123,7 +123,7 @@ $(function() {
   <label for="member-search">Search for users and record their attendance:</label>
   <input type="search" id="member-search">
 </div>
-{% include 'events/attendance_group.html' with group_name='Officers' group_users=officers %}
-{% include 'events/attendance_group.html' with group_name='Candidates' group_users=candidates %}
-{% include 'events/attendance_group.html' with group_name='Members' group_list_id='members-list' group_users=members %}
+{% include 'events/_attendance_group.html' with group_name='Officers' group_users=officers %}
+{% include 'events/_attendance_group.html' with group_name='Candidates' group_users=candidates %}
+{% include 'events/_attendance_group.html' with group_name='Members' group_list_id='members-list' group_users=members %}
 {% endblock content %}

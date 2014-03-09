@@ -7,12 +7,12 @@
 {% endblock intro %}
 
 {% block content %}
-{% include 'exams/exam_display.html' %}
+{% include 'exams/_exam_display.html' %}
 <p>Are you SURE you want to delete this exam? THIS ACTION IS NOT REVERSIBLE.</p>
 
 <form method="post" class="form-narrow">
   {% csrf_token %}
-  {% include 'form.html' %}
+  {% include '_form.html' %}
   <div>
     <input type="submit" value="Delete">
   </div>

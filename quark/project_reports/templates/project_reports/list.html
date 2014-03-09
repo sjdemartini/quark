@@ -16,7 +16,7 @@ Project Reports ({% if display_term %}{{ display_term_name }}{% else %}All{% end
 {% else %}
   {# If showing PRs for a specific term, show term-selector and link to view all #}
   {% url 'project-reports:list' as list_prs %}
-  {% include 'term_selection.html' with url_base=list_prs %}
+  {% include '_term_selection.html' with url_base=list_prs %}
   <a href="{% url 'project-reports:list-all' %}" class="btn">
     <i class="fa fa-tasks"></i> List All
   </a>

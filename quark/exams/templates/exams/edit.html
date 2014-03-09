@@ -7,7 +7,7 @@
 {% endblock intro %}
 
 {% block content %}
-{% include 'exams/exam_display.html' %}
+{% include 'exams/_exam_display.html' %}
 
 <p>
   <a href="{% url 'exams:download' exam.pk %}" class="btn">
@@ -50,7 +50,7 @@
 <h3>Edit Details</h3>
 <form method="post">
   {% csrf_token %}
-  {% include 'form.html' %}
+  {% include '_form.html' %}
   <div>
     <input type="submit" value="Update">
   </div>

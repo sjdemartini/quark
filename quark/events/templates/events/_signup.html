@@ -12,7 +12,7 @@ form. It works for both standard signups and anonymous (not-logged-in) signups.
 
 <form action="{% url 'events:signup' event.pk %}" method="post" id="signup-form">
   {% csrf_token %}
-  {% include 'form.html' %}
+  {% include '_form.html' %}
   <div>
     <input type="submit" value="{% if user_signed_up %}Update {% endif %}Sign Up">
   </div>

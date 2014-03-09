@@ -30,7 +30,7 @@ Edit <a href="{{ event.get_absolute_url }}">{{ event.name }}</a>
 {% block content %}
 <form action="{% url 'events:edit' event.pk %}" method="post">
   {% csrf_token %}
-  {% include 'form.html' %}
+  {% include '_form.html' %}
   <div>
     <input type="submit" value="Submit" onclick="return editConfirmation()">
   </div>

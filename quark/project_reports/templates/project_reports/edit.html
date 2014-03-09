@@ -9,7 +9,7 @@
 {% block content %}
 <form method="post">
   {% csrf_token %}
-  {% include 'form.html' %}
+  {% include '_form.html' %}
   <div><input type="submit" value="Submit"></div>
 </form>
 {% endblock content %}

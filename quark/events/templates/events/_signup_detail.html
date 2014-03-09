@@ -10,7 +10,7 @@ display, and displays signup info depending on the request user's permissions.
 
   {% if signup.user %}
   <div class="signup-pic">
-    {% include 'user_thumbnail.html' with user_profile=signup.user.userprofile alt_text=signup_user_name %}
+    {% include '_user_thumbnail.html' with user_profile=signup.user.userprofile alt_text=signup_user_name %}
   </div>
   {% endif %}
 

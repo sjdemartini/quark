@@ -7,7 +7,7 @@
 {% endblock intro %}
 
 {% block head %}
-{% include 'footable.html' with include_sort=True %}
+{% include '_footable.html' with include_sort=True %}
 {% endblock head %}
 
 {% block content %}
@@ -17,7 +17,7 @@
 <div>
   <h2>Non-Blacklisted Exams</h2>
   {% if exams %}
-  {% include 'exams/exam_table.html' with exams=exams show_course=True %}
+  {% include 'exams/_exam_table.html' with exams=exams show_course=True %}
   {% else %}
   <p>There are currently no non-blacklisted exams that need to be reviewed.</p>
   {% endif %}
@@ -26,7 +26,7 @@
 <div>
   <h2>Blacklisted Exams</h2>
   {% if blacklisted_exams %}
-  {% include 'exams/exam_table.html' with exams=blacklisted_exams show_course=True %}
+  {% include 'exams/_exam_table.html' with exams=blacklisted_exams show_course=True %}
   {% else %}
   <p>There are currently no blacklisted exams.</p>
   {% endif %}

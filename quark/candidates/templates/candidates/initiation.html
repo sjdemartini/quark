@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block head %}
-{% include 'footable.html' with include_sort=True %}
+{% include '_footable.html' with include_sort=True %}
 <script>
 function updateNumInitiated() {
   var initiatedNode = $('#num-initiated');
@@ -54,7 +54,7 @@ function initiateCandidate(event) {
 {% endblock intro %}
 
 {% block content %}
-{% include 'term_selection.html' %}
+{% include '_term_selection.html' %}
 
 {% if candidates %}
 <p>

@@ -113,7 +113,7 @@ $(function() {
 </dl>
 
 {% if form %}
-{% include 'events/signup.html' %}
+{% include 'events/_signup.html' %}
 {% endif %}
 
 <h3>
@@ -129,7 +129,7 @@ $(function() {
   <ul class="signup-list">
   {% for signup in signup_list %}
     <li>
-    {% include 'events/signup_detail.html' %}
+    {% include 'events/_signup_detail.html' %}
     </li>
   {% endfor %}
   </ul>

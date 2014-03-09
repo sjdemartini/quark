@@ -7,12 +7,12 @@
 {% endblock intro %}
 
 {% block content %}
-{% include 'exams/exam_display.html' with exam=flag.exam %}
+{% include 'exams/_exam_display.html' with exam=flag.exam %}
 <h3>Reason: <strong>{{ flag.reason }}</strong> - {{ flag.created }}</h3>
 
 <form action="{{ request.path }}" method="post">
   {% csrf_token %}
-  {% include 'form.html' %}
+  {% include '_form.html' %}
   <div>
     <input type="submit" value="Submit">
   </div>
