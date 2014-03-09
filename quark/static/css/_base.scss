@@ -1,5 +1,5 @@
-// Defines variables and custom mixins. Useful for importing into all other
-// scss files except _compass.scss (which this file imports).
+// Defines variables and custom mixins. Also imports the compass library.
+// Useful to import his file in other scss files.
 
 @import 'compass';
 

@@ -11,9 +11,11 @@ if MMPATH not in sys.path:
     sys.path.append(MMPATH)
 
 
-# Set up SASS (SCSS) compression for django-compressor
+# Set up SASS (SCSS) compilation for django-compressor, with the "compass"
+# library. Use SASS version 3.2.14, since compass fails to load with a higher
+# version.
 COMPRESS_PRECOMPILERS = (
-    ('text/x-scss', 'sass {infile}:{outfile}'),
+    ('text/x-scss', 'sass _3.2.14_ --scss --compass {infile} {outfile}'),
 )
 
 # Use the "AbsoluteFilter" to change relative URLs to absolute URLs, and

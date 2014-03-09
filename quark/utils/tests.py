@@ -72,11 +72,11 @@ class DevUtilsTest(TestCase):
     @patch('quark.utils.load_initial_data')
     def test_update_db(self, mock_data, mock_mgmt):
         """
-        Ensure update_db goes through the 3 management steps, which assumes
+        Ensure update_db goes through the 2 management steps, which assumes
         there are no PROJECT_APPS, or load_initial_data is stubbed out.
         """
         dev_utils.update_db()
-        self.assertEqual(mock_mgmt.call_count, 3)
+        self.assertEqual(mock_mgmt.call_count, 2)
         self.assertEqual(mock_data.call_count, 1)
 
 

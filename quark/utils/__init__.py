@@ -18,10 +18,6 @@ def update_db(verbose=True):
         print 'Running any migrations...'
     execute_from_command_line(['manage.py', 'migrate'])
 
-    if verbose:
-        print 'Collecting static files...'
-    execute_from_command_line(['manage.py', 'collectstatic', '--noinput'])
-
 
 def load_initial_data():
     # We only load yaml fixtures. Python can't handle {} in globs

@@ -101,6 +101,7 @@ deploy() {
     mkdir -p static
 
     ${VENV_PATH}/bin/python manage.py updatedb
+    ${VENV_PATH}/bin/python manage.py collectstatic --clear --noinput
 
     # Cleanup old compiled .py[co] files
     find ${DEPLOY_PATH} -name "*.py[co]" -type f -delete
