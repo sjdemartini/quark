@@ -54,9 +54,9 @@ footable.
         <td>{{ resume.user.last_name }}</td>
         {% if critique %}
         <td>
-          <a href="mailto:{{ resume.user.userprofile.get_preferred_email }}">
-            {{ resume.user.userprofile.get_preferred_email }}
-          </a>
+          {% with preferred_email=resume.user.userprofile.get_preferred_email %}
+          <a href="mailto:{{ preferred_email }}">{{ preferred_email }}</a>
+          {% endwith preferred_email %}
         </td>
         {% endif %}
         <td data-value="{{ student_info.grad_term.pk }}">
