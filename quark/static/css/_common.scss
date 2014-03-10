@@ -672,6 +672,11 @@ blockquote {
   }
 }
 
+.user-picture-avatar {
+  height: 40px;
+  width: 40px;
+}
+
 // If a user's photo hasn't been uploaded, the default icon is used instead:
 .user-default-avatar {
   background: $medium-gray;
