@@ -13,6 +13,13 @@ DATABASES = {
     },
 }
 
+# Use a dummy cache for testing
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    }
+}
+
 # TODO(sjdemartini): Don't "blacklist" any third party apps and get tests to
 # pass (since we ought to be testing under the same circumstances and with the
 # same apps as what the full website will have)

@@ -43,6 +43,12 @@ DATABASES = {
     }
 }
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    }
+}
+
 # Use 'app_label.model_name'
 # Currently use django.contrib.auth.User.
 AUTH_USER_MODEL = 'auth.User'

@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib.auth.models import Group
+from django.core.cache import cache
 from django.db import models
 from django.db import transaction
 from django.utils import timezone
@@ -47,10 +48,17 @@ class Major(models.Model):
 
 class TermManager(models.Manager):
     def get_current_term(self):
-        try:
-            return self.get(current=True)
-        except Term.DoesNotExist:
-            return None
+        """Return the term with current set to True, or None if no current term
+        exists.
+        """
+        term = cache.get('current_term')
+        if not term:
+            try:
+                term = self.get(current=True)
+                cache.set('current_term', term, None)
+            except Term.DoesNotExist:
+                pass
+        return term
 
     def get_terms(self, include_future=False, include_summer=False,
                   include_unknown=False, reverse=False):
@@ -165,6 +173,7 @@ class Term(models.Model):
                     id=self.id).update(current=False)
             super(Term, self).save(*args, **kwargs)
             self.update_term_officer_groups()
+            cache.set('current_term', self, None)  # Update the cache
 
     def verbose_name(self):
         """Returns the verbose name of this object in this form: Fall 2012."""
