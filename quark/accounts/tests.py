@@ -120,6 +120,58 @@ class CreateLDAPUserTestCase(TestCase):
         self.assertEqual(0, query.count())
         self.assertFalse(username_exists(bad_username))
 
+    def test_rename_user_with_save(self):
+        """Renaming an LDAP user's username also renames the LDAP entry."""
+        new_username = self.username + 'r2'
+        self.assertIsNotNone(self.model.objects.create_user(
+            username=self.username,
+            email=self.email,
+            password=self.password,
+            first_name=self.first_name,
+            last_name=self.last_name))
+        user = self.model.objects.get(username=self.username)
+        self.assertTrue(username_exists(self.username))
+        self.assertFalse(username_exists(new_username))
+        # Rename
+        user.username = new_username
+        user.save()
+        self.assertRaises(
+            self.model.DoesNotExist,
+            self.model.objects.get,
+            username=self.username)
+        self.assertFalse(username_exists(self.username))
+        self.assertTrue(username_exists(new_username))
+        # Cleanup
+        user.delete()
+        self.assertFalse(username_exists(new_username))
+
+    def test_invalid_rename_user_with_save(self):
+        """Renaming to invalid username raises ValidationError."""
+        new_username = '123_%s_rename_bad' % self.username
+        self.assertIsNotNone(self.model.objects.create_user(
+            username=self.username,
+            email=self.email,
+            password=self.password,
+            first_name=self.first_name,
+            last_name=self.last_name))
+        user = self.model.objects.get(username=self.username)
+        self.assertTrue(username_exists(self.username))
+        self.assertFalse(username_exists(new_username))
+        # Rename
+        user.username = new_username
+        self.assertRaises(ValidationError, user.save)
+        # Nothing changed
+        self.assertRaises(
+            self.model.DoesNotExist,
+            self.model.objects.get,
+            username=new_username)
+        self.assertTrue(username_exists(self.username))
+        self.assertFalse(username_exists(new_username))
+        # Cleanup
+        user.username = self.username
+        user.delete()
+        self.assertFalse(username_exists(self.username))
+
     def test_delete_user(self):
         """Deleting user also deletes ldap entry."""
         self.assertIsNotNone(self.model.objects.create_user(

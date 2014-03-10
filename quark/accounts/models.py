@@ -56,8 +56,6 @@ class LDAPUser(auth.get_user_model()):
     The LDAPUser cannot be set as the AUTH_USER_MODEL, as it is a proxy model
     for the AUTH_USER_MODEL.
     """
-    # TODO(flieee): Also synchronizes username with LDAP on save
-    # Requires quark.qldap
 
     objects = LDAPUserManager()
 
@@ -66,13 +64,30 @@ class LDAPUser(auth.get_user_model()):
         verbose_name = 'LDAP User'
 
     def save(self, *args, **kwargs):
-        """Only save the instance if user exists in LDAP."""
+        """Only save the instance if user exists in LDAP. Allows renaming
+        username, but does not update other LDAP entry attributes (yet)."""
         if not ldap_utils.username_exists(self.get_username()):
-            raise ValidationError(
-                'There is no user with username {} in LDAP, so the user cannot '
-                'be saved. If you are trying to create a user, please use the '
-                'LDAPUserManager create_user method.'.format(
-                    self.get_username()))
+            # TODO(flieee): update LDAP entry attributes (i.e. name, email) too
+            try:
+                old_user = LDAPUser.objects.get(pk=self.pk)
+            except LDAPUser.DoesNotExist:
+                raise ValidationError(
+                    'There is no user with username {} in LDAP, so the user '
+                    'cannot be saved. If you are trying to create a user, '
+                    'please use the LDAPUserManager create_user method.'.format(
+                        self.get_username()))
+            old_username = old_user.get_username()
+            new_username = self.get_username()
+            success, reason = ldap_utils.rename_user(
+                old_username,
+                new_username)
+            if not success:
+                raise ValidationError(
+                    'Encountered error while renaming username from {old} '
+                    'to {new}. Reason: {reason}.'.format(
+                        old=old_username,
+                        new=new_username,
+                        reason=reason))
         super(LDAPUser, self).save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
