@@ -17,27 +17,16 @@ class LDAPUserManager(BaseUserManager):
     """
     def create_user(self, username, email, password,
                     first_name, last_name, **extra_fields):
-        # Password must not be empty, but can be None for unusuable password
-        if (not username or not email or password == '' or
-                not first_name or not last_name):
-            raise ValidationError('Users must have username, email, password, '
-                                  'first name and last name')
         norm_email = self.normalize_email(email)
-        if ldap_utils.create_user(username, password, norm_email, first_name,
-                                  last_name):
-            # Create a user with an unusable password (None) in Django
-            user = self.model(
-                username=username,
-                email=self.normalize_email(email),
-                first_name=first_name,
-                last_name=last_name,
-                **extra_fields)
-            super(self.model, user).set_unusable_password()
-            user.save()
-            return user
-        else:
-            # Failed to create a new user entry in LDAP
-            return None
+        user = self.model(
+            username=username,
+            email=norm_email,
+            password=password,
+            first_name=first_name,
+            last_name=last_name,
+            **extra_fields)
+        user.save()
+        return user
 
     def create_superuser(self, username, email, password,
                          first_name, last_name, **extra_fields):
@@ -66,28 +55,56 @@ class LDAPUser(auth.get_user_model()):
     def save(self, *args, **kwargs):
         """Only save the instance if user exists in LDAP. Allows renaming
         username, but does not update other LDAP entry attributes (yet)."""
-        if not ldap_utils.username_exists(self.get_username()):
-            # TODO(flieee): update LDAP entry attributes (i.e. name, email) too
-            try:
-                old_user = LDAPUser.objects.get(pk=self.pk)
-            except LDAPUser.DoesNotExist:
-                raise ValidationError(
-                    'There is no user with username {} in LDAP, so the user '
-                    'cannot be saved. If you are trying to create a user, '
-                    'please use the LDAPUserManager create_user method.'.format(
-                        self.get_username()))
+        new_username = self.get_username()
+        # Password can be None or '' for unusuable password
+        if (not new_username or not self.email or
+                not self.first_name or not self.last_name):
+            raise ValidationError('Users must have username, email, '
+                                  'first name and last name')
+
+        try:
+            old_user = LDAPUser.objects.get(pk=self.pk)
             old_username = old_user.get_username()
-            new_username = self.get_username()
+            renaming_user = old_username != new_username
+            updating_email = old_user.email != self.email
+        except LDAPUser.DoesNotExist:
+            renaming_user = False
+            updating_email = False
+
+        # Update username
+        if renaming_user:
             success, reason = ldap_utils.rename_user(
                 old_username,
                 new_username)
             if not success:
                 raise ValidationError(
                     'Encountered error while renaming username from {old} '
-                    'to {new}. Reason: {reason}.'.format(
+                    'to {new}. Reason: {reason}'.format(
                         old=old_username,
                         new=new_username,
                         reason=reason))
+        elif not ldap_utils.username_exists(new_username):
+            if ldap_utils.create_user(new_username, self.password, self.email,
+                                      self.first_name, self.last_name):
+                # Successfully created LDAP entry for new user
+                # Set an unusable password for the Django DB instance
+                super(LDAPUser, self).set_unusable_password()
+            else:
+                # Failed to create user some how.
+                raise ValidationError(
+                    'Error creating new LDAP entry for {name} with username '
+                    '"{username}"'.format(
+                        name=self.get_full_name(),
+                        username=new_username))
+
+        # Update email
+        # New username should exist by now after rename.
+        if (updating_email and
+                not ldap_utils.set_email(new_username, self.email)):
+            raise ValidationError(
+                'Encountered error while updating user email to {new}'.format(
+                    new=self.email))
+        # TODO(flieee): update LDAP other entry attributes (i.e. name) too?
         super(LDAPUser, self).save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):

@@ -8,8 +8,9 @@ from django.test.utils import override_settings
 
 from quark.accounts.models import make_ldap_user
 from quark.accounts.models import LDAPUser
-from quark.qldap.utils import username_exists
 from quark.qldap.utils import delete_user
+from quark.qldap.utils import get_email
+from quark.qldap.utils import username_exists
 
 
 class UserModelTest(TestCase):
@@ -60,6 +61,37 @@ class CreateLDAPUserTestCase(TestCase):
 
         self.verify_user_attributes_valid()
 
+    def test_direct_create_user(self):
+        """Creating an LDAP user directly via model instantiation."""
+        if username_exists(self.username):
+            self.assertTrue(delete_user(self.username))
+        user = self.model(
+            username=self.username,
+            email=self.email,
+            password=self.password,
+            first_name=self.first_name,
+            last_name=self.last_name)
+        user.save()
+
+        self.verify_user_attributes_valid()
+
+    def test_create_incomplete_user(self):
+        """Creating an LDAP user with incomplete information should raise a
+        ValidationError.
+        """
+        if username_exists(self.username):
+            self.assertTrue(delete_user(self.username))
+        # Lacking first_name, last_name
+        user = self.model(
+            username=self.username,
+            email=self.email,
+            password=self.password)
+        self.assertRaises(ValidationError, user.save)
+
+        self.assertFalse(
+            self.model.objects.filter(username=self.username).exists())
+        self.assertFalse(username_exists(self.username))
+
     def test_create_superuser(self):
         """Test creating a superuser."""
         if username_exists(self.username):
@@ -100,25 +132,6 @@ class CreateLDAPUserTestCase(TestCase):
         # Verify LDAP utilities
         self.assertTrue(username_exists(self.username))
         self.assertTrue(delete_user(self.username))
-
-    def test_bad_create_user(self):
-        """Creating an LDAP user directly via model instantiation should not
-        actually save the new user into the database and should raise an error.
-        """
-        bad_username = 'baduser'
-        if username_exists(bad_username):
-            self.assertTrue(delete_user(bad_username))
-        user = self.model(
-            username=bad_username,
-            email=self.email,
-            password=self.password,
-            first_name=self.first_name,
-            last_name=self.last_name)
-        self.assertRaises(ValidationError, user.save)
-
-        query = self.model.objects.filter(username=bad_username)
-        self.assertEqual(0, query.count())
-        self.assertFalse(username_exists(bad_username))
 
     def test_rename_user_with_save(self):
         """Renaming an LDAP user's username also renames the LDAP entry."""
@@ -169,6 +182,25 @@ class CreateLDAPUserTestCase(TestCase):
         self.assertFalse(username_exists(new_username))
         # Cleanup
         user.username = self.username
+        user.delete()
+        self.assertFalse(username_exists(self.username))
+
+    def test_save_update_email(self):
+        """Updating email also edits LDAP entry's email attribute."""
+        new_email = 'new' + self.email
+        self.assertIsNotNone(self.model.objects.create_user(
+            username=self.username,
+            email=self.email,
+            password=self.password,
+            first_name=self.first_name,
+            last_name=self.last_name))
+        user = self.model.objects.get(username=self.username)
+        self.assertEqual(self.email, get_email(self.username))
+        # Rename
+        user.email = new_email
+        user.save()
+        self.assertEqual(new_email, get_email(self.username))
+        # Cleanup
         user.delete()
         self.assertFalse(username_exists(self.username))
 
