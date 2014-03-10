@@ -1,3 +1,5 @@
+import os
+
 from django.core.management.base import CommandError
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -83,11 +85,14 @@ class DevCommandTest(TestCase):
         self.command = dev_cmd.Command()
 
     @override_settings(PROJECT_APPS=[])
+    @patch.dict(os.environ, {'RUN_MAIN': 'true'})
     @patch('getpass.getuser')
     @patch('quark.utils.update_db')
     @patch.object(dev_cmd.DevServer, 'run_server')
     def test_handle(self, mock_server, mock_update, mock_user):
-        """A valid server name does not raise a KeyError or CommandError"""
+        """Running dev does not raise a KeyError or CommandError"""
+        # Note that we mock out the RUN_MAIN environment variable, which would
+        # be set by Django when running the management command the first time
         mock_user.return_value = 'foo'
         self.command.handle()
         self.assertTrue(mock_update.called)
