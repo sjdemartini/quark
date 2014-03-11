@@ -465,7 +465,7 @@ class IndividualAttendanceListView(TermParameterMixin, TemplateView):
         attendance_filter = Q(eventattendance__user=self.attendance_user)
         participation_filter = signup_filter | attendance_filter
         context['future_participating'] = future_events.filter(
-            participation_filter)
+            participation_filter).distinct()
 
         # Get past events that don't have attendance recorded:
         context['past_not_recorded'] = past_events.filter(
