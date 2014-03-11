@@ -152,10 +152,10 @@ TEMPLATE_LOADERS = (
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.auth.context_processors.auth',
     'django.contrib.messages.context_processors.messages',
-    #'django.core.context_processors.i18n',
     'django.core.context_processors.request',
     'django.core.context_processors.media',
     'django.core.context_processors.static',
+    'quark.base.context_processors.local_env',
     'quark.notifications.context_processors.notifications',
 )
 
@@ -277,13 +277,13 @@ except ImportError as err:
 # Import the proper instance environment settings (dev/production/staging)
 # Errors will be raised if the appropriate settings file is not found
 ###############################################################################
-__quark_env__ = os.getenv('QUARK_ENV', 'dev')
+LOCAL_ENV = os.getenv('QUARK_ENV', 'dev')
 # pylint: disable=W0401,W0614
-if __quark_env__ == 'dev':
+if LOCAL_ENV == 'dev':
     from quark.settings.dev import *
-elif __quark_env__ == 'staging':
+elif LOCAL_ENV == 'staging':
     from quark.settings.staging import *
-elif __quark_env__ == 'production':
+elif LOCAL_ENV == 'production':
     from quark.settings.production import *
 else:
-    print 'WARNING: Invalid value for QUARK_ENV: %s' % __quark_env__
+    print 'WARNING: Invalid value for QUARK_ENV: %s' % LOCAL_ENV

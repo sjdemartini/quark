@@ -14,7 +14,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% block meta %}{% endblock meta %}
 
-    <link rel="shortcut icon" href="{% static 'favicon.ico' %}">
+    <link rel="shortcut icon" href="{% get_static_prefix %}images/{% if localenv == 'dev' %}favicon_dev.ico{% elif localenv == 'staging' %}favicon_staging.ico{% else %}favicon.ico{% endif %}">
     <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,300,400,600,700" rel="stylesheet" type="text/css">
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" rel="stylesheet">
     {% compress css %}
