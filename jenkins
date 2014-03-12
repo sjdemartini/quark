@@ -47,10 +47,6 @@ else
 fi
 python manage.py jenkins --settings=$test_settings
 
-# Run scss-lint and save it in an XML report:
-scss-lint quark/static/css/*.scss --config .scss-lint.yml --format XML \
-    > reports/csslint.report
-
 # Error code should be 0 (no errors)
 jenkins_status=$?
 
@@ -68,6 +64,10 @@ pep8_status=$?
 # any lines with file)
 grep -q "file" reports/jshint.xml
 jshint_status=$?
+
+# Run scss-lint and save it in an XML report:
+scss-lint quark/static/css/*.scss --config .scss-lint.yml --format XML \
+    > reports/csslint.report
 
 # Check if css linting is perfect (error code should not be 0; grep shouldn't
 # find any lines with file)
