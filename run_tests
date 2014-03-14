@@ -1,0 +1,132 @@
+#!/bin/bash
+
+# Note: when the string "build" is passed in as the first argument to the
+# test script, run the full suite of tasks. Otherwise, only run the tasks that
+# would be needed to pass a build.
+
+PROJECT_NAME=quark
+
+# Don't run me as root!
+if [[ `id --user` == "0" ]]; then
+    echo "Do not run tests as root."
+    exit 1
+fi
+
+# Use virtualenv with Django-1.6 installed.
+source /home/tbp/virtualenv/django16/bin/activate
+
+# Go to directory of the script
+pushd $(dirname $0) > /dev/null
+
+# Clean up compiled python files
+find . -type f -name "*.py[co]" -delete
+
+# Remove old build reports:
+rm -rf reports/*
+
+# First ensure we have up-to-date submodules, as some may be required for tests:
+git submodule init
+git submodule update
+
+# The following conditions must be true for test to pass:
+#   1. The tests must pass.
+#   2. pylint must be perfect (Exit code is 0).
+#   3. pep8 must be perfect (Exit code is 0).
+#   4. jshint must be perfect (Exit code is 0).
+#   5. scss-lint must be perfect (Exit code is 0).
+# All other lint errors are not taken into consideration for the +/- Verified
+# flag.
+
+# For full builds, pass in the "build" argument, which ensures that all desired
+# tasks are run
+if [[ $1 == 'build' ]]; then
+    rm -f .coverage
+    # Run tests with coverage
+    coverage run manage.py test --settings=${PROJECT_NAME}.settings.test
+    # Error code should be 0 (no errors)
+    test_status=$?
+    # Generate text coverage report
+    coverage report > reports/coverage.report
+else
+    # Run tests directly with python
+    python manage.py test --settings=${PROJECT_NAME}.settings.test
+    # Error code should be 0 (no errors)
+    test_status=$?
+fi
+
+# Check if pylint is perfect. Error code should be 0 (no errors)
+pylint --rcfile=.pylintrc ${PROJECT_NAME} > reports/pylint.report
+pylint_project_status=$?
+pylint --rcfile=.pylintrc scripts >> reports/pylint.report
+pylint_scripts_status=$?
+
+# Check if pep8 is perfect. Error code should be 0 (no errors)
+# Exclude gitignore files by converting newlines to commas
+pep8 --config=.pep8rc \
+    --exclude=`sed -e :a -e 'N;s/\n/,/;ba' .gitignore` \
+    ${PROJECT_NAME} > reports/pep8.report
+pep8_status=$?
+
+# Check if jshint is perfect. Error code should be 0 (no errors)
+jshint --config .jshintrc quark/static/js/{main,slideshow,visual_datetime}.js \
+    > reports/jshint.report
+jshint_status=$?
+
+# Check if scss linting is perfect. Error code should be 0 (no errors)
+scss-lint ${PROJECT_NAME}/static/css/*.scss --config .scss-lint.yml \
+    > reports/scsslint.report
+scsslint_status=$?
+
+if [[ $test_status == 0 ]] && \
+   [[ $pylint_project_status == 0 ]] && \
+   [[ $pylint_scripts_status == 0 ]] && \
+   [[ $pep8_status == 0 ]] && \
+   [[ $jshint_status == 0 ]] && \
+   [[ $scsslint_status == 0 ]]
+then
+    success=0
+    echo -e "\nEverything looks good!"
+else
+    success=1
+    if [[ $pylint_project_status != 0 ]] || [[ $pylint_scripts_status != 0 ]]
+    then
+        echo -e "\nPYLINT VIOLATIONS"
+        echo "================================================================"
+        # Print until first blank line (the lines that say the errors)
+        awk '/^\s*$/{exit}1' reports/pylint.report
+    else
+        echo -e "\nNo pylint violations."
+    fi
+
+    if [[ $pep8_status != 0 ]]; then
+        echo -e "\nPEP8 VIOLATIONS"
+        echo "================================================================"
+        # Print the whole file (all lines say the errors)
+        cat reports/pep8.report
+    else
+        echo -e "\nNo pep8 violations."
+    fi
+
+    if [[ $jshint_status != 0 ]]; then
+        echo -e "\nJSHINT VIOLATIONS"
+        echo "================================================================"
+        # Print the whole file (all lines say the errors)
+        cat reports/jshint.report
+    else
+        echo -e "\nNo jshint violations."
+    fi
+
+    if [[ $scsslint_status != 0 ]]; then
+        echo -e "\nSCSS-LINT VIOLATIONS"
+        echo "================================================================"
+        # Print the whole file (all lines say the errors)
+        cat reports/jshint.report
+    else
+        echo -e "\nNo scss-lint violations."
+    fi
+
+    echo -e "\nPlease fix all errors before doing git review!"
+fi
+
+popd > /dev/null
+exit $success

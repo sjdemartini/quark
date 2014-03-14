@@ -18,4 +18,4 @@ def alter_tables():
         cursor.execute(
             'ALTER TABLE {} CONVERT TO CHARACTER SET utf8 COLLATE'
             ' utf8_unicode_ci;'.format(table))
-    print('Tables successfully altered to handle UTF-8 fields.')
+    print 'Tables successfully altered to handle UTF-8 fields.'

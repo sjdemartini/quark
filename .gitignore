@@ -3,9 +3,9 @@
 .*.swp
 .*.swo
 *~
+.sass-cache
 quark/settings/local.py
-docs
+.coverage
 /reports/
 /media/
 /static/
-.sass-cache

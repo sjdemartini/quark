@@ -1,3 +1,4 @@
+# pylint: disable=F0401
 from Mailman import MailList
 from Mailman import Utils
 

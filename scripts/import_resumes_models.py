@@ -39,7 +39,7 @@ def import_resumes():
                 resume.resume_file = File(resume_file)
                 resume.save()
         except IOError:
-            print('Could not import {}\'s resume.'.format(user))
+            print 'Could not import {}\'s resume.'.format(user)
 
         # Convert the naive datetime into an aware datetime
         timestamp = make_aware(parser.parse(fields['timestamp']), timezone)

@@ -72,74 +72,74 @@ from scripts.import_user_models import import_users
 # candidate_portal.eventrequirementexception.json
 # minutes.minutes.json
 
-print('Backing up all current data to scripts/data/backup.json')
+print 'Backing up all current data to scripts/data/backup.json'
 backup = open('scripts/data/backup.json', 'w')
 call_command('dumpdata', stdout=backup)
 backup.close()
 
-print('Altering certain tables so that they can handle UTF-8 fields.')
+print 'Altering certain tables so that they can handle UTF-8 fields.'
 alter_tables()
 
-print('Importing all models from noiro.')
+print 'Importing all models from noiro.'
 
-print('Importing terms.')
+print 'Importing terms.'
 import_terms()
 
-print('Importing departments.')
+print 'Importing departments.'
 import_departments()
-print('Importing courses.')
+print 'Importing courses.'
 import_courses()
-print('Importing instructors.')
+print 'Importing instructors.'
 import_instructors()
-print('Importing course instances.')
+print 'Importing course instances.'
 import_course_instances()
 
-print('Deleting current users.')
+print 'Deleting current users.'
 delete_users()
-print('Importing users.')
+print 'Importing users.'
 import_users()
-print('Deleting current user profiles.')
+print 'Deleting current user profiles.'
 delete_user_profiles()
-print('Importing user profiles.')
+print 'Importing user profiles.'
 import_user_profiles()
 
-print('Importing project reports.')
+print 'Importing project reports.'
 import_project_reports()
 
-print('Importing event types.')
+print 'Importing event types.'
 import_event_types()
-print('Importing events.')
+print 'Importing events.'
 import_events()
-print('Importing event sign ups.')
+print 'Importing event sign ups.'
 import_event_sign_ups()
-print('Importing event attendances.')
+print 'Importing event attendances.'
 import_event_attendances()
 
-print('Importing officers.')
+print 'Importing officers.'
 import_officers()
 
-print('Importing resumes.')
+print 'Importing resumes.'
 import_resumes()
 
-print('Importing exams.')
+print 'Importing exams.'
 import_exams()
-print('Importing exam flags.')
+print 'Importing exam flags.'
 import_exam_flags()
 
-print('Importing candidates.')
+print 'Importing candidates.'
 import_candidates()
-print('Importing candidate challenge requirements.')
+print 'Importing candidate challenge requirements.'
 import_challenge_requirements()
-print('Importing challenges.')
+print 'Importing challenges.'
 import_challenges()
-print('Importing candidate event requirements.')
+print 'Importing candidate event requirements.'
 import_event_requirements()
-print('Importing candidate requirement progresses.')
+print 'Importing candidate requirement progresses.'
 import_candidate_progresses()
-print('Importing candidate exam requirements.')
+print 'Importing candidate exam requirements.'
 import_exam_files_requirements()
 
-print('Importing minutes.')
+print 'Importing minutes.'
 import_minutes()
 
-print('All models successfully imported.')
+print 'All models successfully imported.'

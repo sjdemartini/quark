@@ -6,6 +6,7 @@ environment would overwrite these. The base and site-specific settings files
 must not overwrite these.
 """
 import ldap
+# pylint: disable=F0401
 import quark_keys
 
 # Custom setting used to include a short tag for the site in relevant content

@@ -21,9 +21,9 @@ def import_minutes():
 
         # Determine the meeting type based off the name
         name = fields['name']
-        if (name == 'OM' or ' OM' in name or 'officer meeting' in name.lower()):
+        if name == 'OM' or ' OM' in name or 'officer meeting' in name.lower():
             meeting_type = Minutes.OFFICER
-        elif (name == 'EM' or ' EM' in name or 'exec meeting' in name.lower()):
+        elif name == 'EM' or ' EM' in name or 'exec meeting' in name.lower():
             meeting_type = Minutes.EXEC
         else:
             meeting_type = Minutes.OTHER
