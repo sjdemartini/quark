@@ -972,6 +972,7 @@ blockquote {
 
 #content {
   margin: 0 15px;
+  position: relative;
   @include clearfix;
 }
 

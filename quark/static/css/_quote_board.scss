@@ -1,0 +1,25 @@
+/* _quote_board.scss */
+@import 'base';
+
+.entry {
+  margin-bottom: 25px;
+  position: relative;
+}
+
+.speakers {
+  padding-bottom: 7px;
+}
+
+.submitter {
+  font-size: 80%;
+  position: absolute;
+  right: 0;
+}
+
+.quote {
+  border-radius: 5px;
+  border-style: solid;
+  border-width: thin;
+  font-weight: 500;
+  padding: 0 5px;
+}

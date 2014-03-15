@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}Quote Board{% endblock title %}
+
+{% block intro %}
+<h1>Quote Board</h1>
+{% endblock intro %}
+
+{% block content %}
+
+<p>
+  <a href="{% url 'quote-board:add' %}" class="btn"><i class="fa fa-plus" title="add"></i> Add Quote</a>
+</p>
+
+{% for quote in quote_list %}
+{% include 'quote_board/_quote_detail.html' with show_link=True %}
+{% endfor %}
+
+{% endblock content %}

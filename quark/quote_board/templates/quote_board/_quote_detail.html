@@ -1,0 +1,17 @@
+{% load markup %}
+
+<div class="entry">
+  <div class="speakers">
+    On {% if show_link %}
+      <a href="{% url 'quote-board:detail' quote.pk %}">{{ quote.time }}</a>
+    {% else %}
+      {{ quote.time }}
+    {% endif %},
+    {% for speaker in quote.speakers.all %}
+      {{ speaker.userprofile.get_common_name }}{% if not forloop.last %}, {% endif %}
+    {% endfor %}
+    said:
+  </div>
+  <div class="quote">{{ quote.quote|markdown }}</div>
+  <div class="submitter">Submitted by {{ quote.submitter }} ({{ quote.submitter.userprofile.get_common_name }})</div>
+</div>

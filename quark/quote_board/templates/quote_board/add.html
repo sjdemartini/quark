@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}Add A Quote{% endblock title %}
+
+{% block intro %}<h1>Add a Quote</h1>{% endblock intro %}
+
+{% block content %}
+
+<form method="post">
+  {% csrf_token %}
+  {% include '_form.html' %}
+  <div>
+    <input type="submit" value="Submit">
+  </div>
+</form>
+{% endblock content %}
