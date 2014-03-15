@@ -150,9 +150,11 @@ class EventSignUpForm(forms.ModelForm):
             num_rsvps -= (1 + signup.num_guests)
 
         # Add the user and the number of guests to the total number of rsvps
-        # and check that it is less than the signup limit
-        if (1 + num_guests + num_rsvps) > self.event.signup_limit:
-            raise forms.ValidationError('There are not enough spots left.')
+        # and check that it is less than the signup limit if the limit is not
+        # zero (a limit of zero implies unlimited signups)
+        if self.event.signup_limit != 0:
+            if (1 + num_guests + num_rsvps) > self.event.signup_limit:
+                raise forms.ValidationError('There are not enough spots left.')
 
         # Only save a new object if a signup does not already exist for this
         # user. Otherwise, just update the existing object.
