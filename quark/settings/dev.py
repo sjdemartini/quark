@@ -29,6 +29,8 @@ except subprocess.CalledProcessError:
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 # Set the debug mode for easy-thumbnails
 THUMBNAIL_DEBUG = DEBUG
 
