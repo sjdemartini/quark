@@ -1,17 +1,23 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import permission_required
 from django.core.exceptions import PermissionDenied
+from django.core.mail import EmailMessage
 from django.core.servers.basehttp import FileWrapper
 from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.utils.encoding import smart_bytes
 from django.views.generic import DetailView
 from django.views.generic.edit import FormView
 
+from quark.base.models import Officer
+from quark.base.models import OfficerPosition
+from quark.base.models import Term
 from quark.resumes.forms import ResumeForm
 from quark.resumes.forms import ResumeListFormSet
 from quark.resumes.forms import ResumeCritiqueFormSet
@@ -147,7 +153,53 @@ class ResumeEditView(FormView):
         form.instance.user = self.request.user
         form.instance.verified = None
         form.instance.save()
-        messages.success(self.request, 'Changes saved!')
+        new_resume = form.instance
+        if new_resume.critique:
+            responsible_committee = OfficerPosition.objects.get(
+                short_name=settings.RESUMEQ_OFFICER_POSITION)
+            officers = Officer.objects.filter(
+                term=Term.objects.get_current_term(),
+                position=responsible_committee)
+            if officers.exists():
+                assignee = officers[self.request.user.id %
+                                    officers.count()].user
+                assignee_name = assignee.userprofile.get_verbose_full_name()
+                requestee = self.request.user
+                requestee_name = requestee.userprofile.get_verbose_full_name()
+                subject = 'Resume critique requested by {}'.format(
+                    requestee_name)
+                assigning_body = render_to_string(
+                    'resumes/resume_assignment_email.txt',
+                    {'assignee': assignee_name,
+                     'requestee': requestee_name,
+                     'committee': responsible_committee.short_name,
+                     'user': requestee})
+                assigning_message = EmailMessage(
+                    subject=subject,
+                    body=assigning_body,
+                    from_email=settings.RESUMEQ_ADDRESS,
+                    to=[assignee.email],
+                    cc=[settings.RESUMEQ_ADDRESS])
+                assigning_message.send(fail_silently=True)
+                confirmation_body = render_to_string(
+                    'resumes/resume_confirmation_email.txt',
+                    {'requestee': requestee_name,
+                     'committee': responsible_committee.long_name}
+                    )
+                confirmation_message = EmailMessage(
+                    subject=subject,
+                    body=confirmation_body,
+                    from_email=settings.RESUMEQ_ADDRESS,
+                    to=[requestee.email],
+                    cc=[settings.RESUMEQ_ADDRESS])
+                m_id = assigning_message.extra_headers.get('Message-Id', None)
+                confirmation_message.extra_headers = {'References': m_id,
+                                                      'In-Reply-To': m_id}
+                confirmation_message.send(fail_silently=True)
+            messages.success(self.request,
+                             'Your resume critique request has been sent!')
+        else:
+            messages.success(self.request, 'Changes saved!')
         return super(ResumeEditView, self).form_valid(form)
 
     def form_invalid(self, form):

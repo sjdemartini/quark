@@ -14,7 +14,7 @@ urlpatterns = patterns(
     url(r'^edit/$', ResumeEditView.as_view(), name='edit'),
     url(r'^download/$', ResumeDownloadView.as_view(), name='download'),
     url(r'^download/(?P<user_pk>\d+)/$',
-        ResumeDownloadView.as_view(), name='download-user'),
+        ResumeDownloadView.as_view(), name='download'),
     url(r'^critique/$', ResumeCritiqueView.as_view(), name='critique'),
     url(r'^verify/$', ResumeVerifyView.as_view(), name='verify'),
     )

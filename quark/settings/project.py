@@ -23,10 +23,14 @@ SERVER_EMAIL = DEFAULT_FROM_EMAIL
 # An email address for receiving test emails
 TEST_ADDRESS = 'test@' + HOSTNAME
 
+# ResumeQ is used to automatically assign officers for critiquing resumes.
+# The short_name of the position of officers that are assigned resume_critiques:
+RESUMEQ_OFFICER_POSITION = 'prodev'
+
 # Emailer stuff
 ENABLE_HELPDESKQ = False
 
-RESUMEQ_CC_ADDRESS = TEST_ADDRESS
+RESUMEQ_ADDRESS = TEST_ADDRESS
 
 # Email addresses
 HELPDESK_ADDRESS = TEST_ADDRESS
