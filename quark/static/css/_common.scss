@@ -677,17 +677,21 @@ blockquote {
   }
 }
 
-.user-picture-avatar {
+.user-avatar {
   height: 40px;
   width: 40px;
 }
 
+.autocomplete-pic {
+  margin-right: 10px;
+  vertical-align: middle;
+}
+
 // If a user's photo hasn't been uploaded, the default icon is used instead:
-.user-default-avatar {
+.default-avatar {
   background: $medium-gray;
-  height: 40px;
+  display: inline-block;
   text-align: center;
-  width: 40px;
 
   .fa-user {
     color: #fff !important;

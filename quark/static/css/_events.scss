@@ -200,9 +200,26 @@ tr.past-event {
     border: 1px dashed #ddd;
     border-bottom: 0;
     padding: 5px;
+    width: 100%;
+    @include box-sizing(border-box);
 
     &:last-child {
       border-bottom: 1px dashed #ddd;
+    }
+
+    .avatar,
+    .user-name {
+      display: table-cell;
+      vertical-align: middle;
+    }
+
+    .user-avatar {
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    .user-name {
+      width: 100%;
     }
 
     @include respond-to(small) {

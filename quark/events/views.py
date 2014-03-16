@@ -16,6 +16,7 @@ from django.db.models import Count
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.html import format_html
@@ -426,9 +427,13 @@ def attendance_search(request, max_results=20):
         name = member.userprofile.get_verbose_full_name()
         name_lower = name.lower()
         if all(search_term in name_lower for search_term in search_terms):
+            pic_html = render_to_string(
+                '_user_thumbnail.html',
+                {'user_profile': member.userprofile})
             entry = {
                 'label': name,
-                'value': member.pk
+                'value': member.pk,
+                'picture': pic_html
             }
             member_matches.append(entry)
         if len(member_matches) >= max_results:

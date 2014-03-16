@@ -9,7 +9,7 @@ default alt text on the image (the user's common name).
 {% endcomment %}
 {% load thumbnail %}
 {% if user_profile.picture %}
-  <img class="user-picture-avatar" src="{{ user_profile.picture|thumbnail_url:'avatar' }}" alt="{{ alt_text|default:user_profile.get_common_name }}">
+  <img class="user-avatar user-picture" src="{{ user_profile.picture|thumbnail_url:'avatar' }}" alt="{{ alt_text|default:user_profile.get_common_name }}">
 {% else %}
-  <div class="user-default-avatar"><i class="fa fa-user"></i></div>
+  <div class="user-avatar default-avatar"><i class="fa fa-user"></i></div>
 {% endif %}

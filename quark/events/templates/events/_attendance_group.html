@@ -12,8 +12,13 @@ listing out the users in that group, respectively.
   <ul{% if group_list_id %} id="{{ group_list_id }}"{% endif %}>
     {% for group_user in group_users %}
     <li class="{% if group_user.pk in attendees %}attending{% else %}checkable{% endif %}{% if group_user.pk in signed_up %} signed-up{% endif %}" id="user_{{ group_user.pk }}">
-      {{ group_user.userprofile.get_verbose_full_name }}
-      <i class="fa fa-spinner fa-spin loading" style="display: none"></i>
+      <div class="avatar">
+        {% include '_user_thumbnail.html' with user_profile=group_user.userprofile %}
+      </div>
+      <div class="user-name">
+        {{ group_user.userprofile.get_verbose_full_name }}
+        <i class="fa fa-spinner fa-spin loading" style="display: none"></i>
+      </div>
     </li>
     {% endfor %}
   </ul>

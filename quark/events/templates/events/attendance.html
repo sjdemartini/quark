@@ -39,7 +39,7 @@ function deleteAttendance(userPK) {
   });
 }
 
-$('#member-search').autocomplete({
+var search = $('#member-search').autocomplete({
   minLength: 2,  // Require at least two characters typed before searching
   source: function(request, response) {
     $.getJSON('{% url 'events:attendance-search' %}', {
@@ -64,12 +64,20 @@ $('#member-search').autocomplete({
       // members list
       var attendee = $('<li class="attending"></li>');
       attendee.attr('id', id);
-      attendee.text(ui.item.label);
-      // Add a loading icon spinner to this entry:
-      attendee.append(
+
+      // Add the user's avatar to the entry:
+      var picHtml = $.trim(ui.item.picture);
+      var avatar = $('<div class="avatar">').append(picHtml);
+      attendee.append(avatar);
+
+      // Add the user's name and loading icon spinner to this entry:
+      var userNameDiv = $('<div class="user-name">').text(ui.item.label);
+      userNameDiv.append(
           $('<i class="fa fa-spinner fa-spin loading" ' +
             'style="display: none"></i>')
       );
+      attendee.append(userNameDiv);
+
       $('#members-list').prepend(attendee);
       $(attendee).click(toggleAttendance);
     } else {
@@ -94,6 +102,15 @@ $('#member-search').autocomplete({
     event.preventDefault();
   }
 });
+
+// Override the renderItem method so that images can be shown in-line
+search.data('ui-autocomplete')._renderItem = function(ul, item) {
+  var itemLI = $('<li>').attr('data-value', item.value);
+  var itemLink = $('<a>').text(item.label);
+  var picHtml = $.trim(item.picture);
+  itemLink.prepend($(picHtml).addClass('autocomplete-pic'));
+  return itemLI.append(itemLink).appendTo(ul);
+};
 
 // Set the function for what happens when a user is clicked on
 $('.attendance-group ul > li').click(toggleAttendance);
