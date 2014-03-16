@@ -22,7 +22,9 @@ pushd $(dirname $0) > /dev/null
 find . -type f -name "*.py[co]" -delete
 
 # Remove old build reports:
-rm -rf reports/*
+rm -rf reports
+# Make reports dir
+mkdir -p reports
 
 # First ensure we have up-to-date submodules, as some may be required for tests:
 git submodule init

@@ -28,7 +28,7 @@ SESSION_COOKIE_SECURE = True
 
 # Import any local settings custom for staging environment
 try:
-    # pylint: disable=F0401,W0401,W0614
+    # pylint: disable=E0611,F0401,W0401,W0614
     from quark.settings.local import *
 except ImportError:
     # Ignore if there's no local settings file
