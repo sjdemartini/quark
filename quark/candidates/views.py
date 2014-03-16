@@ -51,6 +51,8 @@ class CandidateContextMixin(ContextMixin):
 
         attended_events = {}
         signed_up_events = {}
+        elective_events = []
+
         event_types = EventType.objects.values_list('name', flat=True)
         for event_type in event_types:
             attended_events[event_type] = []
@@ -70,8 +72,32 @@ class CandidateContextMixin(ContextMixin):
             signed_up_events[
                 signup.event.event_type.name].append(signup.event)
 
+        event_reqs = CandidateRequirement.objects.filter(
+            term=candidate.term,
+            requirement_type=CandidateRequirement.EVENT)
+        try:
+            elective_req = event_reqs.get(
+                eventcandidaterequirement__event_type__name='Elective')
+        except CandidateRequirement.DoesNotExist:
+            elective_req = None
+
+        # If at least 1 elective event is required, extra events from other
+        # event types will count as elective events.
+        if (elective_req and
+                elective_req.get_progress(self.candidate)['required'] > 0):
+            for event_req in event_reqs:
+                req_progress = event_req.get_progress(self.candidate)
+                event_type = event_req.eventcandidaterequirement.event_type
+                extra = req_progress['completed'] - req_progress['required']
+                if extra > 0 and event_type.eligible_elective:
+                    elective_events += attended_events[event_type.name][
+                        req_progress['required']:]
+                    attended_events[event_type.name] = attended_events[
+                        event_type.name][:req_progress['required']]
+
         context['attended_events'] = attended_events
         context['signed_up_events'] = signed_up_events
+        context['elective_events'] = elective_events
 
         requested_challenges = {}
         challenge_types = ChallengeType.objects.values_list('name', flat=True)
@@ -196,12 +222,21 @@ class CandidateEditView(FormView, CandidateContextMixin):
         for req in CandidateRequirement.REQUIREMENT_TYPE_CHOICES:
             req_types[req[0]] = []
 
+        electives_required = Candidate.are_electives_required(self.candidate)
+
         for i, req in enumerate(self.requirements):
             progress = self.progress_list[i]
             form = formset[i]
             req_progress = req.get_progress(self.candidate)
             completed = req_progress['completed']
             credits_needed = req_progress['required']
+
+            # this is here so on the candidate portal, it will only show
+            # something like 3/3 events completed instead of 5/3 if
+            # they have more than needed, since 2 of those 5 would be in
+            # the electives section (unless electives arent required)
+            if electives_required and completed > credits_needed:
+                completed = credits_needed
 
             entry = {
                 'completed': completed,
@@ -589,11 +624,18 @@ class CandidatePortalView(CreateView, CandidateContextMixin):
         for req in CandidateRequirement.REQUIREMENT_TYPE_CHOICES:
             req_types[req[0]] = []
 
+        electives_required = Candidate.are_electives_required(self.candidate)
+
         for req in requirements:
             req_progress = req.get_progress(self.candidate)
+            completed = req_progress['completed']
+            credits_needed = req_progress['required']
+            if electives_required and completed > credits_needed:
+                completed = credits_needed
+
             entry = {
-                'completed': req_progress['completed'],
-                'credits_needed': req_progress['required'],
+                'completed': completed,
+                'credits_needed': credits_needed,
                 'requirement': req
             }
             req_type = req.requirement_type

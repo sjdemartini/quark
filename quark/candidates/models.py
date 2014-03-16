@@ -86,6 +86,18 @@ class Candidate(models.Model):
         required = sum([x['required'] for x in progress])
         return {'completed': completed, 'required': required}
 
+    def are_electives_required(self):
+        """Return true if elective events are required; false otherwise."""
+        event_reqs = CandidateRequirement.objects.filter(
+            term=self.term,
+            requirement_type=CandidateRequirement.EVENT)
+        try:
+            elective_req = event_reqs.get(
+                eventcandidaterequirement__event_type__name='Elective')
+        except self.DoesNotExist:
+            return False
+        return elective_req.get_progress(self)['required'] > 0
+
     def __unicode__(self):
         return '{user} ({term})'.format(user=self.user, term=self.term)
 

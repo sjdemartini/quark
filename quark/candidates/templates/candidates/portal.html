@@ -10,6 +10,7 @@
 {% block content %}
 <h2>Event Requirements</h2>
 {% for entry in req_types.event %}
+{% if entry.requirement.get_name != 'Elective' %}
 {% include 'candidates/_individual_portal_progress.html' with entry=entry %}
 <ul>
   {% with event_type=entry.requirement.eventcandidaterequirement.event_type.name %}
@@ -24,6 +25,19 @@
   {% endif %}
   {% endwith %}
 </ul>
+{% else %}
+  {% if entry.credits_needed > 0 %}
+  <h3>Elective</h3>
+  <div><strong>[{{ elective_events|length }} / {{ entry.credits_needed }}]</strong></div>
+  <ul>
+    {% for event in elective_events %}
+    <li><strong>{{ event.name }}</strong> ({{ event.event_type.name }})</li>
+    {% empty %}
+    No attendance for Elective events. If you attend more than the required number of events in any event category, those additional events will count as Elective events.
+    {% endfor %}
+  </ul>
+  {% endif %}
+{% endif %}
 {% empty %}
 There are no Event requirements.
 {% endfor %}

@@ -21,6 +21,10 @@ class EventTypeManager(models.Manager):
 
 class EventType(models.Model):
     name = models.CharField(max_length=60, unique=True)
+    eligible_elective = models.BooleanField(
+        default=True,
+        help_text='Determines whether or not an event can be counted '
+                  'towards a candidates Elective event requirement.')
 
     objects = EventTypeManager()
 

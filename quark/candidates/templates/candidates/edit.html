@@ -64,6 +64,7 @@ No photo uploaded yet.
 
   <h2>Event Requirements</h2>
   {% for entry in req_types.event %}
+  {% if entry.requirement.get_name != 'Elective' %}
   {% include 'candidates/_individual_progress.html' with entry=entry %}
   <ul>
     {% with event_type=entry.requirement.eventcandidaterequirement.event_type.name %}
@@ -78,6 +79,32 @@ No photo uploaded yet.
     {% endif %}
     {% endwith %}
   </ul>
+  {% else %}
+    {% if entry.credits_needed > 0 %}
+    {{ entry.form.errors.credits_needed }}
+    {{ entry.form.errors.manually_recorded_credits }}
+    <h3>Elective</h3>
+    <div><strong>[{{ elective_events|length }} / {{ entry.credits_needed }}]</strong> (regular: {{ entry.requirement.credits_needed }})
+    <a href="javaScript:void(0);" onclick="$('#{{ entry.requirement.pk }}').slideToggle(200);">[edit]</a></div>
+    <div id="{{ entry.requirement.pk }}" style="display:none">
+      <strong>
+        [{{ elective_events|length }}
+        {{ entry.form.manually_recorded_credits.as_hidden }}
+        / {{ entry.form.alternate_credits_needed }}]
+      </strong>
+      <div>
+        Comments: {{ entry.form.comments }}
+      </div>
+    </div>
+    <ul>
+      {% for event in elective_events %}
+      <li><strong>{{ event.name }}</strong> ({{ event.event_type.name }})</li>
+      {% empty %}
+      No attendance for Elective events. If the candidate attends more than the required number of events in any event category, those additional events will count as Elective events.
+      {% endfor %}
+    </ul>
+    {% endif %}
+  {% endif %}
   {% empty %}
   There are no Event requirements.
   {% endfor %}
