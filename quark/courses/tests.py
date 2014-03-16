@@ -89,7 +89,6 @@ class CoursesTestCase(TestCase):
             submitter=self.user,
             exam_number=Exam.FINAL,
             exam_type=Exam.EXAM,
-            unique_id='abcdefg',
             file_ext='.pdf',
             verified=True)
         self.exam_ee_1.save()

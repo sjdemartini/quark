@@ -1,11 +1,11 @@
 import os
-import uuid
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models.signals import pre_delete
 from django.db.models.signals import post_save
+from uuidfield import UUIDField
 
 from quark.courses.models import CourseInstance
 from quark.courses.models import Instructor
@@ -23,6 +23,19 @@ class ExamManager(models.Manager):
         """
         return self.filter(verified=True, flags__lte=ExamFlag.LIMIT,
                            blacklisted=False)
+
+
+def generate_exam_filepath(instance, filename):
+    """Generate a file name and path for the given exam file.
+
+    Used for the Exam model's exam file upload_to function.
+
+    Files are stored in directories inside the exam files directory
+    corresponding to the first two characters of the unique id. File names
+    consist of the whole unique 32-character alphanumeric id, without hyphens.
+    """
+    instance.file_ext = os.path.splitext(filename)[1]
+    return instance.get_relative_pathname()
 
 
 class Exam(models.Model):
@@ -55,32 +68,18 @@ class Exam(models.Model):
     # Constants
     EXAM_FILES_LOCATION = 'exam_files'
 
-    def rename_file(instance, filename):
-        """Rename this exam file as a unique id.
-
-        Files are stored in directories inside the exam files directory
-        corresponding to the first two characters of the unique id. File names
-        consist of the whole unique 32-character alphanumeric id, without
-        hyphens.
-        """
-        # pylint: disable=E0213
-        instance.file_ext = os.path.splitext(filename)[1]
-        return os.path.join(Exam.EXAM_FILES_LOCATION,
-                            instance.unique_id[0:2],
-                            instance.unique_id + instance.file_ext)
-
     course_instance = models.ForeignKey(CourseInstance)
     submitter = models.ForeignKey(settings.AUTH_USER_MODEL, null=True,
                                   blank=True)
     exam_number = models.CharField(max_length=5, choices=EXAM_NUMBER_CHOICES)
     exam_type = models.CharField(max_length=4, choices=EXAM_TYPE_CHOICES)
-    unique_id = models.CharField(max_length=32, unique=True)
+    unique_id = UUIDField(auto=True)
     file_ext = models.CharField(max_length=5)  # includes the period
-    # must be verified manually be an officer
+    # The exam must be verified manually be an officer:
     verified = models.BooleanField(default=False, blank=True)
     flags = models.PositiveSmallIntegerField(default=0)
     blacklisted = models.BooleanField(default=False)
-    exam_file = models.FileField(upload_to=rename_file)
+    exam_file = models.FileField(upload_to=generate_exam_filepath)
 
     objects = ExamManager()
 
@@ -107,22 +106,23 @@ class Exam(models.Model):
     def get_folder(self):
         """Return the path of the folder where the exam file is."""
         return os.path.join(
-            settings.MEDIA_ROOT, Exam.EXAM_FILES_LOCATION, self.unique_id[0:2])
+            settings.MEDIA_ROOT, Exam.EXAM_FILES_LOCATION,
+            str(self.unique_id)[0:2])
+
+    def get_relative_pathname(self):
+        """Return the relative path of the exam file from inside the media
+        root.
+        """
+        return os.path.join(Exam.EXAM_FILES_LOCATION,
+                            str(self.unique_id)[0:2],
+                            str(self.unique_id) + self.file_ext)
 
     def get_absolute_pathname(self):
         """Return the absolute path of the exam file."""
-        return os.path.join(settings.MEDIA_ROOT, Exam.EXAM_FILES_LOCATION,
-                            str(self.unique_id)[0:2],
-                            self.unique_id + self.file_ext)
+        return os.path.join(settings.MEDIA_ROOT, self.get_relative_pathname())
 
     def get_absolute_url(self):
         return reverse('exams:edit', args=(self.pk,))
-
-    def save(self, *args, **kwargs):
-        """Assign a unique for a newly created exam."""
-        if not self.pk:
-            self.unique_id = uuid.uuid4().hex
-        super(Exam, self).save(*args, **kwargs)
 
     def get_download_file_name(self):
         """Return the file name of the exam file when it is downloaded."""

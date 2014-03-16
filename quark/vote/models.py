@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from uuidfield import UUIDField
 
 from quark.base.models import Term
 
@@ -39,6 +40,9 @@ class Poll(models.Model):
 
 
 class Vote(models.Model):
+    # Use a randomly-generated UUIDField for the primary key, making it
+    # impossible to associate a Vote with a VoteReceipt
+    id = UUIDField(auto=True, primary_key=True)
     poll = models.ForeignKey(Poll)
     nominee = models.ForeignKey(settings.AUTH_USER_MODEL)
     reason = models.TextField()
@@ -49,6 +53,9 @@ class Vote(models.Model):
 
 
 class VoteReceipt(models.Model):
+    # Use a randomly-generated UUIDField for the primary key, making it
+    # impossible to associate a Vote with a VoteReceipt
+    id = UUIDField(auto=True, primary_key=True)
     poll = models.ForeignKey(Poll)
     voter = models.ForeignKey(settings.AUTH_USER_MODEL)
     created = models.DateTimeField(auto_now_add=True)
