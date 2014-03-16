@@ -150,15 +150,8 @@ $(function() {
 
 {% if num_signups and perms.event.contact_participants %}
 <h3>Email Participants</h3>
-{# TODO(sjdemartini): email people from within browser #}
-
-{% spaceless %}
-{% for signup in signup_list %}
-<span>&quot;{% if signup.user %}{{ signup.user.get_full_name }}{% else %}{{ signup.name }}{% endif %}&quot;
-  &lt;{% if signup.user %}{{ signup.user.email }}{% else %}{{ signup.email }}{% endif %}&gt;{% if not forloop.last %}, {% endif %}
-</span>
-{% endfor %}
-{% endspaceless %}
+<p>Email people who signed up <a href="{% url 'events:email' event.pk %}">from within your browser</a>.</p>
+<p>{% include 'events/_signup_email_list.html' with event_signups=signup_list %}</p>
 
 {# TODO(sjdemartini): text participants information #}
 {% endif %}

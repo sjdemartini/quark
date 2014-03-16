@@ -12,16 +12,16 @@ class ContactForm(forms.Form):
     A generic form that allows users to contact other people. It's used for
     both Helpdesk and the Events emailer.
     """
-    MIN_MESSAGE_LENGTH = 30
+    MIN_MESSAGE_LENGTH = 10
     name = forms.CharField(
         error_messages={'required': 'Please provide your name.'})
     email = forms.EmailField(
         error_messages={'required': 'Please provide your email address.'})
+    subject = forms.CharField(
+        error_messages={'required': 'Please provide a subject.'})
     message = forms.CharField(widget=forms.Textarea,
                               error_messages={
                                   'required': 'Please provide a message.'})
-    subject = forms.CharField(
-        error_messages={'required': 'Please provide a subject.'})
 
     # anti-spam field; matches wordpress
     author = forms.CharField(widget=forms.HiddenInput, required=False)
@@ -74,6 +74,14 @@ class ContactForm(forms.Form):
             return True
         except:
             return False
+
+
+class EventContactForm(ContactForm):
+    """Use ContactForm but do not allow editing of sender's name and email.  """
+    def __init__(self, *args, **kwargs):
+        super(EventContactForm, self).__init__(*args, **kwargs)
+        self.fields['name'].widget = forms.HiddenInput()
+        self.fields['email'].widget = forms.HiddenInput()
 
 
 class ContactCaptcha(ContactForm):

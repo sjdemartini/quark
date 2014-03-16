@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}Email signups of {{ event.name }} - Events{% endblock title %}
+
+{% block intro %}
+<h1>Email people who signed up for <a href="{% url 'events:detail' event.pk %}">{{ event.name }}</a></h1>
+{% endblock %}
+
+{% block content %}
+<p>
+  Here are the people (and their associated email addresses) you will be emailing:
+</p>
+<p>
+  CC: {{ cc_list|join:', ' }}
+</p>
+<p>
+  BCC: {% include 'events/_signup_email_list.html' %}
+</p>
+<form action="{{ request.path }}" method="post">
+  {% csrf_token %}
+  {% include '_form.html' %}
+  <div><input type="submit" value="Send"></div>
+</form>
+{% endblock content %}

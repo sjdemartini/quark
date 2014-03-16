@@ -14,7 +14,9 @@ from django.views.generic.edit import FormView
 
 from quark.base.models import Officer
 from quark.base.models import Term
-from quark.emailer.forms import ContactCaptcha, ContactForm
+from quark.emailer.forms import ContactCaptcha
+from quark.emailer.forms import ContactForm
+from quark.emailer.forms import EventContactForm
 from quark.events.models import Event
 
 
@@ -145,12 +147,13 @@ class EmailerView(FormView):
 
 
 class EventEmailerView(EmailerView):
-    template_name = 'events/contact.html'
+    form_class = EventContactForm
+    template_name = 'events/email.html'
     form_id = 'EventContact'
 
     # to be set by dispatch using request variables
     event = None
-    signedup_list = None
+    event_signups = None
     cc_email = None
 
     @method_decorator(login_required)
@@ -158,17 +161,18 @@ class EventEmailerView(EmailerView):
         permission_required('events.contact_participants',
                             raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
+        event_pk = kwargs['event_pk']
+        self.event = get_object_or_404(Event, pk=event_pk)
         self.initial = {
             'name': request.user.get_full_name(),
             'email': request.user.email,
             'subject': '[{}] {}: Important announcement'.format(
                 settings.SITE_TAG, self.event.name)}
 
-        event_id = kwargs['event_id']
-        self.event = get_object_or_404(Event, pk=event_id)  # same as above
         if not self.event.can_user_view(request.user):
             raise PermissionDenied
-        self.signedup_list = self.event.eventsignup_set.order_by('name')
+        self.event_signups = self.event.eventsignup_set.filter(
+            unsignup=False).order_by('name')
         self.cc_email = [
             '{}@{}'.format(self.event.committee.mailing_list, settings.HOSTNAME)
         ]
@@ -176,7 +180,7 @@ class EventEmailerView(EmailerView):
 
     def form_valid(self, form, **kwargs):
         bcc_list = []
-        for signup in self.signedup_list:
+        for signup in self.event_signups:
             # Check if the person has an account or if they signed up
             # "anonymously" with their email address
             if signup.user:
@@ -204,7 +208,7 @@ class EventEmailerView(EmailerView):
     def get_context_data(self, **kwargs):
         context = super(EventEmailerView, self).get_context_data(**kwargs)
         context['event'] = self.event
-        context['signedup_list'] = self.signedup_list
+        context['event_signups'] = self.event_signups
         context['cc_list'] = self.cc_email
         return context
 

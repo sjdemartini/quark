@@ -1,0 +1,6 @@
+{% spaceless %}
+{% for signup in event_signups %}
+&quot;{% if signup.user %}{{ signup.user.get_full_name }}{% else %}{{ signup.name }}{% endif %}&quot;
+  &lt;{% if signup.user %}{{ signup.user.email }}{% else %}{{ signup.email }}{% endif %}&gt;{% if not forloop.last %}, {% endif %}
+{% endfor %}
+{% endspaceless %}
