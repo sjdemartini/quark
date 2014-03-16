@@ -50,6 +50,7 @@
       float: left;
       height: 150px;
       margin: 0 10px 10px 0;
+      position: relative;
       width: 150px;
 
       @include respond-to(small) {
@@ -78,6 +79,7 @@
     .officers-chair-banner {
       background-color: $dark-blue;
       color: $gold;
+      font-weight: bold;
       left: -5px;
       padding: 5px 0;
       position: relative;
