@@ -3,56 +3,6 @@
 
 {% block title %}{{ event.name }} - Events{% endblock %}
 
-{% block head %}
-<script>
-$(function() {
-  $('#signup-form').submit(function(e) {
-    e.preventDefault();
-    var self = $(this);
-    var url = self.attr('action');
-    // Clear the form of any existing errors (useful on re-submitting the form,
-    // so that prior errors are cleared):
-    clearFormFieldErrors(self);
-    req = $.ajax({
-      url: url,
-      type: self.attr('method'),
-      data: self.serialize()
-    });
-    req.done(function(data, textStatus, jqXHR) {
-      // Refresh the page for success
-      window.location.href = '{{ request.path }}';
-    });
-    req.fail(function(data, textStatus, jqXHR) {
-      // The form errors will be in the "data" key of the response
-      var errors = $.parseJSON(data.responseText).data;
-      showFormErrors(self, errors);
-    });
-  });
-  $('#unsignup-form').submit(function(e) {
-    e.preventDefault();
-    var self = $(this);
-    // Clear the signup form (since it is used for unsignup) of any existing
-    // errors
-    clearFormFieldErrors('#signup-form');
-    req = $.ajax({
-      url: self.attr('action'),
-      type: self.attr('method'),
-      data: $('#id_email').serialize()
-    });
-    req.done(function(data, textStatus, jqXHR) {
-      // Refresh the page for success
-      window.location.href = '{{ request.path }}';
-    });
-    req.fail(function(data, textStatus, jqXHR) {
-      // The form errors will be in the "data" key of the response
-      var errors = $.parseJSON(data.responseText).data;
-      showFormErrors(self, errors);
-    });
-  });
-});
-</script>
-{% endblock head %}
-
 {% block intro %}
 <h1>
   Details for {{ event.name }}{% if perms.event.change_event %} (<a href="{% url 'events:edit' event.pk %}">Edit</a>){% endif %}
@@ -162,3 +112,51 @@ need to implement event restriction levels.
 {% endcomment %}
 
 {% endblock content %}
+
+{% block extra_js %}
+<script>
+$('#signup-form').submit(function(e) {
+  e.preventDefault();
+  var self = $(this);
+  var url = self.attr('action');
+  // Clear the form of any existing errors (useful on re-submitting the form,
+  // so that prior errors are cleared):
+  clearFormFieldErrors(self);
+  req = $.ajax({
+    url: url,
+    type: self.attr('method'),
+    data: self.serialize()
+  });
+  req.done(function(data, textStatus, jqXHR) {
+    // Refresh the page for success
+    window.location.href = '{{ request.path }}';
+  });
+  req.fail(function(data, textStatus, jqXHR) {
+    // The form errors will be in the "data" key of the response
+    var errors = $.parseJSON(data.responseText).data;
+    showFormErrors(self, errors);
+  });
+});
+$('#unsignup-form').submit(function(e) {
+  e.preventDefault();
+  var self = $(this);
+  // Clear the signup form (since it is used for unsignup) of any existing
+  // errors
+  clearFormFieldErrors('#signup-form');
+  req = $.ajax({
+    url: self.attr('action'),
+    type: self.attr('method'),
+    data: $('#id_email').serialize()
+  });
+  req.done(function(data, textStatus, jqXHR) {
+    // Refresh the page for success
+    window.location.href = '{{ request.path }}';
+  });
+  req.fail(function(data, textStatus, jqXHR) {
+    // The form errors will be in the "data" key of the response
+    var errors = $.parseJSON(data.responseText).data;
+    showFormErrors(self, errors);
+  });
+});
+</script>
+{% endblock extra_js %}

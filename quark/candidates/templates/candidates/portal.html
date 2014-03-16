@@ -7,10 +7,6 @@
 <h1>Candidate Portal</h1>
 {% endblock intro %}
 
-{% block head %}
-{% include '_footable.html' %}
-{% endblock head %}
-
 {% block content %}
 <h2>Event Requirements</h2>
 {% for entry in req_types.event %}
@@ -109,3 +105,7 @@ There are no Manual requirements.
 {% endfor %}
 
 {% endblock content %}
+
+{% block extra_js %}
+{% include '_footable.html' %}
+{% endblock extra_js %}

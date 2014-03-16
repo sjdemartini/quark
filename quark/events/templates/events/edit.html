@@ -2,20 +2,6 @@
 
 {% block title %}Edit Event{% endblock title %}
 
-{% block head %}
-<script>
-function editConfirmation(form) {
-  needs_pr = $('#id_needs_pr').is(':checked');
-  if (!needs_pr) {
-    return confirm(
-      'Marking the event as not needing a project report will delete any ' +
-      'existing project report for this event. Are you sure you want to ' +
-      'continue?');
-  }
-}
-</script>
-{% endblock head %}
-
 {% block intro %}
 <h1>
 Edit <a href="{{ event.get_absolute_url }}">{{ event.name }}</a>
@@ -36,3 +22,17 @@ Edit <a href="{{ event.get_absolute_url }}">{{ event.name }}</a>
   </div>
 </form>
 {% endblock content %}
+
+{% block extra_js %}
+<script>
+function editConfirmation(form) {
+  needsPR = $('#id_needs_pr').is(':checked');
+  if (!needsPR) {
+    return confirm(
+      'Marking the event as not needing a project report will delete any ' +
+      'existing project report for this event. Are you sure you want to ' +
+      'continue?');
+  }
+}
+</script>
+{% endblock extra_js %}

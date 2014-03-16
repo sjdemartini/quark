@@ -1,9 +1,5 @@
 {% extends 'base.html' %}
 
-{% block head %}
-{% include '_footable.html' with include_sort=True %}
-{% endblock head %}
-
 {% block intro %}
 <h1>Resume Review</h1>
 
@@ -27,3 +23,7 @@
   {% endif %}
 </div>
 {% endblock intro %}
+
+{% block extra_js %}
+{% include '_footable.html' with include_sort=True %}
+{% endblock extra_js %}

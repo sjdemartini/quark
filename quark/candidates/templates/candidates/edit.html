@@ -7,10 +7,6 @@
 </h1>
 {% endblock intro %}
 
-{% block head %}
-{% include '_footable.html' %}
-{% endblock head %}
-
 {% block content %}
 {% with cand_user_profile=candidate.user.userprofile %}
 <h2>Photo</h2>
@@ -162,3 +158,7 @@ No photo uploaded yet.
   <a href="{% url 'candidates:list' %}?term={{ candidate.term.get_url_name }}"><strong>Back to {{ candidate.term.verbose_name }} Candidates</strong></a>
 </p>
 {% endblock content %}
+
+{% block extra_js %}
+{% include '_footable.html' %}
+{% endblock extra_js %}

@@ -12,11 +12,6 @@
 {% if course.description %}<div>{{ course.description }}</div>{% endif %}
 {% endblock intro %}
 
-{% block head %}
-{% include '_footable.html' %}
-<script src="{% static 'footable/js/footable.sort.js' %}" type="text/javascript"></script>
-{% endblock head %}
-
 {% block content %}
 {% include 'courses/_course_header.html' %}
 
@@ -68,3 +63,7 @@ There are currently no exams for this course.
 There are currently no surveys for this course.
 {% endfor %}
 {% endblock content %}
+
+{% block extra_js %}
+{% include '_footable.html' with include_sort=True %}
+{% endblock extra_js %}

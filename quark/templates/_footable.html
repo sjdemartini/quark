@@ -1,5 +1,6 @@
 {% comment %}
-Include this template into the head to use basic footable responsive design.
+Include this template into the extra_js block to use basic footable responsive
+design.
 
 To include sorting and/or filtering abilities with the footable, pass to the
 template in the include statement the additional context variables
@@ -11,7 +12,6 @@ table and include this template. See http://fooplugins.com/footable-demos/ for
 further documentation on footable usage.
 {% endcomment %}
 {% load static compress %}
-<link rel="stylesheet" href="{% static 'footable/css/footable.core.min.css' %}">
 <script src="{% static 'footable/dist/footable.min.js' %}"></script>
 {% compress js %}
 {% if include_sort %}

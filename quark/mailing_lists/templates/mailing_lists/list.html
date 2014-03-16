@@ -4,10 +4,6 @@
   <h1>{% block title %}Mailing Lists{% endblock title %}</h1>
 {% endblock intro %}
 
-{% block head %}
-{% include '_footable.html' %}
-{% endblock head %}
-
 {% block content %}
 <p><strong>Number of Mailing Lists</strong>: {{ mailing_lists|length }}</p>
 {% if mailing_lists %}
@@ -35,3 +31,7 @@
 <p>No mailing lists found.</p>
 {% endif %}
 {% endblock content%}
+
+{% block extra_js %}
+{% include '_footable.html' %}
+{% endblock extra_js %}

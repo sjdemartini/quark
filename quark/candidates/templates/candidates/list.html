@@ -6,10 +6,6 @@
 </h1>
 {% endblock intro %}
 
-{% block head %}
-{% include '_footable.html' with include_sort=True %}
-{% endblock head %}
-
 {% block content %}
 {% include '_term_selection.html' %}
 
@@ -82,3 +78,7 @@
 </div>
 
 {% endblock content %}
+
+{% block extra_js %}
+{% include '_footable.html' with include_sort=True %}
+{% endblock extra_js %}

@@ -1,12 +1,27 @@
 {% extends "events/list_base.html" %}
 
-{% load static %}
+{% load static compress %}
 
-{% block head %}
+{% block content %}
+{% if events %}
+<div id="calendar"></div>
+{% else %}
+<p>No events are available for {{ display_term_name }}.</p>
+{% endif %}
+{% endblock content %}
+
+{% block extra_css %}
+{% if events %}
+{% compress css %}
+<link rel="stylesheet" href="{% static 'css/fullcalendar.css' %}">
+{% endcompress %}
+{% endif %}
+{% endblock extra_css %}
+
+{% block extra_js %}
 {# Only load the scripts if there are events to display #}
 {% if events %}
-<link rel='stylesheet' href="{% static "css/fullcalendar.css" %}" />
-<script src="{% static "js/fullcalendar.min.js" %}"></script>
+<script src="{% static 'js/fullcalendar.min.js' %}"></script>
 <script>
 {% comment %}
 TODO(sjdemartini): Ensure that header title and buttons (e.g., "month", "week",
@@ -26,76 +41,66 @@ function calendarResize(view) {
   }
 }
 
-$(function() {
-  {% comment %}
-  If the last event (in the "events" to be displayed) occurred before today,
-  make the calendar start with displaying the date of that last event.
-  Otherwise let the calendar start on today for its display.
-  {% endcomment %}
-  {% with last_event_date=events.last.start_datetime %}
-  var lastEvent = {
-    year: {{ last_event_date|date:'Y'|escapejs }},
-    month: {{ last_event_date|date:'m'|escapejs }},
-    day: {{ last_event_date|date:'d'|escapejs }}
-  };
-  {% endwith last_event %}
-  // Create a JS Date object (noting the 0-indexed month)
-  var lastEventDate = new Date(
-    lastEvent.year, lastEvent.month - 1, lastEvent.day);
-  var today = new Date();
-  var calendarCurrentDate;
-  if (lastEventDate < today) {
-    calendarCurrentDate = lastEventDate;
-  } else {
-    calendarCurrentDate = today;
-  }
+{% comment %}
+If the last event (in the "events" to be displayed) occurred before today,
+make the calendar start with displaying the date of that last event.
+Otherwise let the calendar start on today for its display.
+{% endcomment %}
+{% with last_event_date=events.last.start_datetime %}
+var lastEvent = {
+  year: {{ last_event_date|date:'Y'|escapejs }},
+  month: {{ last_event_date|date:'m'|escapejs }},
+  day: {{ last_event_date|date:'d'|escapejs }}
+};
+{% endwith last_event %}
+// Create a JS Date object (noting the 0-indexed month)
+var lastEventDate = new Date(
+  lastEvent.year, lastEvent.month - 1, lastEvent.day);
+var today = new Date();
+var calendarCurrentDate;
+if (lastEventDate < today) {
+  calendarCurrentDate = lastEventDate;
+} else {
+  calendarCurrentDate = today;
+}
 
-  $('#calendar').fullCalendar({
-    header: {
-      left: 'prev,next today',
-      center: 'title',
-      right: 'month,agendaWeek,agendaDay'
-    },
-    allDayText: 'multi-day',
-    firstHour: 10, // default view position for agendaWeek and agendaDay is 10am
-    aspectRatio: 1.5, // higher aspect ratio decreases calendar height
-    editable: false,
-    windowResize: calendarResize,
-    year: calendarCurrentDate.getFullYear(),
-    month: calendarCurrentDate.getMonth(),
-    date: calendarCurrentDate.getDate(),
-    events: [
-      {% for event in events %}
-        {
-          title: '{{ event.name|escapejs }}',
-          start: '{{ event.start_datetime|date:'c'|escapejs }}',
-          end: '{{ event.end_datetime|date:'c'|escapejs }}',
-          allDay: {% if event.is_multiday %}true{% else %}false{% endif %},
-          url: '{{ event.get_absolute_url|escapejs }}',
-          editable: false,
-          borderColor: 'gray',
-          textColor: '#009',
-          className: [
-            'event-type',
-            '{{ event.event_type|slugify }}'{% if not event.is_upcoming %},
-            'past-event'{% endif %}
-          ]
-        }{% if not forloop.last %},{% endif %}
-      {% endfor %}
-    ]
-  });
-
-  // Ensure the calendar is properly sized upon creation:
-  calendarResize();
+$('#calendar').fullCalendar({
+  header: {
+    left: 'prev,next today',
+    center: 'title',
+    right: 'month,agendaWeek,agendaDay'
+  },
+  allDayText: 'multi-day',
+  firstHour: 10, // default view position for agendaWeek and agendaDay is 10am
+  aspectRatio: 1.5, // higher aspect ratio decreases calendar height
+  editable: false,
+  windowResize: calendarResize,
+  year: calendarCurrentDate.getFullYear(),
+  month: calendarCurrentDate.getMonth(),
+  date: calendarCurrentDate.getDate(),
+  events: [
+    {% for event in events %}
+      {
+        title: '{{ event.name|escapejs }}',
+        start: '{{ event.start_datetime|date:'c'|escapejs }}',
+        end: '{{ event.end_datetime|date:'c'|escapejs }}',
+        allDay: {% if event.is_multiday %}true{% else %}false{% endif %},
+        url: '{{ event.get_absolute_url|escapejs }}',
+        editable: false,
+        borderColor: 'gray',
+        textColor: '#009',
+        className: [
+          'event-type',
+          '{{ event.event_type|slugify }}'{% if not event.is_upcoming %},
+          'past-event'{% endif %}
+        ]
+      }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ]
 });
+
+// Ensure the calendar is properly sized upon creation:
+calendarResize();
 </script>
 {% endif %}
-{% endblock head %}
-
-{% block content %}
-{% if events %}
-<div id="calendar"></div>
-{% else %}
-<p>No events are available for {{ display_term_name }}.</p>
-{% endif %}
-{% endblock content %}
+{% endblock extra_js %}

@@ -2,17 +2,6 @@
 
 {% load static settings_values %}
 
-{% block head %}
-{% include '_footable.html' with include_sort=True include_filter=True %}
-<script>
-  $(function() {
-    $('.clear-filter').click(function(eventObj) {
-      $('#events').trigger('footable_clear_filter');
-    });
-  });
-</script>
-{% endblock head %}
-
 {% block content %}
 {% settings_assign 'HOSTNAME' as hostname %}
 <p>
@@ -64,3 +53,12 @@
 {% endif %}
 
 {% endblock content %}
+
+{% block extra_js %}
+{% include '_footable.html' with include_sort=True include_filter=True %}
+<script>
+  $('.clear-filter').click(function(eventObj) {
+    $('#events').trigger('footable_clear_filter');
+  });
+</script>
+{% endblock extra_js %}

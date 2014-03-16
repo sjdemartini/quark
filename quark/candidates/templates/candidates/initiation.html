@@ -2,51 +2,6 @@
 
 {% load static %}
 
-{% block head %}
-{% include '_footable.html' with include_sort=True %}
-<script>
-function updateNumInitiated() {
-  var initiatedNode = $('#num-initiated');
-  var checkboxesChecked = $('.initiated-checkbox:checked');
-  initiatedNode.text(checkboxesChecked.size());
-}
-
-$(function() {
-  updateNumInitiated();
-});
-
-function initiateCandidate(event) {
-  var candidateRow = $(event.target).parents('tr');
-  var alreadyInitiated = candidateRow.hasClass('candidate-initiated');
-  var checkbox = $(event.target);
-  var req = $.post('{% url 'candidates:initiation-update' %}', {
-    candidate: candidateRow.data('candidate-pk'),
-    initiated: !alreadyInitiated  // Change their initiation status
-  });
-  // Show the spinner icon:
-  var spinner = checkbox.next();
-  spinner.show();
-  req.done(function() {
-    // Change the display to indicate that this candidate's initation status
-    // has changed
-    updateNumInitiated();
-    candidateRow.toggleClass('candidate-initiated');
-    candidateRow.toggleClass('candidate-not-initiated');
-  });
-  req.fail(function() {
-    // Uncheck the checkbox
-    checkbox.prop('checked', !checkbox.prop('checked'));
-    // TODO(sjdemartini): Somehow provide some feedback to the user about what
-    // went wrong?
-  });
-  req.always(function() {
-    // Hide the spinner icon
-    spinner.fadeOut(200);
-  });
-}
-</script>
-{% endblock head %}
-
 {% block intro %}
 <h1>
   {% block title %}Initiation for {{ display_term_name }} Candidates{% endblock title %}
@@ -109,3 +64,46 @@ function initiateCandidate(event) {
 {% endif %}
 
 {% endblock content %}
+
+{% block extra_js %}
+{% include '_footable.html' with include_sort=True %}
+<script>
+  function updateNumInitiated() {
+    var initiatedNode = $('#num-initiated');
+    var checkboxesChecked = $('.initiated-checkbox:checked');
+    initiatedNode.text(checkboxesChecked.size());
+  }
+
+  updateNumInitiated();
+
+  function initiateCandidate(event) {
+    var candidateRow = $(event.target).parents('tr');
+    var alreadyInitiated = candidateRow.hasClass('candidate-initiated');
+    var checkbox = $(event.target);
+    var req = $.post('{% url 'candidates:initiation-update' %}', {
+      candidate: candidateRow.data('candidate-pk'),
+      initiated: !alreadyInitiated  // Change their initiation status
+    });
+    // Show the spinner icon:
+    var spinner = checkbox.next();
+    spinner.show();
+    req.done(function() {
+      // Change the display to indicate that this candidate's initation status
+      // has changed
+      updateNumInitiated();
+      candidateRow.toggleClass('candidate-initiated');
+      candidateRow.toggleClass('candidate-not-initiated');
+    });
+    req.fail(function() {
+      // Uncheck the checkbox
+      checkbox.prop('checked', !checkbox.prop('checked'));
+      // TODO(sjdemartini): Somehow provide some feedback to the user about what
+      // went wrong?
+    });
+    req.always(function() {
+      // Hide the spinner icon
+      spinner.fadeOut(200);
+    });
+  }
+</script>
+{% endblock extra_js %}

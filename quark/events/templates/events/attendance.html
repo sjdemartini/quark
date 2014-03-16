@@ -1,110 +1,5 @@
 {% extends 'base.html' %}
 
-{% block head %}
-<script>
-function recordAttendance(userPK) {
-  return $.post('{% url 'events:attendance-submit' %}', {
-    userPK: userPK,
-    eventPK: {{ event.pk }}
-  });
-}
-
-function deleteAttendance(userPK) {
-  return $.post('{% url 'events:attendance-delete' %}', {
-    userPK: userPK,
-    eventPK: {{ event.pk }}
-  });
-}
-
-$(function() {
-  $('#member-search').autocomplete({
-    minLength: 2,  // Require at least two characters typed before searching
-    source: function(request, response) {
-      $.getJSON('{% url 'events:attendance-search' %}', {
-        searchTerm: request.term,
-        eventPK: {{ event.pk }}
-      }, function(data, textStatus, jqXHR) {
-        response(data);  // Use the data returned as the autocomplete response
-      });
-    },
-    select: function(event, ui) {
-      // Prevent the search box from changing to the selected item's value:
-      event.preventDefault();
-      var self = $(this);
-
-      recordAttendance(ui.item.value);
-      var id = 'user_' + ui.item.value;
-      var existingDiv = $('#' + id);
-      if (!(existingDiv &&
-          (existingDiv.hasClass('checkable') ||
-           existingDiv.hasClass('attending')))) {
-        // A general member whose name isn't listed yet, so add them to the
-        // members list
-        var attendee = $('<li class="attending"></li>');
-        attendee.attr('id', id);
-        attendee.text(ui.item.label);
-        // Add a loading icon spinner to this entry:
-        attendee.append(
-            $('<i class="fa fa-spinner fa-spin loading" ' +
-              'style="display: none"></i>')
-        );
-        $('#members-list').prepend(attendee);
-        $(attendee).click(toggleAttendance);
-      } else {
-        // Someone whose name is already in the list, so just highlight the user
-        existingDiv.addClass('attending');
-        existingDiv.removeClass('checkable');
-      }
-
-      // Clear the search field, since a user was selected from the results:
-      self.val('');
-
-      // Show a message to the user confirming that attendance was recorded:
-      var successMsg = $('<div class="success message"></div>');
-      successMsg.text('Recorded attendance for ' + ui.item.label + '.');
-      self.after(successMsg);
-      successMsg.delay(1000).fadeOut(function() {
-        $(this).remove();
-      });
-    },
-    focus: function(event, ui) {
-      // Prevent the search box from changing to the focused item's value:
-      event.preventDefault();
-    }
-  });
-
-  // Set the function for what happens when a user is clicked on
-  $('.attendance-group ul > li').click(toggleAttendance);
-
-  function toggleAttendance(eventObject) {
-    // Get the list element on which the action is being activated
-    var self = $(this);
-
-    // Get the user's pk (by not including the "user_" prefix of the id)
-    var pk = self.attr('id').slice(5);
-    var spinner = $('.fa-spinner', self);
-    spinner.show();
-    var ajaxReq;
-    if (self.hasClass('checkable')) {
-      // Record the user's attendance
-      ajaxReq = recordAttendance(pk);
-    } else {
-      // Delete the the user's attendance
-      ajaxReq = deleteAttendance(pk);
-    }
-    ajaxReq.done(function() {
-      self.toggleClass('checkable');
-      self.toggleClass('attending');
-    });
-    ajaxReq.always(function() {
-      // Hide the spinner icon
-      spinner.fadeOut(200);
-    });
-  }
-});
-</script>
-{% endblock head %}
-
 {% block intro %}
 <h1>
   {% block title %}Attendance for {{ event.name }}{% endblock title %}
@@ -127,3 +22,106 @@ $(function() {
 {% include 'events/_attendance_group.html' with group_name='Candidates' group_users=candidates %}
 {% include 'events/_attendance_group.html' with group_name='Members' group_list_id='members-list' group_users=members %}
 {% endblock content %}
+
+{% block extra_js %}
+<script>
+function recordAttendance(userPK) {
+  return $.post('{% url 'events:attendance-submit' %}', {
+    userPK: userPK,
+    eventPK: {{ event.pk }}
+  });
+}
+
+function deleteAttendance(userPK) {
+  return $.post('{% url 'events:attendance-delete' %}', {
+    userPK: userPK,
+    eventPK: {{ event.pk }}
+  });
+}
+
+$('#member-search').autocomplete({
+  minLength: 2,  // Require at least two characters typed before searching
+  source: function(request, response) {
+    $.getJSON('{% url 'events:attendance-search' %}', {
+      searchTerm: request.term,
+      eventPK: {{ event.pk }}
+    }, function(data, textStatus, jqXHR) {
+      response(data);  // Use the data returned as the autocomplete response
+    });
+  },
+  select: function(event, ui) {
+    // Prevent the search box from changing to the selected item's value:
+    event.preventDefault();
+    var self = $(this);
+
+    recordAttendance(ui.item.value);
+    var id = 'user_' + ui.item.value;
+    var existingDiv = $('#' + id);
+    if (!(existingDiv &&
+        (existingDiv.hasClass('checkable') ||
+         existingDiv.hasClass('attending')))) {
+      // A general member whose name isn't listed yet, so add them to the
+      // members list
+      var attendee = $('<li class="attending"></li>');
+      attendee.attr('id', id);
+      attendee.text(ui.item.label);
+      // Add a loading icon spinner to this entry:
+      attendee.append(
+          $('<i class="fa fa-spinner fa-spin loading" ' +
+            'style="display: none"></i>')
+      );
+      $('#members-list').prepend(attendee);
+      $(attendee).click(toggleAttendance);
+    } else {
+      // Someone whose name is already in the list, so just highlight the user
+      existingDiv.addClass('attending');
+      existingDiv.removeClass('checkable');
+    }
+
+    // Clear the search field, since a user was selected from the results:
+    self.val('');
+
+    // Show a message to the user confirming that attendance was recorded:
+    var successMsg = $('<div class="success message"></div>');
+    successMsg.text('Recorded attendance for ' + ui.item.label + '.');
+    self.after(successMsg);
+    successMsg.delay(1000).fadeOut(function() {
+      $(this).remove();
+    });
+  },
+  focus: function(event, ui) {
+    // Prevent the search box from changing to the focused item's value:
+    event.preventDefault();
+  }
+});
+
+// Set the function for what happens when a user is clicked on
+$('.attendance-group ul > li').click(toggleAttendance);
+
+function toggleAttendance(eventObject) {
+  // Get the list element on which the action is being activated
+  var self = $(this);
+
+  // Get the user's pk (by not including the "user_" prefix of the id)
+  var pk = self.attr('id').slice(5);
+  var spinner = $('.fa-spinner', self);
+  spinner.show();
+  var ajaxReq;
+  if (self.hasClass('checkable')) {
+    // Record the user's attendance
+    ajaxReq = recordAttendance(pk);
+  } else {
+    // Delete the the user's attendance
+    ajaxReq = deleteAttendance(pk);
+  }
+  ajaxReq.done(function() {
+    self.toggleClass('checkable');
+    self.toggleClass('attending');
+  });
+  ajaxReq.always(function() {
+    // Hide the spinner icon
+    spinner.fadeOut(200);
+  });
+}
+</script>
+{% endblock extra_js %}

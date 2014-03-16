@@ -6,10 +6,6 @@
 </h1>
 {% endblock intro %}
 
-{% block head %}
-{% include '_footable.html' with include_sort=True %}
-{% endblock head %}
-
 {% block content %}
 <h3>Number of Unverified Exams: {{ unverified_exam_count }}</h3>
 <h3>Number of Blacklisted Exams: {{ blacklisted_exams|length }}</h3>
@@ -32,3 +28,7 @@
   {% endif %}
 </div>
 {% endblock content %}
+
+{% block extra_js %}
+{% include '_footable.html' with include_sort=True %}
+{% endblock extra_js %}

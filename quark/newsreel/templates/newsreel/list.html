@@ -1,26 +1,11 @@
 {% extends 'base.html' %}
 {% load markup %}
 
-{% block intro %}
-<h1>
 {% block title %}Newsreel{% endblock title %}
-</h1>
-{% endblock intro %}
 
-{% block head %}
-<script>
-$(function() {
-  $('#news-items').sortable({
-    update: function(event, ui) {
-      // Serialize the ordering of news elements (where the data is based on the
-      // id's of the li elements):
-      var data = $(this).sortable('serialize', {key: 'news'});
-      $.post('{% url 'newsreel:reorder' %}', data);
-    }
-  });
-});
-</script>
-{% endblock head %}
+{% block intro %}
+<h1>Newsreel</h1>
+{% endblock intro %}
 
 {% block content %}
 {% if perms.newsreel.add_news %}
@@ -59,3 +44,16 @@ page in order from top to bottom.
 <p>No news items have been created.</p>
 {% endif %}
 {% endblock content %}
+
+{% block extra_js %}
+<script>
+$('#news-items').sortable({
+  update: function(event, ui) {
+    // Serialize the ordering of news elements (where the data is based on the
+    // id's of the li elements):
+    var data = $(this).sortable('serialize', {key: 'news'});
+    $.post('{% url 'newsreel:reorder' %}', data);
+  }
+});
+</script>
+{% endblock extra_js %}

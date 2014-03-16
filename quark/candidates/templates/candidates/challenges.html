@@ -6,10 +6,6 @@
 <h1>Verify Challenges for {{ display_term_name }}</h1>
 {% endblock intro %}
 
-{% block head %}
-{% include '_footable.html' %}
-{% endblock head %}
-
 {% block content %}
 {% include '_term_selection.html' %}
 
@@ -55,3 +51,7 @@
   <a href="{% url 'candidates:list' %}?term={{ display_term_url_name }}"><strong>{{ display_term_name }} Candidates</strong></a>
 </p>
 {% endblock content %}
+
+{% block extra_js %}
+{% include '_footable.html' %}
+{% endblock extra_js %}

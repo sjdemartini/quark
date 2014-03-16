@@ -1,23 +1,10 @@
 {% extends 'base.html' %}
 
-{% load markup %}
+{% load static markup %}
 
 {# Make the home page not have a specific title. #}
 {% block title %}{% endblock title %}
 {% block title_separator %}{% endblock title_separator %}
-
-{% block head %}{% load static %}
-{% if news_list %}
-<script src="{% static 'js/slideshow.js' %}"></script>
-<script>
-  $(function() {
-    $('#slideshow').slideshow({
-      addInfoHeight: true
-    });
-  });
-</script>
-{% endif %}
-{% endblock head %}
 
 {# Add a class to make the background of whole page match that of the header #}
 {% block wrapper_class %}home-background{% endblock wrapper_class %}
@@ -74,3 +61,14 @@
   </div>
 </div>
 {% endblock content %}
+
+{% block extra_js %}
+{% if news_list %}
+<script src="{% static 'js/slideshow.js' %}"></script>
+<script>
+  $('#slideshow').slideshow({
+    addInfoHeight: true
+  });
+</script>
+{% endif %}
+{% endblock extra_js %}

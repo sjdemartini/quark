@@ -17,7 +17,9 @@
     <link rel="shortcut icon" href="{% get_static_prefix %}images/{% if LOCAL_ENV == 'dev' %}favicon_dev.ico{% elif LOCAL_ENV == 'staging' %}favicon_staging.ico{% else %}favicon.ico{% endif %}">
     <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,300,400,600,700" rel="stylesheet" type="text/css">
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css">
     {% compress css %}
+    <link rel="stylesheet" href="{% static 'footable/css/footable.core.min.css' %}">
     <link type="text/x-scss" rel="stylesheet" href="{% static 'css/style.scss' %}">
     {% endcompress %}
 
@@ -25,17 +27,7 @@
     {{ form.media.css }}
     {% endcompress %}
 
-    {% block jquery %}{% include '_jquery.html' %}{% endblock jquery %}
-
-    {% compress js %}
-    <script src="{% static 'js/main.js' %}"></script>
-    {% endcompress %}
-
-    {% compress js %}
-    {{ form.media.js }}
-    {% endcompress %}
-
-    {% block head %}{# Block for adding content (e.g., scripts) to the head #}{% endblock head %}
+    {% block head %}{# Block for adding content (css and scripts) to the head #}{% endblock head %}
   </head>
   <body>
     {# TODO(sjdemartini): fill in all URLs for links as they are created #}
@@ -86,10 +78,24 @@
       </div>
     </div>
 
-  {% block notifications %}{% include '_notifications.html' %}{% endblock notifications %}
+    {# TODO(sjdemartini): Google analytics #}
 
-  {# TODO(sjdemartini): Google analytics #}
+    {% block extra_css %}{# Block for css that is not needed until after rendering the body #}{% endblock extra_css %}
 
-  <!--Page finished rendering {% now 'r' %}-->
+    {% block jquery %}{% include '_jquery.html' %}{% endblock jquery %}
+
+    {% compress js %}
+    <script src="{% static 'js/main.js' %}"></script>
+    {% endcompress %}
+
+    {% compress js %}
+    {{ form.media.js }}
+    {% endcompress %}
+
+    {% block notifications %}{% include '_notifications.html' %}{% endblock notifications %}
+
+    {% block extra_js %}{# Block for scripts that are not needed until after rendering the body #}{% endblock extra_js %}
+
+    <!--Page finished rendering {% now 'r' %}-->
   </body>
 </html>
