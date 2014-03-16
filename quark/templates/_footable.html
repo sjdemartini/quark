@@ -11,19 +11,19 @@ table and include this template. See http://fooplugins.com/footable-demos/ for
 further documentation on footable usage.
 {% endcomment %}
 {% load static compress %}
-<link href="{% static 'footable/css/footable.core.min.css' %}" rel="stylesheet" type="text/css"/>
+<link rel="stylesheet" href="{% static 'footable/css/footable.core.min.css' %}">
+<script src="{% static 'footable/dist/footable.min.js' %}"></script>
 {% compress js %}
-<script src="{% static 'footable/js/footable.js' %}" type="text/javascript"></script>
 {% if include_sort %}
-<script src="{% static 'footable/js/footable.sort.js' %}" type="text/javascript"></script>
+<script src="{% static 'footable/dist/footable.sort.min.js' %}"></script>
 {% endif %}
 {% if include_filter %}
-<script src="{% static 'footable/js/footable.filter.js' %}" type="text/javascript"></script>
+<script src="{% static 'footable/dist/footable.filter.min.js' %}"></script>
 {% endif %}
 {% if include_pagination %}
-<script src="{% static 'footable/js/footable.paginate.js' %}" type="text/javascript"></script>
+<script src="{% static 'footable/dist/footable.paginate.min.js' %}"></script>
 {% endif %}
-<script type="text/javascript">
+<script>
 $(function() {
   var table = $('.footable');
 
