@@ -43,6 +43,7 @@ DATABASES = {
     }
 }
 
+# Use a default local memory cache
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',

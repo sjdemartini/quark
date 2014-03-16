@@ -2,6 +2,7 @@
 import os
 import sys
 
+from quark.settings.base import CACHES
 from quark.settings.base import WORKSPACE_ROOT
 
 
@@ -29,6 +30,15 @@ COMPRESS_CSS_FILTERS = [
 # location of the static files, rather than a subfolder
 COMPRESS_OUTPUT_DIR = ''
 
+# Set up a second local memory cache backend for Django Compressor. This is
+# useful so that the default cache can be disabled during testing, while still
+# allowing Django Compressor to use a cache.
+CACHES['compressor'] = {
+    'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    'LOCATION': 'compressor'
+}
+
+COMPRESS_CACHE_BACKEND = 'compressor'
 
 # Jenkins integration.
 JENKINS_TASKS = (
