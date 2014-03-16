@@ -74,7 +74,7 @@ class EventForm(ChosenTermMixin, forms.ModelForm):
                 project_report = event.project_report
 
             project_report.term = event.term
-            project_report.date = event.start_datetime.date()
+            project_report.date = event.end_datetime.date()
             project_report.title = event.name
             project_report.author = event.contact
             project_report.committee = event.committee

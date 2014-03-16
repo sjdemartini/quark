@@ -1,9 +1,11 @@
+import datetime
 import random
 import string
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.utils import timezone
+from freezegun import freeze_time
 
 from quark.achievements.models import Achievement
 from quark.achievements.models import UserAchievement
@@ -13,6 +15,7 @@ from quark.base.models import Term
 from quark.events.models import Event
 from quark.events.models import EventAttendance
 from quark.events.models import EventType
+from quark.project_reports.models import ProjectReport
 
 
 class AchievementAssignmentTest(TestCase):
@@ -173,7 +176,7 @@ class EventAchievementsTest(TestCase):
             start_datetime=timezone.now(),
             end_datetime=timezone.now(),
             committee=OfficerPosition.objects.first())
-            for i in range(0, number)]
+            for i in range(number)]
 
         Event.objects.bulk_create(events)
 
@@ -832,3 +835,206 @@ class OfficerAchievementsTest(TestCase):
         self.assertEqual(self.achievements.filter(
             achievement__short_name='straighttothetop',
             acquired=True).count(), 0)
+
+
+class ProjectReportAchievementsTest(TestCase):
+    fixtures = ['achievement.yaml',
+                'test/term.yaml',
+                'officer_position.yaml']
+
+    def setUp(self):
+        self.sample_user = get_user_model().objects.create_user(
+            username='test', password='test', email='test@tbp.berkeley.edu',
+            first_name="Test", last_name="Test")
+        self.achievements = UserAchievement.objects.filter(
+            user=self.sample_user)
+
+        self.sp2012 = Term.objects.get(term=Term.SPRING, year=2012)
+        self.fa2012 = Term.objects.get(term=Term.FALL, year=2012)
+        self.sp2013 = Term.objects.get(term=Term.SPRING, year=2013)
+        self.fa2013 = Term.objects.get(term=Term.FALL, year=2013)
+
+    def write_pr(self, author, term=None, complete=False):
+        if term is None:
+            term = self.sp2013
+
+        project_report, _ = ProjectReport.objects.get_or_create(
+            term=term,
+            date=datetime.date.today(),
+            title=''.join(
+                random.choice(string.ascii_uppercase) for x in range(6)),
+            author=author,
+            committee=OfficerPosition.objects.first(),
+            complete=complete)
+
+        return project_report
+
+    def test01projectreports(self):
+        """The achievement for writing a project report is given when the user
+        has written a project report with complete=True.
+        """
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='write_01_project_reports',
+            acquired=True).count(), 0)
+
+        self.write_pr(author=self.sample_user, term=self.fa2012, complete=False)
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='write_01_project_reports',
+            acquired=True).count(), 0)
+
+        self.write_pr(author=self.sample_user, term=self.fa2012, complete=True)
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='write_01_project_reports',
+            acquired=True).count(), 1)
+
+    def test05projectreports(self):
+        """The achievement for writing 5 project reports is given when the user
+        has written five project reports with complete=True.
+        """
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='write_05_project_reports',
+            acquired=True).count(), 0)
+
+        for _ in range(4):
+            self.write_pr(author=self.sample_user, term=self.fa2012,
+                          complete=True)
+
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='write_05_project_reports',
+            acquired=True).count(), 0)
+        fiveprachievement = UserAchievement.objects.get(
+            achievement__short_name='write_05_project_reports',
+            user=self.sample_user)
+        self.assertEqual(fiveprachievement.progress, 4)
+
+        self.write_pr(author=self.sample_user, term=self.sp2013, complete=False)
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='write_05_project_reports',
+            acquired=True).count(), 0)
+
+        self.write_pr(author=self.sample_user, term=self.sp2013, complete=True)
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='write_05_project_reports',
+            acquired=True).count(), 1)
+
+    def test15projectreports(self):
+        """The achievement for writing twenty project reports is given when the
+        user has written 20 project reports with complete=True.
+        """
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='write_15_project_reports',
+            acquired=True).count(), 0)
+
+        for _ in range(14):
+            self.write_pr(author=self.sample_user, term=self.fa2012,
+                          complete=True)
+
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='write_15_project_reports',
+            acquired=True).count(), 0)
+        fifteenprachievement = UserAchievement.objects.get(
+            achievement__short_name='write_15_project_reports',
+            user=self.sample_user)
+        self.assertEqual(fifteenprachievement.progress, 14)
+
+        self.write_pr(author=self.sample_user, term=self.fa2012, complete=True)
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='write_15_project_reports',
+            acquired=True).count(), 1)
+
+    def test_assignment_on_pr_completion(self):
+        """The achievement for writing a project report is given when a project
+        report is created with complete=False, and later changed to
+        complete=True.
+        """
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='write_01_project_reports',
+            acquired=True).count(), 0)
+
+        self.write_pr(author=self.sample_user, term=self.fa2012, complete=False)
+
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='write_01_project_reports',
+            acquired=True).count(), 0)
+
+        project_report = ProjectReport.objects.get(
+            author=self.sample_user, term=self.fa2012)
+
+        project_report.complete = True
+        project_report.save()
+
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='write_01_project_reports',
+            acquired=True).count(), 1)
+
+    def test_alphabet_pr_achievement(self):
+        """The achievement for using all the letters of the alphabet is given
+        to a user regardless of capitalization or splitting the letters up
+        amongst different fields, and only for completed project reports.
+        """
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='alphabet_project_report',
+            acquired=True).count(), 0)
+
+        self.write_pr(author=self.sample_user, term=self.fa2012, complete=False)
+
+        project_report = ProjectReport.objects.get(
+            author=self.sample_user, term=self.fa2012)
+
+        project_report.title = 'abcdEf'
+        project_report.other_group = 'ggGhiI'
+        project_report.description = 'J'
+        project_report.purpose = 'klmNoPq'
+        project_report.organization = 'rst'
+        project_report.cost = 'uv'
+        project_report.problems = 'wxY'
+        project_report.results = 'z'
+        project_report.save()
+
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='alphabet_project_report',
+            acquired=True).count(), 0)
+
+        project_report.complete = True
+        project_report.save()
+
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='alphabet_project_report',
+            acquired=True).count(), 1)
+
+    @freeze_time('2014-05-01')
+    def test_pr_procrastination(self):
+        """The achievement for procrastinating on a project report is given
+        if a user completes the project report at least 60 days after the event
+        is held.
+        """
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='project_report_procrastination',
+            acquired=True).count(), 0)
+
+        self.write_pr(author=self.sample_user, term=self.fa2012, complete=True)
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='project_report_procrastination',
+            acquired=True).count(), 0)
+
+        self.write_pr(author=self.sample_user, term=self.sp2013, complete=False)
+
+        project_report = ProjectReport.objects.get(
+            author=self.sample_user, term=self.sp2013)
+
+        # set the event date to 59 days ago, achievement still not given
+        project_report.date = datetime.date.today() - datetime.timedelta(59)
+        project_report.complete = True
+        project_report.save()
+
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='project_report_procrastination',
+            acquired=True).count(), 0)
+
+        # set the event date to 60 days, 30 seconds ago
+        project_report.date = datetime.date.today() - datetime.timedelta(60, 30)
+        project_report.save()
+
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='project_report_procrastination',
+            acquired=True).count(), 1)

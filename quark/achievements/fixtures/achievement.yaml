@@ -471,7 +471,7 @@
     privacy: public
     manual: False
     repeatable: False
-    rank: 8.1
+    rank: 10.1
     icon_filename: 'images/achievements/attend_d15.png'
 - pk: 33
   model: achievements.Achievement
@@ -486,7 +486,7 @@
     privacy: public
     manual: False
     repeatable: False
-    rank: 8.2
+    rank: 10.2
 - pk: 34
   model: achievements.Achievement
   fields:
@@ -513,7 +513,7 @@
     privacy: secret
     manual: False
     repeatable: False
-    rank: 25.1
+    rank: 41.1
     icon_filename: 'images/achievements/berkeley_explosion.png'
 - pk: 36
   model: achievements.Achievement
@@ -557,3 +557,73 @@
     repeatable: False
     rank: 20.3
     icon_filename: 'images/achievements/mots.png'
+- pk: 39
+  model: achievements.Achievement
+  fields:
+    short_name: write_01_project_reports
+    name: Job's Finished
+    description: Submit a project report
+    category: paperwork
+    sequence: pr_writing
+    points: 5
+    goal: 0
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 8.1
+    icon_filename: 'images/achievements/write_01_project_reports.png'
+- pk: 40
+  model: achievements.Achievement
+  fields:
+    short_name: write_05_project_reports
+    name: Paper Pusher
+    description: Submit five project reports
+    category: paperwork
+    sequence: pr_writing
+    points: 10
+    goal: 5
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 8.2
+    icon_filename: 'images/achievements/write_05_project_reports.png'
+- pk: 41
+  model: achievements.Achievement
+  fields:
+    short_name: write_15_project_reports
+    name: Master of Bureaucracy
+    description: Submit 15 project reports
+    category: paperwork
+    sequence: pr_writing
+    points: 20
+    goal: 15
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 8.3
+- pk: 42
+  model: achievements.Achievement
+  fields:
+    short_name: alphabet_project_report
+    name: Scrabble Withdrawal
+    description: Submit a project report with all the letters A-Z in its text
+    category: paperwork
+    points: 10
+    goal: 0
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 8.7
+    icon_filename: 'images/achievements/alphabet_project_report.png'
+- pk: 43
+  model: achievements.Achievement
+  fields:
+    short_name: project_report_procrastination
+    name: Writer's Block
+    description: Submit a project report two months after its event
+    category: paperwork
+    points: -10
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 25.1
