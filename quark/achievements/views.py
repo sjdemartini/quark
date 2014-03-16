@@ -26,6 +26,7 @@ class AchievementDetailView(DetailView):
 
     def get_object(self, queryset=None):
         return get_object_or_404(
+            Achievement,
             short_name=self.kwargs['achievement_short_name'])
 
     def get_context_data(self, **kwargs):

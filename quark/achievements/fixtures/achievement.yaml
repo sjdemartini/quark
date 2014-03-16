@@ -1,4 +1,4 @@
-- pk: null
+- pk: 1
   model: achievements.Achievement
   fields:
     short_name: officersemester01
@@ -13,7 +13,7 @@
     repeatable: False
     rank: 1.1
     icon_filename: 'images/achievements/officersemester01.png'
-- pk: null
+- pk: 2
   model: achievements.Achievement
   fields:
     short_name: officersemester02
@@ -28,7 +28,7 @@
     repeatable: False
     rank: 1.2
     icon_filename: 'images/achievements/officersemester02.png'
-- pk: null
+- pk: 3
   model: achievements.Achievement
   fields:
     short_name: officersemester03
@@ -43,7 +43,7 @@
     repeatable: False
     rank: 1.3
     icon_filename: 'images/achievements/officersemester03.png'
-- pk: null
+- pk: 4
   model: achievements.Achievement
   fields:
     short_name: officersemester04
@@ -58,7 +58,7 @@
     repeatable: False
     rank: 1.4
     icon_filename: 'images/achievements/officersemester04.png'
-- pk: null
+- pk: 5
   model: achievements.Achievement
   fields:
     short_name: officersemester05
@@ -73,7 +73,7 @@
     repeatable: False
     rank: 1.5
     icon_filename: 'images/achievements/officersemester05.png'
-- pk: null
+- pk: 6
   model: achievements.Achievement
   fields:
     short_name: officersemester06
@@ -88,7 +88,7 @@
     repeatable: False
     rank: 1.6
     icon_filename: 'images/achievements/officersemester06.png'
-- pk: null
+- pk: 7
   model: achievements.Achievement
   fields:
     short_name: officersemester07
@@ -103,7 +103,7 @@
     repeatable: False
     rank: 1.7
     icon_filename: 'images/achievements/officersemester07.png'
-- pk: null
+- pk: 8
   model: achievements.Achievement
   fields:
     short_name: officersemester08
@@ -117,7 +117,7 @@
     manual: False
     repeatable: False
     rank: 1.8
-- pk: null
+- pk: 9
   model: achievements.Achievement
   fields:
     short_name: chair1committee
@@ -132,7 +132,7 @@
     repeatable: False
     rank: 7.1
     icon_filename: 'images/achievements/chair1committee.png'
-- pk: null
+- pk: 10
   model: achievements.Achievement
   fields:
     short_name: chair2committees
@@ -146,7 +146,7 @@
     manual: False
     repeatable: False
     rank: 7.2
-- pk: null
+- pk: 11
   model: achievements.Achievement
   fields:
     short_name: three_unique_positions
@@ -160,7 +160,7 @@
     repeatable: False
     rank: 5.1
     icon_filename: 'images/achievements/three_unique_positions.png'
-- pk: null
+- pk: 12
   model: achievements.Achievement
   fields:
     short_name: twice_same_position
@@ -175,7 +175,7 @@
     repeatable: False
     rank: 6.1
     icon_filename: 'images/achievements/twice_same_position.png'
-- pk: null
+- pk: 13
   model: achievements.Achievement
   fields:
     short_name: thrice_same_position
@@ -190,7 +190,7 @@
     repeatable: False
     rank: 6.2
     icon_filename: 'images/achievements/thrice_same_position.png'
-- pk: null
+- pk: 14
   model: achievements.Achievement
   fields:
     short_name: two_repeated_positions
@@ -205,7 +205,7 @@
     repeatable: False
     rank: 6.3
     icon_filename: 'images/achievements/two_repeated_positions.png'
-- pk: null
+- pk: 15
   model: achievements.Achievement
   fields:
     short_name: straighttothetop
@@ -219,7 +219,7 @@
     repeatable: False
     rank: 11.2
     icon_filename: 'images/achievements/straighttothetop.png'
-- pk: null
+- pk: 16
   model: achievements.Achievement
   fields:
     short_name: attend025events
@@ -234,7 +234,7 @@
     repeatable: False
     rank: 2.1
     icon_filename: 'images/achievements/attend025events.png'
-- pk: null
+- pk: 17
   model: achievements.Achievement
   fields:
     short_name: attend050events
@@ -249,7 +249,7 @@
     repeatable: False
     rank: 2.2
     icon_filename: 'images/achievements/attend050events.png'
-- pk: null
+- pk: 18
   model: achievements.Achievement
   fields:
     short_name: attend078events
@@ -264,7 +264,7 @@
     repeatable: False
     rank: 2.3
     icon_filename: 'images/achievements/attend078events.png'
-- pk: null
+- pk: 19
   model: achievements.Achievement
   fields:
     short_name: attend100events
@@ -279,7 +279,7 @@
     repeatable: False
     rank: 2.4
     icon_filename: 'images/achievements/attend100events.png'
-- pk: null
+- pk: 20
   model: achievements.Achievement
   fields:
     short_name: attend150events
@@ -294,7 +294,7 @@
     repeatable: False
     rank: 2.5
     icon_filename: 'images/achievements/attend150events.png'
-- pk: null
+- pk: 21
   model: achievements.Achievement
   fields:
     short_name: attend200events
@@ -309,7 +309,7 @@
     repeatable: False
     rank: 2.6
     icon_filename: 'images/achievements/attend200events.png'
-- pk: null
+- pk: 22
   model: achievements.Achievement
   fields:
     short_name: attend300events
@@ -323,7 +323,7 @@
     manual: False
     repeatable: False
     rank: 2.7
-- pk: null
+- pk: 23
   model: achievements.Achievement
   fields:
     short_name: attend_all_meetings
@@ -338,7 +338,7 @@
     repeatable: False
     rank: 4.1
     icon_filename: 'images/achievements/attend_all_meetings.png'
-- pk: null
+- pk: 24
   model: achievements.Achievement
   fields:
     short_name: attend_all_big_socials
@@ -353,7 +353,7 @@
     repeatable: False
     rank: 4.2
     icon_filename: 'images/achievements/attend_all_big_socials.png'
-- pk: null
+- pk: 25
   model: achievements.Achievement
   fields:
     short_name: attend_all_bent_polishings
@@ -368,7 +368,7 @@
     repeatable: False
     rank: 4.3
     icon_filename: 'images/achievements/attend_all_bent_polishings.gif'
-- pk: null
+- pk: 26
   model: achievements.Achievement
   fields:
     short_name: attend_all_infosessions
@@ -383,7 +383,7 @@
     repeatable: False
     rank: 4.4
     icon_filename: 'images/achievements/attend_all_infosessions.png'
-- pk: null
+- pk: 27
   model: achievements.Achievement
   fields:
     short_name: attend_all_service
@@ -398,7 +398,7 @@
     repeatable: False
     rank: 4.5
     icon_filename: 'images/achievements/attend_all_service.png'
-- pk: null
+- pk: 28
   model: achievements.Achievement
   fields:
     short_name: attend_all_efutures
@@ -413,7 +413,7 @@
     repeatable: False
     rank: 4.6
     icon_filename: 'images/achievements/attend_all_efutures.png'
-- pk: null
+- pk: 29
   model: achievements.Achievement
   fields:
     short_name: attend_all_fun
@@ -428,7 +428,7 @@
     repeatable: False
     rank: 4.7
     icon_filename: 'images/achievements/attend_all_fun.png'
-- pk: null
+- pk: 30
   model: achievements.Achievement
   fields:
     short_name: attend_all_prodev
@@ -443,7 +443,7 @@
     repeatable: False
     rank: 4.8
     icon_filename: 'images/achievements/attend_all_prodev.png'
-- pk: null
+- pk: 31
   model: achievements.Achievement
   fields:
     short_name: attend_each_type
@@ -458,7 +458,7 @@
     repeatable: False
     rank: 4.9
     icon_filename: 'images/achievements/attend_each_type.png'
-- pk: null
+- pk: 32
   model: achievements.Achievement
   fields:
     short_name: attend_d15
@@ -473,7 +473,7 @@
     repeatable: False
     rank: 8.1
     icon_filename: 'images/achievements/attend_d15.png'
-- pk: null
+- pk: 33
   model: achievements.Achievement
   fields:
     short_name: attend_convention
@@ -487,7 +487,7 @@
     manual: False
     repeatable: False
     rank: 8.2
-- pk: null
+- pk: 34
   model: achievements.Achievement
   fields:
     short_name: alphabet_attendance
@@ -501,7 +501,7 @@
     repeatable: False
     rank: 12.1
     icon_filename: 'images/achievements/alphabet_attendance.png'
-- pk: null
+- pk: 35
   model: achievements.Achievement
   fields:
     short_name: berkeley_explosion
@@ -515,7 +515,7 @@
     repeatable: False
     rank: 25.1
     icon_filename: 'images/achievements/berkeley_explosion.png'
-- pk: null
+- pk: 36
   model: achievements.Achievement
   fields:
     short_name: oots
@@ -529,7 +529,7 @@
     repeatable: False
     rank: 20.1
     icon_filename: 'images/achievements/oots.png'
-- pk: null
+- pk: 37
   model: achievements.Achievement
   fields:
     short_name: cots
@@ -543,7 +543,7 @@
     repeatable: False
     rank: 20.2
     icon_filename: 'images/achievements/cots.png'
-- pk: null
+- pk: 38
   model: achievements.Achievement
   fields:
     short_name: mots
