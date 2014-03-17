@@ -2,6 +2,7 @@ from test.test_support import EnvironmentVarGuard
 from test.test_support import import_fresh_module
 
 from django import forms
+from django.contrib.auth.models import AnonymousUser
 from django.db import IntegrityError
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
@@ -766,14 +767,15 @@ class FieldsTest(TestCase):
 
 
 @override_settings(TEST_SETTING='testing')
-class TemplateTagsTest(TestCase):
+class SettingsTemplateTagsTest(TestCase):
+    """Test case for the "settings" template tag."""
     def setUp(self):
         self.base_string = 'Hello world '
         self.context = Context({'base_string': self.base_string})
         self.test_setting = 'testing'
 
     def test_settings(self):
-        # Test with valid settings variable
+        """Verify that the settings tag works for valid settings variables."""
         template = Template(
             '{% load settings_values %}{{ base_string }}'
             '{% settings "TEST_SETTING" %}'
@@ -781,16 +783,20 @@ class TemplateTagsTest(TestCase):
         self.assertEquals(self.base_string + self.test_setting,
                           template.render(self.context))
 
-        # Test with settings variable that does not exist
+    def test_settings_invalid_setting(self):
+        """Verify that the settings tag returns an empty string for settings
+        variables that do not exist.
+        """
         template = Template(
             '{% load settings_values %}{{ base_string }}'
             '{% settings "NON_EXISTENT_SETTING" %}'
         )
-        self.assertEquals(self.base_string,
-                          template.render(self.context))
+        self.assertEquals(self.base_string, template.render(self.context))
 
     def test_settings_assign(self):
-        # Test with valid assignment
+        """Verify that the settings_assign tag works for valid settings
+        variables.
+        """
         template = Template(
             '{% load settings_values %}'
             '{% settings_assign "TEST_SETTING" as test_var %}'
@@ -799,17 +805,53 @@ class TemplateTagsTest(TestCase):
         self.assertEquals(self.base_string + self.test_setting,
                           template.render(self.context))
 
-        # Test with assignment, with variable that does not exist
+    def test_settings_assign_invalid_setting(self):
+        """Verify that the settings_assign tag gives an empty string for
+        settings variables that do not exist.
+        """
         template = Template(
             '{% load settings_values %}'
             '{% settings_assign "NON_EXISTENT_SETTING" as test_var %}'
             '{{ base_string }}{{ test_var }}'
         )
-        self.assertEquals(self.base_string,
-                          template.render(self.context))
+        self.assertEquals(self.base_string, template.render(self.context))
 
 
-class TemplateUtilsTest(TestCase):
+class GetAPIKeyParamsTemplateTagTest(TestCase):
+    """Test case for the "get_api_key_params" template tag."""
+    def setUp(self):
+        self.template = Template(
+            '{% load template_utils %}'
+            '{% get_api_key_params user as api_params %}'
+            '{{ api_params }}'
+        )
+
+    def test_get_api_key_params_for_valid_user(self):
+        """Verify that the template tag returns a valid string with the API key
+        for a valid user.
+        """
+        user = get_user_model().objects.create_user(
+            username='testuser',
+            email='test@tbp.berkeley.edu',
+            password='password',
+            first_name='John',
+            last_name='Doe')
+        context = Context({'user': user})
+        expected_query_params = 'user={}&amp;key={}'.format(
+            user.pk, user.api_key.key)
+        self.assertEquals(expected_query_params, self.template.render(context))
+
+    def test_get_api_key_params_for_anon_user(self):
+        """Verify that the template tag returns an empty string for a user who
+        is not authenticated.
+        """
+        user = AnonymousUser()
+        context = Context({'user': user})
+        self.assertEquals('', self.template.render(context))
+
+
+class GetItemTemplateTagTest(TestCase):
+    """Test case for the "get_item" template tag."""
     def setUp(self):
         self.test_value = 'test_value'
         self.test_dict = {'test_key': self.test_value}
@@ -817,15 +859,14 @@ class TemplateUtilsTest(TestCase):
                                 'key': 'test_key',
                                 'bad_key': 'bad_key'})
 
-    def test_lookup(self):
-        # Test with valid key
+    def test_lookup_with_valid_key(self):
         template = Template(
             '{% load template_utils %}'
             '{{ test_dict|get_item:key }}'
         )
         self.assertEquals(self.test_value, template.render(self.context))
 
-        # Test with invalid key
+    def test_lookup_with_invalid_key(self):
         template = Template(
             '{% load template_utils %}'
             '{{ test_dict|get_item:bad_key }}'

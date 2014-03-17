@@ -44,8 +44,9 @@ class EventQuerySetMixin(object):
             self = self.filter(term=Term.objects.get_current_term())
         return self
 
-    def get_user_viewable(self, user):
-        """Return events that the given user can view.
+    def get_user_viewable(self, user=None):
+        """Return events that the given user can view, or the public events
+        if the user is not provided.
 
         Viewability is based on the "restriction" level for the events.
         """
@@ -289,8 +290,10 @@ class Event(models.Model):
 
     @staticmethod
     def get_user_restriction_level(user):
-        """Return the maximum event restriction level this user can access."""
-        if user.is_authenticated():
+        """Return the maximum event restriction level this user can access, or
+        the public restriction level if no user is provided.
+        """
+        if user and user.is_authenticated():
             if user.userprofile.is_officer():
                 return Event.OFFICER
             elif user.userprofile.is_member():

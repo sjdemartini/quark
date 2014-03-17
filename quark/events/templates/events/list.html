@@ -1,13 +1,20 @@
 {% extends 'events/list_base.html' %}
 
-{% load static settings_values %}
+{% load static settings_values template_utils %}
 
 {% block content %}
 {% settings_assign 'HOSTNAME' as hostname %}
+{% get_api_key_params user as api_params %}
+{% url 'events:ical' as ical_url %}
 <p>
-  <a href="http://www.google.com/calendar/render?cid=http://{{ hostname }}{% url 'events:ical' %}" target="_blank">
-    <img src="{% static "images/google-calendar.gif" %}" class="google-cal" alt="Add to Google Calendar"></a> |
-  <a href="{% url 'events:ical' %}?term={{ display_term_url_name }}">Download iCal</a>
+  {% comment %}
+  Note that Google Calendar does not accept https in the cid argument, but it
+  will still load the ics file if https is needed (e.g., if it is forced via
+  redirect).
+  {% endcomment %}
+  <a href="//www.google.com/calendar/render?cid=http%3A%2F%2F{{ hostname|urlencode:'' }}{{ ical_url|urlencode:'' }}{% if api_params %}%3F{{ api_params|urlencode:'' }}{% endif %}"
+    target="_blank"><img src="{% static "images/google-calendar.gif" %}" class="google-cal" alt="Add to Google Calendar"></a> |
+  <a href="{{ ical_url }}?term={{ display_term_url_name }}{% if api_params %}&{{ api_params }}{% endif %}">Download iCal</a>
 </p>
 
 {% if events %}

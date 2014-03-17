@@ -29,6 +29,7 @@ from django.views.generic import ListView
 from django.views.generic import TemplateView
 from django.views.generic import UpdateView
 
+from quark.accounts.models import APIKey
 from quark.base.models import Term
 from quark.base.views import TermParameterMixin
 from quark.events.forms import EventForm
@@ -551,22 +552,29 @@ class LeaderboardListView(TermParameterMixin, ListView):
 
 
 def ical(request, event_pk=None):
-    """Return an ICS file for the given event,
-    or for all events if no event specified.
+    """Return an ICS file for the given event, or for all events if no event
+    primary key is provided.
 
-    If a "term" URL parameter is given and no event is provided,
-    the view returns all events for that term
+    If a "term" URL parameter is given and no event pk is given, the view
+    returns all events for that term.
+
+    The view only shows events that the user is allowed to see, based on the
+    "user" and "key" URL parameters (which correspond to the user's PK and API
+    key, respectively). If the "user" and "key" parameters are not valid or are
+    not provided, only publicly visible events are included.
     """
+    # pylint: disable=R0914
     cal = vobject.iCalendar()
 
     cal.add('calscale').value = 'Gregorian'
     cal.add('X-WR-TIMEZONE').value = 'America/Los_Angeles'
-    cal.add('X-WR-CALNAME').value = 'TBP Events'
-    cal.add('X-WR-CALDESC').value = 'TBP Events'
+    calendar_name = '{} Events'.format(settings.SITE_TAG)
+    cal.add('X-WR-CALNAME').value = calendar_name
+    cal.add('X-WR-CALDESC').value = calendar_name
 
     vtimezone = cal.add('vtimezone')
-    vtimezone.add('tzid').value = "America/Los_Angeles"
-    vtimezone.add('X-LIC-LOCATION').value = "America/Los_Angeles"
+    vtimezone.add('tzid').value = 'America/Los_Angeles'
+    vtimezone.add('X-LIC-LOCATION').value = 'America/Los_Angeles'
     dst = vtimezone.add('daylight')
     dst.add('tzoffsetfrom').value = '-0800'
     dst.add('tzoffsetto').value = '-0700'
@@ -582,34 +590,47 @@ def ical(request, event_pk=None):
         1970, 11, 1, 2, 0, 0, 0, tz('US/Pacific'))  # '19701101T020000'
     std.add('rrule').value = 'FREQ=YEARLY;BYMONTH=11;BYDAY=1SU'
 
-    # TODO(giovanni): Add user authorization
-    if event_pk is None:    # i.e., if we want all events
+    user = None
+    user_pk = request.GET.get('user', None)
+    key = request.GET.get('key', None)
+    if user_pk and key:
+        try:
+            api_key = APIKey.objects.get(user__pk=user_pk, key=key)
+            user = api_key.user
+        except APIKey.DoesNotExist:
+            pass
+
+    if event_pk is None:
+        # We want multiple events
         filename = 'events.ics'
         term = request.GET.get('term', '')
-        events = Event.objects.get_user_viewable(
-            request.user).filter(cancelled=False)
+        events = Event.objects.get_user_viewable(user).filter(cancelled=False)
         if term:
+            # Filter by the given term
             term_obj = Term.objects.get_by_url_name(term)
             events = events.filter(term=term_obj)
         for event in events:
             add_event_to_ical(event, cal)
-    else:    # i.e., we want a specific event
+    else:
+        # We want a specific event
+        event = get_object_or_404(Event, pk=event_pk)
+        if not event.can_user_view(user):
+            raise PermissionDenied
         filename = 'event.ics'
-        event = Event.objects.get(pk=event_pk)
         add_event_to_ical(event, cal)
 
-    response = HttpResponse(cal.serialize(), mimetype='text/calendar')
+    response = HttpResponse(cal.serialize(), content_type='text/calendar')
     response['Filename'] = filename  # IE needs this
-    response['Content-Disposition'] = 'attachment; filename=' + filename
+    response['Content-Disposition'] = 'attachment; filename={}'.format(filename)
     return response
 
 
 def add_event_to_ical(event, cal):
-    """Helper method used by the ical methods.
+    """Helper method used by the ical view for adding an event to an ICS
+    calendar object.
 
-    Takes in event and cal where:
-    event is the actual event object
-    cal is the ical object
+    Takes in "event" and "cal", where "event" is the actual event object and
+    "cal" is the ical object.
     """
     ical_event = cal.add('vevent')
     name = event.name

@@ -1,4 +1,7 @@
 from django import template
+from django.utils.http import urlencode
+
+from quark.accounts.models import APIKey
 
 
 register = template.Library()
@@ -15,3 +18,50 @@ def get_item(dictionary, key):
     This is equivalent to doing mydict[var_name] in Python.
     """
     return dictionary.get(key)
+
+
+@register.simple_tag(takes_context=True)
+def modify_query_params(context, **kwargs):
+    """
+    Modify query parameters for the current URL.
+
+    Takes the current GET parameters, and modifies them according to the passed
+    arguments. You can add/modify parameters by passing in the desired value for
+    those parameters, or even delete them by passing a blank string.
+
+    Example:
+    If the current URL is: http://example.com/?a=0&b=1
+    http://example.com/{% modify_query_params b=4 %}
+      --> http://example.com/?a=0&b=4
+    http://example.com/{% modify_query_params b="" c=2 %}
+      --> http://example.com/?a=0&c=2
+    http://example.com/{% modify_query_params a="" b="" %}
+      --> http://example.com/
+    """
+    request = context['request']
+    params = request.GET.copy()
+    for key, value in kwargs.items():
+        if value == '':
+            if key in params:
+                del params[key]
+        else:
+            params[key] = value
+    return ('?' + params.urlencode()) if params else ''
+
+
+@register.assignment_tag
+def get_api_key_params(user):
+    """Assign to a context variable a query string for the given user's API key.
+
+    Usage in templates:
+    {% load template_utils %}
+    {% get_api_key_params user as api_params %}
+    {{ api_params }}
+
+    would output the string:  'user=<user's pk>&key=<user's API key>'
+    for the user object "user". This would often be used to append to a URL.
+    """
+    if user and user.is_authenticated():
+        api_key, _ = APIKey.objects.get_or_create(user=user)
+        return urlencode({'user': user.pk, 'key': api_key.key})
+    return ''

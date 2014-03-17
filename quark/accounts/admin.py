@@ -5,7 +5,14 @@ from django.contrib.auth.admin import UserAdmin
 from quark.accounts.forms import AdminPasswordChangeForm
 from quark.accounts.forms import UserChangeForm
 from quark.accounts.forms import UserCreationForm
+from quark.accounts.models import APIKey
 from quark.user_profiles.models import UserProfile
+
+
+class APIKeyAdmin(admin.ModelAdmin):
+    list_display = ('user', 'key')
+    readonly_fields = ('user', 'key', 'created')
+    search_fields = ('user__username', 'user__first_name', 'user__last_name')
 
 
 # Define an inline admin descriptor for the UserProfile model so that the
@@ -40,6 +47,9 @@ class UserAdminWithProfile(UserAdmin):
                 yield formset
 
         # Return nothing for the add form (i.e., if obj is None)
+
+
+admin.site.register(APIKey, APIKeyAdmin)
 
 
 # Re-register UserAdmin
