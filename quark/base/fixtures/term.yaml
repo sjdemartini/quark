@@ -173,13 +173,13 @@
   model: base.Term
   pk: 20132
 - fields:
-    current: true
+    current: false
     term: fa
     year: 2013
   model: base.Term
   pk: 20134
 - fields:
-    current: false
+    current: true
     term: sp
     year: 2014
   model: base.Term
