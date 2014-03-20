@@ -78,6 +78,8 @@ LDAP_GROUPS = {
 }
 LDAP_DEFAULT_USER = 'uid=default,ou=System,' + LDAP['BASE']
 
+USE_LDAP = False
+
 # Valid username regex
 # Please use raw string notation (i.e. r'text') to keep regex sane.
 # Update quark/qldap/tests.py: test_valid_username_regex() to match

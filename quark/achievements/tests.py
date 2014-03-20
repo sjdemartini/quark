@@ -16,7 +16,7 @@ from quark.events.models import EventType
 
 
 class AchievementAssignmentTest(TestCase):
-    fixtures = ['term.yaml']
+    fixtures = ['test/term.yaml']
 
     def setUp(self):
         self.sample_user = get_user_model().objects.create_user(
@@ -111,7 +111,7 @@ class AchievementAssignmentTest(TestCase):
 class EventAchievementsTest(TestCase):
     fixtures = ['achievement.yaml',
                 'officer_position.yaml',
-                'term.yaml']
+                'test/term.yaml']
 
     def setUp(self):
         self.sample_user = get_user_model().objects.create_user(
@@ -555,8 +555,8 @@ class EventAchievementsTest(TestCase):
 
 class OfficerAchievementsTest(TestCase):
     fixtures = ['achievement.yaml',
-                'term.yaml',
-                'officer_position.yaml']
+                'officer_position.yaml',
+                'test/term.yaml']
 
     def setUp(self):
         self.sample_user = get_user_model().objects.create_user(

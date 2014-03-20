@@ -297,6 +297,22 @@ class TermTest(TestCase):
         term = Term(term=Term.UNKNOWN, year=2012, current=True)
         self.assertEqual(term.get_url_name(), 'un2012')
 
+    def test_calculate_pk(self):
+        term = Term(term=Term.WINTER, year=2012, current=True)
+        self.assertEqual(term._calculate_pk(), 20121)
+
+        term = Term(term=Term.SPRING, year=2012, current=True)
+        self.assertEqual(term._calculate_pk(), 20122)
+
+        term = Term(term=Term.SUMMER, year=2012, current=True)
+        self.assertEqual(term._calculate_pk(), 20123)
+
+        term = Term(term=Term.FALL, year=2012, current=True)
+        self.assertEqual(term._calculate_pk(), 20124)
+
+        term = Term(term=Term.UNKNOWN, year=2012, current=True)
+        self.assertEqual(term._calculate_pk(), 20120)
+
     def test_comparisons(self):
         fall = Term(term=Term.FALL, year=2012)
         spring = Term(term=Term.SPRING, year=2012)

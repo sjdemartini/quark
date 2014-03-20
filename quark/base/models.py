@@ -164,7 +164,7 @@ class Term(models.Model):
         # Set the ID for a new object.
         # pylint: disable=C0103
         # pylint: disable=W0201
-        self.id = self.year * 10 + self.__term_as_int()
+        self.id = self._calculate_pk()
 
         # Failed transactions will be rolled back, but will not catch errors
         with transaction.atomic():
@@ -191,6 +191,9 @@ class Term(models.Model):
         if self.current:
             name += ' (Current)'
         return name
+
+    def _calculate_pk(self):
+        return self.year * 10 + self.__term_as_int()
 
     def __term_as_int(self):
         """Converts the term to a numeric mapping for the primary key."""
