@@ -93,6 +93,7 @@ class LDAPBackend(ModelBackend):
         # a dev server via settings.DEBUG = True
         if settings.DEBUG and utils.is_group_member(uid, '*-it'):
             migrate_user.is_superuser = True
+            migrate_user.is_staff = True
         migrate_user.save()
 
         # Return saved version of user

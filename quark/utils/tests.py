@@ -125,7 +125,9 @@ class CreateDevDBTest(TestCase):
 
         cursor = self.mox.CreateMockAnything()
         db.cursor().AndReturn(cursor)
-        cursor.execute('CREATE DATABASE IF NOT EXISTS quark_dev_foo')
+        cursor.execute('CREATE DATABASE IF NOT EXISTS quark_dev_foo'
+                       ' CHARACTER SET utf8'
+                       ' COLLATE utf8_unicode_ci')
         cursor.close()
         db.commit()
 
@@ -153,7 +155,9 @@ class CreateDevDBTest(TestCase):
 
         cursor = self.mox.CreateMockAnything()
         db.cursor().AndReturn(cursor)
-        cursor.execute('CREATE DATABASE IF NOT EXISTS quark_dev_foo')
+        cursor.execute('CREATE DATABASE IF NOT EXISTS quark_dev_foo'
+                       ' CHARACTER SET utf8'
+                       ' COLLATE utf8_unicode_ci')
         cursor.close()
         db.commit()
 

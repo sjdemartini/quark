@@ -4,7 +4,7 @@ import MySQLdb
 import re
 import sys
 
-KEY_PATH = '/home/pie/private'
+KEY_PATH = '/home/tbp/private'
 if KEY_PATH not in sys.path:
     sys.path.append(KEY_PATH)
 # pylint: disable=F0401
@@ -39,7 +39,9 @@ def create_dev_db(username, quiet=False):
     try:
         db = MySQLdb.connect(user=DB_USER, passwd=DB_PASSWORD)
         cr_cursor = db.cursor()
-        cr_cursor.execute('CREATE DATABASE IF NOT EXISTS %s' % db_name)
+        cr_cursor.execute('CREATE DATABASE IF NOT EXISTS %s'
+                          ' CHARACTER SET utf8'
+                          ' COLLATE utf8_unicode_ci' % db_name)
         cr_cursor.close()
         db.commit()
 
