@@ -52,7 +52,7 @@ class EventQuerySetMixin(object):
         user_level = Event.get_user_restriction_level(user)
 
         # Initialize visible_levels to those that are visible to everyone
-        visible_levels = Event.VISIBLE_TO_EVERYONE
+        visible_levels = list(Event.VISIBLE_TO_EVERYONE)
         if user_level >= Event.MEMBER:
             visible_levels.append(Event.MEMBER)
         if user_level >= Event.OFFICER:
@@ -90,7 +90,7 @@ class Event(models.Model):
         (OPEN, 'Open (No Signups)')
     )
 
-    VISIBLE_TO_EVERYONE = [OPEN, PUBLIC, CANDIDATE]
+    VISIBLE_TO_EVERYONE = (OPEN, PUBLIC, CANDIDATE)
 
     name = models.CharField(max_length=80, verbose_name='event name')
     event_type = models.ForeignKey(EventType)

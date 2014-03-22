@@ -7,10 +7,10 @@ from quark.courses.models import Instructor
 
 
 class Survey(models.Model):
-    RATING_CHOICES = [
+    RATING_CHOICES = (
         (1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5'), (6, '6'), (7, '7')
-    ]
-    RATING_CHOICES_NULL = RATING_CHOICES + [(None, 'N/A')]
+    )
+    RATING_CHOICES_NULL = RATING_CHOICES + ((None, 'N/A'),)
 
     course = models.ForeignKey(Course)
     term = models.ForeignKey(Term)
