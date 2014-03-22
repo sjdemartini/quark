@@ -236,3 +236,22 @@ $attended-highlight: #ff8;
 .signed-up {
   font-weight: 600;
 }
+
+// Individual attendance records
+.user-event-attendance {
+  .event-type {
+    border: 1px solid #ccc;
+    display: inline-block;
+    margin: 0.2em 0.1em;
+    padding: 0.2em;
+
+    &.future {
+      border: 1px dashed #000;
+      opacity: 0.5;
+
+      a {
+        color: #333;
+      }
+    }
+  }
+}
