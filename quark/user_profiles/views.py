@@ -5,6 +5,7 @@ from django.utils.decorators import method_decorator
 from django.views.generic import UpdateView
 
 from quark.user_profiles.forms import UserProfileForm
+from quark.user_profiles.forms import UserProfilePictureForm
 
 
 class UserProfileEditView(UpdateView):
@@ -26,3 +27,9 @@ class UserProfileEditView(UpdateView):
     def form_invalid(self, form):
         messages.error(self.request, 'Please correct your input fields.')
         return super(UserProfileEditView, self).form_invalid(form)
+
+
+class UserProfilePictureEditView(UserProfileEditView):
+    form_class = UserProfilePictureForm
+    success_url = reverse_lazy('user-profiles:edit-pic')
+    template_name = 'user_profiles/edit_picture.html'

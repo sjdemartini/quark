@@ -22,17 +22,13 @@ class UserProfileForm(forms.ModelForm):
 
     class Meta(object):
         model = UserProfile
-        # TODO(sjdemartini): Create a separate page just for uploading
-        # profile picture, rather than including it here
         fields = ('username', 'first_name', 'preferred_name', 'middle_name',
                   'last_name', 'birthday', 'gender', 'email', 'alt_email',
-                  'picture', 'cell_phone', 'receive_text', 'home_phone',
-                  'local_address1', 'local_address2', 'local_city',
-                  'local_state', 'local_zip', 'perm_address1', 'perm_address2',
-                  'perm_city', 'perm_state', 'perm_zip',
-                  'international_address')
+                  'cell_phone', 'receive_text', 'home_phone', 'local_address1',
+                  'local_address2', 'local_city', 'local_state', 'local_zip',
+                  'perm_address1', 'perm_address2', 'perm_city', 'perm_state',
+                  'perm_zip', 'international_address')
         widgets = {
-            'picture': forms.ClearableFileInput(attrs={'accept': 'image/*'}),
             'local_state': chosen_forms.ChosenSelect,
             'perm_state': chosen_forms.ChosenSelect
         }
@@ -99,3 +95,15 @@ class UserProfileForm(forms.ModelForm):
                 set_email(self.instance.user.get_username(), email)
 
         return super(UserProfileForm, self).save(*args, **kwargs)
+
+
+class UserProfilePictureForm(forms.ModelForm):
+    class Meta(object):
+        model = UserProfile
+        fields = ('picture',)
+        labels = {
+            'picture': 'Upload a new picture'
+        }
+        widgets = {
+            'picture': forms.ClearableFileInput(attrs={'accept': 'image/*'})
+        }

@@ -2,7 +2,7 @@
 
 {% block intro %}
 <h1>
-  {% block title %}Edit Your Profile{% endblock title %}
+  {% block title %}Edit Your Info{% endblock title %}
 </h1>
 {% endblock intro %}
 
@@ -13,7 +13,7 @@ student info. Probably want to use some standard side-bar for all of those
 pages with links between all of them.
 {% endcomment %}
 
-<form method="post" enctype="multipart/form-data">
+<form method="post">
   {% csrf_token %}
   {% include '_form.html' %}
   <div>

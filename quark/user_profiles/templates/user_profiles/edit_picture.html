@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% load compress static %}
+
+{% block title %}Edit Profile Picture{% endblock title %}
+
+{% block head %}
+{% compress css inline %}
+<link type="text/x-scss" rel="stylesheet" href="{% static 'css/user_profiles/edit_picture.scss' %}">
+{% endcompress %}
+{% endblock head %}
+
+{% block intro %}
+<h1>Edit Your Profile Picture</h1>
+{% endblock intro %}
+
+{% block content %}
+{% comment %}
+TODO(sjdemartini): Link to pages for uploading resume and for editing college
+student info. Probably want to use some standard side-bar for all of those
+pages with links between all of them.
+{% endcomment %}
+
+{% if user.userprofile.picture %}
+<div>Current profile picture:</div>
+<img class="current-pic" src="{{ user.userprofile.picture.url }}" alt="{{ user.userprofile.get_common_name }}">
+
+<div>Profile picture thumbnail:</div>
+{% include '_user_thumbnail.html' with user_profile=userprofile %}
+
+{% else %}
+<div>No current profile picture.</div>
+{% endif %}
+
+<form method="post" enctype="multipart/form-data" class="form-narrow">
+  {% csrf_token %}
+  {% include '_form.html' %}
+  <div id="preview-container" class="hide">
+    <div>Pending new profile picture (click "Save" to confirm):</div>
+    <i class="fa fa-spinner fa-spin loading" style="display: none;"></i>
+  </div>
+  <p>
+    <input type="submit" value="Save">
+  </p>
+</form>
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+  var $previewContainer = $('#preview-container');
+  var $spinner = $('.loading');
+
+  // Create a file reader that will display the pending uploaded picture:
+  var reader = new FileReader();
+  reader.onload = function(event) {
+    var $previewImg = $('#preview-img');
+    if ($previewImg.length === 0) {
+      $previewImg = $('<img id="preview-img" alt="New picture">');
+      $previewContainer.append($previewImg);
+    }
+    $previewImg.attr('src', event.target.result);
+
+    // Hide the spinner and show the image
+    $spinner.hide();
+    $previewImg.show();
+    // Scroll to the new image:
+    $('html,body').animate({scrollTop: $previewContainer.offset().top}, 1000);
+  }
+
+  // Attach a change listener to the image upload field:
+  $('#id_picture').change(function() {
+    if (this.files && this.files[0]) {
+      // Hide any existing image
+      $('#preview-img').hide();
+
+      // Show the loading spinner inside the preview container, and once the
+      // container is visible, read the newly-uploaded image
+      var file = this.files[0];
+      $spinner.show();
+      $previewContainer.show('fast', function() {
+        reader.readAsDataURL(file);
+      });
+    } else {
+      $previewContainer.hide();
+      $('#preview-img').remove();
+    }
+  });
+</script>
+{% endblock extra_js %}

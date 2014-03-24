@@ -18,6 +18,8 @@
       <ul class="dropdown">
         <li><a href="{% url 'user-profiles:edit' %}">Edit Your Info</a></li>
 
+        <li><a href="{% url 'user-profiles:edit-pic' %}">Edit Profile Picture</a></li>
+
         {% if perms.resumes.add_resume %}
         <li><a href="{% url 'resumes:edit' %}">Edit Resume</a></li>
         {% endif %}

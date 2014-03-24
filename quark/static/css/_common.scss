@@ -160,8 +160,9 @@ div {
   }
 }
 
-// Padding around loading icons
+// Padding around loading icons, and ensure inline-block to support animation
 .loading {
+  display: inline-block;
   padding-left: 6px;
   padding-right: 6px;
 }
@@ -338,6 +339,10 @@ div {
     cursor: pointer;
     float: right;
   }
+}
+
+.hide {
+  display: none;
 }
 
 .grayscale {
@@ -616,7 +621,7 @@ blockquote {
     display: none;
     margin-top: 5px;
     max-width: 180px;
-    min-width: 120px;
+    min-width: 130px;
     padding: 5px 10px;
     z-index: 100;
     @include border-radius(.3em);
