@@ -38,6 +38,9 @@ class Resume(models.Model):
     critique = models.BooleanField(
         default=True, verbose_name='Critique requested',
         help_text='Request an officer to critique your resume')
+    # If true, then this resume is to be released to companies when verified.
+    # The user specifies this when uploading or editing their resume, and it
+    # should not be changed by anyone else.
     release = models.BooleanField(
         default=True, verbose_name='Release to companies')
     created = models.DateTimeField(auto_now_add=True)

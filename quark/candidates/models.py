@@ -216,8 +216,7 @@ class CandidateRequirement(models.Model):
             completed = self.examfilecandidaterequirement.get_completed(
                 candidate)
         elif self.requirement_type == CandidateRequirement.RESUME:
-            completed = Resume.objects.filter(
-                user=candidate.user, verified=True).count()
+            completed = self.resumecandidaterequirement.get_completed(candidate)
         elif self.requirement_type == CandidateRequirement.MANUAL:
             # Actual credits earned is read from CandidateProgress below
             completed = 0
@@ -332,6 +331,9 @@ class ResumeCandidateRequirement(CandidateRequirement):
         """Override save handler to ensure that requirement_type is correct."""
         self.requirement_type = CandidateRequirement.RESUME
         super(ResumeCandidateRequirement, self).save(*args, **kwargs)
+
+    def get_completed(self, candidate):
+        return Resume.objects.filter(user=candidate.user, verified=True).count()
 
 
 class ManualCandidateRequirement(CandidateRequirement):
