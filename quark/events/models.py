@@ -5,6 +5,7 @@ from django.db.models import Sum
 from django.db.models.query import QuerySet
 from django.template import defaultfilters
 from django.utils import timezone
+from django.utils.http import urlencode
 
 from quark.base.models import OfficerPosition
 from quark.base.models import Term
@@ -263,7 +264,26 @@ class Event(models.Model):
             return '{} Time TBA'.format(start_date)
         return '{} {} to {}'.format(start_date, start_time, end_string)
 
-    # TODO(sjdemartini): re-implement Google Calendar utilities
+    def get_gcal_event_url(self):
+        """Used when generating the 'Add to Google Calendar' button for
+        a single event.
+
+        Outputs the string for the url link to add a single event to
+        Google calendar.
+        """
+        format_string = '%Y%m%dT%H%M%SZ'
+        start_datetime_str = self.start_datetime.strftime(format_string)
+        end_datetime_str = self.end_datetime.strftime(format_string)
+        url = self.get_absolute_url()
+        dates = '{}/{}'.format(start_datetime_str, end_datetime_str)
+        details = '{}\n\nhttps://{}{}'.format(
+            self.description, settings.HOSTNAME, url)
+        sprop = 'name:Tau Beta Pi - {}'.format(self.name)
+        gcal_event_str = 'https://www.google.com/calendar/event?{}'.format(
+            urlencode({'action': 'TEMPLATE', 'dates': dates,
+                       'details': details, 'location': self.location,
+                       'text': self.name, 'trp': 'true', 'sprop': sprop}))
+        return gcal_event_str
 
     # TODO(sjdemartini): re-implement attendence_submitted() function
 

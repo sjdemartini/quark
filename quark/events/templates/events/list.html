@@ -13,7 +13,7 @@
   redirect).
   {% endcomment %}
   <a href="//www.google.com/calendar/render?cid=http%3A%2F%2F{{ hostname|urlencode:'' }}{{ ical_url|urlencode:'' }}{% if api_params %}%3F{{ api_params|urlencode:'' }}{% endif %}"
-    target="_blank"><img src="{% static "images/google-calendar.gif" %}" class="google-cal" alt="Add to Google Calendar"></a> |
+    target="_blank"><img src="{% static 'images/google-calendar.gif' %}" class="google-cal" alt="Add to Google Calendar"></a> |
   <a href="{{ ical_url }}?term={{ display_term_url_name }}{% if api_params %}&{{ api_params }}{% endif %}">Download iCal</a>
 </p>
 

@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load markup %}
+{% load markup static %}
 
 {% block title %}{{ event.name }} - Events{% endblock %}
 
@@ -22,12 +22,13 @@
 
 {% url 'events:attendance' event.pk as event_attendance_url %}
 
-{# TODO: Add Google Calendar link once GCal string output method created #}
-
 <dl class="event-info">
   <dt>When</dt>
     <dd>
-      <div>{{ event.view_datetime }} (<a href="{% url 'events:event-ical' event.pk %}">iCal</a>)</div>
+    <div>{{ event.view_datetime }} (
+      <a href="{{ event.get_gcal_event_url }}" target="_blank">
+        <img src="{% static 'images/google-calendar.gif' %}" class="google-cal" alt="Add to Google Calendar"></a> |
+      <a href="{% url 'events:event-ical' event.pk %}">iCal</a>)</div>
       {% if user.is_authenticated %}
       <div>
         (<em>{% if perms.events.add_eventattendance %}<a href="{{ event_attendance_url }}">Attendance</a>{% else %}Attendance{% endif %}
