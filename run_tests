@@ -122,7 +122,7 @@ else
         echo -e "\nSCSS-LINT VIOLATIONS"
         echo "================================================================"
         # Print the whole file (all lines say the errors)
-        cat reports/jshint.report
+        cat reports/scsslint.report
     else
         echo -e "\nNo scss-lint violations."
     fi
