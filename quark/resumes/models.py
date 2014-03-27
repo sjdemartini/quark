@@ -46,6 +46,11 @@ class Resume(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
+    class Meta(object):
+        permissions = (
+            ('view_resumes', 'Can view all resumes'),
+        )
+
     def get_download_file_name(self):
         """Return the file name of the resume file when it is downloaded."""
         return '{first}{last}'.format(

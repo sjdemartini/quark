@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import permission_required
 from django.core.servers.basehttp import FileWrapper
 from django.core.urlresolvers import reverse
+from django.http import Http404
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
@@ -55,6 +56,14 @@ class ExamDownloadView(DetailView):
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
+
+        # If the exam is not approved, check whether the user has permission
+        # to view it. If not, raise a 404 instead of PermissionDenied because
+        # the exam is not supposed to "exist" if it is not approved.
+        if (not self.object.is_approved()
+                and not self.request.user.has_perm('exams.view_exams')):
+            raise Http404
+
         response = HttpResponse(
             FileWrapper(self.object.exam_file),
             content_type='application/pdf')

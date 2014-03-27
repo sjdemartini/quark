@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import permission_required
+from django.core.exceptions import PermissionDenied
 from django.core.servers.basehttp import FileWrapper
 from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponse
@@ -26,7 +27,7 @@ class ResumeViewMixin(object):
     """
     @method_decorator(login_required)
     @method_decorator(
-        permission_required('resumes.change_resumes', raise_exception=True))
+        permission_required('resumes.change_resume', raise_exception=True))
     def dispatch(self, *args, **kwargs):
         return super(ResumeViewMixin, self).dispatch(*args, **kwargs)
 
@@ -117,6 +118,8 @@ class ResumeEditView(FormView):
     resume = None
 
     @method_decorator(login_required)
+    @method_decorator(
+        permission_required('resumes.add_resume', raise_exception=True))
     def dispatch(self, *args, **kwargs):
         self.resume = get_object_or_none(Resume, user=self.request.user)
         return super(ResumeEditView, self).dispatch(*args, **kwargs)
@@ -157,10 +160,14 @@ class ResumeDownloadView(DetailView):
     model = Resume
     user = None
 
-    # TODO(jerrycheng): implement correct permissions for downloading resumes
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         if 'user_pk' in self.kwargs:
+            # Check whether the user has permission to view other people's
+            # resumes
+            if not self.request.user.has_perm('resumes.view_resumes'):
+                raise PermissionDenied
+
             self.user = get_object_or_404(
                 get_user_model(), pk=self.kwargs['user_pk'])
         else:

@@ -185,12 +185,6 @@ class UserAchievement(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
-    class Meta(object):
-        permissions = (
-            ('add_user_achievement', 'Can add user achievements'),
-            ('delete_user_achievement', 'Can delete user achievements '),
-        )
-
     def __unicode__(self):
         return '{} - {}'.format(self.user.get_full_name(),
                                 self.achievement.name)

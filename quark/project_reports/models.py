@@ -85,6 +85,9 @@ class ProjectReport(models.Model):
 
     class Meta(object):
         ordering = ('-date',)
+        permissions = (
+            ('view_project_reports', 'Can view all project reports'),
+        )
 
 
 def project_report_notification(sender, instance, created, **kwargs):

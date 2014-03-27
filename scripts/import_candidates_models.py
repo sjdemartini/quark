@@ -19,7 +19,6 @@ from scripts.import_base_models import SEMESTER_TO_TERM
 from scripts.import_user_models import HAS_INITIATED
 
 
-user_model = get_user_model()
 CANDIDATE_PHOTO_LOCATION = 'candpics'
 # Because all candidate requirement models are a subclass of
 # CandidateRequirement, whenever a candidate requirement is created, a
@@ -29,6 +28,8 @@ CANDIDATE_PHOTO_LOCATION = 'candpics'
 # (the number of challenge requirements, which are imported first).
 EVENT_REQUIREMENT_PK_CONVERSION = 16
 
+user_model = get_user_model()
+
 
 def import_candidates():
     models = get_json_data('candidate_portal.candidateprofile.json')
@@ -36,11 +37,12 @@ def import_candidates():
         fields = model['fields']
         term = Term.objects.get(pk=SEMESTER_TO_TERM[fields['semester']])
 
+        user_pk = fields['user']
         candidate, _ = Candidate.objects.get_or_create(
             pk=model['pk'],
-            user=user_model.objects.get(pk=fields['user']),
+            user=user_model.objects.get(pk=user_pk),
             term=term,
-            initiated=HAS_INITIATED[fields['user']])
+            initiated=HAS_INITIATED[user_pk])
 
         photo_location = os.path.join(
             NOIRO_MEDIA_LOCATION,

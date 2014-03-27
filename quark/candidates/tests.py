@@ -2,6 +2,7 @@ import os
 import shutil
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.conf import settings
 from django.core.files import File
 from django.test import TestCase
@@ -35,6 +36,9 @@ class CandidateTest(TestCase):
     fixtures = ['test/course_instance.yaml']
 
     def setUp(self):
+        self.candidate_group = Group.objects.create(name='Current Candidate')
+        self.member_group = Group.objects.create(name='Member')
+
         user_model = get_user_model()
         # Create candidate
         self.user = user_model.objects.create_user(
@@ -164,15 +168,23 @@ class CandidateTest(TestCase):
         self.assertIsNotNone(student_org_profile)
 
         # Candidate has not been marked as initiated, so initiation_term should
-        # be None in their profile:
+        # be None in their profile, and the candidate should be in the Current
+        # Candidate group and not in the Member group:
         self.assertIsNone(student_org_profile.initiation_term)
+        candidate_groups = self.candidate.user.groups.all()
+        self.assertIn(self.candidate_group, candidate_groups)
+        self.assertNotIn(self.member_group, candidate_groups)
 
-        # Mark candidate as initiated, and profile should update to match:
+        # Mark candidate as initiated, so profile and groups should update to
+        # match:
         self.candidate.initiated = True
         self.candidate.save()
         student_org_profile = get_object_or_none(
             StudentOrgUserProfile, user=self.user)
         self.assertEqual(student_org_profile.initiation_term, self.term)
+        candidate_groups = self.candidate.user.groups.all()
+        self.assertNotIn(self.candidate_group, candidate_groups)
+        self.assertIn(self.member_group, candidate_groups)
 
     def test_manual_requirements(self):
         """Test that credits for manual requirements are counted correctly."""

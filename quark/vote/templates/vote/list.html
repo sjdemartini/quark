@@ -21,7 +21,9 @@
     <tr>
       <td>
         <a href="{% url 'vote:vote' poll.pk %}">{{ poll.name }}</a>
+        {% if request.user == poll.creator %}
         (<a href="{% url 'vote:result' poll.pk %}">Results</a>)
+        {% endif %}
       </td>
       <td>{{ poll.start_datetime }}</td>
       <td>{{ poll.end_datetime }}</td>

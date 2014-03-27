@@ -18,11 +18,11 @@ class ExamManager(models.Manager):
 
         An exam is 'approved' if it meets all of the following conditions:
           1. Verified by an officer
-          2. Has less than or equal to ExamFlag.LIMIT flags
-          3. Is not associated with a blacklisted instructor
+          2. Is not associated with a blacklisted instructor
+          3. Has less than or equal to ExamFlag.LIMIT flags
         """
-        return self.filter(verified=True, flags__lte=ExamFlag.LIMIT,
-                           blacklisted=False)
+        return self.filter(verified=True, blacklisted=False,
+                           flags__lte=ExamFlag.LIMIT)
 
 
 def generate_exam_filepath(instance, filename):
@@ -83,6 +83,12 @@ class Exam(models.Model):
 
     objects = ExamManager()
 
+    class Meta(object):
+        permissions = (
+            ('view_exams',
+             'Can view all exams (including blacklisted and flagged exams)'),
+        )
+
     @property
     def course(self):
         return self.course_instance.course
@@ -95,6 +101,15 @@ class Exam(models.Model):
     def instructors(self):
         """Return a QuerySet of all instructors associated with the exam."""
         return self.course_instance.instructors.all()
+
+    def is_approved(self):
+        """An exam is 'approved' if it meets all of the following conditions:
+          1. Verified by an officer
+          2. Is not associated with a blacklisted instructor
+          3. Has less than or equal to ExamFlag.LIMIT flags
+        """
+        return (self.verified and not self.blacklisted
+                and self.flags <= ExamFlag.LIMIT)
 
     def has_permission(self):
         """Return whether this exam has permission from all instructors

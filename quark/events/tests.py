@@ -1,6 +1,7 @@
 import datetime
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -25,6 +26,9 @@ class EventTesting(TestCase):
     Subclassed below for ease of testing various aspects of events.
     """
     def setUp(self):
+        Group.objects.create(name='Current Candidate')
+        Group.objects.create(name='Member')
+
         self.user = get_user_model().objects.create_user(
             username='bentleythebent',
             email='it@tbp.berkeley.edu',

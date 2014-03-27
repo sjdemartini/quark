@@ -55,6 +55,14 @@ class ProjectReportDetailView(DetailView):
     pk_url_kwarg = 'pr_pk'
     template_name = 'project_reports/detail.html'
 
+    @method_decorator(login_required)
+    @method_decorator(
+        permission_required('project_reports.view_project_reports',
+                            raise_exception=True))
+    def dispatch(self, *args, **kwargs):
+        return super(ProjectReportDetailView, self).dispatch(
+            *args, **kwargs)
+
 
 class ProjectReportEditView(UpdateView):
     context_object_name = 'project_report'
@@ -80,6 +88,14 @@ class ProjectReportListView(TermParameterMixin, ListView):
     context_object_name = 'project_reports'
     template_name = 'project_reports/list.html'
 
+    @method_decorator(login_required)
+    @method_decorator(
+        permission_required('project_reports.view_project_reports',
+                            raise_exception=True))
+    def dispatch(self, *args, **kwargs):
+        return super(ProjectReportListView, self).dispatch(
+            *args, **kwargs)
+
     def get_queryset(self):
         return ProjectReport.objects.filter(term=self.display_term)
 
@@ -89,3 +105,11 @@ class ProjectReportListAllView(ListView):
     context_object_name = 'project_reports'
     model = ProjectReport
     template_name = 'project_reports/list.html'
+
+    @method_decorator(login_required)
+    @method_decorator(
+        permission_required('project_reports.view_project_reports',
+                            raise_exception=True))
+    def dispatch(self, *args, **kwargs):
+        return super(ProjectReportListAllView, self).dispatch(
+            *args, **kwargs)

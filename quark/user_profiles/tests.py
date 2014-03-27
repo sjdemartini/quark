@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.test import TestCase
 from django.test.utils import override_settings
 
@@ -23,6 +24,9 @@ class UserInfoTestCase(TestCase):
     user info used in multiple test cases.
     """
     def setUp(self):
+        Group.objects.create(name='Current Candidate')
+        Group.objects.create(name='Member')
+
         self.user_model = get_user_model()
 
         self.user = self.user_model.objects.create_user(

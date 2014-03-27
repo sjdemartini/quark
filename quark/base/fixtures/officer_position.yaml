@@ -88,7 +88,7 @@
   model: base.OfficerPosition
   pk: 12
 - fields:
-    long_name: STARS
+    long_name: Student and Alumni Relations
     mailing_list: stars
     rank: 13
     short_name: stars

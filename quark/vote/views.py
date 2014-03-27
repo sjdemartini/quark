@@ -1,5 +1,6 @@
 import collections
 
+from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -41,10 +42,15 @@ class PollListView(ListView):
     queryset = Poll.objects.filter(end_datetime__gte=timezone.now())
     template_name = 'vote/list.html'
 
+    @method_decorator(login_required)
+    @method_decorator(
+        permission_required('vote.add_vote', raise_exception=True))
+    def dispatch(self, *args, **kwargs):
+        return super(PollListView, self).dispatch(*args, **kwargs)
+
 
 class VoteCreateView(CreateView):
     form_class = VoteForm
-    context_object_name = 'poll'
     template_name = 'vote/vote.html'
     poll = None
 
@@ -79,11 +85,16 @@ class ResultsView(DetailView):
     model = Poll
     pk_url_kwarg = 'poll_pk'
     template_name = 'vote/results.html'
+    object = None
 
     @method_decorator(login_required)
-    @method_decorator(
-        permission_required('vote.view_results', raise_exception=True))
     def dispatch(self, *args, **kwargs):
+        self.object = self.get_object()
+
+        # Only allow the creator to view the results of the poll
+        if self.request.user != self.object.creator:
+            raise PermissionDenied
+
         return super(ResultsView, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):

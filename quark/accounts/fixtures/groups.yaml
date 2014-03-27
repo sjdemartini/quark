@@ -8,26 +8,277 @@
   pk: 2
   fields:
     name: Officer
+    permissions:
+      - [add_eventattendance, events, eventattendance]
+      - [change_eventattendance, events, eventattendance]
+      - [delete_eventattendance, events, eventattendance]
+      - [view_minutes, minutes, minutes]
+      - [add_quote, quote_board, quote]
+      - [change_quote, quote_board, quote]
+      - [delete_quote, quote_board, quote]
+      - [view_project_reports, project_reports, projectreport]
 - model: auth.group
   pk: 3
   fields:
     name: Member
+    permissions:
+      - [add_survey, course_surveys, survey]
+      - [view_signups, events, eventsignup]
+      - [add_exam, exams, exam]
+      - [add_resume, resumes, resume]
 
 # Groups that are specific to the current term -- prefixed with "Current"
 - model: auth.group
   pk: 4
   fields:
     name: Current Executive
+    permissions:
+      - [add_poll, vote, poll]
+      - [change_poll, vote, poll]
+      - [delete_poll, vote, poll]
 - model: auth.group
   pk: 5
   fields:
     name: Current Officer
+    permissions:
+      - [add_candidate, candidates, candidate]
+      - [change_candidate, candidates, candidate]
+      - [change_challenge, candidates, challenge]
+      - [add_event, events, event]
+      - [change_event, events, event]
+      - [contact_participants, events, event]
+      - [delete_event, events, event]
+      - [add_projectreport, project_reports, projectreport]
+      - [change_projectreport, project_reports, projectreport]
+      - [delete_projectreport, project_reports, projectreport]
+      - [add_vote, vote, vote]
 - model: auth.group
   pk: 6
   fields:
     name: Current Candidate
+    permissions:
+      - [add_challenge, candidates, challenge]
+      - [add_survey, course_surveys, survey]
+      - [view_signups, events, eventsignup]
+      - [add_exam, exams, exam]
+      - [add_resume, resumes, resume]
 
 # Note that other non-term-specific and term-specific groups will be
 # auto-generated based on Officers added to the database (refer to
-# quark.base.models.py), where the groups correspond to the officer positions
+# quark/base/models.py), where the groups correspond to the officer positions
 # for those Officers.
+- model: auth.group
+  pk: 7
+  fields:
+    name: Information Technology
+- model: auth.group
+  pk: 8
+  fields:
+    name: Vice President
+- model: auth.group
+  pk: 9
+  fields:
+    name: Corresponding Secretary
+- model: auth.group
+  pk: 10
+  fields:
+    name: Industrial Relations
+- model: auth.group
+  pk: 11
+  fields:
+    name: Historian
+- model: auth.group
+  pk: 12
+  fields:
+    name: Student and Alumni Relations
+- model: auth.group
+  pk: 13
+  fields:
+    name: Advisor
+- model: auth.group
+  pk: 14
+  fields:
+    name: Professional Development
+- model: auth.group
+  pk: 15
+  fields:
+    name: Treasurer
+- model: auth.group
+  pk: 16
+  fields:
+    name: Service
+- model: auth.group
+  pk: 17
+  fields:
+    name: President
+- model: auth.group
+  pk: 18
+  fields:
+    name: Activities
+- model: auth.group
+  pk: 19
+  fields:
+    name: House Leader
+- model: auth.group
+  pk: 20
+  fields:
+    name: Publicity
+- model: auth.group
+  pk: 21
+  fields:
+    name: Recording Secretary
+- model: auth.group
+  pk: 22
+  fields:
+    name: Advising
+- model: auth.group
+  pk: 23
+  fields:
+    name: Engineering 98
+- model: auth.group
+  pk: 24
+  fields:
+    name: Faculty Advisor
+- model: auth.group
+  pk: 25
+  fields:
+    name: EJC Representative
+- model: auth.group
+  pk: 26
+  fields:
+    name: New Projects
+- model: auth.group
+  pk: 27
+  fields:
+    name: External Relations
+- model: auth.group
+  pk: 28
+  fields:
+    name: Pioneers in Engineering Liaison
+- model: auth.group
+  pk: 29
+  fields:
+    name: Current Information Technology
+    permissions:
+      - [add_userachievement, achievements, userachievement]
+      - [change_userachievement, achievements, userachievement]
+      - [delete_userachievement, achievements, userachievement]
+      - [add_company, companies, company]
+      - [change_company, companies, company]
+      - [delete_company, companies, company]
+      - [add_companyrep, companies, companyrep]
+      - [change_companyrep, companies, companyrep]
+      - [delete_companyrep, companies, companyrep]
+      - [add_instructor, courses, instructor]
+      - [change_instructor, courses, instructor]
+      - [delete_instructor, courses, instructor]
+      - [change_survey, course_surveys, survey]
+      - [delete_survey, course_surveys, survey]
+      - [change_exam, exams, exam]
+      - [change_examflag, exams, examflag]
+      - [delete_exam, exams, exam]
+      - [view_exams, exams, exam]
+      - [add_minutes, minutes, minutes]
+      - [change_minutes, minutes, minutes]
+      - [delete_minutes, minutes, minutes]
+      - [add_news, newsreel, news]
+      - [change_news, newsreel, news]
+      - [delete_news, newsreel, news]
+      - [change_resume, resumes, resume]
+      - [view_resumes, resumes, resume]
+- model: auth.group
+  pk: 30
+  fields:
+    name: Current President
+- model: auth.group
+  pk: 31
+  fields:
+    name: Current Vice President
+    permissions:
+      - [add_candidaterequirement, candidates, candidaterequirement]
+      - [can_initiate_candidates, candidates, candidate]
+      - [change_candidaterequirement, candidates, candidaterequirement]
+- model: auth.group
+  pk: 32
+  fields:
+    name: Current Treasurer
+- model: auth.group
+  pk: 33
+  fields:
+    name: Current Corresponding Secretary
+- model: auth.group
+  pk: 34
+  fields:
+    name: Current Recording Secretary
+    permissions:
+      - [add_minutes, minutes, minutes]
+      - [change_minutes, minutes, minutes]
+      - [delete_minutes, minutes, minutes]
+- model: auth.group
+  pk: 35
+  fields:
+    name: Current Activities
+- model: auth.group
+  pk: 36
+  fields:
+    name: Current Historian
+- model: auth.group
+  pk: 37
+  fields:
+    name: Current Industrial Relations
+    permissions:
+      - [add_company, companies, company]
+      - [change_company, companies, company]
+      - [delete_company, companies, company]
+      - [add_companyrep, companies, companyrep]
+      - [change_companyrep, companies, companyrep]
+      - [delete_companyrep, companies, companyrep]
+- model: auth.group
+  pk: 38
+  fields:
+    name: Current Publicity
+    permissions:
+      - [add_news, newsreel, news]
+      - [change_news, newsreel, news]
+      - [delete_news, newsreel, news]
+- model: auth.group
+  pk: 39
+  fields:
+    name: Current Service
+- model: auth.group
+  pk: 40
+  fields:
+    name: Current Student and Alumni Relations
+    permissions:
+      - [add_instructor, courses, instructor]
+      - [change_instructor, courses, instructor]
+      - [delete_instructor, courses, instructor]
+      - [change_survey, course_surveys, survey]
+      - [delete_survey, course_surveys, survey]
+      - [change_exam, exams, exam]
+      - [change_examflag, exams, examflag]
+      - [delete_exam, exams, exam]
+      - [view_exams, exams, exam]
+- model: auth.group
+  pk: 41
+  fields:
+    name: Current Engineering 98
+- model: auth.group
+  pk: 42
+  fields:
+    name: Current Professional Development
+    permissions:
+      - [change_resume, resumes, resume]
+      - [view_resumes, resumes, resume]
+- model: auth.group
+  pk: 43
+  fields:
+    name: Current Faculty Advisor
+- model: auth.group
+  pk: 44
+  fields:
+    name: Current Advisor
+- model: auth.group
+  pk: 45
+  fields:
+    name: Current House Leader

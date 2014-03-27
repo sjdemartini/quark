@@ -45,6 +45,7 @@ DEPARTMENT_CONVERSION = {
     16: (16, 'bioe'),
     17: (158, 'bio')}
 EXAM_TYPE_CONVERSION = {'e': 'exam', 's': 'soln'}
+
 user_model = get_user_model()
 timezone = get_current_timezone()
 

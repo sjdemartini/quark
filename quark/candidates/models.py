@@ -1,6 +1,7 @@
 import os
 
 from django.conf import settings
+from django.contrib.auth.models import Group
 from django.db import models
 from django.db.models import Sum
 
@@ -90,8 +91,15 @@ class Candidate(models.Model):
 
 
 def candidate_post_save(sender, instance, created, **kwargs):
-    """Ensure that a StudentOrgUserProfile exists for every Candidate, and
-    update the profile's 'initiation_term' field.
+    """Ensure that a StudentOrgUserProfile exists for every Candidate,
+    update the profile's 'initiation_term' field, and add the candidate to the
+    appropriate group.
+
+    If the candidate is marked as initiated, add the candidate to the Member
+    group and remove the candidate from the Current Candidate group.
+    If the candidate is marked as not initiated, remove the candidate from the
+    Member group and add the candidate to the Current Candidate group if the
+    candidate is initiating in the current term.
 
     Anyone who is a candidate in the student organization also needs a user
     profile as a student participating in that organization.
@@ -109,12 +117,24 @@ def candidate_post_save(sender, instance, created, **kwargs):
 
     student_org_profile, _ = StudentOrgUserProfile.objects.get_or_create(
         user=instance.user)
+
+    candidate_group = Group.objects.get(name='Current Candidate')
+    member_group = Group.objects.get(name='Member')
+
     if instance.initiated:
         student_org_profile.initiation_term = instance.term
         student_org_profile.save()
-    elif student_org_profile.initiation_term == instance.term:
-        student_org_profile.initiation_term = None
-        student_org_profile.save()
+        instance.user.groups.add(member_group)
+        instance.user.groups.remove(candidate_group)
+    else:
+        if student_org_profile.initiation_term == instance.term:
+            student_org_profile.initiation_term = None
+            student_org_profile.save()
+        instance.user.groups.remove(member_group)
+        if instance.term == Term.objects.get_current_term():
+            instance.user.groups.add(candidate_group)
+        else:
+            instance.user.groups.remove(candidate_group)
 
 models.signals.post_save.connect(candidate_post_save, sender=Candidate)
 
