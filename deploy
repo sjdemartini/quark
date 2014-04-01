@@ -60,10 +60,9 @@ setup() {
     # No locks yet. Be careful only one person is ininitializing the repository
     echo -n "Setting up ${PROJ_NAME} in ${DEPLOY_PATH}... "
     mkdir -p ${DEPLOY_ENV}
-    # Clone a new repo (and submodules) if necessary
+    # Clone a new repo if necessary
     if [ ! -d ${DEPLOY_PATH} ]; then
-        git clone --recursive --quiet ${GIT_REPO_URL} ${DEPLOY_PATH}
-        git submodule init
+        git clone ${GIT_REPO_URL} ${DEPLOY_PATH}
     fi
     cd ${DEPLOY_PATH}
     echo "done"
@@ -92,7 +91,7 @@ deploy() {
     fi
     echo "Deploying Release ${TAG}"
     git checkout ${TAG}
-    git submodule update
+    git submodule update --init --recursive
 
     # TODO(flieee): Set up dynamic multi-site settings instead
 
@@ -109,7 +108,7 @@ deploy() {
 
     # Generate local settings for staging
     if [ ${STAGING} -eq 1 ]; then
-        cat << EOM > ${DEPLOY_PATH}/quark/settings_local.py
+        cat << EOM > ${DEPLOY_PATH}/quark/settings/local.py
 FORCE_SCRIPT_NAME = '${STAGING_URL}'
 STATIC_URL = '${STAGING_URL}/static/'
 MEDIA_URL = '${STAGING_URL}/media/'
