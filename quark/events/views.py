@@ -563,7 +563,6 @@ def ical(request, event_pk=None):
     key, respectively). If the "user" and "key" parameters are not valid or are
     not provided, only publicly visible events are included.
     """
-    # pylint: disable=R0914
     cal = vobject.iCalendar()
 
     cal.add('calscale').value = 'Gregorian'

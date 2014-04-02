@@ -11,9 +11,6 @@ from quark.shortcuts import get_object_or_none
 
 
 def event_achievements(sender, instance, created, **kwargs):
-    # pylint: disable=R0914
-    # Disables error for too many variables in namespace
-
     # obtain lifetime attendance for the user
     total_attendance = EventAttendance.objects.select_related(
         'event__term').filter(

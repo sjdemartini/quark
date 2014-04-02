@@ -9,8 +9,6 @@ from quark.shortcuts import get_object_or_none
 
 # officership-related achievements
 def officership_achievements(sender, instance, created, **kwargs):
-    # pylint: disable=R0914
-
     officerships = Officer.objects.filter(user=instance.user).exclude(
         position__short_name='advisor').exclude(
         position__short_name='faculty').order_by(

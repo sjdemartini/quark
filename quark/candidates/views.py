@@ -375,7 +375,6 @@ class CandidateRequirementsEditView(FormView):
             *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        # pylint: disable=E1103,R0914
         def get_entry(name, req, form):
             """Helper method that returns a dictionary containing a requirement
             name and a form, to be used for each requirement in the template.
