@@ -177,7 +177,7 @@
       - [change_exam, exams, exam]
       - [change_examflag, exams, examflag]
       - [delete_exam, exams, exam]
-      - [view_exams, exams, exam]
+      - [view_all_exams, exams, exam]
       - [add_minutes, minutes, minutes]
       - [change_minutes, minutes, minutes]
       - [delete_minutes, minutes, minutes]
@@ -258,7 +258,7 @@
       - [change_exam, exams, exam]
       - [change_examflag, exams, examflag]
       - [delete_exam, exams, exam]
-      - [view_exams, exams, exam]
+      - [view_all_exams, exams, exam]
 - model: auth.group
   pk: 41
   fields:

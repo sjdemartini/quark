@@ -85,8 +85,8 @@ class Exam(models.Model):
 
     class Meta(object):
         permissions = (
-            ('view_exams',
-             'Can view all exams (including blacklisted and flagged exams)'),
+            ('view_all_exams',
+             'Can view blacklisted and flagged exams'),
         )
 
     @property

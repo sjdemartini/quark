@@ -61,7 +61,7 @@ class ExamDownloadView(DetailView):
         # to view it. If not, raise a 404 instead of PermissionDenied because
         # the exam is not supposed to "exist" if it is not approved.
         if (not self.object.is_approved()
-                and not self.request.user.has_perm('exams.view_exams')):
+                and not self.request.user.has_perm('exams.view_all_exams')):
             raise Http404
 
         response = HttpResponse(
