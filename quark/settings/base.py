@@ -223,7 +223,6 @@ THIRD_PARTY_APPS = [
     'chosen',
     'compressor',
     'debug_toolbar',
-    'django_jenkins',
     'easy_thumbnails',
     'localflavor',
     'south',  # For data migration

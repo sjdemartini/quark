@@ -1,9 +1,7 @@
 """Settings for 3rd Party Apps used by Quark"""
-import os
 import sys
 
 from quark.settings.base import CACHES
-from quark.settings.base import WORKSPACE_ROOT
 
 
 # Mailman path
@@ -39,32 +37,6 @@ CACHES['compressor'] = {
 }
 
 COMPRESS_CACHE_BACKEND = 'compressor'
-
-# Jenkins integration.
-JENKINS_TASKS = (
-    'django_jenkins.tasks.run_jshint',
-    'django_jenkins.tasks.run_pep8',
-    'django_jenkins.tasks.run_pylint',
-    'django_jenkins.tasks.run_sloccount',
-    'django_jenkins.tasks.with_coverage',
-)
-# Note that SCSS linting is run directly from the jenkins script, since it
-# is a different linter than standard csslint and requires options not
-# supported by django-jenkins
-
-PEP8_RCFILE = os.path.join(WORKSPACE_ROOT, '.pep8rc')
-PYLINT_RCFILE = os.path.join(WORKSPACE_ROOT, '.pylintrc')
-
-# TODO(sjdemartini): change static files directory structure to move third party
-# JS into subdirectory, so that our own files can be in static/js, and others
-# can be more easily distinguished. Then change the path below to be
-# static/js/*.js to automatically lint all of (and only) our own files.
-JSHINT_CHECKED_FILES = [
-    os.path.join(WORKSPACE_ROOT, 'quark', 'static', 'js', 'main.js'),
-    os.path.join(WORKSPACE_ROOT, 'quark', 'static', 'js', 'slideshow.js'),
-    os.path.join(WORKSPACE_ROOT, 'quark', 'static', 'js', 'visual_datetime.js')
-]
-
 
 # Set up aliases for easy-thumbnails
 THUMBNAIL_ALIASES = {
