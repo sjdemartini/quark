@@ -14,6 +14,7 @@ timezone = get_current_timezone()
 
 
 def import_minutes():
+    # pylint: disable=E1103
     models = get_json_data('minutes.minutes.json')
     for model in models:
         fields = model['fields']
@@ -31,7 +32,7 @@ def import_minutes():
         Minutes.objects.get_or_create(
             pk=pk,
             name=name,
-            date=fields['date'],
+            date=parser.parse(fields['date']).date(),
             term=Term.objects.get(pk=SEMESTER_TO_TERM[fields['semester']]),
             meeting_type=meeting_type,
             notes=fields['notes'],

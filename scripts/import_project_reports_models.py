@@ -19,6 +19,7 @@ timezone = get_current_timezone()
 
 
 def import_project_reports():
+    # pylint: disable=E1103
     models = get_json_data('projects.projectreport.json')
     for model in models:
         fields = model['fields']
@@ -28,7 +29,7 @@ def import_project_reports():
         project_report, _ = ProjectReport.objects.get_or_create(
             pk=pk,
             term=term,
-            date=fields['date'],
+            date=parser.parse(fields['date']).date(),
             title=fields['title'],
             author=user_model.objects.get(pk=fields['author']),
             committee=OfficerPosition.objects.get(pk=fields['committee']),

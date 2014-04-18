@@ -62,6 +62,7 @@ def import_users():
 
 
 def import_user_profiles():
+    # pylint: disable=E1103
     models = get_json_data('user_profiles.userprofile.json')
     for model in models:
         fields = model['fields']
@@ -72,7 +73,6 @@ def import_user_profiles():
             user=user_model.objects.get(pk=fields['user']),
             preferred_name=fields['preferred_name'],
             middle_name=fields['middle_name'],
-            birthday=fields['birthday'],
             gender=fields['gender'],
             alt_email=fields['alt_email'],
             cell_phone=fields['cell_phone'],
@@ -89,6 +89,10 @@ def import_user_profiles():
             perm_state=fields['perm_state'],
             perm_zip=fields['perm_zip'],
             international_address=fields['international_address'])
+
+        if fields['birthday']:
+            user_profile.birthday = parser.parse(fields['birthday']).date()
+            user_profile.save()
 
         if fields['picture']:
             picture_location = os.path.join(
