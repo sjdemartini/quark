@@ -68,14 +68,18 @@ No photo uploaded yet.
   {% include 'candidates/_individual_progress.html' with entry=entry %}
   <ul>
     {% with event_type=entry.requirement.eventcandidaterequirement.event_type.name %}
-    {% for event in attended_events|get_item:event_type %}
-    <li><strong>{{ event.name }}</strong></li>
-    {% endfor %}
-    {% for event in signed_up_events|get_item:event_type %}
-    <li>{{ event.name }}</li>
-    {% endfor %}
-    {% if attended_events|get_item:event_type|length == 0 and signed_up_events|get_item:event_type|length == 0 %}
+    {% if attended_events|get_item:event_type|length == 0 and past_signed_up_events|get_item:event_type|length == 0 and future_signed_up_events|get_item:event_type|length == 0 %}
     No signups or attendance for {{ event_type }} events.
+    {% else %}
+    {% for event in past_signed_up_events|get_item:event_type %}
+    <li><del><a href="{{ event.get_absolute_url }}">{{ event.name }}</a></del></li>
+    {% endfor %}
+    {% for event in attended_events|get_item:event_type %}
+    <li><strong><a href="{{ event.get_absolute_url }}">{{ event.name }}</a></strong></li>
+    {% endfor %}
+    {% for event in future_signed_up_events|get_item:event_type %}
+    <li><a href="{{ event.get_absolute_url }}">{{ event.name }}</a></li>
+    {% endfor %}
     {% endif %}
     {% endwith %}
   </ul>
@@ -98,7 +102,7 @@ No photo uploaded yet.
     </div>
     <ul>
       {% for event in elective_events %}
-      <li><strong>{{ event.name }}</strong> ({{ event.event_type.name }})</li>
+      <li><strong><a href="{{ event.get_absolute_url }}">{{ event.name }}</a></strong> ({{ event.event_type.name }})</li>
       {% empty %}
       No attendance for Elective events. If the candidate attends more than the required number of events in any event category, those additional events will count as Elective events.
       {% endfor %}

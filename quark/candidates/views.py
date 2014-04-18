@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import permission_required
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST
 from django.views.generic import CreateView
@@ -50,26 +51,38 @@ class CandidateContextMixin(ContextMixin):
         context['candidate'] = candidate
 
         attended_events = {}
-        signed_up_events = {}
+        past_signed_up_events = {}
+        future_signed_up_events = {}
         elective_events = []
 
         event_types = EventType.objects.values_list('name', flat=True)
         for event_type in event_types:
             attended_events[event_type] = []
-            signed_up_events[event_type] = []
+            past_signed_up_events[event_type] = []
+            future_signed_up_events[event_type] = []
+
         attendances = EventAttendance.objects.select_related(
             'event__event_type').filter(
             user=candidate.user, event__term=candidate.term)
-        signups = EventSignUp.objects.select_related(
-            'event__event_type').filter(
-            user=candidate.user, event__term=candidate.term,
-            unsignup=False).exclude(event__in=attendances.values_list(
-            'event', flat=True))
         for attendance in attendances:
             attended_events[
                 attendance.event.event_type.name].append(attendance.event)
-        for signup in signups:
-            signed_up_events[
+
+        signups = EventSignUp.objects.select_related(
+            'event__event_type').filter(
+            user=candidate.user,
+            event__term=candidate.term,
+            unsignup=False).exclude(
+            event__in=attendances.values_list('event', flat=True))
+
+        current_time = timezone.now()
+        past_signups = signups.filter(event__end_datetime__lte=current_time)
+        future_signups = signups.filter(event__end_datetime__gt=current_time)
+        for signup in past_signups:
+            past_signed_up_events[
+                signup.event.event_type.name].append(signup.event)
+        for signup in future_signups:
+            future_signed_up_events[
                 signup.event.event_type.name].append(signup.event)
 
         event_reqs = CandidateRequirement.objects.filter(
@@ -96,7 +109,8 @@ class CandidateContextMixin(ContextMixin):
                         event_type.name][:req_progress['required']]
 
         context['attended_events'] = attended_events
-        context['signed_up_events'] = signed_up_events
+        context['past_signed_up_events'] = past_signed_up_events
+        context['future_signed_up_events'] = future_signed_up_events
         context['elective_events'] = elective_events
 
         requested_challenges = {}
@@ -617,7 +631,12 @@ class CandidatePortalView(CreateView, CandidateContextMixin):
         kwargs['candidate'] = self.candidate
         context = super(CandidatePortalView, self).get_context_data(**kwargs)
         requirements = CandidateRequirement.objects.filter(
-            term=self.current_term)
+            term=self.current_term).select_related(
+            'eventcandidaterequirement',
+            'eventcandidaterequirement__event_type',
+            'challengecandidaterequirement',
+            'challengecandidaterequirement__challenge_type',
+            'examfilecandidaterequirement')
 
         # Initialize req_types to contain lists for every requirement type
         req_types = {}
