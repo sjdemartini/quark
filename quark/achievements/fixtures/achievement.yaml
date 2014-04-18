@@ -627,3 +627,157 @@
     manual: False
     repeatable: False
     rank: 25.1
+- pk: 44
+  model: achievements.Achievement
+  fields:
+    short_name: write_code
+    name: __init__()
+    description: Write non-trivial code that passes a code review
+    category: general
+    points: 10
+    privacy: public
+    manual: True
+    repeatable: False
+    rank: 15.1
+    icon_filename: 'images/achievements/write_code.png'
+- pk: 45
+  model: achievements.Achievement
+  fields:
+    short_name: lead_house_to_win
+    name: Cornerstone
+    description: Win House Cup as a house leader
+    category: awards
+    points: 15
+    privacy: public
+    manual: True
+    repeatable: False
+    rank: 23.1
+    icon_filename: 'images/achievements/lead_house_to_win.png'
+- pk: 46
+  model: achievements.Achievement
+  fields:
+    short_name: beat_vps
+    name: Role Confusion
+    description: Attend more events than both VPs in a semester
+    category: general
+    points: 50
+    privacy: public
+    manual: True
+    repeatable: False
+    rank: 24.1
+    icon_filename: 'images/achievements/beat_vps.gif'
+- pk: 47
+  model: achievements.Achievement
+  fields:
+    short_name: rock
+    name: Solid
+    description: Win The Rock
+    category: awards
+    points: 15
+    privacy: public
+    manual: True
+    repeatable: False
+    rank: 23.3
+    icon_filename: 'images/achievements/rock.png'
+- pk: 48
+  model: achievements.Achievement
+  fields:
+    short_name: bowling_pin
+    name: Strike!
+    description: Win the Bowling Pin
+    category: awards
+    points: 15
+    privacy: public
+    manual: True
+    repeatable: False
+    rank: 23.4
+    icon_filename: 'images/achievements/bowling_pin.png'
+- pk: 49
+  model: achievements.Achievement
+  fields:
+    short_name: tbp_romance
+    name: Engineers Make Better Lovers
+    description: Find romance within the ranks of TBP
+    category: feats
+    points: 20
+    privacy: private
+    manual: True
+    repeatable: False
+    rank: 18.1
+    icon_filename: 'images/achievements/tbp_romance.png'
+- pk: 50
+  model: achievements.Achievement
+  fields:
+    short_name: attend_all_oms
+    name: OM NOM NOM
+    description: Attend all officer meetings in a semester
+    category: general
+    points: 10
+    privacy: public
+    manual: True
+    repeatable: False
+    rank: 15.1
+    icon_filename: 'images/achievements/attend_all_oms.png'
+- pk: 51
+  model: achievements.Achievement
+  fields:
+    short_name: attend_all_ems
+    name: Power Overwhelming
+    description: Attend all executive meetings in a semester
+    category: general
+    points: 10
+    privacy: public
+    manual: True
+    repeatable: False
+    rank: 15.2
+    icon_filename: 'images/achievements/attend_all_ems.png'
+- pk: 52
+  model: achievements.Achievement
+  fields:
+    short_name: banquet_errands
+    name: Fasting and Furious
+    description: Leave banquet to shuttle and/or run errands
+    category: feats
+    points: 15
+    privacy: public
+    manual: True
+    repeatable: False
+    rank: 19.1
+    icon_filename: 'images/achievements/banquet_errands.png'
+- pk: 53
+  model: achievements.Achievement
+  fields:
+    short_name: reply_all
+    name: Reply to ALL the People
+    description: Mistakenly reply-all
+    category: feats
+    points: -10
+    privacy: public
+    manual: True
+    repeatable: False
+    rank: 25.2
+    icon_filename: 'images/achievements/reply_all.png'
+- pk: 54
+  model: achievements.Achievement
+  fields:
+    short_name: winning_bio
+    name: English Major
+    description: Write the winning creative biography
+    category: awards
+    points: 20
+    privacy: public
+    manual: True
+    repeatable: False
+    rank: 23.2
+- pk: 55
+  model: achievements.Achievement
+  fields:
+    short_name: get_injured
+    name: Purple Heart
+    description: Obtain an injury in the line of duty.
+    category: awards
+    points: 15
+    privacy: private
+    manual: True
+    repeatable: False
+    rank: 19.2
