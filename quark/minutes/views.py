@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import permission_required
 from django.core.urlresolvers import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView
@@ -17,6 +18,8 @@ class MinutesListView(TermParameterMixin, ListView):
     term = None
 
     @method_decorator(login_required)
+    @method_decorator(
+        permission_required('minutes.view_minutes', raise_exception=True))
     def dispatch(self, *args, **kwargs):
         return super(MinutesListView, self).dispatch(*args, **kwargs)
 
@@ -30,6 +33,8 @@ class MinutesCreateView(CreateView):
     template_name = 'minutes/add.html'
 
     @method_decorator(login_required)
+    @method_decorator(
+        permission_required('minutes.add_minutes', raise_exception=True))
     def dispatch(self, *args, **kwargs):
         return super(MinutesCreateView, self).dispatch(*args, **kwargs)
 
@@ -49,6 +54,8 @@ class MinutesDetailView(DetailView):
     template_name = 'minutes/detail.html'
 
     @method_decorator(login_required)
+    @method_decorator(
+        permission_required('minutes.view_minutes', raise_exception=True))
     def dispatch(self, *args, **kwargs):
         return super(MinutesDetailView, self).dispatch(*args, **kwargs)
 
@@ -60,6 +67,8 @@ class MinutesEditView(UpdateView):
     template_name = 'minutes/edit.html'
 
     @method_decorator(login_required)
+    @method_decorator(
+        permission_required('minutes.change_minutes', raise_exception=True))
     def dispatch(self, *args, **kwargs):
         return super(MinutesEditView, self).dispatch(*args, **kwargs)
 

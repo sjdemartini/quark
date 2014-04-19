@@ -8,8 +8,8 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from quark.emailer.forms import ContactForm, ContactCaptcha
-#from quark.events.models import Event
+from quark.emailer.forms import ContactCaptcha
+from quark.emailer.forms import ContactForm
 
 
 class ContactFormTest(TestCase):
@@ -202,7 +202,6 @@ class HelpdeskEmailerTest(TestCase):
 class EventEmailerTest(TestCase):
     def setUp(self):
         self.url = reverse('emailer:event', kwargs={'event_id': '1'})
-        # TODO(nitishp) make an officer after permissions decorators are done
         self.user = get_user_model().objects.create_user(
             username='testuser',
             email='test@tbp.berkeley.edu',
@@ -210,8 +209,6 @@ class EventEmailerTest(TestCase):
             first_name='Test',
             last_name='User')
         self.client.login(username='testuser', password='secretpass')
-        # TODO(nitishp) finish checking events when EventSignUp is ported
-        # self.event = Event()
 
     def test_not_logged_in(self):
         self.client.logout()
@@ -225,11 +222,9 @@ class EventEmailerTest(TestCase):
         self.assertEqual(req_post.status_code, 302)
         self.assertEqual(req_get.status_code, 302)
 
-    # TODO(nitishp) needs EventSignUp model to function
+    # TODO(ericdwang): write event emailer tests
     def test_new_form(self):
         pass
-    #    response = self.client.get(self.url)
-    #    self.assertEqual(response.status_code, 200)
 
     def test_message_sent(self):
         pass
@@ -242,7 +237,6 @@ class EventEmailerTest(TestCase):
 class CompanyEmailerTest(TestCase):
     def setUp(self):
         self.url = reverse('emailer:company')
-        # TODO(nitishp) make a company user
         self.user = get_user_model().objects.create_user(
             username='testcompany',
             email='test_logged_in@tbp.berkeley.edu',

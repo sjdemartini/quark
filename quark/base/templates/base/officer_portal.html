@@ -9,16 +9,16 @@
 {% endblock intro %}
 
 {% block content %}
-{# TODO(sjdemartini): Restrict pages with proper permissions barriers #}
-
-{# TODO(sjdemartini): Add a list of pending project reports to tell users to finish them #}
-
 <h2>Officer Resources</h2>
 <ul>
   <li><a href="/officer/library/">Officer Wiki</a></li>
   <li><a href="/officer/library/Officer_Meeting_Agenda">Officer Meeting Agenda</a></li>
+  {% if perms.project_reports.view_project_reports %}
   <li><a href="{% url 'project-reports:list' %}">Project Reports</a></li>
+  {% endif %}
+  {% if perms.minutes.view_minutes %}
   <li><a href="{% url 'minutes:list' %}">Meeting Minutes</a></li>
+  {% endif %}
   <li><a href="/officer/mail/">Webmail Interface</a></li>
   {# TODO(sjdemartini): Add link for officer contact list and member database #}
 </ul>
@@ -39,7 +39,7 @@
 
 <h2>Candidate Tools</h2>
 <ul>
-  {# TODO: Add candidate eligibility registration once created #}
+  {# TODO: Add candidate eligibility page once created #}
   {% if perms.candidates.change_candidate %}
   <li><a href="{% url 'candidates:list' %}">Candidate Admin</a></li>
   {% endif %}

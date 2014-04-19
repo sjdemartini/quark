@@ -177,11 +177,6 @@ class UserAchievement(models.Model):
         help_text=('Can hold whatever extra metadata or notes about this '
                    'achievement.'))
 
-    # TODO(wli): write or hook this up to a notifications framework.
-    notified_user = models.BooleanField(
-        default=False, db_index=True,
-        help_text='True if the user has been notified about this achievement.')
-
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 

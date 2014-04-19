@@ -26,8 +26,6 @@ class Minutes(models.Model):
     term = models.ForeignKey(Term)
     meeting_type = models.PositiveSmallIntegerField(choices=MEETING_TYPES)
     notes = models.TextField()
-    public = models.BooleanField(
-        default=False, help_text='Should these be publicly visible?')
     author = models.ForeignKey(settings.AUTH_USER_MODEL)
 
     created = models.DateTimeField(auto_now_add=True)
