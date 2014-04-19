@@ -46,7 +46,7 @@
         <ul>
           <li><a href="{{ events_url }}"{% if request.path == events_url %} class="selected"{% endif %}>Events List</a></li>
           <li><a href="{{ events_cal_url }}" class="{% ancestor events_cal_url %}">Events Calendar</a></li>
-          <li><a href="{# TODO #}">Ad-Hoc Events</a></li>
+          {# TODO <li><a href="">Ad-Hoc Events</a></li> #}
         </ul>
       </li>
 
@@ -62,7 +62,7 @@
           {% if perms.exams.change_exam %}
           <li><a href="{{ exam_review_url }}" class="{% ancestor exam_review_url %}">Exam Review</a></li>
           {% endif %}
-          <li><a href="{# TODO #}">Helpdesk</a></li>
+          {# TODO <li><a href="">Helpdesk</a></li> #}
         </ul>
       </li>
 
@@ -71,7 +71,7 @@
         {% url 'resumes:list' as resumes_url %}
         <a href="{{ industry_url }}" class="{% ancestor industry_url %}">Industrial Relations</a>
         <ul>
-          <li><a href="{# TODO #}">Company Sponsors</a></li>
+          {# TODO <li><a href="">Company Sponsors</a></li> #}
           {% if perms.resumes.change_resume %}
           <li><a href="{{ resumes_url }}" class="{% ancestor resumes_url %}">Resume Management</a></li>
           {% endif %}

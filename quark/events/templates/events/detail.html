@@ -5,7 +5,7 @@
 
 {% block intro %}
 <h1>
-  Details for {{ event.name }}{% if perms.event.change_event %} (<a href="{% url 'events:edit' event.pk %}">Edit</a>){% endif %}
+  Details for {{ event.name }}{% if perms.events.change_event %} (<a href="{% url 'events:edit' event.pk %}">Edit</a>){% endif %}
 </h1>
 {% endblock intro %}
 
@@ -98,7 +98,7 @@
   {% endif %}
 </div>
 
-{% if num_signups and perms.event.contact_participants %}
+{% if num_signups and perms.events.contact_participants %}
 <h3>Email Participants</h3>
 <p>Email people who signed up <a href="{% url 'events:email' event.pk %}">from within your browser</a>.</p>
 <p>{% include 'events/_signup_email_list.html' with event_signups=signup_list %}</p>
