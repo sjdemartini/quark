@@ -32,7 +32,7 @@
 <ul class="achievements-list locked">
   {% for entry in locked_list %}
     {% if entry.achievement.privacy == 'secret' and entry.achievement not in viewer_secret_achievements %}
-      {% include 'achievements/_display_achievement.html' with hidden_from_viewer=True %}
+      {% include 'achievements/_display_achievement.html' with hidden_from_viewer=True unacquired=True %}
     {% else %}
       {% include 'achievements/_display_achievement.html' with hidden_from_viewer=False achievement=entry.achievement progress=entry.progress unacquired=True %}
     {% endif %}

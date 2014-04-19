@@ -9,7 +9,7 @@ is secret and not also unlocked by the page viewer.
 <li class="achievement{% if hidden_from_viewer %} hidden{% endif %}">
   <div class="icon">
     {% if hidden_from_viewer %}
-    <img src="{% get_static_prefix %}images/achievements/hidden.jpg"/>
+    <img{% if unacquired %} class="grayscale"{% endif %} src="{% get_static_prefix %}images/achievements/hidden.png"/>
     {% else %}
     <a href="{% url 'achievements:detail' achievement.short_name %}">
       <img{% if unacquired %} class="grayscale"{% endif %} src="{% get_static_prefix %}{% firstof achievement.icon_filename 'images/missing.jpg' %}">
