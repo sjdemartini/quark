@@ -84,7 +84,7 @@ class ProjectReport(models.Model):
         return len([x for x in re.split(r'\W+', ' '.join(text)) if len(x) > 0])
 
     class Meta(object):
-        ordering = ('-date',)
+        ordering = ('date',)
         permissions = (
             ('view_project_reports', 'Can view all project reports'),
         )
