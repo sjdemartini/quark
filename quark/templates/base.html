@@ -82,14 +82,22 @@
     <div id="width-test-small-med"></div>
     <div id="width-test-medium"></div>
 
-    {# TODO(sjdemartini): Google analytics #}
-
     {% block extra_css %}{# Block for css that is not needed until after rendering the body #}{% endblock extra_css %}
 
     {% block jquery %}{% include '_jquery.html' %}{% endblock jquery %}
 
     {% compress js %}
     <script src="{% static 'js/main.js' %}"></script>
+    {% if LOCAL_ENV == 'production' %}
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+          (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-50172792-1', 'berkeley.edu');
+      ga('send', 'pageview');
+    </script>
+    {% endif %}
     {% endcompress %}
 
     {% compress js %}
