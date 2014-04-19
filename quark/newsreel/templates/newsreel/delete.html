@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Newsreel Item{% endblock title %}
+
+{% block intro %}
+<h1>Delete {{ news_item }}</h1>
+{% endblock intro %}
+
+{% block content %}
+<p>You want to delete the newsreel item {{ news_item }}.</p>
+<p>Are you sure? This action cannot be undone.</p>
+<form method="post" class="form-narrow">
+  {% csrf_token %}
+  <div>
+    <input type="submit" value="Delete">
+  </div>
+</form>
+{% endblock content %}

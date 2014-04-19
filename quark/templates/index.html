@@ -29,6 +29,7 @@
     <li id="slide-{{ forloop.counter0 }}" class="slide">
       <img src="{{ news_item.image.url }}">
       <div class="slide-info">
+        <div class="slide-title">{{ news_item.title }}</div>
         {{ news_item.blurb|markdown }}
       </div>
     </li>

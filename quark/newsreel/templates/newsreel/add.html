@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Newsreel Item{% endblock title %}
+
+{% block intro %}
+<h1>Add A Newsreel Item</h1>
+{% endblock intro %}
+
+{% block content %}
+<form action="{{ request.path }}" method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  {% include '_form.html' %}
+  <div><input type="submit" value="Submit"></div>
+</form>
+{% endblock content %}

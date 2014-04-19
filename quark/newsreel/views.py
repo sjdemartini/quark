@@ -46,6 +46,7 @@ class NewsDeleteView(DeleteView):
 
 
 class NewsEditView(UpdateView):
+    context_object_name = 'news_item'
     form_class = NewsForm
     model = News
     pk_url_kwarg = 'news_pk'
