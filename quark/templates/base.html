@@ -30,7 +30,6 @@
     {% block head %}{# Block for adding content (css and scripts) to the head #}{% endblock head %}
   </head>
   <body>
-    {# TODO(sjdemartini): fill in all URLs for links as they are created #}
     <div id="wrapper" class="{% block wrapper_class %}{% endblock wrapper_class %}">
       {% block header %}
       <header>
@@ -43,7 +42,7 @@
               <div id="logo-location">UC Berkeley</div></a>
             <a href="{% url 'home' %}" id="logo-overlay"></a>
           </div>
-        </div><!-- end header-focus -->
+        </div>
       </header>
       {% endblock header %}
 
@@ -59,7 +58,7 @@
         {% block content %}{# Used for the rest of the page content #}{% endblock content %}
         </div>
       </div>
-    </div><!-- end wrapper-->
+    </div>
 
     <footer>
       <div id="footer-focus">
