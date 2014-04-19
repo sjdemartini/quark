@@ -36,6 +36,13 @@
       - [add_poll, vote, poll]
       - [change_poll, vote, poll]
       - [delete_poll, vote, poll]
+      - [change_exam, exams, exam]
+      - [change_examflag, exams, examflag]
+      - [delete_exam, exams, exam]
+      - [view_all_exams, exams, exam]
+      - [add_news, newsreel, news]
+      - [change_news, newsreel, news]
+      - [delete_news, newsreel, news]
 - model: auth.group
   pk: 5
   fields:
