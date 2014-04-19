@@ -43,10 +43,8 @@ class AchievementDetailView(DetailView):
         user_achievements = UserAchievement.objects.filter(
             achievement__short_name=context['achievement'].short_name).exclude(
             acquired=False)
-        users_with_achievement = get_user_model().objects.filter(
-            userachievement__in=user_achievements.values_list('id'))
-        context['users_with_achievement'] = users_with_achievement.order_by(
-            'last_name')
+        context['user_achievements'] = user_achievements.order_by(
+            'user__userprofile__preferred_name')
 
         # Find other achievements in same sequence to display related.
         context['related_achievements'] = Achievement.objects.filter(

@@ -112,3 +112,54 @@
     vertical-align: bottom;
   }
 }
+
+.users-with-achievement {
+  li {
+    background: $ultra-light-gray;
+    border: 1px solid #eee;
+    display: inline-block;
+    margin-bottom: 5px;
+    margin-right: 5px;
+    padding: 3px;
+    vertical-align: middle;
+    width: 31%;
+    @include border-radius(3px);
+
+    @include respond-to(medium) {
+      width: 46%;
+    }
+
+    @include respond-to(small) {
+      width: 100%;
+    }
+
+    .user-pic {
+      display: table-cell;
+      padding-right: 5px;
+
+      img {
+        display: block;
+      }
+    }
+
+    .user-details {
+      display: table-cell;
+      vertical-align: middle;
+    }
+
+    .user-name {
+      color: $dark-blue;
+      font-weight: 400;
+      margin-top: -3px;
+    }
+
+    .user-achievement-term {
+      font-size: 0.8em;
+      font-style: italic;
+    }
+
+    .user-achievement-info {
+      font-size: 0.8em;
+    }
+  }
+}

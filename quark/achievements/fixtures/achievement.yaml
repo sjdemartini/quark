@@ -777,7 +777,7 @@
     description: Obtain an injury in the line of duty.
     category: awards
     points: 15
-    privacy: private
+    privacy: secret
     manual: True
     repeatable: False
     rank: 19.2

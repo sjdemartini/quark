@@ -50,12 +50,25 @@ Locked Achievement
 {% endif %}
 
 {% if achievement.privacy != 'private' %}
-<h2>Users with this Achievement ({{ users_with_achievement|length }})</h2>
+<h2>Users with this Achievement ({{ user_achievements|length }})</h2>
 <ul class="users-with-achievement">
-  {% for entry in users_with_achievement %}
+  {% for entry in user_achievements %}
   <li>
-    <div>
-      <a href="{% url 'achievements:user' entry.id %}">{{ entry.get_full_name }}</a>
+    <div class="user-pic">
+      {% include '_user_thumbnail.html' with user_profile=entry.user.userprofile alt_text=entry_user_name %}
+    </div>
+    <div class="user-details">
+      <div class="user-name">
+        <a href="{% url 'achievements:user' entry.user.id %}">{{ entry.user.userprofile.get_common_name }}</a>
+      </div>
+      <div class="user-achievement-term">
+        {{ entry.term }}
+      </div>
+      {% if entry.data %}
+      <div class="user-achievement-info">
+        {{ entry.data }}
+      </div>
+      {% endif %}
     </div>
   </li>
   {% empty %}
