@@ -84,8 +84,9 @@ status_file="reports/status"
 # Check if pep8 is perfect. Exit code should be 0 (no errors)
 (
     # Exclude gitignore files by converting newlines to commas
+    gitignore_exclusions=$(sed -e :a -e 'N;s/\n/,/;ba' .gitignore)
     pep8 --config=.pep8rc \
-        --exclude=`sed -e :a -e 'N;s/\n/,/;ba' .gitignore` \
+        --exclude=$gitignore_exclusions,migrations \
         ${PROJECT_NAME} > reports/pep8.report
     echo "pep8 $?" >> ${status_file}
 ) &

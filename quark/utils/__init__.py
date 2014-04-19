@@ -5,18 +5,17 @@ from django.core.management import execute_from_command_line
 
 
 def update_db(verbose=True):
-    # pick up changes to models
     if verbose:
         print 'Running syncdb...'
     execute_from_command_line(['manage.py', 'syncdb'])
 
     if verbose:
-        print 'Loading initial data...'
-    load_initial_data()
-
-    if verbose:
         print 'Running any migrations...'
     execute_from_command_line(['manage.py', 'migrate'])
+
+    if verbose:
+        print 'Loading initial data...'
+    load_initial_data()
 
 
 def load_initial_data():
