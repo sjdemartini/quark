@@ -1,3 +1,4 @@
 from quark.achievements import event_achievements
+from quark.achievements import meta_achievements
 from quark.achievements import officership_achievements
 from quark.achievements import pr_achievements

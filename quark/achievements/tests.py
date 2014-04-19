@@ -556,6 +556,133 @@ class EventAchievementsTest(TestCase):
             acquired=True).count(), 1)
 
 
+class MetaAchievementsTest(TestCase):
+    fixtures = ['achievement.yaml',
+                'test/term.yaml']
+
+    def setUp(self):
+        self.sample_user = get_user_model().objects.create_user(
+            username='test', password='test', email='test@tbp.berkeley.edu',
+            first_name='Test', last_name='Test')
+        self.achievements = UserAchievement.objects.filter(
+            user=self.sample_user)
+
+        self.sp2009 = Term.objects.get(term=Term.SPRING, year=2009)
+        self.fa2009 = Term.objects.get(term=Term.FALL, year=2009)
+
+    def test_15_achievements(self):
+        other_achievements = Achievement.objects.exclude(
+            short_name='acquire_15_achievements')
+
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='acquire_15_achievements',
+            acquired=True).count(), 0)
+
+        if len(other_achievements) >= 15:
+            for i in range(0, 14):
+                other_achievements[i].assign(self.sample_user, term=self.sp2009)
+
+            self.assertEqual(self.achievements.filter(
+                achievement__short_name='acquire_15_achievements',
+                acquired=True).count(), 0)
+            fifteen_achievement = UserAchievement.objects.get(
+                achievement__short_name='acquire_15_achievements',
+                user=self.sample_user)
+            self.assertEqual(fifteen_achievement.progress, 14)
+
+            other_achievements[14].assign(self.sample_user, term=self.sp2009)
+
+            self.assertEqual(self.achievements.filter(
+                achievement__short_name='acquire_15_achievements',
+                acquired=True).count(), 1)
+
+    def test_multiple_term_achievements(self):
+        other_achievements = Achievement.objects.exclude(
+            short_name='acquire_15_achievements')
+
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='acquire_15_achievements',
+            acquired=True).count(), 0)
+
+        if len(other_achievements) >= 15:
+            for i in range(0, 10):
+                other_achievements[i].assign(self.sample_user, term=self.sp2009)
+
+            for i in range(10, 15):
+                other_achievements[i].assign(self.sample_user, term=self.fa2009)
+
+            self.assertEqual(self.achievements.filter(
+                achievement__short_name='acquire_15_achievements',
+                acquired=True).count(), 1)
+
+            fifteen_achievement = UserAchievement.objects.get(
+                achievement__short_name='acquire_15_achievements',
+                user=self.sample_user)
+            self.assertEqual(fifteen_achievement.term, self.fa2009)
+
+    def test_unacquired_achievements(self):
+        other_achievements = Achievement.objects.exclude(
+            short_name='acquire_15_achievements')
+
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='acquire_15_achievements',
+            acquired=True).count(), 0)
+
+        if len(other_achievements) >= 15:
+            for i in range(0, 15):
+                other_achievements[i].assign(
+                    self.sample_user, term=self.sp2009, acquired=False)
+
+            self.assertEqual(self.achievements.filter(
+                achievement__short_name='acquire_15_achievements',
+                acquired=True).count(), 0)
+
+            for i in range(-1, -16, -1):
+                other_achievements[-i].assign(
+                    self.sample_user, term=self.fa2009)
+
+            self.assertEqual(self.achievements.filter(
+                achievement__short_name='acquire_15_achievements',
+                acquired=True).count(), 1)
+
+    def test_icon_creation_achievement(self):
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='create_01_icons',
+            acquired=True).count(), 0)
+
+        achievement = Achievement.objects.all()[0]
+        achievement.icon_creator = self.sample_user
+        achievement.save()
+
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='create_01_icons',
+            acquired=True).count(), 1)
+
+    def test_five_icon_creation_achievement(self):
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='create_05_icons',
+            acquired=True).count(), 0)
+
+        for i in range(0, 4):
+            achievement = Achievement.objects.all()[i]
+            achievement.icon_creator = self.sample_user
+            achievement.save()
+
+        five_icon_achievement = UserAchievement.objects.get(
+            achievement__short_name='create_05_icons',
+            user=self.sample_user)
+
+        self.assertEqual(five_icon_achievement.progress, 4)
+
+        achievement = Achievement.objects.all()[4]
+        achievement.icon_creator = self.sample_user
+        achievement.save()
+
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='create_05_icons',
+            acquired=True).count(), 1)
+
+
 class OfficerAchievementsTest(TestCase):
     fixtures = ['achievement.yaml',
                 'officer_position.yaml',

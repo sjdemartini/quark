@@ -781,3 +781,45 @@
     manual: True
     repeatable: False
     rank: 19.2
+- pk: 56
+  model: achievements.Achievement
+  fields:
+    short_name: acquire_15_achievements
+    name: Overachiever
+    description: Acquire 15 achievements
+    category: general
+    points: 10
+    goal: 15
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 16.1
+    icon_filename: 'images/achievements/acquire_15_achievements.png'
+- pk: 57
+  model: achievements.Achievement
+  fields:
+    short_name: create_01_icons
+    name: Iconic
+    description: Create an achievement icon
+    category: general
+    points: 5
+    goal: 1
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 16.2
+    icon_filename: 'images/achievements/create_01_icons.png'
+- pk: 58
+  model: achievements.Achievement
+  fields:
+    short_name: create_05_icons
+    name: Ctrl-C Ctrl-V
+    description: Create five achievement icons
+    category: general
+    points: 10
+    goal: 5
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 16.3
+    icon_filename: 'images/achievements/create_05_icons.png'
