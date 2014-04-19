@@ -32,6 +32,7 @@ from quark.candidates.forms import CandidateRequirementFormSet
 from quark.candidates.forms import ChallengeForm
 from quark.candidates.forms import ChallengeVerifyFormSet
 from quark.candidates.forms import ManualCandidateRequirementForm
+from quark.events.models import Event
 from quark.events.models import EventAttendance
 from quark.events.models import EventSignUp
 from quark.events.models import EventType
@@ -107,6 +108,17 @@ class CandidateContextMixin(ContextMixin):
                         req_progress['required']:]
                     attended_events[event_type.name] = attended_events[
                         event_type.name][:req_progress['required']]
+
+        # Count events that are eligible as electives that don't have any
+        # requirements
+        non_required_event_types = EventType.objects.filter(
+            eligible_elective=True).exclude(
+            eventcandidaterequirement__pk__in=event_reqs.values_list(
+                'pk', flat=True))
+        elective_events += list(Event.objects.filter(
+            eventattendance__user=self.candidate.user,
+            event_type__in=non_required_event_types).select_related(
+            'event_type'))
 
         context['attended_events'] = attended_events
         context['past_signed_up_events'] = past_signed_up_events
