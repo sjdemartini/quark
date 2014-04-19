@@ -1,14 +1,3 @@
 #!/bin/sh
 
-SITE=$1
-if [ -n "${SITE}" ]; then
-    if [ "${SITE}" = "-h" ] || [ "${SITE}" = "--help" ]; then
-        echo "Usage: `basename $0` [site-name]"
-        exit 0
-    else
-        DJANGO_SETTINGS_MODULE=quark.settings.${SITE}
-        export DJANGO_SETTINGS_MODULE
-    fi
-fi
-echo "NOTE: Settings errors are typically due to an invalid site name"
 python manage.py dev
