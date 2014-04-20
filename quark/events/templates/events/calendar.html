@@ -13,7 +13,7 @@
 {% block extra_css %}
 {% if events %}
 {% compress css %}
-<link rel="stylesheet" href="{% static 'css/fullcalendar.css' %}">
+<link rel="stylesheet" href="{% static 'css/libs/fullcalendar.css' %}">
 {% endcompress %}
 {% endif %}
 {% endblock extra_css %}
@@ -21,7 +21,7 @@
 {% block extra_js %}
 {# Only load the scripts if there are events to display #}
 {% if events %}
-<script src="{% static 'js/fullcalendar.min.js' %}"></script>
+<script src="{% static 'js/libs/fullcalendar.min.js' %}"></script>
 <script>
 {% comment %}
 TODO(sjdemartini): Ensure that header title and buttons (e.g., "month", "week",

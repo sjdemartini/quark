@@ -93,8 +93,7 @@ status_file="reports/status"
 
 # Check if jshint is perfect. Exit code should be 0 (no errors)
 (
-    jshint --config .jshintrc \
-        ${PROJECT_NAME}/static/js/{main,slideshow,visual_datetime}.js \
+    jshint --config .jshintrc ${PROJECT_NAME}/static/js/*.js \
         > reports/jshint.report
     echo "jshint $?" >> ${status_file}
 ) &

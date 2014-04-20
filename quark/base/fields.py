@@ -27,8 +27,8 @@ class VisualSplitDateTimeWidget(forms.SplitDateTimeWidget):
     """
     class Media(object):
         # pylint: disable=C0103
-        css = {'all': ('css/jquery.timepicker.css',)}
-        js = ('js/visual_datetime.js', 'js/jquery.timepicker.min.js')
+        css = {'all': ('css/libs/jquery.timepicker.css',)}
+        js = ('js/visual_datetime.js', 'js/libs/jquery.timepicker.min.js')
 
     def __init__(self, time_format='%I:%M%p', *args, **kwargs):
         """Set the HTML class for the date input (as vDateField) and for the
