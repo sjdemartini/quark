@@ -11,8 +11,8 @@
   {% for entry in leader_list %}
   <li>
     {# Spaceless to fix whitespace issues with inline-block css style #}
-    {% spaceless %}
-    <div class="name {% cycle 'odd' 'even' %}">
+{% spaceless %}
+<div class="name {% cycle 'odd' 'even' %}{% if entry.position == 'officer' %} officer{% endif %}{% if entry.position == 'candidate' %} candidate{% endif %}{% if entry.position == 'advisor' %} advisor{% endif %}">
         {{ entry.rank }}. <a href="{% url 'events:individual-attendance' entry.user.username %}?term={{ display_term_url_name }}">{{ entry.user.userprofile.get_common_name }}</a>
     </div>
     <span class="count-container {% cycle 'odd' 'even' %}" style="width: {{ entry.factor }}%;">
@@ -26,4 +26,26 @@
 </ul>
 
 {% include '_pagination.html' %}
+
+<div class="event-statistics">
+  <h2>Event Attendance Statistics for {{ display_term_name }}</h2>
+  <h3>Officer Attendance</h3>
+  <div>{{ officer_aggregate.attendees }} officers have attended {{ officer_aggregate.attendance }} total events for an average of {{ officer_aggregate.ratio|floatformat:2 }} events per officer.</div>
+  {% if top_officer %}
+  <div>The officer with the highest attendance is {{ top_officer.userprofile.get_common_name }} with {{ top_officer.count }} events.</div>
+  {% endif %}
+
+  <h3>Candidate Attendance</h3>
+  <div>{{ candidate_aggregate.attendees }} candidates have attended {{ candidate_aggregate.attendance }} total events for an average of {{ candidate_aggregate.ratio|floatformat:2 }} events per candidate.</div>
+  {% if top_candidate %}
+  <div>The candidate with the highest attendance is {{ top_candidate.userprofile.get_common_name }} with {{ top_candidate.count }} events.</div>
+  {% endif %}
+
+  <h3>Member Attendance</h3>
+  <div>{{ member_aggregate.attendees }} members have attended {{ member_aggregate.attendance }} total events for an average of {{ member_aggregate.ratio|floatformat:2 }} events per active member.</div>
+  {% if top_member %}
+  <div>The active member with the highest attendance is {{ top_member.userprofile.get_common_name }} with {{ top_member.count }} events.</div>
+  {% endif %}
+</div>
+
 {% endblock content %}

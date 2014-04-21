@@ -26,6 +26,19 @@
     &.even {
       background-color: $light-gray;
     }
+
+    &.candidate {
+      a {
+        font-style: italic;
+      }
+    }
+
+    &.officer {
+      a {
+        font-weight: 600;
+      }
+    }
+
   }
 
   .count {

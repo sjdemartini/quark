@@ -506,9 +506,29 @@ class LeaderboardListView(TermParameterMixin, ListView):
     context_object_name = 'leader_list'
     paginate_by = 75
     template_name = 'events/leaderboard.html'
+    candidate_aggregate = None
+    member_aggregate = None
+    officer_aggregate = None
+    top_officer = None
+    top_candidate = None
+    top_member = None
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
+        # Create dicts of aggregates for officers, candidates, and members
+        # (including advisors), with the total number of users of that category
+        # who have attended events this semester and the total number of events
+        # that group has attended.
+        self.candidate_aggregate = {'attendees': 0,
+                                    'attendance': 0,
+                                    'ratio': 0}
+        self.member_aggregate = {'attendees': 0,
+                                 'attendance': 0,
+                                 'ratio': 0}
+        self.officer_aggregate = {'attendees': 0,
+                                  'attendance': 0,
+                                  'ratio': 0}
+
         return super(LeaderboardListView, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
@@ -537,6 +557,35 @@ class LeaderboardListView(TermParameterMixin, ListView):
                 # width 70%), including adding 2.5 to every factor to make sure
                 # that there is enough room for text to be displayed.
                 factor = 2.5 + leader.count * 67.5 / max_events
+
+                # Determine the position of the leader for use in CSS styling
+                # as well as updating the position aggregates and checking if
+                # this user is at the top of their position group
+                profile = leader.userprofile
+                if profile.is_officer(current=True, exclude_aux=True):
+                    position = 'officer'
+                    self.officer_aggregate['attendees'] += 1
+                    self.officer_aggregate['attendance'] += leader.count
+
+                    if self.officer_aggregate['attendees'] == 1:
+                        self.top_officer = leader
+
+                elif profile.is_candidate():
+                    position = 'candidate'
+                    self.candidate_aggregate['attendees'] += 1
+                    self.candidate_aggregate['attendance'] += leader.count
+
+                    if self.candidate_aggregate['attendees'] == 1:
+                        self.top_candidate = leader
+
+                else:
+                    position = 'member'
+                    self.member_aggregate['attendees'] += 1
+                    self.member_aggregate['attendance'] += leader.count
+
+                    if self.member_aggregate['attendees'] == 1:
+                        self.top_member = leader
+
                 if leader.count == prev_value:
                     rank = prev_rank
                 else:
@@ -546,9 +595,37 @@ class LeaderboardListView(TermParameterMixin, ListView):
 
                 # Add the leader entry to the list
                 leader_list.append({'user': leader,
+                                    'position': position,
                                     'factor': factor,
                                     'rank': rank})
         return leader_list
+
+    def get_context_data(self, **kwargs):
+        context = super(LeaderboardListView, self).get_context_data(**kwargs)
+
+        # Obtain the number of events per user in each position category
+        self.candidate_aggregate['ratio'] = (
+            self.get_average_attendance(self.candidate_aggregate['attendees'],
+                                        self.candidate_aggregate['attendance']))
+        self.member_aggregate['ratio'] = (
+            self.get_average_attendance(self.member_aggregate['attendees'],
+                                        self.member_aggregate['attendance']))
+        self.officer_aggregate['ratio'] = (
+            self.get_average_attendance(self.officer_aggregate['attendees'],
+                                        self.officer_aggregate['attendance']))
+
+        context['candidate_aggregate'] = self.candidate_aggregate
+        context['member_aggregate'] = self.member_aggregate
+        context['officer_aggregate'] = self.officer_aggregate
+        context['top_candidate'] = self.top_candidate
+        context['top_member'] = self.top_member
+        context['top_officer'] = self.top_officer
+
+        return context
+
+    def get_average_attendance(self, attendees, attendance):
+        """Returns the average attendance for a group on the leaderboard."""
+        return attendance / float(attendees) if attendees > 0 else 0
 
 
 def ical(request, event_pk=None):
