@@ -188,7 +188,7 @@ class ExamFlagCreateView(CreateView):
 
     def get_success_url(self):
         """Go to the course page corresponding to the flagged exam."""
-        return reverse('courses:detail',
+        return reverse('courses:course-detail',
                        kwargs={'dept_slug': self.exam.course.department.slug,
                                'course_num': self.exam.course.number})
 
