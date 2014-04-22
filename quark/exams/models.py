@@ -141,9 +141,15 @@ class Exam(models.Model):
 
     def get_download_file_name(self):
         """Return the file name of the exam file when it is downloaded."""
+        # Use 'unknown' if the course instance does not have a term
+        if self.course_instance.term:
+            term = self.course_instance.term.get_url_name()
+        else:
+            term = 'unknown'
+
         return '{course}-{term}-{number}-{instructors}-{type}{ext}'.format(
             course=self.course_instance.course.get_url_name(),
-            term=self.course_instance.term.get_url_name(),
+            term=term,
             number=self.exam_number,
             instructors='_'.join([i.last_name for i in self.instructors]),
             type=self.exam_type,
@@ -151,8 +157,14 @@ class Exam(models.Model):
 
     def __unicode__(self):
         """Return a human-readable representation of the exam file."""
+        # Use 'Unknown' if the course instance does not have a term
+        if self.course_instance.term:
+            term = self.course_instance.term.verbose_name()
+        else:
+            term = 'Unknown'
+
         exam_unicode = '{term} {number} {type} for {course}'.format(
-            term=self.course_instance.term.verbose_name(),
+            term=term,
             number=self.get_exam_number_display(),
             type=self.get_exam_type_display(),
             course=self.course_instance.course)
