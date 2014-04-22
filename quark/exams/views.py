@@ -1,3 +1,5 @@
+import mimetypes
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import permission_required
@@ -64,9 +66,10 @@ class ExamDownloadView(DetailView):
                 and not self.request.user.has_perm('exams.view_all_exams')):
             raise Http404
 
+        mime_type, _ = mimetypes.guess_type(self.object.exam_file.name)
         response = HttpResponse(
             FileWrapper(self.object.exam_file),
-            content_type='application/pdf')
+            content_type=mime_type)
         response['Content-Disposition'] = 'inline;filename="{exam}"'.format(
             exam=smart_bytes(
                 self.object.get_download_file_name(), encoding='ascii'))

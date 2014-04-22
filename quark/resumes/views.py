@@ -1,3 +1,5 @@
+import mimetypes
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -228,9 +230,10 @@ class ResumeDownloadView(DetailView):
 
     def get(self, request, *args, **kwargs):
         resume = get_object_or_404(Resume, user=self.user)
+        mime_type, _ = mimetypes.guess_type(resume.resume_file.name)
         response = HttpResponse(
             FileWrapper(resume.resume_file),
-            content_type='application/pdf')
+            content_type=mime_type)
         response['Content-Disposition'] = 'inline;filename="{resume}"'.format(
             resume=smart_bytes(
                 resume.get_download_file_name(), encoding='ascii'))
