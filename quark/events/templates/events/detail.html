@@ -94,8 +94,12 @@
     {% if num_guests > 0 %}({{ num_signups }} signup{{ num_signups|pluralize }} + {{ num_guests }} guest{{ num_guests|pluralize }}){% endif %}
   </p>
   {% if event.needs_drivers and perms.events.view_driving_numbers %}
-  <p>Total Seats With Drivers: {{ total_seats }}</p>
-  <p>Remaining Available Seats: {{ available_seats }}</p>
+    <p>Total Seats With Drivers: {{ total_seats }}</p>
+    {% if available_seats >= 0 %}
+    <p>Remaining Available Seats: {{ available_seats }}</p>
+    {% else %}
+    <p>Current Seat Deficit: {{ available_seats }}</p>
+    {% endif %}
   {% endif %}
 </div>
 

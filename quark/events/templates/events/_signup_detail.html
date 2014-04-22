@@ -16,7 +16,7 @@ display, and displays signup info depending on the request user's permissions.
 
   <div class="signup-details">
   {% if signup.user %}
-    <div class="signup-name">{{ signup_user_name }}</div>
+    <a href="{% url 'events:individual-attendance' signup.user.username %}" class="signup-name">{{ signup_user_name }}</a>
   {% else %}
     <div class="signup-name">{{ signup.name }}</div>
     <div class="subtext">Anonymous signup: {{ signup.email }}</div>
