@@ -274,9 +274,9 @@ class CandidateRequirement(models.Model):
         elif self.requirement_type == CandidateRequirement.CHALLENGE:
             return self.challengecandidaterequirement.challenge_type.name
         elif self.requirement_type == CandidateRequirement.EXAM_FILE:
-            return 'Uploaded Exam Files'
+            return 'Exam Files'
         elif self.requirement_type == CandidateRequirement.RESUME:
-            return 'Uploaded Resume'
+            return 'Resume'
         elif self.requirement_type == CandidateRequirement.MANUAL:
             return self.manualcandidaterequirement.name
         else:
@@ -284,8 +284,8 @@ class CandidateRequirement(models.Model):
                 'Unknown type {}'.format(self.requirement_type))
 
     def __unicode__(self):
-        return '{req_type}, {credits} required ({term})'.format(
-            req_type=self.get_requirement_type_display(),
+        return '{name}, {credits} required ({term})'.format(
+            name=self.get_name(),
             credits=self.credits_needed, term=self.term)
 
     class Meta(object):
@@ -310,13 +310,8 @@ class EventCandidateRequirement(CandidateRequirement):
         return events_attended.aggregate(
             total=Sum('requirements_credit'))['total'] or 0
 
-    def __unicode__(self):
-        return '{event_type} {req}'.format(
-            event_type=self.event_type.name,
-            req=super(EventCandidateRequirement, self).__unicode__())
-
     class Meta(object):
-        ordering = ('-term', 'requirement_type', 'event_type__name')
+        ordering = ('-term', 'requirement_type', 'event_type')
 
 
 class ChallengeCandidateRequirement(CandidateRequirement):
@@ -335,13 +330,8 @@ class ChallengeCandidateRequirement(CandidateRequirement):
             challenge_type=self.challenge_type,
             verified=True).count()
 
-    def __unicode__(self):
-        return '{challenge_type} {req}'.format(
-            challenge_type=self.challenge_type.name,
-            req=super(ChallengeCandidateRequirement, self).__unicode__())
-
     class Meta(object):
-        ordering = ('-term', 'requirement_type', 'challenge_type__name')
+        ordering = ('-term', 'requirement_type', 'challenge_type')
 
 
 class ExamFileCandidateRequirement(CandidateRequirement):
@@ -375,10 +365,6 @@ class ManualCandidateRequirement(CandidateRequirement):
         """Override save handler to ensure that requirement_type is correct."""
         self.requirement_type = CandidateRequirement.MANUAL
         super(ManualCandidateRequirement, self).save(*args, **kwargs)
-
-    def __unicode__(self):
-        return '{name}, {credits} required ({term})'.format(
-            name=self.name, credits=self.credits_needed, term=self.term)
 
     class Meta(object):
         ordering = ('-term', 'requirement_type', 'name')
