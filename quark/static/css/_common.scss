@@ -218,7 +218,11 @@ div {
       }
 
       textarea {
-        resize: vertical;
+        resize: both;
+
+        @include respond-to(small-med) {
+          resize: vertical;
+        }
       }
 
       .help-text,
