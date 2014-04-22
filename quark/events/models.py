@@ -339,6 +339,7 @@ class EventSignUp(models.Model):
         permissions = (
             ('view_signups', 'Can view who has signed up for events'),
             ('view_comments', 'Can view sign-up comments'),
+            ('view_driving_numbers', 'Can view driving number details'),
         )
 
     def __unicode__(self):

@@ -56,6 +56,7 @@
       - [contact_participants, events, event]
       - [delete_event, events, event]
       - [view_comments, events, eventsignup]
+      - [view_driving_numbers, events, eventsignup]
       - [add_projectreport, project_reports, projectreport]
       - [change_projectreport, project_reports, projectreport]
       - [delete_projectreport, project_reports, projectreport]
