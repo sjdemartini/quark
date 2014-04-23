@@ -193,7 +193,7 @@ class CandidateEditView(FormView, CandidateContextMixin):
     form_class = CandidateRequirementProgressFormSet
     template_name = 'candidates/edit.html'
     candidate = None
-    progress_list = None
+    progress_dict = None
     requirements = None
 
     @method_decorator(login_required)
@@ -210,25 +210,16 @@ class CandidateEditView(FormView, CandidateContextMixin):
             'challengecandidaterequirement__challenge_type',
             'examfilecandidaterequirement')
 
-        # Create a list of progresses that at each index contains either a
-        # progress corresponding to a requirement or None if there is no
-        # progress for the corresponding requirement
-        self.progress_list = []
-        progress_index = 0
         progresses = CandidateRequirementProgress.objects.filter(
             candidate=self.candidate)
-        num_progresses = progresses.count()
 
-        for req in self.requirements:
-            # Progresses are ordered the same way as requirements,
-            # so all progresses will be correctly checked in the loop
-            if progress_index < num_progresses:
-                progress = progresses[progress_index]
-                if progress.requirement == req:
-                    self.progress_list.append(progress)
-                    progress_index += 1
-                    continue
-            self.progress_list.append(None)
+        # Create a dictionary with values that are progresses and keys that
+        # are the corresponding candidate requirement pks, which allows for fast
+        # checking of whether a progress exists for a candidate given a
+        # candidate requirement
+        self.progress_dict = {}
+        for progress in progresses:
+            self.progress_dict[progress.requirement.pk] = progress
 
         return super(CandidateEditView, self).dispatch(*args, **kwargs)
 
@@ -251,7 +242,7 @@ class CandidateEditView(FormView, CandidateContextMixin):
         electives_required = Candidate.are_electives_required(self.candidate)
 
         for i, req in enumerate(self.requirements):
-            progress = self.progress_list[i]
+            progress = self.progress_dict.get(req.pk)
             form = formset[i]
             req_progress = req.get_progress(self.candidate)
             completed = req_progress['completed']
@@ -292,7 +283,7 @@ class CandidateEditView(FormView, CandidateContextMixin):
         """
         for i, requirement in enumerate(self.requirements):
             current_form = form[i]
-            progress = self.progress_list[i]
+            progress = self.progress_dict.get(requirement.pk)
             manually_recorded_credits = current_form.cleaned_data.get(
                 'manually_recorded_credits')
             alternate_credits_needed = current_form.cleaned_data.get(
