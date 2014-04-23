@@ -65,8 +65,12 @@ class AncestorNode(template.Node):
         return self.url_node.render(context)
 
     def render(self, context):
-        # Get the path of the current page (requires that "request" be
-        # in the context)
+        # If the "request" is not in the context, then the path cannot be
+        # determined, so just return an empty string
+        if 'request' not in context:
+            return ''
+
+        # Get the path of the current page
         current_path = context['request'].path
 
         path = self.get_path(context)
