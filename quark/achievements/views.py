@@ -2,11 +2,12 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import permission_required
+from django.core.urlresolvers import reverse
 from django.core.urlresolvers import reverse_lazy
 from django.db.models import Sum
+from django.forms import HiddenInput
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
-from django.views.generic import DetailView
 from django.views.generic import FormView
 from django.views.generic import ListView
 
@@ -15,22 +16,22 @@ from quark.achievements.models import Achievement
 from quark.achievements.models import UserAchievement
 
 
-class AchievementDetailView(DetailView):
-    context_object_name = 'achievement'
-    model = Achievement
+class AchievementDetailView(FormView):
     template_name = 'achievements/achievement_detail.html'
+    form_class = UserAchievementForm
+    achievement = None
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
-        return super(AchievementDetailView, self).dispatch(*args, **kwargs)
-
-    def get_object(self, queryset=None):
-        return get_object_or_404(
+        self.achievement = get_object_or_404(
             Achievement,
             short_name=self.kwargs['achievement_short_name'])
+        return super(AchievementDetailView, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(AchievementDetailView, self).get_context_data(**kwargs)
+
+        context['achievement'] = self.achievement
 
         # Select the viewer's secret and private achievements so that they
         # can only see the ones they've unlocked.
@@ -52,6 +53,35 @@ class AchievementDetailView(DetailView):
             short_name=context['achievement'].short_name)
 
         return context
+
+    def get_initial(self):
+        initial = super(AchievementDetailView, self).get_initial()
+        initial['achievement'] = self.achievement
+
+        return initial
+
+    def get_form(self, form_class):
+        form = super(AchievementDetailView, self).get_form(form_class)
+        form.fields['achievement'].widget = HiddenInput()
+        return form
+
+    def form_valid(self, form):
+        form.save(assigner=self.request.user)
+        achievement = form.cleaned_data.get('achievement')
+        users = form.cleaned_data.get('users')
+
+        users_namestring = ', '.join(
+            [user.userprofile.get_common_name() for user in users])
+
+        messages.success(
+            self.request,
+            'Achievement {achievement} assigned to {names}'.format(
+                achievement=achievement.name, names=users_namestring))
+        return super(AchievementDetailView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('achievements:detail',
+                       args=[self.kwargs['achievement_short_name']])
 
 
 class LeaderboardListView(ListView):

@@ -36,19 +36,6 @@ Locked Achievement
 </div>
 {% endif %}
 
-{% if achievement.sequence and related_achievements %}
-<h2>Related Achievements</h2>
-<ul class="related-achievements">
-  {% for entry in related_achievements %}
-    {% if entry.privacy != 'public' and entry not in viewable_hidden_achievements %}
-      {% include 'achievements/_display_achievement.html' with hidden_from_viewer=True %}
-    {% else %}
-      {% include 'achievements/_display_achievement.html' with hidden_from_viewer=False achievement=entry display_user=user %}
-    {% endif %}
-  {% endfor %}
-</ul>
-{% endif %}
-
 {% if achievement.privacy != 'private' %}
 <h2>Users with this Achievement ({{ user_achievements|length }})</h2>
 <ul class="users-with-achievement">
@@ -75,8 +62,33 @@ Locked Achievement
   <p>No users have this achievement yet! Maybe you can be the first to unlock it.
   </p>
   {% endfor %}
+</ul>
+{% endif %}
+
+{% if achievement.sequence and related_achievements %}
+<h2>Related Achievements</h2>
+<ul class="related-achievements">
+  {% for entry in related_achievements %}
+    {% if entry.privacy != 'public' and entry not in viewable_hidden_achievements %}
+      {% include 'achievements/_display_achievement.html' with hidden_from_viewer=True %}
+    {% else %}
+      {% include 'achievements/_display_achievement.html' with hidden_from_viewer=False achievement=entry display_user=user %}
+    {% endif %}
+  {% endfor %}
+</ul>
+{% endif %}
+
+{% if perms.achievements.add_userachievement and achievement.manual %}
+<h2>Assign {{ achievement.name }} to User(s)</h2>
+<form method="post">
+  {% csrf_token %}
+  {% include '_form.html' %}
+  <div>
+    <input type="submit" value="Submit">
+  </div>
+</form>
+<a href="{% url 'achievements:assign' %}">Assign other achievements to users</a>
 {% endif %}
 
 {% endif %}
-
 {% endblock content %}
