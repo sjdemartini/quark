@@ -131,6 +131,8 @@ class ExamEditView(UpdateView):
         context['flags'] = ExamFlag.objects.filter(exam=self.exam)
         context['permissions'] = InstructorPermission.objects.filter(
             instructor__in=self.exam.instructors)
+        context['is_pdf'] = mimetypes.guess_type(
+            self.object.exam_file.name)[0] == 'application/pdf'
         return context
 
     def form_valid(self, form):

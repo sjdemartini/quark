@@ -60,7 +60,9 @@
 TODO(ericdwang): address automatic exam download issue with iframe on mobile
 devices
 {% endcomment %}
+{% if is_pdf %}
 <iframe id="exam-preview" src="{% url 'exams:download' exam.pk %}" class="exam-preview">
   <div>Your browser does not support iframes.</div>
 </iframe>
+{% endif %}
 {% endblock content %}
