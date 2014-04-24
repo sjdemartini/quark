@@ -68,16 +68,16 @@ No photo uploaded yet.
   {% include 'candidates/_individual_progress.html' with entry=entry %}
   <ul>
     {% with event_type=entry.requirement.eventcandidaterequirement.event_type.name %}
-    {% if attended_events|get_item:event_type|length == 0 and past_signed_up_events|get_item:event_type|length == 0 and future_signed_up_events|get_item:event_type|length == 0 %}
+    {% if attended_events|get_item:event_type|length == 0 and past_signup_events|get_item:event_type|length == 0 and future_signup_events|get_item:event_type|length == 0 %}
     No signups or attendance for {{ event_type }} events.
     {% else %}
-    {% for event in past_signed_up_events|get_item:event_type %}
+    {% for event in past_signup_events|get_item:event_type %}
     <li><del><a href="{{ event.get_absolute_url }}">{{ event.name }}</a></del></li>
     {% endfor %}
     {% for event in attended_events|get_item:event_type %}
     <li><strong><a href="{{ event.get_absolute_url }}">{{ event.name }}</a></strong></li>
     {% endfor %}
-    {% for event in future_signed_up_events|get_item:event_type %}
+    {% for event in future_signup_events|get_item:event_type %}
     <li><a href="{{ event.get_absolute_url }}">{{ event.name }}</a></li>
     {% endfor %}
     {% endif %}
@@ -88,11 +88,11 @@ No photo uploaded yet.
     {{ entry.form.errors.credits_needed }}
     {{ entry.form.errors.manually_recorded_credits }}
     <h3>Elective</h3>
-    <div><strong>[{{ elective_events|length }} / {{ entry.credits_needed }}]</strong> (regular: {{ entry.requirement.credits_needed }})
+    <div><strong>[{{ attended_elective_events|length }} / {{ entry.credits_needed }}]</strong> (regular: {{ entry.requirement.credits_needed }})
     <a href="javaScript:void(0);" onclick="$('#{{ entry.requirement.pk }}').slideToggle(200);">[edit]</a></div>
     <div id="{{ entry.requirement.pk }}" style="display:none">
       <strong>
-        [{{ elective_events|length }}
+        [{{ attended_elective_events|length }}
         {{ entry.form.manually_recorded_credits.as_hidden }}
         / {{ entry.form.alternate_credits_needed }}]
       </strong>
@@ -101,11 +101,16 @@ No photo uploaded yet.
       </div>
     </div>
     <ul>
-      {% for event in elective_events %}
+      {% if attended_elective_events|length == 0 and future_signup_elective_events|length == 0 %}
+      No signups or attendance for Elective events. If the candidate attends more than the required number of events in any event category, those additional events will count as Elective events.
+      {% else %}
+      {% for event in attended_elective_events %}
       <li><strong><a href="{{ event.get_absolute_url }}">{{ event.name }}</a></strong> ({{ event.event_type.name }})</li>
-      {% empty %}
-      No attendance for Elective events. If the candidate attends more than the required number of events in any event category, those additional events will count as Elective events.
       {% endfor %}
+      {% for event in future_signup_elective_events %}
+      <li><a href="{{ event.get_absolute_url }}">{{ event.name }}</a> ({{ event.event_type.name }})</li>
+      {% endfor %}
+      {% endif %}
     </ul>
     {% endif %}
   {% endif %}

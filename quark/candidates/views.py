@@ -1,3 +1,4 @@
+import collections
 import json
 
 from django.contrib import messages
@@ -33,8 +34,6 @@ from quark.candidates.forms import ChallengeForm
 from quark.candidates.forms import ChallengeVerifyFormSet
 from quark.candidates.forms import ManualCandidateRequirementForm
 from quark.events.models import Event
-from quark.events.models import EventAttendance
-from quark.events.models import EventSignUp
 from quark.events.models import EventType
 from quark.exams.models import Exam
 from quark.shortcuts import get_object_or_none
@@ -51,40 +50,39 @@ class CandidateContextMixin(ContextMixin):
         candidate = kwargs.get('candidate')
         context['candidate'] = candidate
 
-        attended_events = {}
-        past_signed_up_events = {}
-        future_signed_up_events = {}
-        elective_events = []
+        attended_events_by_type = collections.defaultdict(list)
+        past_signup_events_by_type = collections.defaultdict(list)
+        future_signup_events_by_type = collections.defaultdict(list)
+        attended_elective_events = []
+        future_signup_elective_events = []
 
-        event_types = EventType.objects.values_list('name', flat=True)
-        for event_type in event_types:
-            attended_events[event_type] = []
-            past_signed_up_events[event_type] = []
-            future_signed_up_events[event_type] = []
+        attended_events = Event.objects.select_related(
+            'event_type').filter(
+            eventattendance__user=candidate.user,
+            term=candidate.term,
+            cancelled=False)
+        for event in attended_events:
+            attended_events_by_type[event.event_type.name].append(event)
 
-        attendances = EventAttendance.objects.select_related(
-            'event__event_type').filter(
-            user=candidate.user, event__term=candidate.term)
-        for attendance in attendances:
-            attended_events[
-                attendance.event.event_type.name].append(attendance.event)
-
-        signups = EventSignUp.objects.select_related(
-            'event__event_type').filter(
-            user=candidate.user,
-            event__term=candidate.term,
-            unsignup=False).exclude(
-            event__in=attendances.values_list('event', flat=True))
+        signup_events = Event.objects.select_related(
+            'event_type').filter(
+            eventsignup__user=candidate.user,
+            eventsignup__unsignup=False,
+            term=candidate.term,
+            cancelled=False).exclude(
+            pk__in=attended_events.values_list('pk', flat=True))
 
         current_time = timezone.now()
-        past_signups = signups.filter(event__end_datetime__lte=current_time)
-        future_signups = signups.filter(event__end_datetime__gt=current_time)
-        for signup in past_signups:
-            past_signed_up_events[
-                signup.event.event_type.name].append(signup.event)
-        for signup in future_signups:
-            future_signed_up_events[
-                signup.event.event_type.name].append(signup.event)
+        past_signup_events = signup_events.filter(
+            end_datetime__lte=current_time)
+        future_signup_events = signup_events.filter(
+            end_datetime__gt=current_time)
+
+        for event in past_signup_events:
+            past_signup_events_by_type[event.event_type.name].append(event)
+
+        for event in future_signup_events:
+            future_signup_events_by_type[event.event_type.name].append(event)
 
         event_reqs = CandidateRequirement.objects.filter(
             term=candidate.term,
@@ -95,19 +93,25 @@ class CandidateContextMixin(ContextMixin):
         except CandidateRequirement.DoesNotExist:
             elective_req = None
 
-        # If at least 1 elective event is required, extra events from other
-        # event types will count as elective events.
+        # If at least 1 elective event is required and the candidate has
+        # attended at least the required amount of events for an event type,
+        # extra events will count as elective events. Any future sign ups will
+        # also be displayed under elective events instead of that event type.
         if (elective_req and
-                elective_req.get_progress(self.candidate)['required'] > 0):
+                elective_req.get_progress(candidate)['required'] > 0):
             for event_req in event_reqs:
-                req_progress = event_req.get_progress(self.candidate)
+                req_progress = event_req.get_progress(candidate)
                 event_type = event_req.eventcandidaterequirement.event_type
                 extra = req_progress['completed'] - req_progress['required']
-                if extra > 0 and event_type.eligible_elective:
-                    elective_events += attended_events[event_type.name][
-                        req_progress['required']:]
-                    attended_events[event_type.name] = attended_events[
+                if extra >= 0 and event_type.eligible_elective:
+                    attended_elective_events += attended_events_by_type[
+                        event_type.name][req_progress['required']:]
+                    attended_events_by_type[
+                        event_type.name] = attended_events_by_type[
                         event_type.name][:req_progress['required']]
+                    future_signup_elective_events += (
+                        future_signup_events_by_type[event_type.name])
+                    future_signup_events_by_type[event_type.name] = []
 
         # Count events that are eligible as electives that don't have any
         # requirements
@@ -115,15 +119,16 @@ class CandidateContextMixin(ContextMixin):
             eligible_elective=True).exclude(
             eventcandidaterequirement__pk__in=event_reqs.values_list(
                 'pk', flat=True))
-        elective_events += list(Event.objects.filter(
-            eventattendance__user=self.candidate.user,
-            event_type__in=non_required_event_types).select_related(
-            'event_type'))
+        attended_elective_events += list(attended_events.filter(
+            event_type__in=non_required_event_types))
+        future_signup_elective_events += list(future_signup_events.filter(
+            event_type__in=non_required_event_types))
 
-        context['attended_events'] = attended_events
-        context['past_signed_up_events'] = past_signed_up_events
-        context['future_signed_up_events'] = future_signed_up_events
-        context['elective_events'] = elective_events
+        context['attended_events'] = attended_events_by_type
+        context['past_signup_events'] = past_signup_events_by_type
+        context['future_signup_events'] = future_signup_events_by_type
+        context['attended_elective_events'] = attended_elective_events
+        context['future_signup_elective_events'] = future_signup_elective_events
 
         requested_challenges = {}
         challenge_types = ChallengeType.objects.values_list('name', flat=True)
@@ -217,9 +222,8 @@ class CandidateEditView(FormView, CandidateContextMixin):
         # are the corresponding candidate requirement pks, which allows for fast
         # checking of whether a progress exists for a candidate given a
         # candidate requirement
-        self.progress_dict = {}
-        for progress in progresses:
-            self.progress_dict[progress.requirement.pk] = progress
+        self.progress_dict = {
+            progress.requirement.pk: progress for progress in progresses}
 
         return super(CandidateEditView, self).dispatch(*args, **kwargs)
 
