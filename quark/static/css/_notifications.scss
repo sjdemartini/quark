@@ -55,13 +55,18 @@
   }
 
   &.positive {
-    background-color: #a2d5f1;
-    border: 1px solid #6991da;
+    background-color: $success-bg-color;
+    border: 1px solid $success-border-color;
   }
 
   &.negative {
-    background-color: #ffc1c1;
-    border: 1px solid #c10;
+    background-color: $error-bg-color;
+    border: 1px solid $error-border-color;
+  }
+
+  &.neutral {
+    background-color: $info-bg-color;
+    border: 1px solid $info-border-color;
   }
 }
 

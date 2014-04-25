@@ -4,8 +4,11 @@ import json
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import permission_required
+from django.contrib.contenttypes.models import ContentType
+from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
+from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST
@@ -36,6 +39,7 @@ from quark.candidates.forms import ManualCandidateRequirementForm
 from quark.events.models import Event
 from quark.events.models import EventType
 from quark.exams.models import Exam
+from quark.notifications.models import Notification
 from quark.resumes.models import Resume
 from quark.shortcuts import get_object_or_none
 from quark.utils.ajax import json_response
@@ -678,8 +682,38 @@ class CandidatePortalView(CreateView, CandidateContextMixin):
         return context
 
     def form_valid(self, form):
-        """Set the candidate of the challenge to the requester."""
+        """Set the candidate of the challenge to the requester.
+
+        Also create a notification and send a verification email to the
+        verifying user.
+        """
         form.instance.candidate = self.candidate
+        challenge = form.save()
+        candidate_name = self.candidate.user.userprofile.get_common_name()
+
+        Notification.objects.create(
+            user=challenge.verifying_user,
+            status=Notification.NEUTRAL,
+            content_type=ContentType.objects.get_for_model(Challenge),
+            object_pk=challenge.pk,
+            title='Challenge Verification Request',
+            subtitle='{} challenge by {}'.format(
+                challenge.challenge_type, candidate_name),
+            description=challenge.description,
+            url=reverse('candidates:challenges'))
+
+        subject = 'Challenge Verification Request from {}'.format(
+            candidate_name)
+        body = render_to_string(
+            'candidates/challenge_verification_email.txt',
+            {'candidate': candidate_name,
+             'challenge': challenge})
+        message = EmailMessage(
+            subject=subject,
+            body=body,
+            to=[challenge.verifying_user.userprofile.get_preferred_email()])
+        message.send(fail_silently=True)
+
         messages.success(self.request, 'Challenge requested!')
         return super(CandidatePortalView, self).form_valid(form)
 

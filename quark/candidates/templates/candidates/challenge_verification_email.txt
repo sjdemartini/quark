@@ -1,0 +1,7 @@
+Hi {{ challenge.verifying_user.first_name }},
+
+{{ candidate }} is asking for a verification of the following {{ challenge.challenge_type }} challenge from you:
+
+{{ challenge.description }}
+
+To verify this challenge, please visit the following link: {% url 'candidates:challenges' %}
