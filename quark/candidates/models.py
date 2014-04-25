@@ -94,7 +94,7 @@ class Candidate(models.Model):
         try:
             elective_req = event_reqs.get(
                 eventcandidaterequirement__event_type__name='Elective')
-        except self.DoesNotExist:
+        except CandidateRequirement.DoesNotExist:
             return False
         return elective_req.get_progress(self)['required'] > 0
 
