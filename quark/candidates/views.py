@@ -36,6 +36,7 @@ from quark.candidates.forms import ManualCandidateRequirementForm
 from quark.events.models import Event
 from quark.events.models import EventType
 from quark.exams.models import Exam
+from quark.resumes.models import Resume
 from quark.shortcuts import get_object_or_none
 from quark.utils.ajax import json_response
 
@@ -152,6 +153,12 @@ class CandidateContextMixin(ContextMixin):
         # Only include verified exams for blacklisted_exams to prevent showing
         context['blacklisted_exams'] = unapproved_exams.filter(
             blacklisted=True, verified=True)
+
+        try:
+            context['resume_status'] = Resume.objects.get(
+                user=candidate.user).get_verified_display()
+        except Resume.DoesNotExist:
+            context['resume_status'] = 'Not uploaded'
 
         return context
 

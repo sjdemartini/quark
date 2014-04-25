@@ -171,6 +171,7 @@ No photo uploaded yet.
   <h2>Resume Requirements</h2>
   {% for entry in req_types.resume %}
   {% include 'candidates/_individual_progress.html' with entry=entry %}
+  <p><strong>Resume status</strong>: {{ resume_status }}</p>
   {% empty %}
   There are no Resume requirements.
   {% endfor %}

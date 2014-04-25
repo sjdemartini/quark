@@ -7,6 +7,13 @@ from django.db import models
 class Resume(models.Model):
     RESUMES_LOCATION = 'resumes'
 
+    # Custom displays for the verified NullBooleanField
+    VERIFIED_CHOICES = (
+        (None, 'Pending'),
+        (True, 'Approved'),
+        (False, 'Denied'),
+    )
+
     def rename_file(instance, filename):
         """Rename the file to the user's username, and update the resume
         file if it already exists."""
@@ -34,7 +41,7 @@ class Resume(models.Model):
     # must also be verified to fulfill the resume candidate requirement.
     # This field is set to null if no one has examined this resume yet, false
     # if it has been deemed inappropriate, and true if it has been verified.
-    verified = models.NullBooleanField()
+    verified = models.NullBooleanField(choices=VERIFIED_CHOICES)
     critique = models.BooleanField(
         default=True, verbose_name='Critique requested',
         help_text='Request an officer to critique your resume')

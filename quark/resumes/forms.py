@@ -27,6 +27,11 @@ class ResumeForm(forms.ModelForm):
 
 
 class ResumeListForm(forms.ModelForm):
+    # TODO(ericdwang): NullBooleanFields show an extra blank field when using
+    # custom choices. This field can be removed (so Resume.VERIFIED_CHOICES
+    # would be used instead) when Django fixes the bug.
+    verified = forms.NullBooleanField()
+
     class Meta(object):
         model = Resume
         fields = ('verified',)
@@ -38,6 +43,11 @@ class BaseResumeListForm(formsets.BaseFormSet):
 
 
 class ResumeVerifyForm(forms.ModelForm):
+    # TODO(ericdwang): NullBooleanFields show an extra blank field when using
+    # custom choices. This field can be removed (so Resume.VERIFIED_CHOICES
+    # would be used instead) when Django fixes the bug.
+    verified = forms.NullBooleanField()
+
     class Meta(object):
         model = Resume
         fields = ('verified',)
