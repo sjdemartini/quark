@@ -68,8 +68,8 @@ class LeaderboardListView(ListView):
     def get_queryset(self):
         leaders = get_user_model().objects.filter(
             userachievement__acquired=True).select_related(
-            'userprofile').annotate(score=Sum(
-            'userachievement__achievement__points')).filter(
+            'userprofile').annotate(
+                score=Sum('userachievement__achievement__points')).filter(
             score__gte=0).order_by('-score')
 
         if len(leaders) > 0:

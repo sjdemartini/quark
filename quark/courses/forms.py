@@ -46,4 +46,4 @@ class InstructorEditForm(InstructorForm):
             self.permission.correspondence = self.cleaned_data.get(
                 'correspondence')
             self.permission.save()
-        return super(InstructorForm, self).save(*args, **kwargs)
+        return super(InstructorEditForm, self).save(*args, **kwargs)

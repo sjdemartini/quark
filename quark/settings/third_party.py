@@ -4,6 +4,12 @@ import sys
 from quark.settings.base import CACHES
 
 
+# Specify the south migration modules, since easy thumbnails migrations are in
+# a submodule
+SOUTH_MIGRATION_MODULES = {
+    'easy_thumbnails': 'easy_thumbnails.south_migrations',
+}
+
 # Mailman path
 MMPATH = '/usr/lib/mailman'
 if MMPATH not in sys.path:

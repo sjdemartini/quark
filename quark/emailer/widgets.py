@@ -1,5 +1,3 @@
-#http://www.djangosnippets.org/snippets/1653/
-
 from django import forms
 from django.utils.safestring import mark_safe
 from django.conf import settings
@@ -7,6 +5,10 @@ from recaptcha.client import captcha
 
 
 class ReCaptcha(forms.widgets.Widget):
+    """Widget for a reCAPTCHA field.
+
+    Based on http://www.djangosnippets.org/snippets/1653/
+    """
     recaptcha_challenge_name = 'recaptcha_challenge_field'
     recaptcha_response_name = 'recaptcha_response_field'
 

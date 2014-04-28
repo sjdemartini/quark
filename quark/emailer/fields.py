@@ -1,4 +1,3 @@
-#http://www.djangosnippets.org/snippets/1653/
 from django.conf import settings
 from django import forms
 from django.utils.encoding import smart_unicode
@@ -9,6 +8,10 @@ from quark.emailer.widgets import ReCaptcha
 
 
 class ReCaptchaField(forms.CharField):
+    """A reCAPTCHA field to use with forms.
+
+    Based on http://www.djangosnippets.org/snippets/1653/
+    """
     default_error_messages = {
         'captcha_invalid': _(u'Invalid captcha')
     }

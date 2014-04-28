@@ -91,29 +91,29 @@ class CourseDetailView(DetailView):
         context['surveys'] = surveys
 
         # TODO(ericdwang): re-add course ratings
-        # Get average course rating and instructor ratings for the course
-        # course_instances = CourseInstance.objects.filter(course=self.course)
-        # instructors = Instructor.objects.filter(
-            # courseinstance__in=course_instances).distinct()
-        # context['instructors'] = instructors
-        # Average of course_rating values across all surveys for this course
-        # context['total_course_ratings_avg'] = surveys.aggregate(
-            # Avg('course_rating'))['course_rating__avg']
-        # For each instructor, average the prof_rating and course_rating
-        # across that instructor's surveys, and put them in the dictionaries
-        # prof_ratings_avg and course_ratings_avg with key = instructor,
-        # value = avg_rating
-        # prof_ratings_avg = dict()
-        # course_ratings_avg = dict()
-        # for inst in instructors:
-            # ratings = surveys.filter(instructor=inst).aggregate(
-                # Avg('prof_rating'), Avg('course_rating'))
-            # prof_ratings_avg[inst.pk] = (
-                # ratings['prof_rating__avg'])
-            # course_ratings_avg[inst.pk] = (
-                # ratings['course_rating__avg'])
-        # context['prof_ratings_avg'] = prof_ratings_avg
-        # context['course_ratings_avg'] = course_ratings_avg
+#        # Get average course rating and instructor ratings for the course
+#        # course_instances = CourseInstance.objects.filter(course=self.course)
+#        instructors = Instructor.objects.filter(
+#            courseinstance__in=course_instances).distinct()
+#        context['instructors'] = instructors
+#        Average of course_rating values across all surveys for this course
+#        context['total_course_ratings_avg'] = surveys.aggregate(
+#            Avg('course_rating'))['course_rating__avg']
+#        # For each instructor, average the prof_rating and course_rating
+#        # across that instructor's surveys, and put them in the dictionaries
+#        # prof_ratings_avg and course_ratings_avg with key = instructor,
+#        value = avg_rating
+#        prof_ratings_avg = dict()
+#        course_ratings_avg = dict()
+#        for inst in instructors:
+#            ratings = surveys.filter(instructor=inst).aggregate(
+#                Avg('prof_rating'), Avg('course_rating'))
+#            prof_ratings_avg[inst.pk] = (
+#                ratings['prof_rating__avg'])
+#            course_ratings_avg[inst.pk] = (
+#                ratings['course_rating__avg'])
+#        context['prof_ratings_avg'] = prof_ratings_avg
+#        context['course_ratings_avg'] = course_ratings_avg
         return context
 
 
