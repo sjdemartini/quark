@@ -1,4 +1,6 @@
 from django import template
+from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.utils.http import urlencode
 
 from quark.accounts.models import APIKey
@@ -65,3 +67,25 @@ def get_api_key_params(user):
         api_key, _ = APIKey.objects.get_or_create(user=user)
         return urlencode({'user': user.pk, 'key': api_key.key})
     return ''
+
+
+@register.simple_tag(takes_context=True)
+def full_url(context, view, *args, **kwargs):
+    """Generate a full URL with protocol and domain given a view and optional
+    (keyword) arguments.
+
+    Usage in templates (same as Django's built-in url template tag):
+    {% load template_utils %}
+    {% full_url 'app:object_view' object.pk %}
+    """
+    if 'request' in context:
+        is_secure = context['request'].is_secure()
+    else:
+        # Assume a secure connection if cannot be determined
+        is_secure = True
+    protocol = 'https' if is_secure else 'http'
+
+    return '{protocol}://{domain}{relative_url}'.format(
+        protocol=protocol,
+        domain=settings.HOSTNAME,
+        relative_url=reverse(view, args=args, kwargs=kwargs))

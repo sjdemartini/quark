@@ -1,5 +1,9 @@
+{% load template_utils %}
+
 ResumeQ has automatically assigned {{ assignee }} as the point person for {{ requestee }}'s resume.
 
-Please critique this resume within 48 hours, respond to the user, and also mark the resume as critiqued. You can download the resume at {% url 'resumes:download' user.id %}, and you can mark this resume as critiqued at {% url 'resumes:critique' %}.
+Please critique this resume within 48 hours, respond to the user, and also mark the resume as critiqued.
+You can download the resume at {% full_url 'resumes:download' user.id %}
+You can also mark this resume as critiqued at {% full_url 'resumes:critique' %}
 
 This is a random assignment within the {{ committee }} committee - if you cannot do this, please reassign to the {{ committee }} chair. Future updates to this resume will always be assigned to the same point person.

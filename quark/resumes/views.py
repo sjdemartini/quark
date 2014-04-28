@@ -171,7 +171,7 @@ class ResumeEditView(FormView):
                 subject = 'Resume critique requested by {}'.format(
                     requestee_name)
                 assigning_body = render_to_string(
-                    'resumes/resume_assignment_email.txt',
+                    'resumes/resume_assignment_email.html',
                     {'assignee': assignee_name,
                      'requestee': requestee_name,
                      'committee': responsible_committee.short_name,
@@ -184,7 +184,7 @@ class ResumeEditView(FormView):
                     cc=[settings.RESUMEQ_ADDRESS])
                 assigning_message.send(fail_silently=True)
                 confirmation_body = render_to_string(
-                    'resumes/resume_confirmation_email.txt',
+                    'resumes/resume_confirmation_email.html',
                     {'requestee': requestee_name,
                      'committee': responsible_committee.long_name}
                     )

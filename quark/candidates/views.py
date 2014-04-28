@@ -705,7 +705,7 @@ class CandidatePortalView(CreateView, CandidateContextMixin):
         subject = 'Challenge Verification Request from {}'.format(
             candidate_name)
         body = render_to_string(
-            'candidates/challenge_verification_email.txt',
+            'candidates/challenge_verification_email.html',
             {'candidate': candidate_name,
              'challenge': challenge})
         message = EmailMessage(
