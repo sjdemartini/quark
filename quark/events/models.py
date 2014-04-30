@@ -275,14 +275,19 @@ class Event(models.Model):
         start_datetime_str = self.start_datetime.strftime(format_string)
         end_datetime_str = self.end_datetime.strftime(format_string)
         url = self.get_absolute_url()
-        dates = '{}/{}'.format(start_datetime_str, end_datetime_str)
-        details = '{}\n\nhttps://{}{}'.format(
+        dates = u'{}/{}'.format(start_datetime_str, end_datetime_str)
+        details = u'{}\n\nhttps://{}{}'.format(
             self.description, settings.HOSTNAME, url)
-        sprop = 'name:Tau Beta Pi - {}'.format(self.name)
+        sprop = u'name:Tau Beta Pi - {}'.format(self.name)
+        # Use ASCII byte-string for URL
         gcal_event_str = 'https://www.google.com/calendar/event?{}'.format(
-            urlencode({'action': 'TEMPLATE', 'dates': dates,
-                       'details': details, 'location': self.location,
-                       'text': self.name, 'trp': 'true', 'sprop': sprop}))
+            urlencode({'action': 'TEMPLATE',
+                       'dates': dates,
+                       'details': details,
+                       'location': self.location,
+                       'sprop': sprop,
+                       'text': self.name,
+                       'trp': 'true'}))
         return gcal_event_str
 
     # TODO(sjdemartini): re-implement attendence_submitted() function
@@ -369,8 +374,8 @@ class EventSignUp(models.Model):
         else:
             name = self.user.get_full_name()
         guest_string = (
-            ' (+{})'.format(self.num_guests) if self.num_guests > 0 else '')
-        return '{person}{guests} has {action} up for {event_name}'.format(
+            u' (+{})'.format(self.num_guests) if self.num_guests > 0 else '')
+        return u'{person}{guests} has {action} up for {event_name}'.format(
             person=name,
             guests=guest_string,
             action=action,
@@ -386,8 +391,8 @@ class EventAttendance(models.Model):
     # imports, as well as ImportedAttendance objects
 
     def __unicode__(self):
-        return '{} attended {}'.format(self.user.get_full_name(),
-                                       self.event.name)
+        return u'{} attended {}'.format(self.user.get_full_name(),
+                                        self.event.name)
 
     class Meta(object):
         unique_together = ('event', 'user')

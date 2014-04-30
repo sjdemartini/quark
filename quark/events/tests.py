@@ -428,7 +428,12 @@ class EventTest(EventTesting):
     def test_unicode(self):
         start_time = timezone.now()
         end_time = start_time + datetime.timedelta(hours=2)
-        event = self.create_event(start_time, end_time)
+        event = self.create_event(start_time, end_time,
+                                  name=u'Test Unicode Name \u03a4\u0392\u03a0')
+        # Unicode is TBP in Greek Capital Unicode
+        event.description = (u'Some unicode description \u03a4\u0392\u03a0.\n'
+                             u'more unicode \uf8ff')
+        event.save()
         signup = EventSignUp(name='Edward', event=event, num_guests=0)
         signup.save()
         expected_str = u'{name} has signed up for {event_name}'.format(
@@ -458,6 +463,9 @@ class EventTest(EventTesting):
         expected_str = u'{name} (+2) has unsigned up for {event_name}'.format(
             name=self.user.get_full_name(), event_name=event.name)
         self.assertEqual(expected_str, unicode(signup))
+
+        # Test that gcal url does not raise errors. Don't test expected url.
+        event.get_gcal_event_url()
 
 
 class EventFormsTest(EventTesting):
