@@ -21,6 +21,7 @@ from scripts.import_exams_models import import_exams
 from scripts.import_exams_models import import_exam_flags
 from scripts.import_minutes_models import import_minutes
 from scripts.import_project_reports_models import import_project_reports
+from scripts.import_quote_board_models import import_quotes
 from scripts.import_resumes_models import import_resumes
 from scripts.import_user_models import delete_user_profiles
 from scripts.import_user_models import delete_users
@@ -71,6 +72,7 @@ from scripts.import_user_models import import_users
 # candidate_portal.eventrequirement.json
 # candidate_portal.eventrequirementexception.json
 # minutes.minutes.json
+# quoteboard.quote.json
 
 print 'Backing up all current data to scripts/data/backup.json'
 backup = open('scripts/data/backup.json', 'w')
@@ -141,5 +143,8 @@ import_exam_files_requirements()
 
 print 'Importing minutes.'
 import_minutes()
+
+print 'Importing quotes.'
+import_quotes()
 
 print 'All models successfully imported.'

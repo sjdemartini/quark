@@ -13,4 +13,7 @@ class Quote(models.Model):
         return self.quote
 
     class Meta(object):
-        ordering = ('time',)
+        ordering = ('-time',)
+        permissions = (
+            ('view_quotes', 'Can view all quotes'),
+        )

@@ -16,6 +16,7 @@
       - [add_quote, quote_board, quote]
       - [change_quote, quote_board, quote]
       - [delete_quote, quote_board, quote]
+      - [view_quotes, quote_board, quote]
       - [view_project_reports, project_reports, projectreport]
 - model: auth.group
   pk: 3
