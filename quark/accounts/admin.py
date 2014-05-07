@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
@@ -6,6 +7,7 @@ from quark.accounts.forms import AdminPasswordChangeForm
 from quark.accounts.forms import UserChangeForm
 from quark.accounts.forms import UserCreationForm
 from quark.accounts.models import APIKey
+from quark.accounts.models import LDAPUser
 from quark.user_profiles.models import UserProfile
 
 
@@ -55,4 +57,8 @@ admin.site.register(APIKey, APIKeyAdmin)
 # Re-register UserAdmin
 user_model = get_user_model()
 admin.site.unregister(user_model)
-admin.site.register(user_model, UserAdminWithProfile)
+
+if getattr(settings, 'USE_LDAP', False):
+    admin.site.register(LDAPUser, UserAdminWithProfile)
+else:
+    admin.site.register(user_model, UserAdminWithProfile)
