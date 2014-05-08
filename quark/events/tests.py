@@ -13,10 +13,12 @@ from quark.base.models import Term
 from quark.candidates.models import Candidate
 from quark.events.forms import EventForm
 from quark.events.models import Event
+from quark.events.models import EventAttendance
 from quark.events.models import EventSignUp
 from quark.events.models import EventType
 from quark.project_reports.models import ProjectReport
 from quark.shortcuts import get_object_or_none
+from quark.user_profiles.models import StudentOrgUserProfile
 
 
 @override_settings(USE_TZ=True)
@@ -466,6 +468,177 @@ class EventTest(EventTesting):
 
         # Test that gcal url does not raise errors. Don't test expected url.
         event.get_gcal_event_url()
+
+    def test_project_report_attendance(self):
+        start_time = timezone.now()
+        end_time = start_time + datetime.timedelta(hours=2)
+        event = self.create_event(start_time, end_time)
+        project_report = ProjectReport.objects.create(
+            term=self.term,
+            date=datetime.date.today(),
+            title='Test project report',
+            author=self.user,
+            committee=self.committee)
+        event.project_report = project_report
+        event.save()
+
+        # self.user is neither an officer, a candidate, nor a member, so
+        # recording attendance should not affect any attendance list
+        attendance = EventAttendance.objects.create(
+            user=self.user, event=event)
+        self.assertQuerysetEqual(project_report.officer_list.all(), [])
+        self.assertQuerysetEqual(project_report.candidate_list.all(), [])
+        self.assertQuerysetEqual(project_report.member_list.all(), [])
+
+        attendance.delete()
+        self.assertQuerysetEqual(project_report.officer_list.all(), [])
+        self.assertQuerysetEqual(project_report.candidate_list.all(), [])
+        self.assertQuerysetEqual(project_report.member_list.all(), [])
+
+        # Make this user a candidate, so recording attendance should affect
+        # the candidate list
+        Candidate(user=self.user, term=self.term).save()
+        attendance = EventAttendance.objects.create(
+            user=self.user, event=event)
+        self.assertQuerysetEqual(project_report.officer_list.all(), [])
+        self.assertQuerysetEqual(
+            project_report.candidate_list.all(), [repr(self.user)])
+        self.assertQuerysetEqual(project_report.member_list.all(), [])
+
+        attendance.delete()
+        self.assertQuerysetEqual(project_report.officer_list.all(), [])
+        self.assertQuerysetEqual(project_report.candidate_list.all(), [])
+        self.assertQuerysetEqual(project_report.member_list.all(), [])
+
+        # Make this user a member, so recording attendance should affect
+        # the member list
+        self.user.studentorguserprofile.initiation_term = self.term
+        self.user.save()
+        attendance = EventAttendance.objects.create(
+            user=self.user, event=event)
+        self.assertQuerysetEqual(project_report.officer_list.all(), [])
+        self.assertQuerysetEqual(project_report.candidate_list.all(), [])
+        self.assertQuerysetEqual(
+            project_report.member_list.all(), [repr(self.user)])
+
+        attendance.delete()
+        self.assertQuerysetEqual(project_report.officer_list.all(), [])
+        self.assertQuerysetEqual(project_report.candidate_list.all(), [])
+        self.assertQuerysetEqual(project_report.member_list.all(), [])
+
+        # Make this user an officer, so recording attendance should affect the
+        # officer list
+        Officer(user=self.user, position=self.committee, term=self.term).save()
+        attendance = EventAttendance.objects.create(
+            user=self.user, event=event)
+        self.assertQuerysetEqual(
+            project_report.officer_list.all(), [repr(self.user)])
+        self.assertQuerysetEqual(project_report.candidate_list.all(), [])
+        self.assertQuerysetEqual(project_report.member_list.all(), [])
+
+        attendance.delete()
+        self.assertQuerysetEqual(project_report.officer_list.all(), [])
+        self.assertQuerysetEqual(project_report.candidate_list.all(), [])
+        self.assertQuerysetEqual(project_report.member_list.all(), [])
+
+    def test_multiple_project_report_attendances(self):
+        start_time = timezone.now()
+        end_time = start_time + datetime.timedelta(hours=2)
+        event = self.create_event(start_time, end_time)
+        project_report = ProjectReport.objects.create(
+            term=self.term,
+            date=datetime.date.today(),
+            title='Test project report',
+            author=self.user,
+            committee=self.committee)
+        event.project_report = project_report
+        event.save()
+
+        candidate1 = get_user_model().objects.create_user(
+            username='fakecandidate1',
+            email='it@tbp.berkeley.edu',
+            password='candidate',
+            first_name='Fake',
+            last_name='Candidate1')
+        Candidate(user=candidate1, term=self.term).save()
+        candidate2 = get_user_model().objects.create_user(
+            username='fakecandidate2',
+            email='it@tbp.berkeley.edu',
+            password='candidate',
+            first_name='Fake',
+            last_name='Candidate2')
+        Candidate(user=candidate2, term=self.term).save()
+        officer = get_user_model().objects.create_user(
+            username='fakeofficer',
+            email='it@tbp.berkeley.edu',
+            password='officer',
+            first_name='Fake',
+            last_name='Officer')
+        Officer(user=officer, position=self.committee, term=self.term).save()
+        member = self.user
+        StudentOrgUserProfile(user=member, initiation_term=self.term).save()
+        member.save()
+
+        officer_attendance = EventAttendance.objects.create(
+            user=officer, event=event)
+        self.assertQuerysetEqual(
+            project_report.officer_list.all(), [repr(officer)])
+        self.assertQuerysetEqual(project_report.candidate_list.all(), [])
+        self.assertQuerysetEqual(project_report.member_list.all(), [])
+
+        candidate1_attendance = EventAttendance.objects.create(
+            user=candidate1, event=event)
+        self.assertQuerysetEqual(
+            project_report.officer_list.all(), [repr(officer)])
+        self.assertQuerysetEqual(
+            project_report.candidate_list.all(), [repr(candidate1)])
+        self.assertQuerysetEqual(project_report.member_list.all(), [])
+
+        member_attendance = EventAttendance.objects.create(
+            user=member, event=event)
+        self.assertQuerysetEqual(
+            project_report.officer_list.all(), [repr(officer)])
+        self.assertQuerysetEqual(
+            project_report.candidate_list.all(), [repr(candidate1)])
+        self.assertQuerysetEqual(
+            project_report.member_list.all(), [repr(member)])
+
+        candidate2_attendance = EventAttendance.objects.create(
+            user=candidate2, event=event)
+        self.assertQuerysetEqual(
+            project_report.officer_list.all(), [repr(officer)])
+        self.assertQuerysetEqual(
+            project_report.candidate_list.all(),
+            [repr(candidate1), repr(candidate2)],
+            ordered=False)
+        self.assertQuerysetEqual(
+            project_report.member_list.all(), [repr(member)])
+
+        candidate1_attendance.delete()
+        self.assertQuerysetEqual(
+            project_report.officer_list.all(), [repr(officer)])
+        self.assertQuerysetEqual(
+            project_report.candidate_list.all(), [repr(candidate2)])
+        self.assertQuerysetEqual(
+            project_report.member_list.all(), [repr(member)])
+
+        officer_attendance.delete()
+        self.assertQuerysetEqual(project_report.officer_list.all(), [])
+        self.assertQuerysetEqual(
+            project_report.candidate_list.all(), [repr(candidate2)])
+        self.assertQuerysetEqual(
+            project_report.member_list.all(), [repr(member)])
+
+        candidate2_attendance.delete()
+        self.assertQuerysetEqual(project_report.officer_list.all(), [])
+        self.assertQuerysetEqual(project_report.candidate_list.all(), [])
+        self.assertQuerysetEqual(
+            project_report.member_list.all(), [repr(member)])
+
+        member_attendance.delete()
+        self.assertQuerysetEqual(project_report.officer_list.all(), [])
+        self.assertQuerysetEqual(project_report.candidate_list.all(), [])
+        self.assertQuerysetEqual(project_report.member_list.all(), [])
 
 
 class EventFormsTest(EventTesting):

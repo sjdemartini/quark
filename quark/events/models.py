@@ -394,5 +394,31 @@ class EventAttendance(models.Model):
         return u'{} attended {}'.format(self.user.get_full_name(),
                                         self.event.name)
 
+    def save(self, *args, **kwargs):
+        """If a project report is required for the corresponding event, add the
+        user to the appropriate attendance list.
+        """
+        if self.event.project_report:
+            project_report = self.event.project_report
+            user_profile = self.user.userprofile
+            if user_profile.is_officer(current=True):
+                project_report.officer_list.add(self.user)
+            elif user_profile.is_candidate():
+                project_report.candidate_list.add(self.user)
+            elif user_profile.is_member():
+                project_report.member_list.add(self.user)
+        super(EventAttendance, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        """If a project report is required for the corresponding event, remove
+        the user from all attendance lists.
+        """
+        if self.event.project_report:
+            project_report = self.event.project_report
+            project_report.officer_list.remove(self.user)
+            project_report.candidate_list.remove(self.user)
+            project_report.member_list.remove(self.user)
+        super(EventAttendance, self).delete(*args, **kwargs)
+
     class Meta(object):
         unique_together = ('event', 'user')
