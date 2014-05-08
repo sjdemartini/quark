@@ -28,6 +28,8 @@ class DevServer(object):
         'elutz': 103,
         'davidbliu': 104,
         'jhuang': 105,
+        'ehy': 106,
+        'jwesor': 107,
         'hungyukao': 109,
         'exiao': 134,
         'mattchang': 136,
