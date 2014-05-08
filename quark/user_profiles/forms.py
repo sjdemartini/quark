@@ -19,15 +19,22 @@ class UserProfileForm(forms.ModelForm):
     gender = forms.ChoiceField(choices=UserProfile.GENDER_CHOICES,
                                widget=forms.RadioSelect,
                                required=True)
+    # TODO(ehy): only define the help_text in one place
+    bio = forms.CharField(
+        required=False,
+        widget=forms.Textarea,
+        help_text='Bio is optional for candidates'
+    )
 
     class Meta(object):
         model = UserProfile
         fields = ('username', 'first_name', 'preferred_name', 'middle_name',
-                  'last_name', 'birthday', 'gender', 'email', 'alt_email',
-                  'cell_phone', 'receive_text', 'home_phone', 'local_address1',
-                  'local_address2', 'local_city', 'local_state', 'local_zip',
-                  'perm_address1', 'perm_address2', 'perm_city', 'perm_state',
-                  'perm_zip', 'international_address')
+                  'last_name', 'birthday', 'gender', 'bio', 'email',
+                  'alt_email', 'cell_phone', 'receive_text', 'home_phone',
+                  'local_address1', 'local_address2', 'local_city',
+                  'local_state', 'local_zip', 'perm_address1', 'perm_address2',
+                  'perm_city', 'perm_state', 'perm_zip',
+                  'international_address')
         widgets = {
             'local_state': chosen_forms.ChosenSelect,
             'perm_state': chosen_forms.ChosenSelect
@@ -43,6 +50,9 @@ class UserProfileForm(forms.ModelForm):
         self.fields['first_name'].initial = self.instance.user.first_name
         self.fields['last_name'].initial = self.instance.user.last_name
         self.fields['email'].initial = self.instance.user.email
+        student_org_user_profile = self.instance.get_student_org_user_profile()
+        if student_org_user_profile:
+            self.fields['bio'].initial = student_org_user_profile.bio
 
         # Disable editing for user account fields (besides email):
         self.fields['username'].widget.attrs['disabled'] = 'disabled'
@@ -93,6 +103,12 @@ class UserProfileForm(forms.ModelForm):
             # Save email address to LDAP if LDAP is enabled
             if getattr(settings, 'USE_LDAP', False):
                 set_email(self.instance.user.get_username(), email)
+
+        bio = self.cleaned_data['bio']
+        student_org_user_profile = self.instance.get_student_org_user_profile()
+        if student_org_user_profile and student_org_user_profile.bio != bio:
+            student_org_user_profile.bio = bio
+            student_org_user_profile.save(update_fields=['bio'])
 
         return super(UserProfileForm, self).save(*args, **kwargs)
 

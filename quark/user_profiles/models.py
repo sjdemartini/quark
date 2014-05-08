@@ -251,8 +251,7 @@ class StudentOrgUserProfile(models.Model):
         Term, related_name='+', blank=True, null=True,
         verbose_name='Term initiated into the organization.')
 
-    bio = models.TextField(
-        blank=True, help_text='Bio is optional for candidates')
+    bio = models.TextField(blank=True)
 
     class Meta(object):
         ordering = ('user',)
