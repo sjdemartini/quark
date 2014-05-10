@@ -1,6 +1,7 @@
 from django.core.management import call_command
 
 from scripts.alter_tables import alter_tables
+from scripts.import_achievements_models import import_user_achievements
 from scripts.import_base_models import import_officers
 from scripts.import_base_models import import_terms
 from scripts.import_candidates_models import import_candidates
@@ -73,6 +74,7 @@ from scripts.import_user_models import import_users
 # candidate_portal.eventrequirementexception.json
 # minutes.minutes.json
 # quoteboard.quote.json
+# achievements.userachievement.json
 
 print 'Backing up all current data to scripts/data/backup.json'
 backup = open('scripts/data/backup.json', 'w')
@@ -146,5 +148,8 @@ import_minutes()
 
 print 'Importing quotes.'
 import_quotes()
+
+print 'Importing user achievements.'
+import_user_achievements()
 
 print 'All models successfully imported.'
