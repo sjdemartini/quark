@@ -4,11 +4,11 @@ uploading exams and exam review.
 {% endcomment %}
 
 <p>
-{% if perms.exam.add_exam %}
+{% if perms.exams.add_exam %}
   <a href="{% url 'exams:upload' %}" class="btn">
     <i class="fa fa-upload"></i> Upload Exam</a>
 {% endif %}
-{% if perms.exam.change_exam %}
+{% if perms.exams.change_exam %}
   <a href="{% url 'exams:review' %}" class="btn">
     <i class="fa fa-table"></i> Exam Review</a>
 {% endif %}
