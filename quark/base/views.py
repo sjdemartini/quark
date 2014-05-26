@@ -1,5 +1,8 @@
-from django.views.generic import ListView
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import render
+from django.utils.decorators import method_decorator
+from django.views.generic import ListView
 from django.views.generic.base import TemplateView
 
 from quark.base.models import Officer
@@ -17,6 +20,36 @@ class HomePageView(TemplateView):
             self.request.user).get_upcoming()[:3]
         context['news_list'] = News.objects.all()[:5]
         return context
+
+
+class OfficerPortalView(TemplateView):
+    template_name = 'base/officer_portal.html'
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        if not self.request.user.userprofile.is_officer():
+            raise PermissionDenied
+        return super(OfficerPortalView, self).dispatch(*args, **kwargs)
+
+
+class ITToolsView(TemplateView):
+    template_name = 'base/it_tools.html'
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        is_staff = self.request.user.is_staff
+        is_superuser = self.request.user.is_superuser
+        if not is_staff and not is_superuser:
+            raise PermissionDenied
+        return super(ITToolsView, self).dispatch(*args, **kwargs)
+
+
+class ProcrastinationView(TemplateView):
+    template_name = 'base/procrastination.html'
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(ProcrastinationView, self).dispatch(*args, **kwargs)
 
 
 class TermParameterMixin(object):

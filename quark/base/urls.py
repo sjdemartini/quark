@@ -1,9 +1,11 @@
 from django.conf.urls import patterns
 from django.conf.urls import url
-from django.views.generic import TemplateView
 
 from quark.base.views import HomePageView
+from quark.base.views import ITToolsView
 from quark.base.views import OfficersListView
+from quark.base.views import OfficerPortalView
+from quark.base.views import ProcrastinationView
 
 
 urlpatterns = patterns(
@@ -11,11 +13,10 @@ urlpatterns = patterns(
     url(r'^$', HomePageView.as_view(), name='home'),
     url(r'^officers/$', OfficersListView.as_view(), name='officers'),
     # TODO(sjdemartini): Restrict the pages below with proper permissions
-    url(r'^officer-portal/$', TemplateView.as_view(
-        template_name='base/officer_portal.html'), name='officer-portal'),
-    url(r'^it-tools/$', TemplateView.as_view(
-        template_name='base/it_tools.html'), name='it-tools'),
-    url(r'^procrastination/$', TemplateView.as_view(
-        template_name='base/procrastination.html'), name='procrastination'),
+    url(r'^officer-portal/$', OfficerPortalView.as_view(),
+        name='officer-portal'),
+    url(r'^it-tools/$', ITToolsView.as_view(), name='it-tools'),
+    url(r'^procrastination/$', ProcrastinationView.as_view(),
+        name='procrastination'),
     # TODO(sjdemartini): Add a Members database view
 )
