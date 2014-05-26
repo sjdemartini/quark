@@ -11,14 +11,14 @@ class UserAchievementForm(ChosenTermMixin, forms.Form):
     achievement = chosen_forms.ChosenModelChoiceField(
         queryset=Achievement.objects.filter(manual=True))
     users = UserCommonNameMultipleChoiceField()
-    data = forms.CharField(
+    explanation = forms.CharField(
         required=False,
         help_text=('Any extra metadata or notes about what the user did to '
                    'earn this achievement.'))
 
     class Meta(object):
         model = UserAchievement
-        fields = ('achievement', 'users', 'term', 'data')
+        fields = ('achievement', 'users', 'term', 'explanation')
         widgets = {
             'achievement': chosen_forms.ChosenSelect(),
         }
@@ -33,8 +33,8 @@ class UserAchievementForm(ChosenTermMixin, forms.Form):
         term = self.cleaned_data.get('term')
         users = self.cleaned_data.get('users')
         achievement = self.cleaned_data.get('achievement')
-        data = self.cleaned_data.get('data')
+        explanation = self.cleaned_data.get('explanation')
 
         for user in users:
-            achievement.assign(user, term=term, data=data,
+            achievement.assign(user, term=term, explanation=explanation,
                                assigner=assigner)

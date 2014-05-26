@@ -224,7 +224,7 @@
   fields:
     short_name: attend025events
     name: Event Spree
-    description: Attend 25 TBP events
+    description: Attend 25 TBP events.
     category: event
     sequence: Attendance
     points: 5
@@ -239,7 +239,7 @@
   fields:
     short_name: attend050events
     name: Event Frenzy
-    description: Attend 50 TBP events
+    description: Attend 50 TBP events.
     category: event
     sequence: Attendance
     points: 10
@@ -254,7 +254,7 @@
   fields:
     short_name: attend078events
     name: Club 78 Platinum Member
-    description: Attend 78 TBP events
+    description: Attend 78 TBP events.
     category: event
     sequence: Attendance
     points: 10
@@ -269,7 +269,7 @@
   fields:
     short_name: attend100events
     name: Preventing Boredom
-    description: Attend 100 TBP events
+    description: Attend 100 TBP events.
     category: event
     sequence: Attendance
     points: 15
@@ -284,7 +284,7 @@
   fields:
     short_name: attend150events
     name: Approaching the Event Horizon
-    description: Attend 150 TBP events
+    description: Attend 150 TBP events.
     category: event
     sequence: Attendance
     points: 15
@@ -299,7 +299,7 @@
   fields:
     short_name: attend200events
     name: You Are A Bent
-    description: Attend 200 TBP events
+    description: Attend 200 TBP events.
     category: event
     sequence: Attendance
     points: 20
@@ -314,7 +314,7 @@
   fields:
     short_name: attend300events
     name: THIS. IS. TBP!
-    description: Attend 300 TBP events
+    description: Attend 300 TBP events.
     category: event
     sequence: Attendance
     points: 30
@@ -328,7 +328,7 @@
   fields:
     short_name: attend_all_meetings
     name: Generalissimo
-    description: Attend all meeting events in a semester
+    description: Attend all meeting events in a semester.
     category: event
     sequence: Event Type
     points: 5
@@ -343,7 +343,7 @@
   fields:
     short_name: attend_all_big_socials
     name: Socialist
-    description: Attend all big social events in a semester
+    description: Attend all big social events in a semester.
     category: event
     sequence: Event Type
     points: 5
@@ -358,7 +358,7 @@
   fields:
     short_name: attend_all_bent_polishings
     name: Ooooh, Shiny
-    description: Attend all Bent polishing events in a semester
+    description: Attend all Bent polishing events in a semester.
     category: event
     sequence: Event Type
     points: 5
@@ -373,7 +373,7 @@
   fields:
     short_name: attend_all_infosessions
     name: Unemployed
-    description: Attend all infosession events in a semester
+    description: Attend all infosession events in a semester.
     category: event
     sequence: Event Type
     points: 20
@@ -388,7 +388,7 @@
   fields:
     short_name: attend_all_service
     name: Call of Duty
-    description: Attend all service events in a semester
+    description: Attend all service events in a semester.
     category: event
     sequence: Event Type
     points: 25
@@ -403,7 +403,7 @@
   fields:
     short_name: attend_all_efutures
     name: E-Funtures
-    description: Attend all Engineering Futures events in a semester
+    description: Attend all Engineering Futures events in a semester.
     category: event
     sequence: Event Type
     points: 25
@@ -418,7 +418,7 @@
   fields:
     short_name: attend_all_fun
     name: Simply Not a Real Engineer
-    description: Attend all fun events in a semester
+    description: Attend all fun events in a semester.
     category: event
     sequence: Event Type
     points: 40
@@ -433,7 +433,7 @@
   fields:
     short_name: attend_all_prodev
     name: MBA in Disguise
-    description: Attend all professional development events in a semester
+    description: Attend all professional development events in a semester.
     category: event
     sequence: Event Type
     points: 15
@@ -448,7 +448,7 @@
   fields:
     short_name: attend_each_type
     name: Salad Bowl
-    description: Attend at least one event of each type in a semester
+    description: Attend at least one event of each type in a semester.
     category: event
     sequence: Event Type
     points: 15
@@ -463,7 +463,7 @@
   fields:
     short_name: attend_d15
     name: Ambassador
-    description: Attend D15 Conference
+    description: Attend D15 Conference.
     category: event
     sequence: Conference
     points: 10
@@ -478,7 +478,7 @@
   fields:
     short_name: attend_convention
     name: National Treasure
-    description: Attend National Convention
+    description: Attend National Convention.
     category: event
     sequence: Conference
     points: 10
@@ -492,7 +492,7 @@
   fields:
     short_name: alphabet_attendance
     name: Alphabet Master
-    description: Attend events in a semester containing the letters A-Z in their titles
+    description: Attend events in a semester containing the letters A-Z in their titles.
     category: event
     points: 15
     goal: 0
@@ -506,21 +506,21 @@
   fields:
     short_name: berkeley_explosion
     name: The Show Must Go On
-    description: Ignore warnMe and attend the Fall 2013 Candidate Meeting
+    description: Ignore warnMe and attend the Fall 2013 Candidate Meeting.
     category: event
     points: 0
     goal: 0
     privacy: secret
     manual: False
     repeatable: False
-    rank: 41.1
+    rank: 40.9
     icon_filename: 'images/achievements/berkeley_explosion.png'
 - pk: 36
   model: achievements.Achievement
   fields:
     short_name: oots
     name: Brush Your Teeth
-    description: Officer of the Semester
+    description: Win the Officer of the Semester award.
     category: awards
     points: 30
     goal: 0
@@ -534,7 +534,7 @@
   fields:
     short_name: cots
     name: Teacher's Pet
-    description: Candidate of the Semester
+    description: Win the Candidate of the Semester award.
     category: awards
     points: 30
     goal: 0
@@ -548,7 +548,7 @@
   fields:
     short_name: mots
     name: You Really Didn't Have To
-    description: Member of the Semester
+    description: Win the Member of the Semester award.
     category: awards
     points: 30
     goal: 0
@@ -562,7 +562,7 @@
   fields:
     short_name: write_01_project_reports
     name: Job's Finished
-    description: Submit a project report
+    description: Submit a project report.
     category: paperwork
     sequence: pr_writing
     points: 5
@@ -577,7 +577,7 @@
   fields:
     short_name: write_05_project_reports
     name: Paper Pusher
-    description: Submit five project reports
+    description: Submit five project reports.
     category: paperwork
     sequence: pr_writing
     points: 10
@@ -592,7 +592,7 @@
   fields:
     short_name: write_15_project_reports
     name: Master of Bureaucracy
-    description: Submit 15 project reports
+    description: Submit 15 project reports.
     category: paperwork
     sequence: pr_writing
     points: 20
@@ -606,7 +606,7 @@
   fields:
     short_name: alphabet_project_report
     name: Scrabble Withdrawal
-    description: Submit a project report with all the letters A-Z in its text
+    description: Submit a project report with all the letters A-Z in its text.
     category: paperwork
     points: 10
     goal: 0
@@ -620,19 +620,19 @@
   fields:
     short_name: project_report_procrastination
     name: Writer's Block
-    description: Submit a project report two months after its event
+    description: Submit a project report two months after its event.
     category: paperwork
-    points: -10
+    points: -30
     privacy: public
     manual: False
     repeatable: False
-    rank: 25.1
+    rank: 30.1
 - pk: 44
   model: achievements.Achievement
   fields:
     short_name: write_code
     name: __init__()
-    description: Write non-trivial code that passes a code review
+    description: Write non-trivial code that passes a code review.
     category: general
     points: 10
     privacy: public
@@ -645,7 +645,7 @@
   fields:
     short_name: lead_house_to_win
     name: Cornerstone
-    description: Win House Cup as a house leader
+    description: Win House Cup as a house leader.
     category: awards
     points: 15
     privacy: public
@@ -658,7 +658,7 @@
   fields:
     short_name: beat_vps
     name: Role Confusion
-    description: Attend more events than both VPs in a semester
+    description: Attend more events than both VPs in a semester.
     category: general
     points: 50
     privacy: public
@@ -671,7 +671,7 @@
   fields:
     short_name: rock
     name: Solid
-    description: Win The Rock
+    description: Win The Rock.
     category: awards
     points: 15
     privacy: public
@@ -684,7 +684,7 @@
   fields:
     short_name: bowling_pin
     name: Strike!
-    description: Win the Bowling Pin
+    description: Win the Bowling Pin.
     category: awards
     points: 15
     privacy: public
@@ -697,20 +697,20 @@
   fields:
     short_name: tbp_romance
     name: Engineers Make Better Lovers
-    description: Find romance within the ranks of TBP
+    description: Find romance within the ranks of TBP.
     category: feats
     points: 20
     privacy: private
     manual: True
     repeatable: False
-    rank: 18.1
+    rank: 50.1
     icon_filename: 'images/achievements/tbp_romance.png'
 - pk: 50
   model: achievements.Achievement
   fields:
     short_name: attend_all_oms
     name: OM NOM NOM
-    description: Attend all officer meetings in a semester
+    description: Attend all officer meetings in a semester.
     category: general
     points: 10
     privacy: public
@@ -723,7 +723,7 @@
   fields:
     short_name: attend_all_ems
     name: Power Overwhelming
-    description: Attend all executive meetings in a semester
+    description: Attend all executive meetings in a semester.
     category: general
     points: 10
     privacy: public
@@ -736,7 +736,7 @@
   fields:
     short_name: banquet_errands
     name: Fasting and Furious
-    description: Leave banquet to shuttle and/or run errands
+    description: Leave banquet to shuttle and/or run errands.
     category: feats
     points: 15
     privacy: public
@@ -749,20 +749,20 @@
   fields:
     short_name: reply_all
     name: Reply to ALL the People
-    description: Mistakenly reply-all
+    description: Mistakenly reply-all.
     category: feats
     points: -10
     privacy: public
     manual: True
     repeatable: False
-    rank: 25.2
+    rank: 30.2
     icon_filename: 'images/achievements/reply_all.png'
 - pk: 54
   model: achievements.Achievement
   fields:
     short_name: winning_bio
     name: English Major
-    description: Write the winning creative biography
+    description: Write the winning creative biography.
     category: awards
     points: 20
     privacy: public
@@ -780,13 +780,14 @@
     privacy: secret
     manual: True
     repeatable: False
-    rank: 19.2
+    rank: 40.1
+    icon_filename: 'images/achievements/get_injured.png'
 - pk: 56
   model: achievements.Achievement
   fields:
     short_name: acquire_15_achievements
     name: Overachiever
-    description: Acquire 15 achievements
+    description: Acquire 15 achievements.
     category: general
     points: 10
     goal: 15
@@ -800,7 +801,7 @@
   fields:
     short_name: create_01_icons
     name: Iconic
-    description: Create an achievement icon
+    description: Create an achievement icon.
     category: general
     points: 5
     goal: 1
@@ -814,7 +815,7 @@
   fields:
     short_name: create_05_icons
     name: Ctrl-C Ctrl-V
-    description: Create five achievement icons
+    description: Create five achievement icons.
     category: general
     points: 10
     goal: 5

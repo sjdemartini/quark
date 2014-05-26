@@ -49,11 +49,11 @@ Locked Achievement
         <a href="{% url 'achievements:user' entry.user.id %}">{{ entry.user.userprofile.get_common_name }}</a>
       </div>
       <div class="user-achievement-term">
-        {{ entry.term }}
+        {{ entry.term.verbose_name }}
       </div>
-      {% if entry.data %}
+      {% if entry.explanation %}
       <div class="user-achievement-info">
-        {{ entry.data }}
+        {{ entry.explanation }}
       </div>
       {% endif %}
     </div>

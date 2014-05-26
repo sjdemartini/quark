@@ -53,6 +53,11 @@
       font-size: 0.9em;
     }
 
+    .explanation {
+      font-size: 0.8em;
+      font-style: italic;
+    }
+
     @include respond-to(small) {
       width: 60%;
     }

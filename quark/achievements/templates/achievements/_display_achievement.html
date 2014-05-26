@@ -25,6 +25,7 @@ is secret and not also unlocked by the page viewer.
       <a href="{% url 'achievements:detail' achievement.short_name %}">{{ achievement.name }}</a>
     </div>
     <div class="description">{{ achievement.description }}</div>
+    <div class="explanation">{{ explanation }}</div>
     {% endif %}
   </div>
   <div class="metadata">
@@ -39,6 +40,11 @@ is secret and not also unlocked by the page viewer.
       {{ achievement.points }}
       point{{ achievement.points|pluralize }}
     </div>
+    {% if term %}
+    <div class="term">
+      Acquired {{ term.verbose_name }}
+    </div>
+    {% endif %}
     {% endif %}
     {% endif %}
     {% if achievement.goal > 0 and progress > 0 %}

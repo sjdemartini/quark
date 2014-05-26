@@ -106,8 +106,8 @@ class Achievement(models.Model):
     def get_absolute_url(self):
         return reverse('achievements:detail', args=(self.short_name,))
 
-    def assign(self, user, acquired=True, progress=0, term=None, data='',
-               assigner=None):
+    def assign(self, user, acquired=True, progress=0, term=None,
+               explanation='', assigner=None):
         """Assign this achievements to a user."""
         if term is None:
             term = Term.objects.get_current_term()
@@ -121,11 +121,11 @@ class Achievement(models.Model):
         if user_achievement.acquired is False:
             # if the achievement has not already been acquired by this user, set
             # the user achievement's progress, term, acquisition state, who the
-            # assigner is, and additional data provided by the assigner
+            # assigner is, and additional explanation provided by the assigner
             user_achievement.acquired = acquired
             user_achievement.progress = progress
             user_achievement.term = term
-            user_achievement.data = data
+            user_achievement.explanation = explanation
             user_achievement.assigner = assigner
             user_achievement.save()
         elif acquired is False and user_achievement.term == term:
@@ -133,7 +133,7 @@ class Achievement(models.Model):
             # to unacquired in the same term, it gets overridden
             user_achievement.acquired = acquired
             user_achievement.progress = progress
-            user_achievement.data = data
+            user_achievement.explanation = explanation
             user_achievement.assigner = None
             user_achievement.save()
 
@@ -172,7 +172,7 @@ class UserAchievement(models.Model):
         Term, null=True, blank=True,
         help_text='The term in which this achievement was earned, or null.')
 
-    data = models.CharField(
+    explanation = models.CharField(
         max_length=512, blank=True,
         help_text=('Can hold whatever extra metadata or notes about this '
                    'achievement.'))

@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 
 {% block title %}
-{{ display_user.get_full_name }}'s Achievements
+{{ display_user.userprofile.get_common_name }}'s Achievements
 {% endblock title %}
 
 {% block intro %}
 <p><a href="{% url 'achievements:leaderboard' %}">&laquo; Leaderboard</a></p>
-<h1>Achievements for {{ display_user.get_full_name }}</h1>
+<h1>Achievements for {{ display_user.userprofile.get_common_name }}</h1>
 <h3>
   {{ user_points }} point{{ user_points|pluralize }} from
   {{ user_num_achievements }} achievement{{ user_num_achievements|pluralize }}
@@ -21,7 +21,7 @@
     {% if entry.achievement.privacy == 'secret' and entry.achievement not in viewer_secret_achievements %}
       {% include 'achievements/_display_achievement.html' with hidden_from_viewer=True %}
     {% else %}
-      {% include 'achievements/_display_achievement.html' with hidden_from_viewer=False achievement=entry.achievement progress=entry.progress %}
+      {% include 'achievements/_display_achievement.html' with hidden_from_viewer=False achievement=entry.achievement progress=entry.progress term=entry.term explanation=entry.explanation %}
     {% endif %}
   {% empty %}
   <p>No achievements found for this user!</p>
