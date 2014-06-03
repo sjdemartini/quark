@@ -7,7 +7,7 @@
 {% endblock intro %}
 
 {% block content %}
-<div><img src="{{ company.logo.url }}"></div>
+{% if company.logo %}<div><img src="{{ company.logo.url }}" alt="{{ company.name }} logo"></div>{% endif %}
 <div>
   {{ company.website|urlize }}
 </div>
@@ -17,9 +17,19 @@
 <div>
   Account subscription expiration date: {{ company.expiration_date }}
 </div>
-{% comment %}
-TODO(sjdemartini): Add more relevant content here (like details on each of the
-representatives for the company (e.g., their usernames, when the last logged in,
-etc.)
-{% endcomment %}
+{% if perms.companies.view_companyreps %}
+<h2>Representatives</h2>
+{% if reps %}
+<ul>
+  {% for rep in reps %}
+  {% comment %}
+  TODO(ehy): add a "rep detail" page to check activity, delete the rep, etc.
+  {% endcomment %}
+  <li>{{ rep.user.get_full_name }} ({{ rep.user.email }})</li>
+  {% endfor %}
+</ul>
+{% else %}
+No representatives.
+{% endif %}
+{% endif %}
 {% endblock content %}

@@ -14,6 +14,8 @@ from quark.companies.models import CompanyRep
 
 
 class CompanyTest(TestCase):
+    fixtures = ['groups.yaml']
+
     @freeze_time('2015-03-14')
     def test_company_is_expired(self):
         """Make sure is_expired properly indicates expiration."""
@@ -45,6 +47,8 @@ class CompanyTest(TestCase):
 
 
 class CompanyFormsTest(TestCase):
+    fixtures = ['groups.yaml']
+
     def setUp(self):
         expiration = datetime.date.today() + datetime.timedelta(weeks=5)
         self.company = Company(name='Test Company', expiration_date=expiration)
@@ -84,6 +88,9 @@ class CompanyFormsTest(TestCase):
 
 class CompanyViewsTest(TestCase):
     """Test the companies views."""
+
+    fixtures = ['groups.yaml']
+
     def setUp(self):
         expiration = datetime.date.today() + datetime.timedelta(weeks=5)
         self.company = Company(name='Test Company', expiration_date=expiration)
@@ -105,13 +112,16 @@ class CompanyViewsTest(TestCase):
             content_type=company_content_type, codename='add_company')
         company_change_permission = Permission.objects.get(
             content_type=company_content_type, codename='change_company')
+        companies_view_permission = Permission.objects.get(
+            content_type=company_content_type, codename='view_companies')
         rep_add_permission = Permission.objects.get(
             content_type=rep_content_type, codename='add_companyrep')
         rep_change_permission = Permission.objects.get(
             content_type=rep_content_type, codename='change_companyrep')
         self.user.user_permissions.add(
             company_add_permission, company_change_permission,
-            rep_add_permission, rep_change_permission)
+            companies_view_permission, rep_add_permission,
+            rep_change_permission)
 
     def test_company_rep_create_view(self):
         """Ensure that the user can create a company rep successfully, and that

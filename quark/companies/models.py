@@ -1,6 +1,7 @@
 import datetime
 
 from django.conf import settings
+from django.contrib.auth.models import Group
 from django.db import models
 
 
@@ -28,6 +29,9 @@ class Company(models.Model):
 
     class Meta(object):
         verbose_name_plural = 'companies'
+        permissions = (
+            ('view_companies', 'Can view information about companies'),
+        )
 
     def __unicode__(self):
         return self.name
@@ -52,5 +56,17 @@ class CompanyRep(models.Model):
         settings.AUTH_USER_MODEL,
         help_text='The user account for this company contact')
 
+    class Meta(object):
+        permissions = (
+            ('view_companyreps', 'Can view information about company reps'),
+        )
+
     def __unicode__(self):
         return '{} ({})'.format(self.user, self.company.name)
+
+
+def company_rep_post_save(sender, instance, created, **kwargs):
+    company_rep_group = Group.objects.get(name='Company Representative')
+    instance.user.groups.add(company_rep_group)
+
+models.signals.post_save.connect(company_rep_post_save, sender=CompanyRep)

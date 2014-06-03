@@ -69,12 +69,20 @@
 
       <li>
         {% url 'industry' as industry_url %}
-        {% url 'resumes:list' as resumes_url %}
+        {% url 'companies:resumes' as resume_database_url %}
+        {% url 'resumes:list' as resume_management_url %}
+        {% url 'companies:list' as company_management_url %}
         <a href="{{ industry_url }}" class="{% ancestor industry_url %}">Industrial Relations</a>
         <ul>
           {# TODO <li><a href="">Company Sponsors</a></li> #}
+          {% if perms.resumes.view_resumes %}
+          <li><a href="{{ resume_database_url }}" class="{% ancestor resume_database_url %}">Resume Database</a></li>
+          {% endif %}
           {% if perms.resumes.change_resume %}
-          <li><a href="{{ resumes_url }}" class="{% ancestor resumes_url %}">Resume Management</a></li>
+          <li><a href="{{ resume_management_url }}" class="{% ancestor resume_management_url %}">Resume Management</a></li>
+          {% endif %}
+          {% if perms.companies.view_companies %}
+          <li><a href="{{ company_management_url }}" class="{% ancestor company_management_url %}">Company Management</a></li>
           {% endif %}
         </ul>
       </li>

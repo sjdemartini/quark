@@ -10,12 +10,11 @@ from django.views.generic import DetailView
 from django.views.generic import ListView
 
 from quark.accounts.forms import PasswordResetForm
+from quark.companies.forms import CompanyFormWithExpiration
 from quark.companies.forms import CompanyRepCreationForm
 from quark.companies.models import Company
-
-
-# TODO(sjdemartini): Use proper permissions for each of the different views and
-# actions
+from quark.companies.models import CompanyRep
+from quark.resumes.models import Resume
 
 
 class CompanyListView(ListView):
@@ -26,7 +25,7 @@ class CompanyListView(ListView):
 
     @method_decorator(login_required)
     @method_decorator(
-        permission_required('companies.change_company', raise_exception=True))
+        permission_required('companies.view_companies', raise_exception=True))
     def dispatch(self, *args, **kwargs):
         return super(CompanyListView, self).dispatch(*args, **kwargs)
 
@@ -43,8 +42,31 @@ class CompanyDetailView(DetailView):
     def dispatch(self, *args, **kwargs):
         return super(CompanyDetailView, self).dispatch(*args, **kwargs)
 
-    # TODO(sjdemartini): Add more interesting context here, like a list of the
-    # representatives for the company
+    def get_context_data(self, **kwargs):
+        context = super(CompanyDetailView, self).get_context_data(**kwargs)
+        context['reps'] = CompanyRep.objects.select_related('user').filter(
+            company=self.object)
+        return context
+
+
+class CompanyCreateView(CreateView):
+    """View for creating a new company profile."""
+    form_class = CompanyFormWithExpiration
+    success_url = reverse_lazy('companies:list')
+    template_name = 'companies/create_company.html'
+    object = None
+
+    @method_decorator(login_required)
+    @method_decorator(
+        permission_required('companies.add_company', raise_exception=True))
+    def dispatch(self, *args, **kwargs):
+        return super(CompanyCreateView, self).dispatch(*args, **kwargs)
+
+    def form_valid(self, form):
+        company = form.cleaned_data['name']
+        msg = 'Successfully registered {}.'.format(company)
+        messages.success(self.request, msg)
+        return super(CompanyCreateView, self).form_valid(form)
 
 
 class CompanyRepCreateView(CreateView):
@@ -54,6 +76,7 @@ class CompanyRepCreateView(CreateView):
     company representative to allow them to set the password for their account.
     """
     form_class = CompanyRepCreationForm
+    # TODO(ehy): redirect to detail page, not to list page
     success_url = reverse_lazy('companies:list')
     template_name = 'companies/create_rep.html'
     object = None  # The User account created for the rep
@@ -92,3 +115,20 @@ class CompanyRepCreateView(CreateView):
             )
             raise ValidationError(error_msg)
         return HttpResponseRedirect(self.get_success_url())
+
+
+class ResumeListView(ListView):
+    context_object_name = 'resumes'
+    template_name = 'companies/resumes.html'
+
+    @method_decorator(login_required)
+    @method_decorator(
+        permission_required('resumes.view_resumes', raise_exception=True))
+    def dispatch(self, *args, **kwargs):
+        return super(ResumeListView, self).dispatch(*args, **kwargs)
+
+    def get_queryset(self):
+        return Resume.objects.filter(verified=True).select_related(
+            'user__userprofile', 'user__collegestudentinfo',
+            'user__collegestudentinfo__grad_term').prefetch_related(
+            'user__collegestudentinfo__major').order_by('-updated')

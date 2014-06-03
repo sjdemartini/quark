@@ -255,6 +255,8 @@ class MakeLDAPUserTest(TestCase):
 
 
 class AuthenticationFormTest(TestCase):
+    fixtures = ['groups.yaml']
+
     def setUp(self):
         self.username = 'testuser'
         self.password = 'password'

@@ -18,6 +18,8 @@
       - [delete_quote, quote_board, quote]
       - [view_quotes, quote_board, quote]
       - [view_project_reports, project_reports, projectreport]
+      - [view_companies, companies, company]
+      - [view_companyreps, companies, companyrep]
 - model: auth.group
   pk: 3
   fields:
@@ -176,9 +178,11 @@
       - [add_company, companies, company]
       - [change_company, companies, company]
       - [delete_company, companies, company]
+      - [view_companies, companies, company]
       - [add_companyrep, companies, companyrep]
       - [change_companyrep, companies, companyrep]
       - [delete_companyrep, companies, companyrep]
+      - [view_companyreps, companies, companyrep]
       - [add_instructor, courses, instructor]
       - [change_instructor, courses, instructor]
       - [delete_instructor, courses, instructor]
@@ -240,9 +244,11 @@
       - [add_company, companies, company]
       - [change_company, companies, company]
       - [delete_company, companies, company]
+      - [view_companies, companies, company]
       - [add_companyrep, companies, companyrep]
       - [change_companyrep, companies, companyrep]
       - [delete_companyrep, companies, companyrep]
+      - [view_companyreps, companies, companyrep]
 - model: auth.group
   pk: 38
   fields:
@@ -292,3 +298,9 @@
   pk: 45
   fields:
     name: Current House Leader
+- model: auth.group
+  pk: 46
+  fields:
+    name: Company Representative
+    permissions:
+      - [view_resumes, resumes, resume]

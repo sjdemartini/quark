@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}Resume Database{% endblock title %}
+
+{% block intro %}
+<h1>Resume Database</h1>
+{% endblock intro %}
+
+{% block content %}
+{% if resumes %}
+<table class="footable bordered stylized">
+  <thead>
+    <tr>
+      <th>First Name</th>
+      <th>Last Name</th>
+      <th data-hide="phone,tablet">Graduation Term</th>
+      <th data-hide="phone">Major</th>
+      <th data-hide="phone,tablet" data-sort-initial="false" data-type="numeric">Date Updated</th>
+      <th data-sort-ignore="true" data-type="numeric">Download</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for resume in resumes %}
+    {% with student_info=resume.user.userprofile.get_college_student_info %}
+    <tr>
+      <td>{{ resume.user.first_name }}</td>
+      <td>{{ resume.user.last_name }}</td>
+      <td data-value="{{ student_info.grad_term.pk }}">
+        {{ student_info.grad_term.verbose_name }}
+      </td>
+      <td>
+        {{ student_info.major.all|join:', ' }}
+      </td>
+      <td data-value="{{ resume.updated|date:'U' }}">
+        {{ resume.updated|date }}
+      </td>
+      <td>
+        <a href="{% url 'resumes:download' resume.user.pk %}">
+          <i class="fa fa-download" title="Download"></i>
+        </a>
+      </td>
+    </tr>
+    {% endwith student_info %}
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>There are no resumes to be displayed.</p>
+{% endif %}
+{% endblock content %}
+
+{% block extra_js %}
+{% include '_footable.html' with include_sort=True %}
+{% endblock extra_js %}

@@ -7,20 +7,44 @@
 {% endblock intro %}
 
 {% block content %}
-{# TODO(sjdemartini): Add link/button for page for creating companies, once that is possible #}
+<p>
+  {% if perms.companies.add_company %}
+  <a href="{% url 'companies:create-company' %}" class="btn">
+    <i class="fa fa-plus"></i> Company
+  </a>
+  {% endif %}
+  {% if perms.companies.add_companyrep %}
+  <a href="{% url 'companies:create-rep' %}" class="btn">
+    <i class="fa fa-plus"></i> Company Representative
+  </a>
+  {% endif %}
+</p>
 {% if companies %}
-<ul>
-{% for company in companies %}
-  <li>
-    {% comment %}
-    TODO(sjdemartini): Add more relevant data (logo, number of reps, expiration
-    date, etc.) for each company
-    {% endcomment %}
-    <a href="{% url 'companies:detail' company.pk %}">{{ company.name }}</a>
-  </li>
-</ul>
-{% endfor %}
+<table class="footable bordered stylized">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th data-sort-ignore="true" data-hide="phone">Logo</th>
+      <th data-type="numeric">Created</th>
+      <th data-type="numeric" data-hide="phone,tablet">Expires</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for company in companies %}
+    <tr>
+      <td><a href="{% url 'companies:company-detail' company.pk %}">{{ company.name }}</a></td>
+      <td>{% if company.logo %}<img src="{{ company.logo.url }}" alt="{{ company.name }} logo">{% endif %}</td>
+      <td data-value="{{ company.created|date:'U' }}">{{ company.created|date:'M j, Y' }}</td>
+      <td data-value="{{ company.expiration_date|date:'U' }}">{{ company.expiration_date|date:'M j, Y' }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
 {% else %}
 <p>No companies have been added.</p>
 {% endif %}
 {% endblock content %}
+
+{% block extra_js %}
+{% include '_footable.html' with include_sort=True %}
+{% endblock extra_js %}
