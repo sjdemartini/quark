@@ -19,6 +19,7 @@ from quark.events.models import EventAttendance
 from quark.events.models import EventType
 from quark.exams.models import Exam
 from quark.project_reports.models import ProjectReport
+from quark.shortcuts import get_object_or_none
 
 
 class AchievementAssignmentTest(TestCase):
@@ -500,6 +501,31 @@ class EventAchievementsTest(TestCase):
             achievement__short_name='attend_convention',
             acquired=True).count(), 1)
 
+    def test_envelope_stuffing_achievement(self):
+        """The achievement for attending Envelope Stuffing is awarded for
+        attending an event where the title includes the phrase:
+        'Envelope Stuffing'
+        """
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='attend_envelope_stuffing',
+            acquired=True).count(), 0)
+
+        self.create_event(name="Envelope Stuffing", event_type=self.fun,
+                          attendance=False)
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='attend_envelope_stuffing',
+            acquired=True).count(), 0)
+
+        self.create_event(name="Envelop Stuffing", event_type=self.fun)
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='attend_envelope_stuffing',
+            acquired=True).count(), 0)
+
+        self.create_event(name="Envelope Stuffing", event_type=self.fun)
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='attend_envelope_stuffing',
+            acquired=True).count(), 1)
+
     def test_berkeley_explosion_achievement(self):
         """The achievement for attending the Berkeley Explosion CM is awarded
         only for attending an event titled exactly 'Candidate Meeting' in the
@@ -873,6 +899,31 @@ class MetaAchievementsTest(TestCase):
 
         self.assertEqual(self.achievements.filter(
             achievement__short_name='create_05_icons',
+            acquired=True).count(), 1)
+
+    def test_cots_mots_oots_achievement(self):
+        """The achievement for winning COTS, MOTS, and OOTS is given when the
+        user has acquired the three corresponding achievements.
+        """
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='cots_mots_oots',
+            acquired=True).count(), 0)
+
+        cots_achievement = get_object_or_none(Achievement, short_name='cots')
+        mots_achievement = get_object_or_none(Achievement, short_name='mots')
+        oots_achievement = get_object_or_none(Achievement, short_name='oots')
+
+        # assign cots and oots and check that achievement is not given
+        cots_achievement.assign(self.sample_user)
+        oots_achievement.assign(self.sample_user)
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='cots_mots_oots',
+            acquired=True).count(), 0)
+
+        # assign mots and achievement should be assigned
+        mots_achievement.assign(self.sample_user)
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='cots_mots_oots',
             acquired=True).count(), 1)
 
 

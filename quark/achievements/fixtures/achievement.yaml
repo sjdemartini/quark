@@ -884,3 +884,28 @@
     manual: False
     repeatable: False
     rank: 13.4
+- pk: 63
+  model: achievements.Achievement
+  fields:
+    short_name: attend_envelope_stuffing
+    name: Bloody Fingers
+    description: Attend an envelope stuffing
+    category: event
+    points: 5
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 10.3
+    icon_filename: 'images/achievements/attend_envelope_stuffing.png'
+- pk: 64
+  model: achievements.Achievement
+  fields:
+    short_name: cots_mots_oots
+    name: Share the Love
+    description: Win COTS, OOTS, and MOTS.
+    category: awards
+    points: 75
+    privacy: secret
+    manual: False
+    repeatable: False
+    rank: 40.5

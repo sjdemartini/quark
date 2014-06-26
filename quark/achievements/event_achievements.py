@@ -130,6 +130,12 @@ def assign_specific_event_achievements(instance):
         if natl_achievement:
             natl_achievement.assign(instance.user, term=instance.event.term)
 
+    if 'Envelope Stuffing' in instance.event.name:
+        envelope_achievement = get_object_or_none(
+            Achievement, short_name='attend_envelope_stuffing')
+        if envelope_achievement:
+            envelope_achievement.assign(instance.user, term=instance.event.term)
+
     if instance.event.name == 'Candidate Meeting' and (
             instance.event.term == Term(term=Term.FALL, year=2013)):
         cm2013_achievement = get_object_or_none(
