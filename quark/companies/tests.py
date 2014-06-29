@@ -60,13 +60,20 @@ class CompanyFormsTest(TestCase):
         """Ensure that the company rep creation form works to create a new user
         and the corresponding CompanyRep object.
         """
+        # The email addresses don't match
         rep_attrs = {
             'username': 'repuser',
             'email': 'testrep@example.com',
+            'confirm_email': 'testrep@example.comm',
             'first_name': 'Jane',
             'last_name': 'Doe',
             'company': self.company.pk
         }
+        form = CompanyRepCreationForm(rep_attrs)
+        self.assertFalse(form.is_valid())
+
+        # Fix the email address mismatch
+        rep_attrs['confirm_email'] = 'testrep@example.com'
         form = CompanyRepCreationForm(rep_attrs)
         self.assertTrue(form.is_valid())
         form.save()
@@ -133,6 +140,7 @@ class CompanyViewsTest(TestCase):
         rep_data = {
             'username': 'testrepuser',
             'email': 'testrep@example.com',
+            'confirm_email': 'testrep@example.com',
             'first_name': 'Jane',
             'last_name': 'Doe',
             'company': self.company.pk

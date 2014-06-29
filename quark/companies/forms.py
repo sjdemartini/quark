@@ -1,5 +1,6 @@
 from chosen import forms as chosen_forms
 from django import forms
+from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.forms.extras import SelectDateWidget
 
@@ -43,9 +44,11 @@ class CompanyRepCreationForm(UserCreationForm):
     """
     company = chosen_forms.ChosenModelChoiceField(
         queryset=Company.objects.all())
+    confirm_email = forms.EmailField(label='Confirm email', required=True)
 
     class Meta(UserCreationForm.Meta):
-        fields = ('company', 'username', 'first_name', 'last_name', 'email')
+        fields = ('company', 'username', 'first_name', 'last_name', 'email',
+                  'confirm_email')
         widgets = {
             'expiration_date': SelectDateWidget()
         }
@@ -63,6 +66,14 @@ class CompanyRepCreationForm(UserCreationForm):
         # that this form is for someone creating an account for another person.
         del self.fields['password1']
         del self.fields['password2']
+
+    def clean(self):
+        cleaned_data = super(CompanyRepCreationForm, self).clean()
+        email = cleaned_data.get('email')
+        confirm_email = cleaned_data.get('confirm_email')
+        if email != confirm_email:
+            raise ValidationError('Emails do not match.')
+        return cleaned_data
 
     @transaction.atomic
     def save(self, *args, **kwargs):
