@@ -9,42 +9,31 @@
 {% block content %}
 <p>
   {% if perms.companies.add_company %}
-  <a href="{% url 'companies:create-company' %}" class="btn">
+  <a href="{% url 'companies:company-create' %}" class="btn">
     <i class="fa fa-plus"></i> Company
   </a>
   {% endif %}
   {% if perms.companies.add_companyrep %}
-  <a href="{% url 'companies:create-rep' %}" class="btn">
+  <a href="{% url 'companies:rep-create' %}" class="btn">
     <i class="fa fa-plus"></i> Company Representative
   </a>
   {% endif %}
 </p>
 {% if companies %}
-<table class="footable bordered stylized">
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th data-sort-ignore="true" data-hide="phone">Logo</th>
-      <th data-type="numeric">Created</th>
-      <th data-type="numeric" data-hide="phone,tablet">Expires</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for company in companies %}
-    <tr>
-      <td><a href="{% url 'companies:company-detail' company.pk %}">{{ company.name }}</a></td>
-      <td>{% if company.logo %}<img src="{{ company.logo.url }}" alt="{{ company.name }} logo">{% endif %}</td>
-      <td data-value="{{ company.created|date:'U' }}">{{ company.created|date:'M j, Y' }}</td>
-      <td data-value="{{ company.expiration_date|date:'U' }}">{{ company.expiration_date|date:'M j, Y' }}</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+<ul>
+{% for company in companies %}
+  <li>
+    <a href="{% url 'companies:company-detail' company.pk %}">{{ company.name }}</a>  (<a href="{{ company.website }}">Website</a>)
+    <div class="subtext">
+      Created {{ company.created|date:'M j, Y' }}
+      {% if perms.companies.edit_company %}
+        | <a href="{% url 'companies:company-edit' company.pk %}">Edit</a>
+      {% endif %}
+    </div>
+  </li>
+{% endfor %}
+</ul>
 {% else %}
 <p>No companies have been added.</p>
 {% endif %}
 {% endblock content %}
-
-{% block extra_js %}
-{% include '_footable.html' with include_sort=True %}
-{% endblock extra_js %}

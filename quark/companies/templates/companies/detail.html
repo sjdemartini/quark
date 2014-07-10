@@ -25,7 +25,16 @@
   {% comment %}
   TODO(ehy): add a "rep detail" page to check activity, delete the rep, etc.
   {% endcomment %}
-  <li>{{ rep.user.get_full_name }} ({{ rep.user.email }})</li>
+  <li>
+    {{ rep.user.get_full_name }}
+    ({{ rep.user.username }})
+    <div class="subtext">
+      {{ rep.user.email }}
+      {% if perms.companies.delete_companyrep %}
+        | <a href="{% url 'companies:rep-delete' rep.pk %}">Delete</a>
+      {% endif %}
+    </div>
+  </li>
   {% endfor %}
 </ul>
 {% else %}

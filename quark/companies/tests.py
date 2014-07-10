@@ -2,6 +2,7 @@ import datetime
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core import mail
 from django.core.urlresolvers import reverse
@@ -93,8 +94,8 @@ class CompanyFormsTest(TestCase):
         self.assertEquals(rep.company, self.company)
 
 
-class CompanyViewsTest(TestCase):
-    """Test the companies views."""
+class CompanyRepViewTest(TestCase):
+    """Test the CompanyRep views."""
 
     fixtures = ['groups.yaml']
 
@@ -125,10 +126,12 @@ class CompanyViewsTest(TestCase):
             content_type=rep_content_type, codename='add_companyrep')
         rep_change_permission = Permission.objects.get(
             content_type=rep_content_type, codename='change_companyrep')
+        rep_delete_permission = Permission.objects.get(
+            content_type=rep_content_type, codename='delete_companyrep')
         self.user.user_permissions.add(
             company_add_permission, company_change_permission,
             companies_view_permission, rep_add_permission,
-            rep_change_permission)
+            rep_change_permission, rep_delete_permission)
 
     def test_company_rep_create_view(self):
         """Ensure that the user can create a company rep successfully, and that
@@ -136,7 +139,7 @@ class CompanyViewsTest(TestCase):
         """
         self.assertTrue(self.client.login(
             username=self.user.username, password='password'))
-        create_rep_url = reverse('companies:create-rep')
+        create_rep_url = reverse('companies:rep-create')
         rep_data = {
             'username': 'testrepuser',
             'email': 'testrep@example.com',
@@ -171,3 +174,42 @@ class CompanyViewsTest(TestCase):
 
         # Make sure the email contains a password reset link:
         self.assertIn('accounts/password/reset', email.body)
+
+    def test_companyrep_delete_view(self):
+        """Ensure that representatives can be deleted and that deleted reps
+        have their accounts disabled.
+        """
+        company = Company(expiration_date='3000-01-01')
+        company.save()
+        companyrep_user = self.user_model.objects.create_user(
+            username='test_rep',
+            password='password')
+        companyrep_user_pk = companyrep_user.pk
+        companyrep = CompanyRep(company=company, user=companyrep_user)
+        companyrep.save()
+
+        self.assertTrue(self.client.login(
+            username=self.user.username, password='password'))
+        self.assertTrue(companyrep_user.is_active)
+        self.assertTrue(self.client.login(username='test_rep',
+                                          password='password'))
+
+        # Use the view
+        self.assertTrue(self.client.login(
+            username=self.user.username, password='password'))
+        response = self.client.get(
+            reverse('companies:rep-delete', args=(companyrep.pk,)),
+            follow=True)
+        self.assertContains(response, 'Are you sure')
+        self.client.post(
+            reverse('companies:rep-delete', args=(companyrep.pk,)),
+            follow=True)
+
+        # Check that everything has been deleted
+        self.assertFalse(CompanyRep.objects.exists())
+
+        # Check that the rep can't log in
+        companyrep_user = User.objects.get(pk=companyrep_user_pk)
+        self.assertFalse(companyrep_user.is_active)
+        self.assertFalse(self.client.login(
+            username='test_rep', password='password'))

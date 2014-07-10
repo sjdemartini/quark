@@ -8,7 +8,10 @@
 
 {% block content %}
 {% if resumes %}
-<table class="footable bordered stylized">
+<p>
+  Search full text of resumes: <input id="filter-input" type="text">
+</p>
+<table class="footable bordered stylized" data-filter="#filter-input">
   <thead>
     <tr>
       <th>First Name</th>
@@ -34,7 +37,10 @@
       <td data-value="{{ resume.updated|date:'U' }}">
         {{ resume.updated|date }}
       </td>
-      <td>
+      {% comment %}
+      The text of the resume has to go somewhere in the table, and this is the only column that's not sorted.
+      {% endcomment %}
+      <td data-value="{{ resume.full_text }}">
         <a href="{% url 'resumes:download' resume.user.pk %}">
           <i class="fa fa-download" title="Download"></i>
         </a>
@@ -50,5 +56,5 @@
 {% endblock content %}
 
 {% block extra_js %}
-{% include '_footable.html' with include_sort=True %}
+{% include '_footable.html' with include_sort=True include_filter=True %}
 {% endblock extra_js %}

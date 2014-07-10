@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import permission_required
@@ -6,8 +8,10 @@ from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponseRedirect
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView
+from django.views.generic import DeleteView
 from django.views.generic import DetailView
 from django.views.generic import ListView
+from django.views.generic.edit import UpdateView
 
 from quark.accounts.forms import PasswordResetForm
 from quark.companies.forms import CompanyFormWithExpiration
@@ -69,6 +73,20 @@ class CompanyCreateView(CreateView):
         return super(CompanyCreateView, self).form_valid(form)
 
 
+class CompanyEditView(UpdateView):
+    model = Company
+    pk_url_kwarg = 'company_pk'
+    success_url = reverse_lazy('companies:list')
+    template_name = 'companies/edit.html'
+    form_class = CompanyFormWithExpiration
+
+    @method_decorator(login_required)
+    @method_decorator(
+        permission_required('companies.edit_company', raise_exception=True))
+    def dispatch(self, *args, **kwargs):
+        return super(CompanyEditView, self).dispatch(*args, **kwargs)
+
+
 class CompanyRepCreateView(CreateView):
     """View for creating a new account for a company representative.
 
@@ -117,6 +135,36 @@ class CompanyRepCreateView(CreateView):
         return HttpResponseRedirect(self.get_success_url())
 
 
+class CompanyRepDeleteView(DeleteView):
+    """View for deleting a company representative."""
+    model = CompanyRep
+    pk_url_kwarg = 'rep_pk'
+    context_object_name = 'rep'
+    template_name = 'companies/delete_rep.html'
+
+    def get_success_url(self):
+        return reverse_lazy(
+            'companies:company-detail',
+            args=(self.get_object().company.pk,))
+
+    @method_decorator(login_required)
+    @method_decorator(
+        permission_required(
+            'companies.delete_companyrep', raise_exception=True))
+    def dispatch(self, *args, **kwargs):
+        return super(CompanyRepDeleteView, self).dispatch(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        rep = self.get_object()
+        rep.user.is_active = False
+        rep.user.save()
+        msg = 'Successfully deleted representative "{}".'.format(
+            rep.user.get_full_name())
+        messages.success(request, msg)
+        return super(CompanyRepDeleteView, self).post(
+            request, *args, **kwargs)
+
+
 class ResumeListView(ListView):
     context_object_name = 'resumes'
     template_name = 'companies/resumes.html'
@@ -128,7 +176,11 @@ class ResumeListView(ListView):
         return super(ResumeListView, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
-        return Resume.objects.filter(verified=True).select_related(
+        # TODO(ehy): get resumes from the past two semesters instead of
+        # from the past year
+        one_year_ago = datetime.date.today() - datetime.timedelta(days=365)
+        return Resume.objects.filter(
+            verified=True, updated__gt=one_year_ago).select_related(
             'user__userprofile', 'user__collegestudentinfo',
             'user__collegestudentinfo__grad_term').prefetch_related(
             'user__collegestudentinfo__major').order_by('-updated')
