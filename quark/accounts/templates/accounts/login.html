@@ -19,6 +19,6 @@
 
 <p>Forgot your password? <a href="{% url 'accounts:password-reset' %}">Reset it</a>!</p>
 {% settings_assign 'IT_ADDRESS' as it_addr %}
-<p>Are you a member without an account? Request one by emailing IT at <a href="mailto:{{ it_addr }}">{{ it_addr }}</a>.</p>
+<p>If you've initiated with TBP CA-A but don't have an account, you can request one by emailing IT at <a href="mailto:{{ it_addr }}">{{ it_addr }}</a>.</p>
 
 {% endblock content %}
