@@ -10,6 +10,11 @@
 {% include '_term_selection.html' %}
 
 <div>
+  {% if perms.candidates.add_candidate %}
+  <a href="{% url 'candidates:create' %}" class="btn">
+    <i class="fa fa-plus"></i> Create Candidate
+  </a>
+  {% endif %}
   <a href="{% url 'candidates:edit-requirements' %}" class="btn">
     <i class="fa fa-wrench"></i> Edit Requirements
   </a>

@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Candidate{% endblock title %}
+
+{% block intro %}
+<h1>Create Candidate</h1>
+{% endblock intro %}
+
+{% block content %}
+<form action="" method="post">
+  {% csrf_token %}
+
+  {% if cand_form.non_field_errors %}
+    <div class="message error">{{ cand_form.non_field_errors }}</div>
+  {% endif %}
+  {% if userprofile_form.non_field_errors %}
+    <div class="message error">{{ userprofile_form.non_field_errors }}</div>
+  {% endif %}
+
+  {% for field in form_fields %}
+    {% include 'candidates/_form_field.html' %}
+  {% endfor %}
+  <input type="submit" value="Submit"/>
+</form>
+{% endblock content %}

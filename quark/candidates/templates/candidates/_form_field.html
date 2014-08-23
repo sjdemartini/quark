@@ -1,0 +1,8 @@
+<div class="form-entry{% if field.errors %} form-entry-error{% endif %}{% if field.field.required %} form-entry-required{% endif %}">
+  {{ field.label_tag }}
+  <div class="form-input">
+    {{ field }}
+    {% if field.help_text %}<span class="help-text">{{ field.help_text }}</span>{% endif %}
+    {% if field.errors %}<div class="form-errors">{{ field.errors }}</div>{% endif %}
+  </div>
+</div>

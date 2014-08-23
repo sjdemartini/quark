@@ -7,6 +7,8 @@ from django.contrib.auth.decorators import permission_required
 from django.contrib.contenttypes.models import ContentType
 from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse_lazy
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -16,6 +18,7 @@ from django.views.generic import CreateView
 from django.views.generic import ListView
 from django.views.generic import UpdateView
 from django.views.generic.base import ContextMixin
+from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
 
 from quark.base.models import Term
@@ -30,6 +33,8 @@ from quark.candidates.models import EventCandidateRequirement
 from quark.candidates.models import ExamFileCandidateRequirement
 from quark.candidates.models import ManualCandidateRequirement
 from quark.candidates.models import ResumeCandidateRequirement
+from quark.candidates.forms import CandidateCreationForm
+from quark.candidates.forms import CandidateUserProfileForm
 from quark.candidates.forms import CandidatePhotoForm
 from quark.candidates.forms import CandidateRequirementProgressFormSet
 from quark.candidates.forms import CandidateRequirementFormSet
@@ -42,6 +47,7 @@ from quark.exams.models import Exam
 from quark.notifications.models import Notification
 from quark.resumes.models import Resume
 from quark.shortcuts import get_object_or_none
+from quark.user_profiles.models import UserProfile
 from quark.utils.ajax import json_response
 
 
@@ -203,6 +209,83 @@ class CandidatePhotoView(UpdateView):
     def get_success_url(self):
         return reverse('candidates:edit',
                        kwargs={'candidate_pk': self.object.pk})
+
+
+class CandidateCreateView(TemplateView):
+    """View for adding a new candidate. Inherits from TemplateView rather than
+    CreateView because two forms (CandidateCreationForm and
+    CandidateUserProfileForm) are being mixed together."""
+
+    template_name = 'candidates/create.html'
+    success_url = reverse_lazy('candidates:list')
+    object = None  # The new Candidate object
+
+    def get_fields(self, cand_form, userprofile_form):
+        """The User and UserProfile forms both have name and email fields, and
+        we want those fields to be grouped together, so we need to manually
+        order them."""
+        initial_fields = [cand_form['username'], cand_form['email'],
+                          userprofile_form['alt_email'],
+                          cand_form['password1'], cand_form['password2'],
+                          cand_form['first_name'],
+                          userprofile_form['preferred_name'],
+                          userprofile_form['middle_name'],
+                          cand_form['last_name']]
+
+        excluded_fields = ['alt_email', 'preferred_name', 'middle_name']
+
+        final_fields = [userprofile_form[field] for field in
+                        userprofile_form.fields if field not in
+                        excluded_fields]
+
+        return initial_fields + final_fields
+
+    @method_decorator(login_required)
+    @method_decorator(permission_required(
+        'candidates.add_candidate', raise_exception=True))
+    def dispatch(self, *args, **kwargs):
+        return super(CandidateCreateView, self).dispatch(*args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        cand_form = CandidateCreationForm()
+        userprofile_form = CandidateUserProfileForm()
+        return self.render_to_response(self.get_context_data(
+            cand_form=cand_form, userprofile_form=userprofile_form,
+            form_fields=self.get_fields(cand_form, userprofile_form)))
+
+    def post(self, request, *args, **kwargs):
+        cand_form = CandidateCreationForm(self.request.POST)
+        userprofile_form = CandidateUserProfileForm(self.request.POST)
+        if cand_form.is_valid() and userprofile_form.is_valid():
+            # The CandidateUserProfileForm needs to be remade with the same
+            # data, but with the new user's UserProfile as its instance
+            return self.form_valid(cand_form, self.request.POST)
+        else:
+            return self.form_invalid(cand_form, userprofile_form)
+
+    def form_valid(self, cand_form, post_data):
+        self.object = cand_form.save()
+        try:
+            userprofile_form = CandidateUserProfileForm(
+                post_data, instance=self.object.user.userprofile)
+        except UserProfile.DoesNotExist:
+            UserProfile(user=self.object.user).save()
+            userprofile_form = CandidateUserProfileForm(
+                post_data, instance=self.object.user.userprofile)
+
+        # pylint: disable=E1103
+        userprofile_form.is_valid()
+        userprofile_form.save()
+
+        cand_name = self.object.user.userprofile.get_full_name()
+        msg = 'Successfully registered the candidate {}.'.format(cand_name)
+        messages.success(self.request, msg)
+        return HttpResponseRedirect(self.success_url)
+
+    def form_invalid(self, cand_form, userprofile_form):
+        return self.render_to_response(self.get_context_data(
+            cand_form=cand_form, userprofile_form=userprofile_form,
+            form_fields=self.get_fields(cand_form, userprofile_form)))
 
 
 class CandidateEditView(FormView, CandidateContextMixin):

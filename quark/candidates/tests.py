@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.conf import settings
 from django.core.files import File
+from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils import timezone
@@ -326,3 +327,80 @@ class CandidateTest(TestCase):
         progress = self.candidate.get_progress()
         self.assertEqual(progress['required'], num_required)
         self.assertEqual(progress['completed'], total_completed)
+
+
+class CandidateViewsTest(TestCase):
+    fixtures = ['major.yaml', 'groups.yaml', 'university.yaml',
+                'test/term.yaml']
+
+    def setUp(self):
+        self.superuser = get_user_model().objects.create_user(
+            username='superuser', email='it@tbp.berkeley.edu',
+            password='password')
+        self.superuser.is_superuser = True
+        self.superuser.save()
+
+    def test_candidate_create_view(self):
+        post_data = {'username': 'candidate', 'email': 'email1@example.com',
+                     'alt_email': 'email2@example.com',
+                     'password1': 'password', 'password2': 'password',
+                     'first_name': 'Random', 'preferred_name': 'Joe',
+                     'middle_name': 'Luser', 'last_name': 'Candidate',
+                     'birthday_year': '1995', 'birthday_month': '1',
+                     'birthday_day': '1', 'gender': 'F',
+                     'major': ('1000', '1001'), 'start_term': '20114',
+                     'grad_term': '20144', 'cell_phone': '123-456-7890',
+                     'receive_text': 'on', 'local_address1': '1 TBP Road',
+                     'local_city': 'Location', 'local_state': 'AL',
+                     'local_zip': '12345',
+                     'international_address': 'Olympus Mons, Mars'}
+        view_url = reverse('candidates:create')
+        success_url = reverse('candidates:list')
+
+        # Check that we can load the page
+        self.assertTrue(self.client.login(
+            username='superuser', password='password'))
+        response = self.client.get(view_url)
+        self.assertEqual(response.status_code, 200)
+
+        # Post the data and check that we are redirected to the success URL
+        response = self.client.post(view_url, post_data)
+        self.assertRedirects(response, success_url)
+
+        # Check that the candidate was created correctly
+        cand = Candidate.objects.get(user__username='candidate')
+        self.assertTrue(cand.user.userprofile)
+        self.assertEqual(cand.term, Term.objects.get_current_term())
+
+        self.assertEqual(cand.user.email, post_data['email'])
+        self.assertEqual(cand.user.userprofile.alt_email,
+                         post_data['alt_email'])
+        self.assertEqual(cand.user.first_name, post_data['first_name'])
+        self.assertEqual(cand.user.userprofile.preferred_name,
+                         post_data['preferred_name'])
+        self.assertEqual(cand.user.userprofile.middle_name,
+                         post_data['middle_name'])
+        self.assertEqual(cand.user.last_name, post_data['last_name'])
+        self.assertEqual(str(cand.user.userprofile.birthday), '1995-01-01')
+
+        for major_id in post_data['major']:
+            self.assertTrue(cand.user.collegestudentinfo.major.get(
+                id=int(major_id)))
+        self.assertEqual(cand.user.collegestudentinfo.start_term.id,
+                         int(post_data['start_term']))
+        self.assertEqual(cand.user.collegestudentinfo.grad_term.id,
+                         int(post_data['grad_term']))
+
+        self.assertEqual(cand.user.userprofile.cell_phone,
+                         post_data['cell_phone'])
+        self.assertTrue(cand.user.userprofile.receive_text)
+        self.assertEqual(cand.user.userprofile.local_address1,
+                         post_data['local_address1'])
+        self.assertEqual(cand.user.userprofile.local_city,
+                         post_data['local_city'])
+        self.assertEqual(cand.user.userprofile.local_state,
+                         post_data['local_state'])
+        self.assertEqual(cand.user.userprofile.local_zip,
+                         post_data['local_zip'])
+        self.assertEqual(cand.user.userprofile.international_address,
+                         post_data['international_address'])
