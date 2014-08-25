@@ -1,0 +1,50 @@
+- fields:
+    name: ...- .. ...- .. ...- .. ...- ..
+    email_prefix: whyyyyyyyyyy
+  model: project_reports.ProjectReportFromEmail
+  pk: 1
+- fields:
+    name: 501(c)(3)
+    email_prefix: irs
+  model: project_reports.ProjectReportFromEmail
+  pk: 2
+- fields:
+    name: Hungry for PRs
+    email_prefix: freefood
+  model: project_reports.ProjectReportFromEmail
+  pk: 3
+- fields:
+    name: Fobby Tony's PR Patrol
+    email_prefix: ftpp
+  model: project_reports.ProjectReportFromEmail
+  pk: 4
+- fields:
+    name: ESC President
+    email_prefix: phait
+  model: project_reports.ProjectReportFromEmail
+  pk: 5
+- fields:
+    name: The Black Reaper
+    email_prefix: melinda
+  model: project_reports.ProjectReportFromEmail
+  pk: 6
+- fields:
+    name: The Good
+    email_prefix: bert
+  model: project_reports.ProjectReportFromEmail
+  pk: 7
+- fields:
+    name: The Bad
+    email_prefix: slate
+  model: project_reports.ProjectReportFromEmail
+  pk: 8
+- fields:
+    name: The Whack
+    email_prefix: hamilton
+  model: project_reports.ProjectReportFromEmail
+  pk: 9
+- fields:
+    name: Stephanite
+    email_prefix: steph
+  model: project_reports.ProjectReportFromEmail
+  pk: 10

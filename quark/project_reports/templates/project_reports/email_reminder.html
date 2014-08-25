@@ -1,0 +1,19 @@
+{% load template_utils %}
+
+<p>Hello {{ committee }} Committee,</p>
+
+<p>This is just a friendly reminder that you have not completed the following project reports:</p>
+
+<p>
+<ul>
+{% for report in reports %}
+<li><a href="{% full_url 'project-reports:edit' report.pk %}">{{ report.title }}</a> (author: {{ report.author.userprofile.get_common_name }}) - {{ report.date|timesince }} overdue</li>
+{% endfor %}
+</ul>
+</p>
+
+<p>Please complete these reports as soon as possible, before you forget the details of the project!</p>
+
+<p>Thanks,</p>
+
+<p>{{ signature_lines|join:'<br>' }}</p>

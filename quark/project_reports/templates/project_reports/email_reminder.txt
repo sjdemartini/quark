@@ -1,0 +1,13 @@
+{% load template_utils %}Hello {{ committee }} Committee,
+
+This is just a friendly reminder that you have not completed the following project reports:
+{% for report in reports %}
+ - {{ report.title }} ({% full_url 'project-reports:edit' report.pk %}; author: {{ report.author.userprofile.get_common_name }}) - {{ report.date|timesince }} overdue{% endfor %}
+
+Please complete these reports as soon as possible, before you forget the details of the project!
+
+
+Thanks,
+
+{% for line in signature_lines %}{{ line }}
+{% endfor %}

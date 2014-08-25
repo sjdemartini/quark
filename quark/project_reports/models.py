@@ -90,6 +90,13 @@ class ProjectReport(models.Model):
         )
 
 
+class ProjectReportFromEmail(models.Model):
+    name = models.CharField(max_length=100)
+
+    # Email address without the domain name (the "local part")
+    email_prefix = models.CharField(max_length=100, unique=True)
+
+
 def project_report_notification(sender, instance, created, **kwargs):
     """Clear the notification if it exists for the project report when it is
     completed.
