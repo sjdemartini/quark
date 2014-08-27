@@ -56,4 +56,4 @@ class Notification(models.Model):
 
     def __unicode__(self):
         return 'Notification for {}: {} ({})'.format(
-            self.user.get_username(), self.title, self.message)
+            self.user.get_username(), self.title, self.subtitle)
