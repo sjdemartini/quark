@@ -10,7 +10,7 @@ urlpatterns = patterns(
     '',
     url(r'^helpdesk/$', HelpdeskEmailerView.as_view(),
         name='helpdesk'),
-    url(r'^events/(?P<event_id>\d+)/$', EventEmailerView.as_view(),
+    url(r'^events/(?P<event_pk>\d+)/$', EventEmailerView.as_view(),
         name='event'),
     url(r'^industry/$', CompanyEmailerView.as_view(),
         name='company'),

@@ -93,6 +93,6 @@ class ContactCaptcha(ContactForm):
     author field.
     """
     recaptcha = ReCaptchaField(
-        error_messages={
+        label='CAPTCHA', error_messages={
             'required': 'Please fill this in.',
             'captcha_invalid': 'Come on, we know you can read.'})

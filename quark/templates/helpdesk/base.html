@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}TBP Helpdesk{% endblock title %}
+
+{% block intro %}
+<h1>Helpdesk</h1>
+{% endblock %}
+
+{% block content %}
+<p>
+If you have questions about majors, courses, research, or anything else about engineering at Berkeley, our officers are happy to help you! Type your question here, and you will receive a response soon.
+</p>
+
+<form action="{{ request.path }}" method="post">
+  {% csrf_token %}
+  {% include '_form.html' %}
+  <div><input type="submit" value="Send"></div>
+</form>
+{% endblock content %}

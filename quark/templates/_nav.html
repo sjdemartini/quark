@@ -56,6 +56,7 @@
         {% url 'courses:course-department-list' as courses_url %}
         {% url 'courses:instructor-department-list' as instructors_url %}
         {% url 'exams:review' as exam_review_url %}
+        {% url 'emailer:helpdesk' as helpdesk_url %}
         <a href="{{ students_url }}" class="{% ancestor students_url %} {% ancestor courses_url %}">Student Resources</a>
         <ul>
           <li><a href="{{ courses_url }}"{% if request.path == courses_url %} class="selected"{% endif %}>Exams And Course Surveys</a></li>
@@ -63,7 +64,7 @@
           {% if perms.exams.change_exam %}
           <li><a href="{{ exam_review_url }}" class="{% ancestor exam_review_url %}">Exam Review</a></li>
           {% endif %}
-          {# TODO <li><a href="">Helpdesk</a></li> #}
+          <li><a href="{{ helpdesk_url }}" class = "{% ancestor helpdesk_url %}">Helpdesk</a></li>
         </ul>
       </li>
 

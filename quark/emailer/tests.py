@@ -201,7 +201,7 @@ class HelpdeskEmailerTest(TestCase):
 
 class EventEmailerTest(TestCase):
     def setUp(self):
-        self.url = reverse('emailer:event', kwargs={'event_id': '1'})
+        self.url = reverse('emailer:event', kwargs={'event_pk': '1'})
         self.user = get_user_model().objects.create_user(
             username='testuser',
             email='test@tbp.berkeley.edu',
