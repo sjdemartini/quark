@@ -30,7 +30,7 @@
           {{ officer.user.get_username }}@tbp
         </div>
         <div class="officers-bio">
-          {{ officer.user.userprofile.get_student_org_user_profile.bio|markdown }}
+          {{ officer.user.userprofile.get_student_org_user_profile.bio }}
         </div>
       </div>
     {% endfor %}
