@@ -12,6 +12,7 @@ from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.encoding import smart_bytes
 from django.views.generic import DetailView
@@ -154,6 +155,7 @@ class ResumeEditView(FormView):
     def form_valid(self, form):
         form.instance.user = self.request.user
         form.instance.verified = None
+        form.instance.updated = timezone.now()
         form.instance.save()
         new_resume = form.instance
         if new_resume.critique:

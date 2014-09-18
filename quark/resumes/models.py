@@ -51,7 +51,7 @@ class Resume(models.Model):
     release = models.BooleanField(
         default=True, verbose_name='Release to companies')
     created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
+    updated = models.DateTimeField()
 
     class Meta(object):
         permissions = (
