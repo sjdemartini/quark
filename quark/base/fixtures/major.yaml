@@ -2,6 +2,7 @@
     short_name: eecs
     long_name: Electrical Engineering and Computer Science
     university: 1
+    is_eligible: True
     website: http://www.eecs.berkeley.edu/
   model: base.Major
   pk: 1000
@@ -9,6 +10,7 @@
     short_name: ieor
     long_name: Industrial Engineering and Operations Research
     university: 1
+    is_eligible: True
     website: http://www.ieor.berkeley.edu/
   model: base.Major
   pk: 1001
@@ -16,6 +18,7 @@
     short_name: bioe
     long_name: Bioengineering
     university: 1
+    is_eligible: True
     website: http://bioeng.berkeley.edu/
   model: base.Major
   pk: 1002
@@ -23,6 +26,7 @@
     short_name: ce
     long_name: Civil and Environmental Engineering
     university: 1
+    is_eligible: True
     website: http://www.ce.berkeley.edu/
   model: base.Major
   pk: 1003
@@ -30,6 +34,7 @@
     short_name: cheme
     long_name: Chemical Engineering
     university: 1
+    is_eligible: True
     website: http://chemistry.berkeley.edu/
   model: base.Major
   pk: 1004
@@ -37,6 +42,7 @@
     short_name: ne
     long_name: Nuclear Engineering
     university: 1
+    is_eligible: True
     website: http://www.nuc.berkeley.edu/
   model: base.Major
   pk: 1005
@@ -44,6 +50,7 @@
     short_name: me
     long_name: Mechanical Engineering
     university: 1
+    is_eligible: True
     website: http://www.me.berkeley.edu/
   model: base.Major
   pk: 1006
@@ -51,6 +58,7 @@
     short_name: mse
     long_name: Materials Science and Engineering
     university: 1
+    is_eligible: True
     website: http://www.mse.berkeley.edu/
   model: base.Major
   pk: 1007
@@ -58,6 +66,7 @@
     short_name: es
     long_name: Engineering Science
     university: 1
+    is_eligible: False
     website: http://www.coe.berkeley.edu/departments/engineering-science
   model: base.Major
   pk: 1008
@@ -65,6 +74,7 @@
     short_name: ces
     long_name: Computational Engineering Science
     university: 1
+    is_eligible: False
     website: http://www.coe.berkeley.edu/departments/engineering-science/computational-engineering-science.html
   model: base.Major
   pk: 1009
@@ -72,6 +82,7 @@
     short_name: ees
     long_name: Environmental Engineering Science
     university: 1
+    is_eligible: False
     website: http://www.coe.berkeley.edu/departments/engineering-science/environmental-engineering-science.html
   model: base.Major
   pk: 1010
@@ -79,6 +90,7 @@
     short_name: ep
     long_name: Engineering Physics
     university: 1
+    is_eligible: True
     website: http://www.coe.berkeley.edu/departments/engineering-science/engineering-physics.html
   model: base.Major
   pk: 1011
@@ -86,6 +98,7 @@
     short_name: eu
     long_name: Engineering Undeclared
     university: 1
+    is_eligible: True
     website: http://www.coe.berkeley.edu/departments/other-programs/engineering-undeclared.html
   model: base.Major
   pk: 1012
@@ -93,6 +106,7 @@
     short_name: math
     long_name: Math
     university: 1
+    is_eligible: False
     website: http://math.berkeley.edu
   model: base.Major
   pk: 1013
@@ -100,6 +114,7 @@
     short_name: ene
     long_name: Energy Engineering
     university: 1
+    is_eligible: True
     website: http://coe.berkeley.edu/departments/engineering-science/energy-engineering.html
   model: base.Major
   pk: 1014

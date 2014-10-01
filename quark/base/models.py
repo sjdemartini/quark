@@ -36,6 +36,7 @@ class Major(models.Model):
     short_name = models.CharField(max_length=8)
     long_name = models.CharField(max_length=64)
     university = models.ForeignKey(University)
+    is_eligible = models.BooleanField(default=False)
     website = models.URLField()
 
     def __unicode__(self):

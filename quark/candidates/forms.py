@@ -49,7 +49,8 @@ class CandidateUserProfileForm(forms.ModelForm):
     gender = forms.ChoiceField(choices=UserProfile.GENDER_CHOICES,
                                widget=forms.RadioSelect,
                                required=True)
-    major = chosen_forms.ChosenModelMultipleChoiceField(Major.objects)
+    major = chosen_forms.ChosenModelMultipleChoiceField(Major.objects.filter(
+        is_eligible=True))
     start_term = forms.ModelChoiceField(Term.objects.get_terms(
         reverse=True).exclude(id=Term.objects.get_current_term().id))
     grad_term = forms.ModelChoiceField(Term.objects.get_terms(
