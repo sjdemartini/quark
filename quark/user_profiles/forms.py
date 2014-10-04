@@ -30,8 +30,7 @@ class UserProfileForm(forms.ModelForm):
     start_term = forms.ModelChoiceField(Term.objects.get_terms(
         reverse=True).exclude(id=Term.objects.get_current_term().id))
     grad_term = forms.ModelChoiceField(Term.objects.get_terms(
-        include_future=True).filter(
-        id__gte=Term.objects.get_current_term().id))
+        include_future=True))
 
     class Meta(object):
         model = UserProfile
