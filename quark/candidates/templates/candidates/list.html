@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load thumbnail %}
 
 {% block intro %}
 <h1>
@@ -50,7 +51,7 @@
       <td><a href="{% url 'candidates:edit' candidate.pk %}">{{ candidate.user.last_name }}</a></td>
       <td>
         {% if candidate.photo %}
-        <a href="{{ candidate.photo.url }}"><img src="{{ candidate.photo.url }}" alt="{{ cand_user_profile.get_common_name }}" class="candidate-thumbnail"></a>
+        <a href="{{ candidate.photo.url }}"><img src="{{ candidate.photo|thumbnail_url:'candidateicon' }}" alt="{{ cand_user_profile.get_common_name }}" class="candidate-thumbnail"></a>
         {% else %}
         No photo
         {% endif %}

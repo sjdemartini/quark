@@ -52,6 +52,11 @@ THUMBNAIL_ALIASES = {
             'autocrop': True,
             'crop': 'smart'
         },
+        'candidateicon': {
+            'size': (200, 200),
+            'autocrop': True,
+            'crop': 'smart'
+        },
         'officericon': {
             'size': (150, 150),
             'autocrop': True,
