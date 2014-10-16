@@ -25,6 +25,11 @@
   model: base.Term
   pk: 100
 - fields:
+    term: fa
+    year: 2013
+  model: base.Term
+  pk: 101
+- fields:
     department: 1
     number: 100
   model: courses.Course
@@ -47,6 +52,18 @@
     instructors: [30]
   model: courses.CourseInstance
   pk: 30000
+- fields:
+    term: 101
+    course: 1000
+    instructors: [20]
+  model: courses.CourseInstance
+  pk: 40000
+- fields:
+    term: 101
+    course: 1000
+    instructors: [10]
+  model: courses.CourseInstance
+  pk: 50000
 - fields:
     instructor: 10
     permission_allowed: True

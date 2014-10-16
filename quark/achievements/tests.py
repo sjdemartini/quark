@@ -3,6 +3,7 @@ import random
 import string
 
 from django.contrib.auth import get_user_model
+from django.core.files import File
 from django.test import TestCase
 from django.utils import timezone
 from freezegun import freeze_time
@@ -12,9 +13,11 @@ from quark.achievements.models import UserAchievement
 from quark.base.models import Officer
 from quark.base.models import OfficerPosition
 from quark.base.models import Term
+from quark.courses.models import CourseInstance
 from quark.events.models import Event
 from quark.events.models import EventAttendance
 from quark.events.models import EventType
+from quark.exams.models import Exam
 from quark.project_reports.models import ProjectReport
 
 
@@ -554,6 +557,196 @@ class EventAchievementsTest(TestCase):
         self.assertEqual(self.achievements.filter(
             achievement__short_name='alphabet_attendance',
             acquired=True).count(), 1)
+
+
+class ExamAchievementsTest(TestCase):
+    fixtures = ['achievement.yaml',
+                'test/course_instance.yaml']
+
+    def setUp(self):
+        self.sample_user = get_user_model().objects.create_user(
+            username='test', password='test', email='test@tbp.berkeley.edu',
+            first_name='Test', last_name='Test')
+        self.achievements = UserAchievement.objects.filter(
+            user=self.sample_user)
+
+    def create_exam(self, exam_number, exam_type,
+                    submitter=None, course_instance=None, verified=True):
+        if course_instance is None:
+            course_instance = CourseInstance.objects.first()
+
+        test_file = open('test.txt', 'w+')
+        test_file.write('This is a test file.')
+
+        exam, _ = Exam.objects.get_or_create(
+            course_instance=course_instance,
+            submitter=submitter,
+            exam_number=exam_number,
+            exam_type=exam_type,
+            file_ext='.pdf',
+            verified=verified,
+            exam_file=File(test_file))
+
+        return exam
+
+    def test_exam_submission_progress(self):
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='upload_05_exams',
+            progress__gte=1).count(), 0)
+
+        self.create_exam('mt1', 'exam', self.sample_user)
+
+        five_exam_achievement = UserAchievement.objects.get(
+            achievement__short_name='upload_05_exams',
+            user=self.sample_user)
+        ten_exam_achievement = UserAchievement.objects.get(
+            achievement__short_name='upload_10_exams',
+            user=self.sample_user)
+        twentyfive_exam_achievement = UserAchievement.objects.get(
+            achievement__short_name='upload_25_exams',
+            user=self.sample_user)
+        fifty_exam_achievement = UserAchievement.objects.get(
+            achievement__short_name='upload_50_exams',
+            user=self.sample_user)
+
+        self.assertEqual(five_exam_achievement.progress, 1)
+        self.assertEqual(ten_exam_achievement.progress, 1)
+        self.assertEqual(twentyfive_exam_achievement.progress, 1)
+        self.assertEqual(fifty_exam_achievement.progress, 1)
+
+    def test_exam_with_blank_submitter(self):
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='upload_05_exams',
+            progress__gte=1).count(), 0)
+
+        self.create_exam('mt1', 'exam')  # No submitter specified
+
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='upload_05_exams',
+            progress__gte=1).count(), 0)
+
+    def test_5_exams(self):
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='upload_05_exams',
+            acquired=True).count(), 0)
+
+        self.create_exam('mt1', 'exam', self.sample_user)
+        self.create_exam('mt2', 'exam', self.sample_user)
+        self.create_exam('mt1', 'soln', self.sample_user)
+        self.create_exam('mt2', 'soln', self.sample_user)
+
+        five_exam_achievement = UserAchievement.objects.get(
+            achievement__short_name='upload_05_exams')
+        self.assertFalse(five_exam_achievement.acquired)
+        self.assertEqual(five_exam_achievement.progress, 4)
+
+        self.create_exam('final', 'soln', self.sample_user)
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='upload_05_exams',
+            acquired=True).count(), 1)
+
+    def test_10_exams(self):
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='upload_10_exams',
+            acquired=True).count(), 0)
+
+        for i in range(1, 5):
+            exam_number = 'mt{}'.format(i)
+            self.create_exam(exam_number, 'exam', self.sample_user)
+            self.create_exam(exam_number, 'soln', self.sample_user)
+
+        self.create_exam('final', 'exam', self.sample_user)
+        ten_exam_achievement = UserAchievement.objects.get(
+            achievement__short_name='upload_10_exams')
+        self.assertFalse(ten_exam_achievement.acquired)
+        self.assertEqual(ten_exam_achievement.progress, 9)
+
+        self.create_exam('final', 'soln', self.sample_user)
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='upload_10_exams',
+            acquired=True).count(), 1)
+
+    def test_25_exams(self):
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='upload_25_exams',
+            acquired=True).count(), 0)
+
+        courses = (CourseInstance.objects.get(pk=10000),
+                   CourseInstance.objects.get(pk=20000),
+                   CourseInstance.objects.get(pk=30000),
+                   )
+
+        for i in range(1, 5):
+            exam_number = 'mt{}'.format(i)
+            self.create_exam(exam_number, 'exam', self.sample_user, courses[0])
+            self.create_exam(exam_number, 'soln', self.sample_user, courses[0])
+            self.create_exam(exam_number, 'exam', self.sample_user, courses[1])
+            self.create_exam(exam_number, 'soln', self.sample_user, courses[1])
+            self.create_exam(exam_number, 'exam', self.sample_user, courses[2])
+            self.create_exam(exam_number, 'soln', self.sample_user, courses[2])
+
+        twentyfive_exam_achievement = UserAchievement.objects.get(
+            achievement__short_name='upload_25_exams')
+        self.assertFalse(twentyfive_exam_achievement.acquired)
+        self.assertEqual(twentyfive_exam_achievement.progress, 24)
+
+        self.create_exam('final', 'exam', self.sample_user)
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='upload_25_exams',
+            acquired=True).count(), 1)
+
+    def test_50_exams(self):
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='upload_50_exams',
+            acquired=True).count(), 0)
+
+        courses = (CourseInstance.objects.get(pk=10000),
+                   CourseInstance.objects.get(pk=20000),
+                   CourseInstance.objects.get(pk=30000),
+                   CourseInstance.objects.get(pk=40000),
+                   CourseInstance.objects.get(pk=50000),
+                   )
+
+        for i in range(5):
+            for j in range(1, 5):
+                exam_number = 'mt{}'.format(j)
+                self.create_exam(
+                    exam_number, 'exam', self.sample_user, courses[i])
+                self.create_exam(
+                    exam_number, 'soln', self.sample_user, courses[i])
+
+            self.create_exam('final', 'exam', self.sample_user, courses[i])
+            if i < 4:
+                self.create_exam('final', 'soln', self.sample_user, courses[i])
+
+        fifty_exam_achievement = UserAchievement.objects.get(
+            achievement__short_name='upload_50_exams')
+        self.assertFalse(fifty_exam_achievement.acquired)
+        self.assertEqual(fifty_exam_achievement.progress, 49)
+
+        self.create_exam('final', 'soln', self.sample_user, courses[4])
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='upload_50_exams',
+            acquired=True).count(), 1)
+
+    def test_unverified_exams(self):
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='upload_05_exams',
+            progress__gte=1).count(), 0)
+
+        exam = self.create_exam(
+            'final', 'exam', self.sample_user, verified=False)
+
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='upload_05_exams',
+            progress__gte=1).count(), 0)
+
+        exam.verified = True
+        exam.save()
+
+        self.assertEqual(self.achievements.filter(
+            achievement__short_name='upload_05_exams',
+            progress__gte=1).count(), 1)
 
 
 class MetaAchievementsTest(TestCase):

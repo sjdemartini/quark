@@ -16,9 +16,9 @@ class Achievement(models.Model):
         ('event', 'Event'),  # Event attendance.
         ('elections', 'Elections'),  # Anything doing with officerships.
         ('paperwork', 'Paperwork'),  # Project reports, OM/EM attendance.
-        ('awards', 'Awards'),  # OOTS, COTS, rock, etc
-        ('driving', 'Driving'),  # Shuttling, mileage, etc.
+        ('awards', 'Awards'),  # OOTS, COTS, rock, etc.
         ('feats', 'Feats of Strength'),  # Cross-bridge banquet shuttling.
+        ('website', 'Website'),  # Exam files, icons, etc.
     )
 
     PRIVACY_PUBLIC = 'public'

@@ -507,7 +507,7 @@
     short_name: berkeley_explosion
     name: The Show Must Go On
     description: Ignore warnMe and attend the Fall 2013 Candidate Meeting.
-    category: event
+    category: feats
     points: 0
     goal: 0
     privacy: secret
@@ -633,7 +633,7 @@
     short_name: write_code
     name: __init__()
     description: Write non-trivial code that passes a code review.
-    category: general
+    category: website
     points: 10
     privacy: public
     manual: True
@@ -659,7 +659,7 @@
     short_name: beat_vps
     name: Role Confusion
     description: Attend more events than both VPs in a semester.
-    category: general
+    category: events
     points: 50
     privacy: public
     manual: True
@@ -711,7 +711,7 @@
     short_name: attend_all_oms
     name: OM NOM NOM
     description: Attend all officer meetings in a semester.
-    category: general
+    category: paperwork
     points: 10
     privacy: public
     manual: True
@@ -724,7 +724,7 @@
     short_name: attend_all_ems
     name: Power Overwhelming
     description: Attend all executive meetings in a semester.
-    category: general
+    category: paperwork
     points: 10
     privacy: public
     manual: True
@@ -750,7 +750,7 @@
     short_name: reply_all
     name: Reply to ALL the People
     description: Mistakenly reply-all.
-    category: feats
+    category: website
     points: -10
     privacy: public
     manual: True
@@ -775,7 +775,7 @@
     short_name: get_injured
     name: Purple Heart
     description: Obtain an injury in the line of duty.
-    category: awards
+    category: feats
     points: 15
     privacy: secret
     manual: True
@@ -788,7 +788,7 @@
     short_name: acquire_15_achievements
     name: Overachiever
     description: Acquire 15 achievements.
-    category: general
+    category: website
     points: 10
     goal: 15
     privacy: public
@@ -802,7 +802,7 @@
     short_name: create_01_icons
     name: Iconic
     description: Create an achievement icon.
-    category: general
+    category: website
     points: 5
     goal: 1
     privacy: public
@@ -816,7 +816,7 @@
     short_name: create_05_icons
     name: Ctrl-C Ctrl-V
     description: Create five achievement icons.
-    category: general
+    category: website
     points: 10
     goal: 5
     privacy: public
@@ -824,3 +824,59 @@
     repeatable: False
     rank: 16.3
     icon_filename: 'images/achievements/create_05_icons.png'
+- pk: 59
+  model: achievements.Achievement
+  fields:
+    short_name: upload_05_exams
+    name: Pass It On
+    description: Successfully submit five exam files to TBP's database.
+    category: website
+    sequence: Exams
+    points: 10
+    goal: 5
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 13.1
+- pk: 60
+  model: achievements.Achievement
+  fields:
+    short_name: upload_10_exams
+    name: Study Buddy
+    description: Successfully submit 10 exam files to TBP's database.
+    category: website
+    sequence: Exams
+    points: 15
+    goal: 10
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 13.2
+- pk: 61
+  model: achievements.Achievement
+  fields:
+    short_name: upload_25_exams
+    name: Tutoring Service
+    description: Successfully submit 25 exam files to TBP's database.
+    category: website
+    sequence: Exams
+    points: 25
+    goal: 25
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 13.3
+- pk: 62
+  model: achievements.Achievement
+  fields:
+    short_name: upload_50_exams
+    name: Solutions Manual
+    description: Successfully submit 50 exam files to TBP's database.
+    category: website
+    sequence: Exams
+    points: 40
+    goal: 50
+    privacy: public
+    manual: False
+    repeatable: False
+    rank: 13.4
