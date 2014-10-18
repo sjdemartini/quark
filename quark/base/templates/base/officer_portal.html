@@ -20,6 +20,9 @@
   <li><a href="{% url 'minutes:list' %}">Meeting Minutes</a></li>
   {% endif %}
   <li><a href="/officer/mail/">Webmail Interface</a></li>
+  {% if perms.vote.view_poll %}
+  <li><a href="{% url 'vote:list' %}">Officer Polls</a></li>
+  {% endif %}
   {# TODO(sjdemartini): Add link for officer contact list and member database #}
 </ul>
 

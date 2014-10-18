@@ -6,12 +6,20 @@
 
 {% block content %}
 
+{% if perms.vote.add_poll %}
+  <a class="btn" href="{% url 'vote:create' %}">
+    <i class="fa fa-plus"></i> Add Poll
+  </a>
+{% endif %}
+
 <p>Select the poll you wish to vote for by clicking on the poll name.</p>
 
 <table class="stylized">
   <thead>
     <tr>
       <th>Poll</th>
+      <th>Votes Cast</th>
+      <th>Creator</th>
       <th>Start Date and Time</th>
       <th>End Date and Time</th>
     </tr>
@@ -20,11 +28,15 @@
     {% for poll in polls %}
     <tr>
       <td>
-        <a href="{% url 'vote:vote' poll.pk %}">{{ poll.name }}</a>
+        {% if poll.num_votes_cast < poll.max_votes_per_user %}<a href="{% url 'vote:vote' poll.pk %}">{% endif%}
+          {{ poll.name }}
+        {% if poll.num_votes_cast < poll.max_votes_per_user %}</a>{% endif %}
         {% if request.user == poll.creator %}
-        (<a href="{% url 'vote:result' poll.pk %}">Results</a>)
+        (<a href="{% url 'vote:result' poll.pk %}">View Results</a>)
         {% endif %}
       </td>
+      <td>{{ poll.num_votes_cast }} / {{ poll.max_votes_per_user }}</td>
+      <td>{{ poll.creator.userprofile.get_common_name }}</td>
       <td>{{ poll.start_datetime }}</td>
       <td>{{ poll.end_datetime }}</td>
     </tr>

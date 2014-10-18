@@ -16,6 +16,7 @@ from quark.vote.forms import PollForm
 from quark.vote.forms import VoteForm
 from quark.vote.models import Poll
 from quark.vote.models import Vote
+from quark.vote.models import VoteReceipt
 
 
 class PollCreateView(CreateView):
@@ -48,6 +49,15 @@ class PollListView(ListView):
     def dispatch(self, *args, **kwargs):
         return super(PollListView, self).dispatch(*args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super(PollListView, self).get_context_data(**kwargs)
+
+        for poll in context['polls']:
+            poll.num_votes_cast = VoteReceipt.objects.filter(
+                poll=poll, voter=self.request.user).count()
+
+        return context
+
 
 class VoteCreateView(CreateView):
     form_class = VoteForm
@@ -59,6 +69,14 @@ class VoteCreateView(CreateView):
         permission_required('vote.add_vote', raise_exception=True))
     def dispatch(self, *args, **kwargs):
         self.poll = get_object_or_404(Poll, pk=self.kwargs['poll_pk'])
+
+        # Only allow the user to access this page if they haven't used
+        # their allotted votes yet
+        num_user_votes_cast = VoteReceipt.objects.filter(
+            poll=self.poll, voter=self.request.user).count()
+        if num_user_votes_cast >= self.poll.max_votes_per_user:
+            raise PermissionDenied
+
         return super(VoteCreateView, self).dispatch(*args, **kwargs)
 
     def get_form_kwargs(self, **kwargs):

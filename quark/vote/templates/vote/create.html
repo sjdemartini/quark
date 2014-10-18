@@ -24,6 +24,7 @@
     var selectedOption = $(this).find('option:selected');
     if (selectedOption.text() == 'Custom') {
       eligible_users_div.show();
+      $('#id_eligible_users_chosen').css('width', '192px');
     } else {
       eligible_users_div.hide();
     }

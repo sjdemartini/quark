@@ -23,18 +23,18 @@ class PollForm(ChosenTermMixin, forms.ModelForm):
     """
 
     # Group Constants
-    CANDIDATES = 'Candidates'
     ALL_MEMBERS = 'All Members'
-    NON_OFFICER_MEMBERS = 'Members'
     OFFICERS = 'Officers'
+    CANDIDATES = 'Candidates'
+    NON_OFFICER_MEMBERS = 'Non-Officer Members'
     CUSTOM = 'Custom'
 
     # Group Choices
     GROUPS = (
-        (CANDIDATES, 'Candidates'),
         (ALL_MEMBERS, 'All Members'),
-        (NON_OFFICER_MEMBERS, 'Members'),
         (OFFICERS, 'Officers'),
+        (CANDIDATES, 'Candidates'),
+        (NON_OFFICER_MEMBERS, 'Non-Officer Members'),
         (CUSTOM, 'Custom'),
     )
 
@@ -127,7 +127,7 @@ class VoteForm(forms.ModelForm):
         if num_votes >= self.poll.max_votes_per_user:
             raise forms.ValidationError(
                 'You have already voted the maximum number of times')
-        VoteReceipt.objects.get_or_create(poll=self.poll, voter=self.user)
+        VoteReceipt.objects.create(poll=self.poll, voter=self.user)
         return cleaned_data
 
     def save(self, *args, **kwargs):
