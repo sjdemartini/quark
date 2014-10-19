@@ -14,7 +14,7 @@ def notifications(request):
         project_reports = ProjectReport.objects.filter(
             author=request.user,
             complete=False,
-            date__lt=timezone.now().date())
+            date__lt=timezone.localtime(timezone.now()).date())
         content_type = ContentType.objects.get_for_model(ProjectReport)
         for project_report in project_reports:
             notification, _ = Notification.objects.get_or_create(
