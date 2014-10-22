@@ -323,6 +323,7 @@
     manual: False
     repeatable: False
     rank: 2.7
+    icon_filename: 'images/achievements/attend300events.png'
 - pk: 23
   model: achievements.Achievement
   fields:
@@ -487,6 +488,7 @@
     manual: False
     repeatable: False
     rank: 10.2
+    icon_filename: 'images/achievements/attend_convention.png'
 - pk: 34
   model: achievements.Achievement
   fields:
@@ -769,6 +771,7 @@
     manual: True
     repeatable: False
     rank: 23.2
+    icon_filename: 'images/achievements/winning_bio.png'
 - pk: 55
   model: achievements.Achievement
   fields:
@@ -838,6 +841,7 @@
     manual: False
     repeatable: False
     rank: 13.1
+    icon_filename: 'images/achievements/upload_05_exams.png'
 - pk: 60
   model: achievements.Achievement
   fields:
