@@ -165,7 +165,7 @@ class ResumeEditView(FormView):
                 term=Term.objects.get_current_term(),
                 position=responsible_committee)
             if officers.exists():
-                assignee = officers[self.request.user.id %
+                assignee = officers[new_resume.id %
                                     officers.count()].user
                 assignee_name = assignee.userprofile.get_verbose_full_name()
                 requestee = self.request.user
