@@ -20,7 +20,8 @@ get_term.short_description = 'Term'
 class EventAttendanceAdmin(admin.ModelAdmin):
     list_display = ('event', 'user', get_term)
     list_filter = ('event__term',)
-    search_fields = ('event__name', 'user__username', 'user__preferred_name',
+    search_fields = ('event__name', 'user__username',
+                     'user__userprofile__preferred_name',
                      'user__first_name', 'user__last_name')
 
 
@@ -28,7 +29,8 @@ class EventSignupAdmin(admin.ModelAdmin):
     list_display = ('event', 'user', 'name', 'email', get_term, 'num_guests',
                     'unsignup')
     list_filter = ('event__term',)
-    search_fields = ('event__name', 'user__username', 'user__preferred_name',
+    search_fields = ('event__name', 'user__username',
+                     'user__userprofile__preferred_name',
                      'user__first_name', 'user__last_name', 'name')
 
 
