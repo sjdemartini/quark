@@ -56,7 +56,7 @@ class TermManager(models.Manager):
         if not term:
             try:
                 term = self.get(current=True)
-                cache.set('current_term', term, None)
+                cache.set('current_term', term)
             except Term.DoesNotExist:
                 pass
         return term
@@ -174,7 +174,8 @@ class Term(models.Model):
                     id=self.id).update(current=False)
             super(Term, self).save(*args, **kwargs)
             self.update_term_officer_groups()
-            cache.set('current_term', self, None)  # Update the cache
+            if self.current:
+                cache.set('current_term', self)  # Update the cache
 
     def verbose_name(self):
         """Returns the verbose name of this object in this form: Fall 2012."""
